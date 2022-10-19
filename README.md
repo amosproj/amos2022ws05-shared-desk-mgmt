@@ -1,2 +1,2 @@
-# Fabulous Project (AMOS SS 20xx)
+# Deskify (AMOS WS 2022/23)
 Something something something
