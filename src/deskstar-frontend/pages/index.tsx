@@ -7,7 +7,7 @@ export default function Home() {
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
       {session && (
         <>
-          <p className="text-2xl">Welcome {session.user.name}!</p>
+          <p className="text-2xl">Welcome {session.user?.name}!</p>
           <button onClick={() => signOut()}>Sign out</button>
         </>
       )}
