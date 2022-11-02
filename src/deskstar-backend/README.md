@@ -8,7 +8,16 @@
 
 1. Download .NET SDK over at https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
-2.
+2. Compile and Run:
+``` bash 
+dotnet restore
+```
+``` bash 
+dotnet pubish -c Dev -o out
+```
+``` bash 
+dotnet bin\Dev\net6.0\Deskstar.dll
+```
 
 
 
