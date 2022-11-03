@@ -20,13 +20,17 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-slate-400">
-      <span className="text-xl flex items-center">Deskstar</span>
+    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-blue-400">
+      <Link href="/">
+        <span className="cursor-pointer text-xl flex items-center">
+          Deskstar
+        </span>
+      </Link>
       {/* Desktop menu, so hidden if smaller than md */}
       <div className="hidden md:flex flex-row">
         {navItems.map((item) => (
           <Link href={item.href} key={item.name}>
-            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-slate-500">
+            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500">
               {item.name}
             </a>
           </Link>
@@ -34,7 +38,7 @@ export default function Navbar() {
 
         {session && (
           <span onClick={() => signOut()}>
-            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-slate-500">
+            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500">
               Logout
             </a>
           </span>
@@ -51,11 +55,11 @@ export default function Navbar() {
         </div>
 
         {isOpen && (
-          <div className="absolute top-0 right-0 m-2 bg-slate-400 rounded">
+          <div className="absolute top-0 right-0 m-2 bg-blue-400 rounded">
             <div className="flex flex-col items-end gap-1 p-2 min-w-[50vw]">
               <span
                 onClick={() => setIsOpen(false)}
-                className="flex items-center text-lg p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-slate-500"
+                className="flex items-center text-lg p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
               >
                 <CloseIcon className="w-8 h-8" />
               </span>
@@ -63,7 +67,7 @@ export default function Navbar() {
                 <Link href={item.href} key={item.name}>
                   <a
                     onClick={() => setIsOpen(false)}
-                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-slate-500"
+                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
                   >
                     {item.name}
                   </a>
@@ -74,7 +78,7 @@ export default function Navbar() {
                 <span onClick={() => signOut()}>
                   <a
                     onClick={() => setIsOpen(false)}
-                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-slate-500"
+                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
                   >
                     Logout
                   </a>
