@@ -6,11 +6,11 @@ import { CloseIcon, HamburgerIcon } from "./Icons";
 const navItems = [
   {
     name: "Home",
-    href: "/app",
+    href: "/",
   },
   {
     name: "Bookings",
-    href: "/app/bookings",
+    href: "/bookings",
   },
 ];
 
