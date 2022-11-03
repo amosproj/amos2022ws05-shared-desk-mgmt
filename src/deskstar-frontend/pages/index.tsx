@@ -15,7 +15,7 @@ export default function Home() {
         <>
           <p className="text-2xl">Would you like to sign in?</p>
           <button
-            onClick={() => signIn()}
+            onClick={() => signIn(undefined, { callbackUrl: "/app" })}
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           >
             Sign in
