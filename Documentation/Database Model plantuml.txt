@@ -34,7 +34,9 @@ entity User {
   //CompanyID UUID//
   FirstName string
   LastName string
-  MailAddress string
+  MailAddress UNIQUE string
+  IsApproved bool
+  IsAdmin bool
 }
 
 entity Desktype {
@@ -67,6 +69,7 @@ entity Role {
   **RoleID UUID**
   --
   Name string
+  //CompanyID UUID//
 }
 
 entity UserRole {
@@ -84,4 +87,5 @@ User "1" -- "n" Booking
 Desk "1" -- "n" Booking
 UserRole "1" -- "n" User
 UserRole "1" -- "n" Role
+Company "1" -- "n" Role
 @enduml
