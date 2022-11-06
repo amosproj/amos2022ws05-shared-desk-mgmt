@@ -3,9 +3,6 @@
 
 
 ## Getting Started
-
-
-
 1. Download .NET SDK over at https://dotnet.microsoft.com/en-us/download/dotnet/6.0
 
 2. Compile and Run:
@@ -13,13 +10,18 @@
 dotnet restore
 ```
 ``` bash 
-dotnet pubish -c Dev -o out
+dotnet publish -c Dev -o out
 ```
 ``` bash 
-dotnet bin\Dev\net6.0\Deskstar.dll
+dotnet bin\Dev\net6.0\Deskstar.dll #cmd
+dotnet bin/Dev/net6.0/Deskstar.dll #bash
 ```
 
-
+Generate models and data access context from postgres database tables.
+``` bash
+dotnet tool install --global dotnet-ef
+dotnet ef dbcontext scaffold "Host=localhost;Database=deskstar;Username=postgres;Password=root" Npgsql.EntityFrameworkCore.PostgreSQL -o Models
+```
 
 ## Running with Docker
 

@@ -11,8 +11,8 @@ namespace Deskstar.Models
         }
 
         public Guid BuildingId { get; set; }
-        public Guid CompanyId { get; set; }
         public string BuildingName { get; set; } = null!;
+        public Guid CompanyId { get; set; }
         public string Location { get; set; } = null!;
 
         public virtual Company Company { get; set; } = null!;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Deskstar.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Deskstar.Models;
 
 namespace Deskstar.DataAccess
 {
@@ -25,7 +25,6 @@ namespace Deskstar.DataAccess
         public virtual DbSet<Floor> Floors { get; set; } = null!;
         public virtual DbSet<Role> Roles { get; set; } = null!;
         public virtual DbSet<Room> Rooms { get; set; } = null!;
-        public virtual DbSet<Session> Sessions { get; set; } = null!;
         public virtual DbSet<User> Users { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -33,7 +32,7 @@ namespace Deskstar.DataAccess
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseNpgsql("Host=localhost;Database=postgres;Username=postgres;Password=root");
+                optionsBuilder.UseNpgsql("Host=localhost;Database=deskstar;Username=postgres;Password=root");
             }
         }
 
@@ -224,28 +223,6 @@ namespace Deskstar.DataAccess
                     .HasConstraintName("Room_Floor_null_fk");
             });
 
-            modelBuilder.Entity<Session>(entity =>
-            {
-                entity.HasKey(e => e.Token)
-                    .HasName("Session_pk");
-
-                entity.ToTable("Session");
-
-                entity.Property(e => e.Token).HasDefaultValueSql("gen_random_uuid()");
-
-                entity.Property(e => e.Timestamp)
-                    .HasColumnType("timestamp without time zone")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP(2)");
-
-                entity.Property(e => e.UserId).HasColumnName("UserID");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.Sessions)
-                    .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("UserID_fk");
-            });
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
@@ -261,9 +238,13 @@ namespace Deskstar.DataAccess
 
                 entity.Property(e => e.FirstName).HasColumnType("character varying");
 
+                entity.Property(e => e.IsApproved).HasDefaultValueSql("false");
+
                 entity.Property(e => e.LastName).HasColumnType("character varying");
 
                 entity.Property(e => e.MailAddress).HasColumnType("character varying");
+
+                entity.Property(e => e.Password).HasColumnType("character varying");
 
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Users)

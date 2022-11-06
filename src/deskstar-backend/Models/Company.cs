@@ -13,9 +13,9 @@ namespace Deskstar.Models
             Users = new HashSet<User>();
         }
 
+        public Guid CompanyId { get; set; }
         public string CompanyName { get; set; } = null!;
         public bool? Logo { get; set; }
-        public Guid CompanyId { get; set; }
 
         public virtual ICollection<Building> Buildings { get; set; }
         public virtual ICollection<DeskType> DeskTypes { get; set; }
