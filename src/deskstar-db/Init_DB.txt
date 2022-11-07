@@ -1,4 +1,0 @@
-docker build -t deskstardb:v1 .
-
-
-docker run --name=test -p 5432:5432 -e POSTGRES_DB=deskstar -e POSTGRES_PASSWORD=mypsw deskstardb:v1
