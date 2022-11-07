@@ -2,6 +2,8 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
 import { CloseIcon, HamburgerIcon } from "./Icons";
+import deskstarLogo from "assets/img/team-logo.png";
+import Image from "next/image";
 
 const navItems = [
   {
@@ -20,27 +22,28 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-blue-400">
+    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-deskstar-green-dark">
       <Link href="/">
-        <span className="cursor-pointer text-xl flex items-center">
-          Deskstar
-        </span>
+        <Image src={deskstarLogo} alt="Deskstar" width={50} height={50} />
       </Link>
       {/* Desktop menu, so hidden if smaller than md */}
       <div className="hidden md:flex flex-row">
         {navItems.map((item) => (
-          <Link href={item.href} key={item.name}>
-            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500">
-              {item.name}
-            </a>
+          <Link
+            className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
+            href={item.href}
+            key={item.name}
+          >
+            {item.name}
           </Link>
         ))}
 
         {session && (
-          <span onClick={() => signOut()}>
-            <a className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500">
-              Logout
-            </a>
+          <span
+            className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
+            onClick={() => signOut()}
+          >
+            Logout
           </span>
         )}
       </div>
@@ -49,28 +52,28 @@ export default function Navbar() {
       <div className="md:hidden">
         <div
           onClick={() => setIsOpen(true)}
-          className="flex items-center cursor-pointer"
+          className="flex h-full items-center cursor-pointer"
         >
           <HamburgerIcon className="w-8 h-8" />
         </div>
 
         {isOpen && (
-          <div className="absolute top-0 right-0 m-2 bg-blue-400 rounded">
+          <div className="absolute top-0 right-0 m-2 bg-deskstar-green-dark rounded">
             <div className="flex flex-col items-end gap-1 p-2 min-w-[50vw]">
               <span
                 onClick={() => setIsOpen(false)}
-                className="flex items-center text-lg p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
+                className="flex items-center text-lg p-2 py-1 pt-3 rounded cursor-pointer hover:bg-deskstar-green-light"
               >
                 <CloseIcon className="w-8 h-8" />
               </span>
               {navItems.map((item) => (
-                <Link href={item.href} key={item.name}>
-                  <a
-                    onClick={() => setIsOpen(false)}
-                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
-                  >
-                    {item.name}
-                  </a>
+                <Link
+                  href={item.href}
+                  key={item.name}
+                  onClick={() => setIsOpen(false)}
+                  className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
+                >
+                  {item.name}
                 </Link>
               ))}
 
@@ -78,7 +81,7 @@ export default function Navbar() {
                 <span onClick={() => signOut()}>
                   <a
                     onClick={() => setIsOpen(false)}
-                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:text-white hover:bg-blue-500"
+                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
                   >
                     Logout
                   </a>
