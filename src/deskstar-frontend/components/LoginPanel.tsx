@@ -1,11 +1,13 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import Input from "./forms/Input";
 
 export default function LoginPanel() {
   const { data: session } = useSession();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [company, setCompany] = useState("");
 
   return (
     <div className="flex flex-col">
@@ -28,22 +30,27 @@ export default function LoginPanel() {
             className="flex flex-col"
             onSubmit={(e) => {
               e.preventDefault();
-              signIn("credentials", { email, password });
+              signIn("credentials", { company, email, password });
             }}
           >
-            <input
+            <Input
+              name="company"
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              placeholder="Company"
+            />
+            <Input
+              name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              type="text"
               placeholder="Email"
-              className="border-2 border-gray-300 p-2 rounded-lg my-2"
             />
-            <input
+            <Input
+              name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              type="password"
               placeholder="Password"
-              className="border-2 border-gray-300 p-2 rounded-lg my-2"
+              type="password"
             />
 
             <button

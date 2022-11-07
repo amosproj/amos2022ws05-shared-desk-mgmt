@@ -1,7 +1,14 @@
+import Head from "next/head";
+import RegisterPanel from "../components/RegisterPanel";
+
 export default function Register() {
   return (
-    <div>
-      <h1 className="text-3xl font-bold">Register</h1>
+    <div className="flex items-center justify-center h-[80vh]">
+      <Head>
+        <title>Register</title>
+      </Head>
+
+      <RegisterPanel />
     </div>
   );
 }

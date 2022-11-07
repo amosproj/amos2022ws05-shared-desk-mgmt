@@ -8,15 +8,29 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
+        company: {
+          label: "Company",
+          type: "text ",
+          placeholder: "INTERFLEX",
+          value: "INTERFLEX",
+        },
         email: { label: "E-Mailadresse", type: "text" },
         password: { label: "Passwort", type: "password" },
       },
       async authorize(credentials, req) {
         // Check if credentials contains an email and password
-        if (credentials && (!credentials.email || !credentials.password)) {
+        if (
+          credentials &&
+          (!credentials.company || !credentials.email || !credentials.password)
+        ) {
           return null;
         }
-        const user = { id: "1", name: "testuser", email: "test@example.com" };
+        const user = {
+          id: "1",
+          company: "INTERFLEX",
+          name: "testuser",
+          email: "test@example.com",
+        };
 
         if (user) {
           return user;
