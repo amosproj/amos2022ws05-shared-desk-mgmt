@@ -24,7 +24,8 @@ export default function Navbar() {
   return (
     <nav className="flex flex-row justify-between p-4 py-3 rounded bg-deskstar-green-dark">
       <Link href="/">
-        <Image src={deskstarLogo} alt="Deskstar" width={50} height={50} />
+        <Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />
+        <span className="sr-only">Deskstar</span>
       </Link>
       {/* Desktop menu, so hidden if smaller than md */}
       <div className="hidden md:flex flex-row">
