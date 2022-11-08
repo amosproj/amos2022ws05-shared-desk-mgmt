@@ -5,11 +5,11 @@ services:
     build:
       context: ./deskstar-frontend
     ports:
-      - 80:3000
+      - 3000:3000
     volumes:
-      - ./deskstar-frontend:/app/code
+      - ./deskstar-frontend:/app/code:cached
       # prevent mounting node_modules of host system into container
-      - exclude:/app/code/node_modules 
+      - exclude:/app/code/node_modules:cached
     networks:
       - external
       - internal
@@ -36,7 +36,7 @@ services:
       - POSTGRES_DB
       - POSTGRES_PASSWORD
     volumes:
-      - ./deskstar-db/init:/docker-entrypoint-initdb.d
+      - ./deskstar-db/init:/docker-entrypoint-initdb.d:cached
     ports:
       - 5432:5432
     # reset postgres on each startup
