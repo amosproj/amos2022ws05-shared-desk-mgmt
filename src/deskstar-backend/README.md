@@ -12,9 +12,11 @@ dotnet restore
 ``` bash 
 dotnet publish -c Dev -o out
 ```
+
+Choose one of the two environments (Development, Production)
 ``` bash 
-dotnet bin\Dev\net6.0\Deskstar.dll #cmd
-dotnet bin/Dev/net6.0/Deskstar.dll #bash
+dotnet bin\Dev\net6.0\Deskstar.dll --environment [Development|Production] #cmd
+dotnet bin/Dev/net6.0/Deskstar.dll --environment [Development|Production] #bash
 ```
 
 Generate models and data access context from postgres database tables.

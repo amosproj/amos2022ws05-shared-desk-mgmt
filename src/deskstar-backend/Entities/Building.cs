@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Deskstar.Models
+namespace Deskstar.Entities
 {
     public partial class Building
     {

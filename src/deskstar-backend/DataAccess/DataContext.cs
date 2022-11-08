@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Deskstar.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Deskstar.Entities;
 
 namespace Deskstar.DataAccess
 {

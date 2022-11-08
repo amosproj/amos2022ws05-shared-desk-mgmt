@@ -1,5 +1,4 @@
-// using Deskstar.DataAccess;
-// using Deskstar.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Deskstar.Controllers;
@@ -18,8 +17,16 @@ public class HealthCheckController : ControllerBase
     }
 
     [HttpGet()]
+    [AllowAnonymous]
     public String Get()
     {
         return "Hello World! We're live.";
+    }
+
+    [HttpGet("withToken")]
+    [Authorize]
+    public String Auth()
+    {
+        return "authenticated. We're live.";
     }
 }
