@@ -5,7 +5,7 @@ services:
     build:
       context: ./deskstar-frontend
     ports:
-      - 80:3000
+      - 3000:3000
     volumes:
       - ./deskstar-frontend:/app/code
       # prevent mounting node_modules of host system into container
