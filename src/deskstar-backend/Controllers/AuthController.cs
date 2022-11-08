@@ -1,4 +1,3 @@
-
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -25,12 +24,24 @@ public class AuthController : ControllerBase
 
     [HttpPost("createToken")]
     [AllowAnonymous]
-    public IActionResult Post(CreateTokenUser user)
+    public IActionResult CreateToken(CreateTokenUser user)
     {
         if (_authUsecases.checkCredentials(user.MailAddress, user.Password))
         {
-            return Ok(_authUsecases.createToken(_configuration, user));
+            return Ok(_authUsecases.createToken(_configuration, user.MailAddress));
         }
-        return Unauthorized();
+        return BadRequest();
+    }
+
+    [HttpPost("register")]
+    [AllowAnonymous]
+    public IActionResult Register(RegisterUser registerUser)
+    {
+        if (!_authUsecases.registerUser(registerUser))
+        {
+            return BadRequest();
+        }
+
+        return Ok(_authUsecases.createToken(_configuration, registerUser.MailAddress));
     }
 }

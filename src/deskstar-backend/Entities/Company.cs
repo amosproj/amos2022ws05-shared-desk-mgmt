@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Deskstar.Entities
+﻿namespace Deskstar.Entities
 {
     public partial class Company
     {
+        public static readonly Company Null = new Company();
+        
         public Company()
         {
             Buildings = new HashSet<Building>();

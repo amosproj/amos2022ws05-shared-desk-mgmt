@@ -11,7 +11,8 @@ namespace Deskstar.Usecases
     public interface IAuthUsecases
     {
         bool checkCredentials(String mail, String password);
-        string createToken(IConfiguration configuration, CreateTokenUser incompleteUser);
+        string createToken(IConfiguration configuration, String mail);
+        bool registerUser(RegisterUser registerUser);
 
     }
     public class AuthUsecases : IAuthUsecases
@@ -29,7 +30,6 @@ namespace Deskstar.Usecases
         {
             try
             {
-                var users = _context.Users.First();
                 var user = _context.Users.Single(u => u.MailAddress == mail);
                 return user.Password == password;
             }
@@ -40,9 +40,14 @@ namespace Deskstar.Usecases
             return false;
         }
 
-        public string createToken(IConfiguration configuration, CreateTokenUser incompleteUser)
+        public string createToken(IConfiguration configuration, String mail)
         {
-            var user = _getUser(incompleteUser);
+            var user = _getUser(mail);
+            if (user == User.Null)
+            {
+                return "";
+            }
+
             var issuer = configuration["Jwt:Issuer"];
             var audience = configuration["Jwt:Audience"];
             var key = Encoding.ASCII.GetBytes
@@ -53,7 +58,7 @@ namespace Deskstar.Usecases
                 {
                 new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
                 //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
-                new Claim(JwtRegisteredClaimNames.Jti, 
+                new Claim(JwtRegisteredClaimNames.Jti,
                 Guid.NewGuid().ToString())
              }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
@@ -70,17 +75,55 @@ namespace Deskstar.Usecases
             return stringToken;
         }
 
-        private User _getUser(CreateTokenUser user)
+        public bool registerUser(RegisterUser registerUser)
+        {
+            if (_getUser(registerUser.MailAddress) != User.Null)
+            {
+                return false;
+            }
+
+            if (_getCompany(registerUser.CompanyId) == Company.Null)
+            {
+                return false;
+            }
+
+            var newUser = new User();
+            newUser.CompanyId = registerUser.CompanyId;
+            newUser.MailAddress = registerUser.MailAddress;
+            newUser.Password = registerUser.Password;
+            newUser.FirstName = registerUser.FirstName;
+            newUser.LastName = registerUser.LastName;
+            newUser.IsApproved = false;
+
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+            return true;
+        }
+
+        private User _getUser(String mail)
         {
             try
             {
-                return _context.Users.Single(u => u.MailAddress == user.MailAddress);
+                return _context.Users.Single(u => u.MailAddress == mail);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
+                return User.Null;
             }
-            return new User();
+        }
+
+        private Company _getCompany(Guid id)
+        {
+            try
+            {
+                return _context.Companies.Single(c => c.CompanyId == id);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+                return Company.Null;
+            }
         }
     }
 }

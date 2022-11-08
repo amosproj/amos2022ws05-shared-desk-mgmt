@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Deskstar.Entities
+﻿namespace Deskstar.Entities
 {
     public partial class User
     {
+        public static readonly User Null = new User();
+        
         public User()
         {
             Bookings = new HashSet<Booking>();
