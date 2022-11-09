@@ -1,0 +1,91 @@
+@startuml
+entity Company {
+  **CompanyID UUID**
+  --
+  Name string
+  Logo ?
+}
+
+entity Building {
+  **BuildingID UUID**
+  --
+  //CompanyID UUID//
+  Name string
+  Location string
+}
+
+entity Floor {
+  **FloorID UUID**
+  --
+  //BuildingID UUID//
+  Name string
+}
+
+entity Room {
+  **RoomID UUID**
+  --
+  //FloorID UUID//
+  Name string
+}
+
+entity User {
+  **UserID UUID**
+  --
+  //CompanyID UUID//
+  FirstName string
+  LastName string
+  MailAddress UNIQUE string
+  IsApproved bool
+  IsAdmin bool
+}
+
+entity Desktype {
+  **TypeID UUID**
+  --
+  //CompanyID UUID//
+  Name string
+  Description string
+}
+
+entity Desk {
+  **DeskID UUID**
+  --
+  Name string
+  //RoomID UUID//
+  //TypeID UUID//
+}
+
+entity Booking {
+  **BookingID UUID**
+  --
+  //UserID UUID//
+  //DeskID UUID//
+  Timestamp datetime
+  StartTime datetime
+  EndTime datetime
+}
+
+entity Role {
+  **RoleID UUID**
+  --
+  Name string
+  //CompanyID UUID//
+}
+
+entity UserRole {
+  ** //UserID UUID// **
+  ** //RoleID UUID// **
+}
+
+Company "1" -- "n" Building
+Building "1" -- "n" Floor
+Floor "1" -- "n" Room
+Company "1" -- "n" User
+Desktype "1" -- "n" Desk
+Room "1" -- "n" Desk
+User "1" -- "n" Booking
+Desk "1" -- "n" Booking
+UserRole "1" -- "n" User
+UserRole "1" -- "n" Role
+Company "1" -- "n" Role
+@enduml

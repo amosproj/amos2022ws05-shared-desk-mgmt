@@ -1,0 +1,50 @@
+services:
+  frontend:
+    container_name: frontend
+    user: "${USER_ID}:${GROUP_ID}" # prevent root files in host system
+    build:
+      context: ./deskstar-frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./deskstar-frontend:/app/code:cached
+      # prevent mounting node_modules of host system into container
+      - exclude:/app/code/node_modules:cached
+    networks:
+      - external
+      - internal
+    command: bash -c "rm -rf /app/code/node_modules/* && yarn run dev" # clean exclude volume on each startup
+  backend:
+    #TODO: import source code via bind mount during runtime
+    #TODO: exclude build files of container
+    #TODO: clear volumes on each startup
+    #TODO: add hot reload
+    container_name: backend
+    build: 
+      context: ./deskstar-backend
+    ports:
+      - 3001:80
+    networks:
+      - internal
+  postgres:
+    container_name: postgres
+    build: 
+      context: ./deskstar-db
+    user: "postgres"
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
+    volumes:
+      - ./deskstar-db/init:/docker-entrypoint-initdb.d:cached
+    ports:
+      - 5432:5432
+    # reset postgres on each startup
+    networks:
+      - internal
+    command: bash -c "rm -rfd /var/lib/postgresql/data/* && docker-entrypoint.sh postgres"
+volumes:
+  exclude:
+networks:
+  internal:
+  external:
