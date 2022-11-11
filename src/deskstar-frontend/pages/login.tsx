@@ -1,10 +1,27 @@
 import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LoginPanel from "../components/LoginPanel";
 
 export default function Login() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      // redirect to homepage
+      router.push({
+        pathname: "/",
+      });
+    }
+  }, [session]);
+
+  if (session)
+    //TODO: add nice loading component
+    return <div>Loading...</div>;
+
   return (
     <div className="flex flex-col items-center justify-center h-[80vh] gap-2">
       <Head>
