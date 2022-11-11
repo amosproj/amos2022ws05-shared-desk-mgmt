@@ -2,14 +2,15 @@ import { IBooking } from "../types/booking";
 
 const BookingsTable = ({ bookings }: { bookings: IBooking[] }) => {
   return (
-    <table>
+    <div className="overflow-x-auto">
+    <table className="table table-zebra w-full">
       <thead>
         <tr>
-          <th>Desk Id</th>
-          <th>Start Date</th>
-          <th>Start Time</th>
-          <th>End Date</th>
-          <th>End Time</th>
+          <th className="bg-deskstar-green-light text-center">Desk Id</th>
+          <th className="bg-deskstar-green-light text-center">Start Date</th>
+          <th className="bg-deskstar-green-light text-center">Start Time</th>
+          <th className="bg-deskstar-green-light text-center">End Date</th>
+          <th className="bg-deskstar-green-light text-center">End Time</th>
         </tr>
       </thead>
       <tbody>
@@ -18,6 +19,7 @@ const BookingsTable = ({ bookings }: { bookings: IBooking[] }) => {
         ))}
       </tbody>
     </table>
+    </div>
   );
 };
 
@@ -28,7 +30,7 @@ const BookingTableEntry = ({ booking }: { booking: IBooking }) => {
   const endTime = booking.endTime.split("T")[1].replace("Z", "");
 
   return (
-    <tr>
+    <tr className="hover">
       <td className="text-center">{booking.deskId}</td>
       <td className="text-center">{startDate}</td>
       <td className="text-center">{startTime}</td>
