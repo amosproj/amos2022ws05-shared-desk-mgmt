@@ -29,11 +29,12 @@ public class BookingController : ControllerBase
     [Authorize]
     public IActionResult RecentBookings()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization];
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        // get user id when it's in token
+        // TODO get user id when it's in token
         var mailAddress = jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Email).Value;
+        //TODO List to JSON
         return Ok(_bookingUsecases.GetRecentBookings(mailAddress));
     }
 }

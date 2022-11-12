@@ -22,7 +22,16 @@ public class BookingUsecases : IBookingUsecases
     public List<Booking> GetRecentBookings(String mailAddress)
     {
         Guid user = _getUser(mailAddress).UserId;
-        Booking booking = _context.Bookings.Single(b => b.UserId == user);
+        Booking booking=null;
+        try
+        {
+            //TODO Should be alL
+            booking= _context.Bookings.First(b => b.UserId == user);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+        }
         List<Booking> bookings = new List<Booking>();
         bookings.Add(booking);
         return bookings;
