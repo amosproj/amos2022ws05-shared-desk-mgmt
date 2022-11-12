@@ -1,11 +1,12 @@
 ﻿using Deskstar.DataAccess;
 using Deskstar.Entities;
+using Deskstar.Models;
 
 namespace Deskstar.Usecases;
 
 public interface IBookingUsecases
 {
-    public List<Booking> GetRecentBookings(String mailAddress);
+    public List<RecentBooking> GetRecentBookings(String mailAddress);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -19,22 +20,27 @@ public class BookingUsecases : IBookingUsecases
         _context = context;
     }
 
-    public List<Booking> GetRecentBookings(String mailAddress)
+    public List<RecentBooking> GetRecentBookings(String mailAddress)
     {
-        Guid user = _getUser(mailAddress).UserId;
-        Booking booking=null;
+        Guid userId = _getUser(mailAddress).UserId;
         try
         {
-            //TODO Should be alL
-            booking= _context.Bookings.First(b => b.UserId == user);
+            var bookings = _context.Bookings.Where(b => b.UserId == userId);
+            var mapBookingsToRecentBookings = bookings.Select<Booking, RecentBooking>(b => new RecentBooking()
+            {
+                DeskName = b.Desk.DeskName,
+                EndTime = b.EndTime,
+                StartTime = b.StartTime,
+                Timestamp = b.Timestamp,
+            });
+
+            return mapBookingsToRecentBookings.ToList();
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
         }
-        List<Booking> bookings = new List<Booking>();
-        bookings.Add(booking);
-        return bookings;
+        return new List<RecentBooking>();
     }
 
     private User _getUser(String mail)
