@@ -34,6 +34,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql("Host=localhost;Database=deskstar;Username=postgres;Password=root"));
 builder.Services.AddScoped<IAuthUsecases,AuthUsecases>();
+builder.Services.AddScoped<IBookingUsecases,BookingUsecases>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
