@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 using Deskstar.Entities;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -34,7 +35,6 @@ public class BookingController : ControllerBase
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
         // TODO get user id when it's in token
         var mailAddress = jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Email).Value;
-        //TODO List to JSON
-        return Ok(_bookingUsecases.GetRecentBookings(mailAddress));
+        return Ok(JsonSerializer.Serialize(_bookingUsecases.GetRecentBookings(mailAddress)));
     }
 }
