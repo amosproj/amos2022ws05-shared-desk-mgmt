@@ -20,10 +20,19 @@ services:
     #TODO: clear volumes on each startup
     #TODO: add hot reload
     container_name: backend
+    user: "${USER_ID}:${GROUP_ID}"
+    depends_on:
+      - "postgres"
     build: 
       context: ./deskstar-backend
     ports:
       - 3001:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT
+      - DB__HOST
+      - DB__DATABASE
+      - DB__USERNAME
+      - DB__PASSWORD
     networks:
       - internal
   postgres:
