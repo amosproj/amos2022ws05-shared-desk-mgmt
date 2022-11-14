@@ -1,6 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using Deskstar.Entities;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +11,11 @@ namespace Deskstar.Controllers;
 [Route("/bookings")]
 public class BookingController : ControllerBase
 {
-    private readonly ILogger<BookingController> _logger;
+    private readonly IAuthUsecases _authUsecases;
     private readonly IBookingUsecases _bookingUsecases;
     private readonly IConfiguration _configuration;
-    private readonly IAuthUsecases _authUsecases;
-    
+    private readonly ILogger<BookingController> _logger;
+
     public BookingController(ILogger<BookingController> logger, IBookingUsecases bookingUsecases,
         IConfiguration configuration, IAuthUsecases authUsecases)
     {
