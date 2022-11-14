@@ -15,7 +15,8 @@
       "extensions": [
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
-        "esbenp.prettier-vscode"
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens"
       ]
     }
   },
