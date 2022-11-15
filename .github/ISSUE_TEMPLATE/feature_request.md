@@ -18,9 +18,10 @@ assignees: ''
 * ...
 
 ## Definition of done (DoD)
-* Added only after week 5
-* The same for all features
-* Here goes the project specific part
+* The code has been peer-reviewed by at least one team member
+* The documentation was updated if necessary
+* The bill of materials was updated if necessary
+* Working dev setup was created
 
 ## DoD general criteria
 * Feature has been fully implemented
