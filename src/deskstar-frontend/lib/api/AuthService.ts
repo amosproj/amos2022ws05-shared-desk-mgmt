@@ -1,6 +1,6 @@
 import { BACKEND_URL } from "./constants";
 
-export type AuthResult = string | AuthError;
+export type AuthResult = string | AuthResponse;
 
 type RegisterUser = {
   mailAddress: String;
@@ -10,12 +10,13 @@ type RegisterUser = {
   companyId: String;
 };
 
-export enum AuthError {
-  UnknownError,
-  CompanyAlreadyExists,
-  EmailaddressAlreadyExists,
-  NotAllowedToCreateUser,
-  InvalidCredentials,
+export enum AuthResponse {
+  ErrorUnknown,
+  ErrorCompanyAlreadyExists,
+  ErrorEmailaddressAlreadyExists,
+  ErrorNotAllowedToCreateUser,
+  ErrorInvalidCredentials,
+  Success,
 }
 
 export async function authorize(
@@ -34,13 +35,13 @@ export async function authorize(
   });
 
   if (response.status != 200) {
-    return AuthError.InvalidCredentials;
+    return AuthResponse.ErrorInvalidCredentials;
   }
 
   return response.text();
 }
 
-export async function register(user: RegisterUser): Promise<AuthResult> {
+export async function register(user: RegisterUser): Promise<AuthResponse> {
   const response = await fetch(BACKEND_URL + "/auth/register", {
     method: "POST",
     body: JSON.stringify(user),
@@ -54,15 +55,15 @@ export async function register(user: RegisterUser): Promise<AuthResult> {
       case 400:
         // Error: company does not exist
         // Error: mail address already exists
-        return AuthError.UnknownError;
+        return AuthResponse.ErrorUnknown;
 
       case 403:
         // not authorized to create a user
-        return AuthError.UnknownError;
+        return AuthResponse.ErrorUnknown;
     }
 
-    return AuthError.UnknownError;
+    return AuthResponse.ErrorUnknown;
   }
 
-  return await response.text();
+  return AuthResponse.Success;
 }
