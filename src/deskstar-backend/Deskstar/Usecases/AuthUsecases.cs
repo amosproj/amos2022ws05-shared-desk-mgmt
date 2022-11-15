@@ -37,7 +37,7 @@ namespace Deskstar.Usecases
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
                 return _hasher.VerifyHashedPassword(user, user.Password, password) 
-                       == PasswordVerificationResult.Success;
+                       == PasswordVerificationResult.Success && user.IsApproved;
             }
             catch (Exception e)
             {
