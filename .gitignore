@@ -34,3 +34,4 @@ bin/
 
 # MacOS
 .DS_Store
+src/deskstar-backend/DeskstarSolution.sln.DotSettings.user

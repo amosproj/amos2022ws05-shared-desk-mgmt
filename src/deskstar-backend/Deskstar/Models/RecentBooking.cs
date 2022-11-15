@@ -15,4 +15,12 @@ public class RecentBooking
 
     [Required]
     public string DeskName { get; set; } = null!;
+
+    [Required] public string BuildingName { get; set; } = null!;
+    
+    [Required] public string FloorName { get; set; } = null!;
+    
+    [Required] public string RoomName { get; set; } = null!;
+
+
 }
