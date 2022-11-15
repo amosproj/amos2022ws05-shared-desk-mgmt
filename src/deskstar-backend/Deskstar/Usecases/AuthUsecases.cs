@@ -1,10 +1,13 @@
 using Deskstar.DataAccess;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Deskstar.Models;
 using Deskstar.Entities;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Identity;
 
 namespace Deskstar.Usecases
 {
@@ -19,11 +22,13 @@ namespace Deskstar.Usecases
     {
         private readonly ILogger<AuthUsecases> _logger;
         private readonly DataContext _context;
+        private readonly PasswordHasher<User> _hasher;
 
         public AuthUsecases(ILogger<AuthUsecases> logger, DataContext context)
         {
             _logger = logger;
             _context = context;
+            _hasher = new PasswordHasher<User>();
         }
 
         public bool checkCredentials(string mail, string password)
@@ -31,7 +36,8 @@ namespace Deskstar.Usecases
             try
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
-                return user.Password == password;
+                return _hasher.VerifyHashedPassword(user, user.Password, password) 
+                       == PasswordVerificationResult.Success;
             }
             catch (Exception e)
             {
@@ -90,10 +96,10 @@ namespace Deskstar.Usecases
             var newUser = new User();
             newUser.CompanyId = registerUser.CompanyId;
             newUser.MailAddress = registerUser.MailAddress;
-            newUser.Password = registerUser.Password;
             newUser.FirstName = registerUser.FirstName;
             newUser.LastName = registerUser.LastName;
             newUser.IsApproved = false;
+            newUser.Password = _hasher.HashPassword(newUser, registerUser.Password);
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
