@@ -21,11 +21,12 @@ export default function AppHome({bookings}: {bookings: IBooking[]}) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  //TODO: fetch here latest bookings from backend
+export const getServerSideProps: GetServerSideProps = async () => {
+  //TODO: fetch here latest 10 bookings from backend
+  const sortedBookings = bookings.sort((a: IBooking,b: IBooking) => b.startTime.localeCompare(a.startTime))
   return {
     props: {
-      bookings: bookings
+      bookings: sortedBookings
     }
   }
 }
