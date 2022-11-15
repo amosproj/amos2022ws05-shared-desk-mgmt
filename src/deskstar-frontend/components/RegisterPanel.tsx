@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthError, AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 
 export default function RegisterPanel() {
@@ -8,16 +9,36 @@ export default function RegisterPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [error, setError] = useState("");
 
   return (
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Register</h1>
+      <span className="text-red-400">{error}</span>
       <form
         className="flex flex-col"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          console.log("Not implemented");
-          //TODO: Implement register
+          debugger;
+
+          if (password !== repeatPassword) {
+            setError("Passwords must be equal!");
+            return;
+          }
+
+          const response = await fetch("http://localhost:3000/api/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              companyId: company,
+              firstName,
+              lastName,
+              mailAddress: email,
+              password,
+            }),
+          });
         }}
       >
         <Input

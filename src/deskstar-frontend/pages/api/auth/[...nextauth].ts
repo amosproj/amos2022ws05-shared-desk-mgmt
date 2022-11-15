@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { AuthError, authorize } from "../../../lib/api/AuthService";
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -20,16 +21,33 @@ export const authOptions = {
       async authorize(credentials, req) {
         // Check if credentials contains an email and password
         if (
-          credentials &&
-          (!credentials.company || !credentials.email || !credentials.password)
+          !credentials ||
+          !credentials.company ||
+          !credentials.email ||
+          !credentials.password
         ) {
           return null;
         }
+
+        console.log(credentials);
+
+        const result = await authorize(credentials.email, credentials.password);
+
+        if (typeof result !== "string") {
+          // must be AuthError
+          const err = result as AuthError;
+
+          return null;
+        }
+
+        console.log("Test");
+
         const user = {
           id: "1",
           company: "INTERFLEX",
           name: "testuser",
           email: "test@example.com",
+          our_token: result as String,
         };
 
         if (user) {
