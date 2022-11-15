@@ -47,6 +47,7 @@ if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == 
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
+builder.Services.AddScoped<IBookingUsecases,BookingUsecases>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

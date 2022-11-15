@@ -30,7 +30,7 @@ public class AuthController : ControllerBase
         {
             return Ok(_authUsecases.createToken(_configuration, user.MailAddress));
         }
-        return BadRequest();
+        return Unauthorized();
     }
 
     [HttpPost("register")]
@@ -42,6 +42,6 @@ public class AuthController : ControllerBase
             return BadRequest();
         }
 
-        return Ok(_authUsecases.createToken(_configuration, registerUser.MailAddress));
+        return Ok();
     }
 }

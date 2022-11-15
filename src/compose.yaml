@@ -24,7 +24,7 @@ services:
     depends_on:
       - "postgres"
     build: 
-      context: ./deskstar-backend
+      context: ./deskstar-backend/Deskstar
     ports:
       - 3001:80
     environment:
