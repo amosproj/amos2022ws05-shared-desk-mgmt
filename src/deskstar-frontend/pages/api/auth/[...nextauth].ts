@@ -29,20 +29,25 @@ export const authOptions = {
           return null;
         }
 
+        console.log(credentials);
+
         const result = await authorize(credentials.email, credentials.password);
-        if (!(result instanceof String)) {
+
+        if (typeof result !== "string") {
           // must be AuthError
           const err = result as AuthError;
 
           return null;
         }
 
+        console.log("Test");
+
         const user = {
           id: "1",
           company: "INTERFLEX",
           name: "testuser",
           email: "test@example.com",
-          token: result as String,
+          our_token: result as String,
         };
 
         if (user) {

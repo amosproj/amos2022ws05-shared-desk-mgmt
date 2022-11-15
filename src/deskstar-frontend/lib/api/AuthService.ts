@@ -1,6 +1,6 @@
 import { BACKEND_URL } from "./constants";
 
-export type AuthResult = String | AuthError;
+export type AuthResult = string | AuthError;
 
 type RegisterUser = {
   mailAddress: String;
@@ -28,6 +28,9 @@ export async function authorize(
       mailAddress: mail,
       password,
     }),
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
 
   if (response.status != 200) {
