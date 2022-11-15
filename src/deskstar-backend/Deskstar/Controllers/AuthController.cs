@@ -42,6 +42,6 @@ public class AuthController : ControllerBase
             return BadRequest();
         }
 
-        return Ok(_authUsecases.createToken(_configuration, registerUser.MailAddress));
+        return Ok();
     }
 }
