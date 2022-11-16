@@ -1,5 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Deskstar.Entities;
+using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +11,7 @@ namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/bookings")]
+[Produces("application/json")]
 public class BookingController : ControllerBase
 {
     private readonly IBookingUsecases _bookingUsecases;
@@ -19,9 +22,23 @@ public class BookingController : ControllerBase
         _logger = logger;
         _bookingUsecases = bookingUsecases;
     }
-
+    
+    /// <summary>
+    /// Offers next ten Bookings for Token-User
+    /// </summary>
+    /// <returns>A List of Bookings in JSON Format (can be empty) </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Get /bookings/recent with JWT Token
+    /// </remarks>
+    /// 
+    /// <response code="200">Returns the booking list</response>
+    /// <response code="400">User not found</response>
     [HttpGet("recent")]
     [Authorize]
+    [ProducesResponseType(typeof(RecentBooking),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
     public IActionResult RecentBookings()
     {
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);

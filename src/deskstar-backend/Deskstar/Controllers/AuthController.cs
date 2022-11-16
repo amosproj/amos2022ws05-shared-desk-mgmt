@@ -7,6 +7,7 @@ namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/auth")]
+[Produces("text/plain")]
 public class AuthController : ControllerBase
 {
 
@@ -21,9 +22,21 @@ public class AuthController : ControllerBase
         _authUsecases = authUsecases;
         _configuration = configuration;
     }
-
+    /// <summary>
+    /// Login functionality
+    /// </summary>
+    /// <returns> JWT, if users is approved and psw is correct </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /auth/createToken
+    /// </remarks>
+    /// 
+    /// <response code="200">Login ok</response>
+    /// <response code="401">User not found or not approved</response>
     [HttpPost("createToken")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(string),StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public IActionResult CreateToken(CreateTokenUser user)
     {
         if (_authUsecases.CheckCredentials(user.MailAddress, user.Password))
@@ -32,17 +45,28 @@ public class AuthController : ControllerBase
         }
         return Unauthorized();
     }
-
+    
+    /// <summary>
+    /// Register functionality
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /auth/register
+    /// </remarks>
+    /// 
+    /// <response code="200">User added to db</response>
+    /// <response code="400">Mail found or company not exists</response>
     [HttpPost("register")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
     public IActionResult Register(RegisterUser registerUser)
     {
         var result = _authUsecases.RegisterUser(registerUser);
         if (result != RegisterReturn.Ok)
         {
-            return BadRequest(result);
+            return BadRequest(result.ToString());
         }
-
         return Ok();
     }
 }
