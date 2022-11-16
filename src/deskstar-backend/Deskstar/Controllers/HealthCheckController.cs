@@ -18,14 +18,14 @@ public class HealthCheckController : ControllerBase
 
     [HttpGet()]
     [AllowAnonymous]
-    public String Get()
+    public string Get()
     {
         return "Hello World! We're live.";
     }
 
     [HttpGet("withToken")]
     [Authorize]
-    public String Auth()
+    public string Auth()
     {
         return "authenticated. We're live.";
     }

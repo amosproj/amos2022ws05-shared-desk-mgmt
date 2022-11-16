@@ -19,14 +19,14 @@ namespace Deskstar.Usecases
     }
     public interface IAuthUsecases
     {
-        bool checkCredentials(String mail, String password);
-        string createToken(IConfiguration configuration, String mail);
+        bool CheckCredentials(String mail, String password);
+        string CreateToken(IConfiguration configuration, String mail);
         /**
          * 0- OK
          * 1 - Mailaddress in use
          * 2 - Company not found
          */
-        RegisterReturn registerUser(RegisterUser registerUser);
+        RegisterReturn RegisterUser(RegisterUser registerUser);
 
     }
     public class AuthUsecases : IAuthUsecases
@@ -42,7 +42,7 @@ namespace Deskstar.Usecases
             _hasher = new PasswordHasher<User>();
         }
 
-        public bool checkCredentials(string mail, string password)
+        public bool CheckCredentials(string mail, string password)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Deskstar.Usecases
             return false;
         }
 
-        public string createToken(IConfiguration configuration, String mail)
+        public string CreateToken(IConfiguration configuration, String mail)
         {
             var user = _getUser(mail);
             if (user == User.Null)
@@ -91,7 +91,7 @@ namespace Deskstar.Usecases
             return stringToken;
         }
 
-        public RegisterReturn registerUser(RegisterUser registerUser)
+        public RegisterReturn RegisterUser(RegisterUser registerUser)
         {
             if (_getUser(registerUser.MailAddress) != User.Null)
             {
@@ -103,12 +103,14 @@ namespace Deskstar.Usecases
                 return RegisterReturn.CompanyNotFound;
             }
 
-            var newUser = new User();
-            newUser.CompanyId = registerUser.CompanyId;
-            newUser.MailAddress = registerUser.MailAddress;
-            newUser.FirstName = registerUser.FirstName;
-            newUser.LastName = registerUser.LastName;
-            newUser.IsApproved = false;
+            var newUser = new User
+            {
+                CompanyId = registerUser.CompanyId,
+                MailAddress = registerUser.MailAddress,
+                FirstName = registerUser.FirstName,
+                LastName = registerUser.LastName,
+                IsApproved = false
+            };
             newUser.Password = _hasher.HashPassword(newUser, registerUser.Password);
 
             _context.Users.Add(newUser);
@@ -116,7 +118,7 @@ namespace Deskstar.Usecases
             return RegisterReturn.Ok;
         }
 
-        private User _getUser(String mail)
+        private User _getUser(string mail)
         {
             try
             {

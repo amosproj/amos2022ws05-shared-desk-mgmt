@@ -26,7 +26,7 @@ public class AuthUseCasesTests
         const string pw = "testpw";
 
         //act
-        var result = subject.checkCredentials(mail, pw);
+        var result = subject.CheckCredentials(mail, pw);
 
 
         //assert
@@ -54,7 +54,7 @@ public class AuthUseCasesTests
         const string mail = "test@mail.de";
 
         //act
-        var result = subject.createToken(configuration, mail);
+        var result = subject.CreateToken(configuration, mail);
 
 
         //assert
@@ -86,7 +86,7 @@ public class AuthUseCasesTests
         user.CompanyId = company.CompanyId;
 
         //act
-        var result = subject.registerUser(user);
+        var result = subject.RegisterUser(user);
 
         //assert
         Assert.That(result, Is.EqualTo(RegisterReturn.Ok));
@@ -112,7 +112,7 @@ public class AuthUseCasesTests
         };
 
         //act
-        var result = subject.registerUser(user);
+        var result = subject.RegisterUser(user);
 
         //assert
         Assert.That(result, Is.False);
@@ -144,7 +144,7 @@ public class AuthUseCasesTests
         };
 
         //act
-        var result = subject.registerUser(user);
+        var result = subject.RegisterUser(user);
 
         //assert
         Assert.That(result, Is.False);

@@ -26,9 +26,9 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public IActionResult CreateToken(CreateTokenUser user)
     {
-        if (_authUsecases.checkCredentials(user.MailAddress, user.Password))
+        if (_authUsecases.CheckCredentials(user.MailAddress, user.Password))
         {
-            return Ok(_authUsecases.createToken(_configuration, user.MailAddress));
+            return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
         }
         return Unauthorized();
     }
@@ -37,7 +37,7 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public IActionResult Register(RegisterUser registerUser)
     {
-        var result = _authUsecases.registerUser(registerUser);
+        var result = _authUsecases.RegisterUser(registerUser);
         if (result != RegisterReturn.Ok)
         {
             return BadRequest(result);
