@@ -108,16 +108,17 @@ public class AuthUseCasesTests
             MailAddress = "test@mail.de",
             FirstName = "testF",
             LastName = "testL",
-            Password = "password"
+            Password = "password",
+            CompanyId = mogDB.Companies.First(c=>c.CompanyName=="gehmalbierholn").CompanyId
         };
 
         //act
         var result = subject.RegisterUser(user);
 
         //assert
-        Assert.That(result, Is.False);
+        Assert.That(result, Is.EqualTo(RegisterReturn.MailAddressInUse));
     }
-
+    
     [Test]
     public void RegisterUser_NonExistingCompany()
     {
@@ -147,7 +148,7 @@ public class AuthUseCasesTests
         var result = subject.RegisterUser(user);
 
         //assert
-        Assert.That(result, Is.False);
+        Assert.That(result, Is.EqualTo(RegisterReturn.CompanyNotFound));
     }
 
     private void AddOneCompany_AddOneUser(DataContext mogDB, PasswordHasher<User> hasher)
