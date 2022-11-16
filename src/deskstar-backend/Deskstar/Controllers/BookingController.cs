@@ -38,7 +38,6 @@ public class BookingController : ControllerBase
         {
             _logger.LogError(e, e.Message);
         }
-
-        return null;
+        return BadRequest();
     }
 }

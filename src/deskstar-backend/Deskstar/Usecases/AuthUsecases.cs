@@ -11,11 +11,22 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Deskstar.Usecases
 {
+    public enum RegisterReturn
+    {
+        Ok,
+        MailAddressInUse,
+        CompanyNotFound
+    }
     public interface IAuthUsecases
     {
         bool checkCredentials(String mail, String password);
         string createToken(IConfiguration configuration, String mail);
-        bool registerUser(RegisterUser registerUser);
+        /**
+         * 0- OK
+         * 1 - Mailaddress in use
+         * 2 - Company not found
+         */
+        RegisterReturn registerUser(RegisterUser registerUser);
 
     }
     public class AuthUsecases : IAuthUsecases
@@ -76,21 +87,20 @@ namespace Deskstar.Usecases
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            //var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
             return stringToken;
         }
 
-        public bool registerUser(RegisterUser registerUser)
+        public RegisterReturn registerUser(RegisterUser registerUser)
         {
             if (_getUser(registerUser.MailAddress) != User.Null)
             {
-                return false;
+                return RegisterReturn.MailAddressInUse;
             }
 
             if (_getCompany(registerUser.CompanyId) == Company.Null)
             {
-                return false;
+                return RegisterReturn.CompanyNotFound;
             }
 
             var newUser = new User();
@@ -103,7 +113,7 @@ namespace Deskstar.Usecases
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
-            return true;
+            return RegisterReturn.Ok;
         }
 
         private User _getUser(String mail)

@@ -37,9 +37,10 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     public IActionResult Register(RegisterUser registerUser)
     {
-        if (!_authUsecases.registerUser(registerUser))
+        var result = _authUsecases.registerUser(registerUser);
+        if (result != RegisterReturn.Ok)
         {
-            return BadRequest();
+            return BadRequest(result);
         }
 
         return Ok();
