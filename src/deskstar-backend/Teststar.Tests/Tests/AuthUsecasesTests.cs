@@ -2,6 +2,7 @@ using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
 using Deskstar.Usecases;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,7 +17,7 @@ public class AuthUsecasesTests
         //setup
         using (var mogDB = new DataContext())
         {
-            AddOneCompany_AddOneUser(mogDB);
+            AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
 
             //arrange
             var logger = new Mock<ILogger<AuthUsecases>>();
@@ -39,7 +40,7 @@ public class AuthUsecasesTests
     {
         using (var mogDB = new DataContext())
         {
-            AddOneCompany_AddOneUser(mogDB);
+            AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
 
             //arrange
             var logger = new Mock<ILogger<AuthUsecases>>();
@@ -81,7 +82,7 @@ public class AuthUsecasesTests
             //arrange
             var logger = new Mock<ILogger<AuthUsecases>>();
             var subject = new AuthUsecases(logger.Object, mogDB);
-
+           
             var user = new RegisterUser();
             user.MailAddress = "test@mail.de";
             user.FirstName = "testF";
@@ -102,17 +103,18 @@ public class AuthUsecasesTests
     {
         using (var mogDB = new DataContext())
         {
-            AddOneCompany_AddOneUser(mogDB);
+            AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
 
             //arrange
             var logger = new Mock<ILogger<AuthUsecases>>();
             var subject = new AuthUsecases(logger.Object, mogDB);
+            var hasher = new PasswordHasher<User>();
 
             var user = new RegisterUser();
             user.MailAddress = "test@mail.de";
             user.FirstName = "testF";
             user.LastName = "testL";
-            user.Password = "testpw";
+            user.Password = "password";
 
             //act
             var result = subject.registerUser(user);
@@ -154,7 +156,7 @@ public class AuthUsecasesTests
         }
     }
 
-    private void AddOneCompany_AddOneUser(DataContext mogDB)
+    private void AddOneCompany_AddOneUser(DataContext mogDB, PasswordHasher<User> hasher)
     {
         var company = new Company
         {
@@ -164,11 +166,12 @@ public class AuthUsecasesTests
         var user = new User
         {
             MailAddress = "test@mail.de",
-            Password = "testpw",
             FirstName = "testF",
             LastName = "testL",
-            Company = company
+            Company = company,
+            IsApproved = true
         };
+        user.Password = hasher.HashPassword(user, "testpw");
         mogDB.Companies.Add(company);
         mogDB.Users.Add(user);
         mogDB.SaveChanges();
