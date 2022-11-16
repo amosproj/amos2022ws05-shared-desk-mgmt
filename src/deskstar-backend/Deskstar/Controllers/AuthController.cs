@@ -31,19 +31,20 @@ public class AuthController : ControllerBase
     ///     Post /auth/createToken
     /// </remarks>
     /// 
-    /// <response code="200">Login ok</response>
-    /// <response code="401">User not found or not approved</response>
+    /// <response code="200">Login +JWT </response>
+    /// <response code="401">Credentials wrong or not approved</response>
     [HttpPost("createToken")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(string),StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
     public IActionResult CreateToken(CreateTokenUser user)
     {
-        if (_authUsecases.CheckCredentials(user.MailAddress, user.Password))
+        var returnValue=_authUsecases.CheckCredentials(user.MailAddress, user.Password);
+        if (returnValue==LoginReturn.Ok)
         {
             return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
         }
-        return Unauthorized();
+        return Unauthorized(returnValue.ToString());
     }
     
     /// <summary>

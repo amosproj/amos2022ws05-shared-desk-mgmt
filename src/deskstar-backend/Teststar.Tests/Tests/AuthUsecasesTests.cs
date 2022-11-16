@@ -30,7 +30,89 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result);
+        Assert.That(result,Is.EqualTo(LoginReturn.Ok));
+    }
+    
+    [Test]
+    public void CheckCredentials_ValidMailAndPassword_butNotApproved()
+    {
+        //setup
+        using var mogDB = new DataContext();
+        var company = new Company
+        {
+            CompanyId = new Guid(),
+            CompanyName = "gehmalbierholn"
+        };
+        var user = new User
+        {
+            MailAddress = "test@mail.de",
+            FirstName = "testF",
+            LastName = "testL",
+            Company = company
+        };
+        user.Password = new PasswordHasher<User>().HashPassword(user, "testpw");
+
+        mogDB.Companies.Add(company);
+        mogDB.Users.Add(user);
+        mogDB.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<AuthUsecases>>();
+        var subject = new AuthUsecases(logger.Object, mogDB);
+
+        const string mail = "test@mail.de";
+        const string pw = "testpw";
+
+        //act
+        var result = subject.CheckCredentials(mail, pw);
+
+
+        //assert
+        Assert.That(result,Is.EqualTo(LoginReturn.NotYetApproved));
+    }
+    
+    [Test]
+    public void CheckCredentials_NonValidMailAndValidPassword()
+    {
+        //setup
+        using var mogDB = new DataContext();
+        AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
+
+        //arrange
+        var logger = new Mock<ILogger<AuthUsecases>>();
+        var subject = new AuthUsecases(logger.Object, mogDB);
+
+        const string mail = "teest@mail.de";
+        const string pw = "testpw";
+
+        //act
+        var result = subject.CheckCredentials(mail, pw);
+
+
+        //assert
+        Assert.That(result,Is.EqualTo(LoginReturn.CreditialsWrong));
+    }
+    
+    [Test]
+    public void CheckCredentials_ValidMail_NonValidPassword()
+    {
+        //setup
+        using var mogDB = new DataContext();
+        AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
+
+        //arrange
+        var logger = new Mock<ILogger<AuthUsecases>>();
+        var subject = new AuthUsecases(logger.Object, mogDB);
+
+        const string mail = "test@mail.de";
+        const string pw = "testp";
+
+        //act
+        var result = subject.CheckCredentials(mail, pw);
+
+
+        //assert
+        Assert.That(result,Is.EqualTo(LoginReturn.CreditialsWrong));
     }
 
     [Test]

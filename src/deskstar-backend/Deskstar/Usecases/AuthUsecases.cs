@@ -17,9 +17,15 @@ namespace Deskstar.Usecases
         MailAddressInUse,
         CompanyNotFound
     }
+
+    public enum LoginReturn{
+        NotYetApproved,
+        CreditialsWrong,
+        Ok
+    }
     public interface IAuthUsecases
     {
-        bool CheckCredentials(string mail, string password);
+        LoginReturn CheckCredentials(string mail, string password);
         string CreateToken(IConfiguration configuration, string mail);
         RegisterReturn RegisterUser(RegisterUser registerUser);
 
@@ -37,19 +43,22 @@ namespace Deskstar.Usecases
             _hasher = new PasswordHasher<User>();
         }
 
-        public bool CheckCredentials(string mail, string password)
+        public LoginReturn CheckCredentials(string mail, string password)
         {
             try
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
-                return _hasher.VerifyHashedPassword(user, user.Password, password) 
-                       == PasswordVerificationResult.Success && user.IsApproved;
+                if (!user.IsApproved)
+                    return LoginReturn.NotYetApproved;
+                if (_hasher.VerifyHashedPassword(user, user.Password, password)
+                    == PasswordVerificationResult.Success)
+                    return LoginReturn.Ok;
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
             }
-            return false;
+            return LoginReturn.CreditialsWrong;
         }
 
         public string CreateToken(IConfiguration configuration, String mail)
