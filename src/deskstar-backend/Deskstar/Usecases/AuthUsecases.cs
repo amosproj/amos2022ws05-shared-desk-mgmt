@@ -19,13 +19,8 @@ namespace Deskstar.Usecases
     }
     public interface IAuthUsecases
     {
-        bool CheckCredentials(String mail, String password);
-        string CreateToken(IConfiguration configuration, String mail);
-        /**
-         * 0- OK
-         * 1 - Mailaddress in use
-         * 2 - Company not found
-         */
+        bool CheckCredentials(string mail, string password);
+        string CreateToken(IConfiguration configuration, string mail);
         RegisterReturn RegisterUser(RegisterUser registerUser);
 
     }
