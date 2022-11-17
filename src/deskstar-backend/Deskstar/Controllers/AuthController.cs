@@ -10,7 +10,6 @@ namespace Deskstar.Controllers;
 [Produces("text/plain")]
 public class AuthController : ControllerBase
 {
-
     private readonly ILogger<AuthController> _logger;
     private readonly IAuthUsecases _authUsecases;
     private readonly IConfiguration _configuration;
@@ -22,6 +21,7 @@ public class AuthController : ControllerBase
         _authUsecases = authUsecases;
         _configuration = configuration;
     }
+
     /// <summary>
     /// Login functionality
     /// </summary>
@@ -31,22 +31,23 @@ public class AuthController : ControllerBase
     ///     Post /auth/createToken
     /// </remarks>
     /// 
-    /// <response code="200">Login +JWT </response>
-    /// <response code="401">Credentials wrong or not approved</response>
+    /// <response code="200">Login succesful </response>
+    /// <response code="401">Credentials wrong or user not approved</response>
     [HttpPost("createToken")]
     [AllowAnonymous]
-    [ProducesResponseType(typeof(string),StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string),StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
     public IActionResult CreateToken(CreateTokenUser user)
     {
-        var returnValue=_authUsecases.CheckCredentials(user.MailAddress, user.Password);
-        if (returnValue==LoginReturn.Ok)
+        var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
+        if (returnValue == LoginReturn.Ok)
         {
             return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
         }
+
         return Unauthorized(returnValue.ToString());
     }
-    
+
     /// <summary>
     /// Register functionality
     /// </summary>
@@ -56,18 +57,25 @@ public class AuthController : ControllerBase
     /// </remarks>
     /// 
     /// <response code="200">User added to db</response>
-    /// <response code="400">Mail found or company not exists</response>
+    /// <response code="400">Mail already in use</response>
+    /// <response code="404">Company not found</response>
     [HttpPost("register")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
     public IActionResult Register(RegisterUser registerUser)
     {
         var result = _authUsecases.RegisterUser(registerUser);
         if (result != RegisterReturn.Ok)
         {
+            if (result == RegisterReturn.CompanyNotFound)
+            {
+                return NotFound(result.ToString());
+            }
             return BadRequest(result.ToString());
         }
+
         return Ok();
     }
 }

@@ -30,9 +30,9 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result,Is.EqualTo(LoginReturn.Ok));
+        Assert.That(result, Is.EqualTo(LoginReturn.Ok));
     }
-    
+
     [Test]
     public void CheckCredentials_ValidMailAndPassword_butNotApproved()
     {
@@ -68,9 +68,9 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result,Is.EqualTo(LoginReturn.NotYetApproved));
+        Assert.That(result, Is.EqualTo(LoginReturn.NotYetApproved));
     }
-    
+
     [Test]
     public void CheckCredentials_NonValidMailAndValidPassword()
     {
@@ -90,9 +90,9 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result,Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
     }
-    
+
     [Test]
     public void CheckCredentials_ValidMail_NonValidPassword()
     {
@@ -112,7 +112,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result,Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
     }
 
     [Test]
@@ -159,7 +159,7 @@ public class AuthUseCasesTests
         //arrange
         var logger = new Mock<ILogger<AuthUsecases>>();
         var subject = new AuthUsecases(logger.Object, mogDB);
-           
+
         var user = new RegisterUser();
         user.MailAddress = "test@mail.de";
         user.FirstName = "testF";
@@ -191,7 +191,7 @@ public class AuthUseCasesTests
             FirstName = "testF",
             LastName = "testL",
             Password = "password",
-            CompanyId = mogDB.Companies.First(c=>c.CompanyName=="gehmalbierholn").CompanyId
+            CompanyId = mogDB.Companies.First(c => c.CompanyName == "gehmalbierholn").CompanyId
         };
 
         //act
@@ -200,7 +200,7 @@ public class AuthUseCasesTests
         //assert
         Assert.That(result, Is.EqualTo(RegisterReturn.MailAddressInUse));
     }
-    
+
     [Test]
     public void RegisterUser_NonExistingCompany()
     {

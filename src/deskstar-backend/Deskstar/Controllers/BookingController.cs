@@ -33,11 +33,11 @@ public class BookingController : ControllerBase
     /// </remarks>
     /// 
     /// <response code="200">Returns the booking list</response>
-    /// <response code="400">User not found</response>
+    /// <response code="404">User not found</response>
     [HttpGet("recent")]
     [Authorize]
     [ProducesResponseType(typeof(RecentBooking),StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     public IActionResult RecentBookings()
     {
@@ -55,6 +55,6 @@ public class BookingController : ControllerBase
         {
             _logger.LogError(e, e.Message);
         }
-        return BadRequest();
+        return NotFound();
     }
 }
