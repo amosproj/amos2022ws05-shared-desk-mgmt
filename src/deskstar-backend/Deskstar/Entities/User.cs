@@ -16,7 +16,7 @@
         public string MailAddress { get; set; } = null!;
         public string Password { get; set; } = null!;
         public Guid CompanyId { get; set; }
-        public bool? IsApproved { get; set; }
+        public bool IsApproved { get; set; }
 
         public virtual Company Company { get; set; } = null!;
         public virtual ICollection<Booking> Bookings { get; set; }

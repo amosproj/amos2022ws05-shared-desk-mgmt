@@ -1,7 +1,7 @@
 ## Create dockerimg
 
 ```
-docker build -t deskstardb:v1
+docker build -t deskstardb:v1 .
 ```
 
 ## Run Docker
