@@ -67,15 +67,11 @@ public class AuthController : ControllerBase
     public IActionResult Register(RegisterUser registerUser)
     {
         var result = _authUsecases.RegisterUser(registerUser);
-        if (result != RegisterReturn.Ok)
+        return result switch
         {
-            if (result == RegisterReturn.CompanyNotFound)
-            {
-                return NotFound(result.ToString());
-            }
-            return BadRequest(result.ToString());
-        }
-
-        return Ok();
+            RegisterReturn.Ok => Ok(),
+            RegisterReturn.CompanyNotFound => NotFound(result.ToString()),
+            _ => BadRequest(result.ToString())
+        };
     }
 }
