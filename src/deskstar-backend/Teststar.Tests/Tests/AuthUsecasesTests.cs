@@ -31,6 +31,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(LoginReturn.Ok));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -69,6 +72,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(LoginReturn.NotYetApproved));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -91,6 +97,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -113,6 +122,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -141,6 +153,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.Not.Null);
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -172,6 +187,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(RegisterReturn.Ok));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -199,6 +217,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(RegisterReturn.MailAddressInUse));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     [Test]
@@ -231,6 +252,9 @@ public class AuthUseCasesTests
 
         //assert
         Assert.That(result, Is.EqualTo(RegisterReturn.CompanyNotFound));
+        
+        //cleanup
+        mogDB.Database.EnsureDeleted();
     }
 
     private void AddOneCompany_AddOneUser(DataContext mogDB, PasswordHasher<User> hasher)
