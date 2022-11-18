@@ -62,10 +62,9 @@ namespace Deskstar.Usecases
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
-                //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
-                new Claim(JwtRegisteredClaimNames.Jti,
-                Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.NameId,user.UserId.ToString()),
+                new Claim("IsCompanyAdmin",user.IsCompanyAdmin.ToString() ),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
              }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Issuer = issuer,
@@ -76,7 +75,6 @@ namespace Deskstar.Usecases
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            //var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
             return stringToken;
         }

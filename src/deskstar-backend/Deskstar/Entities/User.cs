@@ -17,6 +17,8 @@
         public string Password { get; set; } = null!;
         public Guid CompanyId { get; set; }
         public bool IsApproved { get; set; }
+        
+        public bool IsCompanyAdmin { get; set; }
 
         public virtual Company Company { get; set; } = null!;
         public virtual ICollection<Booking> Bookings { get; set; }
