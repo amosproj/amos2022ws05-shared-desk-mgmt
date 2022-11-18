@@ -36,7 +36,7 @@ namespace Deskstar.Usecases
             try
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
-                return _hasher.VerifyHashedPassword(user, user.Password, password) 
+                return _hasher.VerifyHashedPassword(user, user.Password, password)
                        == PasswordVerificationResult.Success && user.IsApproved;
             }
             catch (Exception e)
@@ -63,7 +63,7 @@ namespace Deskstar.Usecases
                 Subject = new ClaimsIdentity(new[]
                 {
                 new Claim(JwtRegisteredClaimNames.NameId,user.UserId.ToString()),
-                new Claim("IsCompanyAdmin",user.IsCompanyAdmin.ToString() ),
+                user.IsCompanyAdmin?new Claim("IsCompanyAdmin","True" ):new Claim("IsNormalUser","True"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
              }),
                 Expires = DateTime.UtcNow.AddMinutes(30),

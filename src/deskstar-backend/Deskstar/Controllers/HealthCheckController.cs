@@ -1,7 +1,5 @@
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 namespace Deskstar.Controllers;
 
@@ -9,7 +7,7 @@ namespace Deskstar.Controllers;
 [Route("/")]
 public class HealthCheckController : ControllerBase
 {
-    
+
 
     private readonly ILogger<HealthCheckController> _logger;
 
@@ -33,13 +31,10 @@ public class HealthCheckController : ControllerBase
     }
 
     [HttpGet("admin")]
-    [Authorize]
+    [Authorize(Policy = "Admin")]
     public string Admin()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        
-        return jwtSecurityToken.Claims.First(claim => claim.Type == "IsCompanyAdmin").Value;
+
+        return "you are an admin";
     }
 }
