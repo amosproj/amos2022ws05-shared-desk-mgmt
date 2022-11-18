@@ -78,49 +78,50 @@ public class BookingUsecasesTest
     {
         var company = new Company
         {
-            CompanyId = new Guid(),
+            CompanyId = Guid.NewGuid(),
             CompanyName = "gehmalbierholn"
         };
         var user = new User
         {
-            UserId = new Guid(),
+            UserId = Guid.NewGuid(),
             MailAddress = "test@example.de",
             FirstName = "testF",
             LastName = "testL",
-            Company = company,
+            CompanyId = company.CompanyId,
             IsApproved = true
         };
         user.Password = hasher.HashPassword(user, "testpw");
         var building = new Building
         {
-            BuildingId = new Guid(),
+            BuildingId = Guid.NewGuid(),
             BuildingName = "Gebäude1",
             Location = "Location1",
             CompanyId = company.CompanyId
         };
         var floor = new Floor
         {
-            FloorId = new Guid(),
+            FloorId = Guid.NewGuid(),
             FloorName = "Stockwerk1",
             BuildingId = building.BuildingId
         };
         var room = new Room
         {
-            RoomId = new Guid(),
+            RoomId = Guid.NewGuid(),
             FloorId = floor.FloorId,
             RoomName = "Raum1"
         };
         var deskTyp = new DeskType
         {
-            DeskTypeId = new Guid(),
-            Company = company,
+            DeskTypeId = Guid.NewGuid(),
+            CompanyId = company.CompanyId,
             DeskTypeName = "Typ1"
         };
         var desk = new Desk
         {
-            DeskId = new Guid(),
+            DeskId = Guid.NewGuid(),
             DeskName = "Desk1",
-            DeskTypeId = deskTyp.DeskTypeId
+            DeskTypeId = deskTyp.DeskTypeId,
+            RoomId = room.RoomId
         };
         var booking=new Booking
         {
@@ -128,9 +129,7 @@ public class BookingUsecasesTest
             DeskId = desk.DeskId,
             Timestamp = DateTime.Now,
             StartTime = DateTime.Now.Add(TimeSpan.FromHours(1)),
-            EndTime = DateTime.Now.Add(TimeSpan.FromHours(2)),
-            Desk = desk,
-            User=user
+            EndTime = DateTime.Now.Add(TimeSpan.FromHours(2))
         };
         mogDB.Companies.Add(company);
         mogDB.Users.Add(user);
