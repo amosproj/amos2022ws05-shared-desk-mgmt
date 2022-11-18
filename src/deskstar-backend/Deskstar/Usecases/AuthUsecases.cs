@@ -11,25 +11,13 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Deskstar.Usecases
 {
-    public enum RegisterReturn
-    {
-        Ok,
-        MailAddressInUse,
-        CompanyNotFound
-    }
-
-    public enum LoginReturn{
-        NotYetApproved,
-        CreditialsWrong,
-        Ok
-    }
     public interface IAuthUsecases
     {
-        LoginReturn CheckCredentials(string mail, string password);
+        LoginResponse CheckCredentials(string mail, string password);
         string CreateToken(IConfiguration configuration, string mail);
-        RegisterReturn RegisterUser(RegisterUser registerUser);
-
+        RegisterResponse RegisterUser(RegisterUser registerUser);
     }
+
     public class AuthUsecases : IAuthUsecases
     {
         private readonly ILogger<AuthUsecases> _logger;
@@ -43,22 +31,27 @@ namespace Deskstar.Usecases
             _hasher = new PasswordHasher<User>();
         }
 
-        public LoginReturn CheckCredentials(string mail, string password)
+        public LoginResponse CheckCredentials(string mail, string password)
         {
             try
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
                 if (!user.IsApproved)
-                    return LoginReturn.NotYetApproved;
+                    return new LoginResponse
+                    {Message = LoginReturn.NotYetApproved};
                 if (_hasher.VerifyHashedPassword(user, user.Password, password)
                     == PasswordVerificationResult.Success)
-                    return LoginReturn.Ok;
+                    return new LoginResponse
+                        {Message = LoginReturn.Ok};
             }
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
             }
-            return LoginReturn.CreditialsWrong;
+
+            return new LoginResponse
+            {
+                Message = LoginReturn.CreditialsWrong};
         }
 
         public string CreateToken(IConfiguration configuration, String mail)
@@ -72,22 +65,22 @@ namespace Deskstar.Usecases
             var issuer = configuration["Jwt:Issuer"];
             var audience = configuration["Jwt:Audience"];
             var key = Encoding.ASCII.GetBytes
-            (configuration["Jwt:Key"]);
+                (configuration["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
-                //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
-                new Claim(JwtRegisteredClaimNames.Jti,
-                Guid.NewGuid().ToString())
-             }),
+                    new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
+                    //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
+                    new Claim(JwtRegisteredClaimNames.Jti,
+                        Guid.NewGuid().ToString())
+                }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Issuer = issuer,
                 Audience = audience,
                 SigningCredentials = new SigningCredentials
                 (new SymmetricSecurityKey(key),
-                SecurityAlgorithms.HmacSha512Signature)
+                    SecurityAlgorithms.HmacSha512Signature)
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
@@ -95,16 +88,22 @@ namespace Deskstar.Usecases
             return stringToken;
         }
 
-        public RegisterReturn RegisterUser(RegisterUser registerUser)
+        public RegisterResponse RegisterUser(RegisterUser registerUser)
         {
             if (_getUser(registerUser.MailAddress) != User.Null)
             {
-                return RegisterReturn.MailAddressInUse;
+                return new RegisterResponse
+                {
+                    Message = RegisterReturn.MailAddressInUse
+                };
             }
 
             if (_getCompany(registerUser.CompanyId) == Company.Null)
             {
-                return RegisterReturn.CompanyNotFound;
+                return new RegisterResponse
+                {
+                    Message = RegisterReturn.CompanyNotFound
+                };
             }
 
             var newUser = new User
@@ -119,7 +118,9 @@ namespace Deskstar.Usecases
 
             _context.Users.Add(newUser);
             _context.SaveChanges();
-            return RegisterReturn.Ok;
+            return new RegisterResponse
+            {
+                Message = RegisterReturn.Ok};
         }
 
         private User _getUser(string mail)

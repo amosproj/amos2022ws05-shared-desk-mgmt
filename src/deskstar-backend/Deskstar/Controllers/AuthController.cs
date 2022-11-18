@@ -40,12 +40,12 @@ public class AuthController : ControllerBase
     public IActionResult CreateToken(CreateTokenUser user)
     {
         var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
-        if (returnValue == LoginReturn.Ok)
+        if (returnValue.Message == LoginReturn.Ok)
         {
             return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
         }
 
-        return Unauthorized(returnValue.ToString());
+        return Unauthorized(returnValue.Message.ToString());
     }
 
     /// <summary>
@@ -62,16 +62,16 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status404NotFound)]
     public IActionResult Register(RegisterUser registerUser)
     {
         var result = _authUsecases.RegisterUser(registerUser);
-        return result switch
+        return result.Message switch
         {
             RegisterReturn.Ok => Ok(),
-            RegisterReturn.CompanyNotFound => NotFound(result.ToString()),
-            _ => BadRequest(result.ToString())
+            RegisterReturn.CompanyNotFound => NotFound(result.Message.ToString()),
+            _ => BadRequest(result.Message.ToString())
         };
     }
 }

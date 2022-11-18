@@ -30,7 +30,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result, Is.EqualTo(LoginReturn.Ok));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.Ok));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -71,7 +71,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result, Is.EqualTo(LoginReturn.NotYetApproved));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.NotYetApproved));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -96,7 +96,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.CreditialsWrong));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -121,7 +121,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result, Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.CreditialsWrong));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -186,7 +186,7 @@ public class AuthUseCasesTests
         var result = subject.RegisterUser(user);
 
         //assert
-        Assert.That(result, Is.EqualTo(RegisterReturn.Ok));
+        Assert.That(result.Message, Is.EqualTo(RegisterReturn.Ok));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -216,7 +216,7 @@ public class AuthUseCasesTests
         var result = subject.RegisterUser(user);
 
         //assert
-        Assert.That(result, Is.EqualTo(RegisterReturn.MailAddressInUse));
+        Assert.That(result.Message, Is.EqualTo(RegisterReturn.MailAddressInUse));
         
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -251,7 +251,7 @@ public class AuthUseCasesTests
         var result = subject.RegisterUser(user);
 
         //assert
-        Assert.That(result, Is.EqualTo(RegisterReturn.CompanyNotFound));
+        Assert.That(result.Message, Is.EqualTo(RegisterReturn.CompanyNotFound));
         
         //cleanup
         mogDB.Database.EnsureDeleted();

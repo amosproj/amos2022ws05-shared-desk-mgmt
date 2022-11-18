@@ -1,4 +1,5 @@
 using System.Text;
+using Deskstar;
 using Deskstar.DataAccess;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -31,7 +32,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => c.SchemaFilter<EnumSchemaFilter>());
+
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql("Host=localhost;Database=deskstar;Username=postgres;Password=root"));
 builder.Services.AddScoped<IAuthUsecases,AuthUsecases>();
 builder.Services.AddScoped<IBookingUsecases,BookingUsecases>();
