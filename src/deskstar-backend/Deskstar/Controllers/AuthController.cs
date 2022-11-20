@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
     [HttpPost("createToken")]
     [AllowAnonymous]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status401Unauthorized)]
     public IActionResult CreateToken(CreateTokenUser user)
     {
         var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
