@@ -22,12 +22,8 @@ const BookingsTable = ({
             <th className="bg-deskstar-green-light text-center">Start Time</th>
             <th className="bg-deskstar-green-light text-center">End Date</th>
             <th className="bg-deskstar-green-light text-center">End Time</th>
-            {onEdit && (
-              <th className="bg-deskstar-green-light"></th>
-            )}
-            {onDelete && (
-              <th className="bg-deskstar-green-light"></th>
-            )}
+            {onEdit && <th className="bg-deskstar-green-light"></th>}
+            {onDelete && <th className="bg-deskstar-green-light"></th>}
           </tr>
         </thead>
         <tbody>
@@ -70,12 +66,16 @@ const BookingTableEntry = ({
       <td className="text-center">{endTime}</td>
       {onEdit && (
         <td className="p-0">
-            <FaEdit onClick={() => onEdit(booking)} />
+          <button className="btn btn-ghost" onClick={() => onEdit(booking)}>
+            <FaEdit />
+          </button>
         </td>
       )}
       {onDelete && (
         <td className="p-0">
-          <FaTrashAlt color="red" onClick={() => onDelete(booking)} />
+          <button className="btn btn-ghost" onClick={() => onDelete(booking)}>
+            <FaTrashAlt color="red" />
+          </button>
         </td>
       )}
     </tr>
