@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Deskstar.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221118083301_Initial")]
-    partial class Initial
+    [Migration("20221118185753_AddIsCompanyAdminToUser")]
+    partial class AddIsCompanyAdminToUser
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -245,6 +245,11 @@ namespace Deskstar.Migrations
                         .HasColumnType("character varying");
 
                     b.Property<bool>("IsApproved")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValueSql("false");
+
+                    b.Property<bool>("IsCompanyAdmin")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValueSql("false");

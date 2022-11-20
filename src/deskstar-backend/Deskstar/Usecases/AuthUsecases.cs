@@ -36,7 +36,7 @@ namespace Deskstar.Usecases
             try
             {
                 var user = _context.Users.Single(u => u.MailAddress == mail);
-                return _hasher.VerifyHashedPassword(user, user.Password, password) 
+                return _hasher.VerifyHashedPassword(user, user.Password, password)
                        == PasswordVerificationResult.Success && user.IsApproved;
             }
             catch (Exception e)
@@ -62,10 +62,9 @@ namespace Deskstar.Usecases
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
-                //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
-                new Claim(JwtRegisteredClaimNames.Jti,
-                Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.NameId,user.UserId.ToString()),
+                user.IsCompanyAdmin?new Claim("IsCompanyAdmin","True" ):new Claim("IsNormalUser","True"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
              }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Issuer = issuer,
@@ -76,7 +75,6 @@ namespace Deskstar.Usecases
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            //var jwtToken = tokenHandler.WriteToken(token);
             var stringToken = tokenHandler.WriteToken(token);
             return stringToken;
         }

@@ -247,6 +247,11 @@ namespace Deskstar.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValueSql("false");
 
+                    b.Property<bool>("IsCompanyAdmin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValueSql("false");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("character varying");
