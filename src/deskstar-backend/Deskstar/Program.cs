@@ -1,5 +1,7 @@
 using System.Text;
-using Deskstar;
+
+using Deskstar.Core;
+
 using Deskstar.DataAccess;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,10 +34,24 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c => c.SchemaFilter<EnumSchemaFilter>());
 
-builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql("Host=localhost;Database=deskstar;Username=postgres;Password=root"));
-builder.Services.AddScoped<IAuthUsecases,AuthUsecases>();
+builder.Configuration.AddEnvironmentVariables();
+var dbHost = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_HOST) ?? null;
+var dbDatabase = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_DATABASE) ?? null;
+var dbUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_USERNAME) ?? null;
+var dbPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_PASSWORD) ?? null;
+if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == null)
+{
+    Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null}), database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
+    return;
+}
+
+builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
+builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
+
 builder.Services.AddScoped<IBookingUsecases,BookingUsecases>();
 var app = builder.Build();
 
