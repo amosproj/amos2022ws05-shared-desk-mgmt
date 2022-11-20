@@ -8,7 +8,7 @@ namespace Deskstar.Controllers;
 [Produces("text/plain")]
 public class HealthCheckController : ControllerBase
 {
-    
+
 
     private readonly ILogger<HealthCheckController> _logger;
 
@@ -29,5 +29,13 @@ public class HealthCheckController : ControllerBase
     public string Auth()
     {
         return "authenticated. We're live.";
+    }
+
+    [HttpGet("admin")]
+    [Authorize(Policy = "Admin")]
+    public string Admin()
+    {
+
+        return "you are an admin";
     }
 }

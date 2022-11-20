@@ -44,11 +44,10 @@ public class BookingController : ControllerBase
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        // TODO get user id when it's in token
-        var mailAddress = jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Email).Value;
+        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
         try
         {
-            var bookings = _bookingUsecases.GetRecentBookings(mailAddress);
+            var bookings = _bookingUsecases.GetRecentBookings(userId);
             return Ok(JsonSerializer.Serialize(bookings));
         }
         catch (Exception e)

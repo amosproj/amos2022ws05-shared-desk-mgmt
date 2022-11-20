@@ -6,7 +6,7 @@ namespace Deskstar.Usecases;
 
 public interface IBookingUsecases
 {
-    public List<RecentBooking> GetRecentBookings(string mailAddress);
+    public List<RecentBooking> GetRecentBookings(Guid userId);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -20,9 +20,8 @@ public class BookingUsecases : IBookingUsecases
         _context = context;
     }
 
-    public List<RecentBooking> GetRecentBookings(string mailAddress)
+    public List<RecentBooking> GetRecentBookings(Guid userId)
     {
-        var userId = _getUser(mailAddress).UserId;
         var bookings = _context.Bookings
             .Where(b => b.UserId == userId && b.StartTime >= DateTime.Now)
             .OrderBy(b => b.StartTime)
@@ -39,18 +38,5 @@ public class BookingUsecases : IBookingUsecases
         });
         
         return mapBookingsToRecentBookings.ToList();
-    }
-
-    private User _getUser(string mail)
-    {
-        try
-        {
-            return _context.Users.Single(u => u.MailAddress == mail);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, e.Message);
-            return User.Null;
-        }
     }
 }

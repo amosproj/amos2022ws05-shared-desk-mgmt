@@ -70,11 +70,10 @@ namespace Deskstar.Usecases
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(JwtRegisteredClaimNames.Email, user.MailAddress),
-                    //new Claim(JwtRegisteredClaimNames.Name, user.FirstName),
-                    new Claim(JwtRegisteredClaimNames.Jti,
-                        Guid.NewGuid().ToString())
-                }),
+                new Claim(JwtRegisteredClaimNames.NameId,user.UserId.ToString()),
+                user.IsCompanyAdmin?new Claim("IsCompanyAdmin","True" ):new Claim("IsNormalUser","True"),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+             }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 Issuer = issuer,
                 Audience = audience,

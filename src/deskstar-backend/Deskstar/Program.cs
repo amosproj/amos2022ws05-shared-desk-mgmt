@@ -30,7 +30,10 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy => policy.RequireClaim("IsCompanyAdmin"));
+});
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -52,8 +55,14 @@ if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 
-builder.Services.AddScoped<IBookingUsecases,BookingUsecases>();
+builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
+
 var app = builder.Build();
+// global cors policy
+app.UseCors(x => x
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
