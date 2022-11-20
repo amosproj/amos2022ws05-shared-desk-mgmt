@@ -5,6 +5,7 @@ namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/")]
+[Produces("text/plain")]
 public class HealthCheckController : ControllerBase
 {
 
