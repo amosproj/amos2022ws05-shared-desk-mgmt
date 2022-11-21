@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,7 +23,7 @@ public class BookingController : ControllerBase
     }
 
     [HttpGet("range")]
-    //[Authorize]
+    [Authorize]
     /*
     n -> Amount of Bookings
     skip -> Amount of Bookings we want to skip
@@ -32,6 +33,12 @@ public class BookingController : ControllerBase
     */
     public IActionResult GetBookingsByDirection()
     {
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        // TODO get user id when it's in token
+        var mailAddress = jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.Email).Value;
+
         var queryParams = Request.Query.Select(element => element.Key);
         int n;
         string direction;
@@ -69,10 +76,15 @@ public class BookingController : ControllerBase
                 throw new FormatException("n must be greater or equal than 0");
             if (skip < 0)
                 throw new FormatException("skip must not be greater negativ");
-            if (start > end)
-                throw new FormatException("from must be before end");
             if (direction.ToUpper() != "ASC" && direction.ToUpper() != "DESC")
                 throw new FormatException("direction must either be 'ASC' or 'DESC'");
+
+            if (start > end)
+            {
+                var swap = end;
+                end = start;
+                start = swap;
+            }
 
         }
         catch (ArgumentNullException e)
@@ -95,7 +107,16 @@ public class BookingController : ControllerBase
             _logger.LogError(e, e.Message);
             return BadRequest(e.Message);
         }
-        var bookings = _bookingUsecases.GetFilteredBookings(n,skip,direction,start,end);
+        var bookings = _bookingUsecases.GetFilteredBookings(mailAddress, n, skip, direction, start, end);
+        var mapped = bookings.Select(b => new RecentBooking()
+        {
+            Timestamp = b.Timestamp,
+            StartTime = b.StartTime,
+            EndTime = b.EndTime,
+            BuildingName = b.Desk.Room.Floor.Building.BuildingName,
+            FloorName = b.Desk.Room.Floor.FloorName,
+            RoomName = b.Desk.Room.RoomName
+        });
         return Ok(bookings);
     }
 

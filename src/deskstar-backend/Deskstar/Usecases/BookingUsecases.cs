@@ -1,12 +1,11 @@
 ﻿using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
-
 namespace Deskstar.Usecases;
 
 public interface IBookingUsecases
 {
-    List<RecentBooking> GetFilteredBookings(int n, int skip, string direction, DateTime start, DateTime end);
+    public List<Booking> GetFilteredBookings(string mailAddress, int n, int skip, string direction, DateTime start, DateTime end);
     public List<RecentBooking> GetRecentBookings(string mailAddress);
 }
 
@@ -21,26 +20,17 @@ public class BookingUsecases : IBookingUsecases
         _context = context;
     }
 
-    public List<RecentBooking> GetFilteredBookings(int n, int skip, string direction, DateTime start, DateTime end)
+    public List<Booking> GetFilteredBookings(string mailAddress, int n, int skip, string direction, DateTime start, DateTime end)
     {
-        var userId = new Guid();
+        var userId = _getUser(mailAddress).UserId;
         var allBookingsFromUser = _context.Bookings.Where(booking => booking.UserId == userId);
-        var filtered = allBookingsFromUser.Where(b => b.StartTime < end);
-        var sortedBookings = direction.ToUpper() == "ASC" ? filtered.OrderBy(bookings => bookings.StartTime) : filtered.OrderByDescending(b => b.StartTime);
+        var filteredEnd = allBookingsFromUser.Where(b => b.StartTime < end);
+        var filteredStart = filteredEnd.Where(b => b.StartTime >= start);
+        var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
         var skipped = sortedBookings.Skip(skip);
         var takeN = skipped.Take(n);
 
-
-        var mapped = takeN.Select(b => new RecentBooking()
-        {
-            Timestamp = b.Timestamp,
-            StartTime = b.StartTime,
-            EndTime = b.EndTime,
-            BuildingName = b.Desk.Room.Floor.Building.BuildingName,
-            FloorName = b.Desk.Room.Floor.FloorName,
-            RoomName = b.Desk.Room.RoomName
-        });
-        return mapped.ToList();
+        return takeN.ToList();
 
     }
 
