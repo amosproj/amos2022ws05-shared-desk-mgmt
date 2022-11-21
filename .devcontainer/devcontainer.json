@@ -16,7 +16,8 @@
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   },

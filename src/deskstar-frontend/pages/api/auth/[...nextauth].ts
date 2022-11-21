@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { AuthError, authorize } from "../../../lib/api/AuthService";
+import { AuthResponse, authorize } from "../../../lib/api/AuthService";
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -29,18 +29,16 @@ export const authOptions = {
           return null;
         }
 
-        console.log(credentials);
-
         const result = await authorize(credentials.email, credentials.password);
+
+        console.log(result);
 
         if (typeof result !== "string") {
           // must be AuthError
-          const err = result as AuthError;
+          const err = result as AuthResponse;
 
-          return null;
+          throw Error(AuthResponse[err]);
         }
-
-        console.log("Test");
 
         const user = {
           id: "1",
