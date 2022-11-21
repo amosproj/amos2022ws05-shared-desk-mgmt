@@ -5,7 +5,6 @@ import Input from "./forms/Input";
 export default function LoginPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [company, setCompany] = useState("");
   const [clicked, setClicked] = useState(false);
 
   const [error, setError] = useState("");
@@ -16,7 +15,6 @@ export default function LoginPanel() {
     e.preventDefault();
     setClicked(true);
     const result = await signIn("credentials", {
-      company,
       email,
       password,
       redirect: false,
@@ -34,12 +32,6 @@ export default function LoginPanel() {
       <h1 className="text-3xl font-bold">Login</h1>
       <p className="text-red-400">{error}</p>
       <form className="flex flex-col" onSubmit={onSubmit}>
-        <Input
-          name="company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          placeholder="Company"
-        />
         <Input
           name="email"
           value={email}
