@@ -23,59 +23,56 @@ public class BookingController : ControllerBase
         _bookingUsecases = bookingUsecases;
     }
 
+
+    /// <summary>
+    /// Returns a list of paginated bookings ranging from a start to an end timestamp.
+    /// </summary>
+    /// <returns>A List of Bookings in JSON Format (can be empty) </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Get /bookings/range?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
+    /// </remarks>
+    /// 
+    /// <response code="200">Returns the booking list</response>
+    /// <response code="400">Bad Request</response>
     [HttpGet("range")]
     [Authorize]
+    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
     /*
     n -> Amount of Bookings
     skip -> Amount of Bookings we want to skip
     direction / sort -> Sort direction depending on the start time of the bookings
-    from -> from that time (when not specified, everything until the end time)
+    start -> from that time (when not specified, everything until the end time)
     end -> end or until this the bookings (when not specified, infinite into future)
     */
-    public IActionResult GetBookingsByDirection()
+    public IActionResult GetBookingsByDirection(int n = int.MaxValue, int skip = 0, string direction = "DESC", long start = 0, long end = 0)
     {
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
         var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
 
-        var queryParams = Request.Query.Select(element => element.Key);
-        int n;
-        string direction;
-        int skip;
-        DateTime start;
-        DateTime end;
+        DateTime startDateTime;
+        DateTime endDateTime;
+
         try
         {
-            if (queryParams.Contains("n"))
-                int.TryParse(Request.Query["n"], out n);
+            if (start == 0)
+                startDateTime = DateTime.Now;
             else
-                n = int.MaxValue;
+                startDateTime = DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
 
-            if (queryParams.Contains("skip"))
-                int.TryParse(Request.Query["skip"], out skip);
+            if (end == 0)
+                endDateTime = DateTime.MaxValue;
             else
-                skip = 0;
+                endDateTime = DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
 
-            if (queryParams.Contains("direction"))
-                direction = Request.Query["direction"];
-            else
-                direction = "DESC";
-
-            if (queryParams.Contains("start"))
-                DateTime.TryParse(Request.Query["start"], out start);
-            else
-                start = DateTime.Now;
-
-            if (queryParams.Contains("end"))
-                DateTime.TryParse(Request.Query["end"], out end);
-            else
-                end = DateTime.MaxValue;
-
-            if (n <= 0)
-                throw new FormatException("n must be greater or equal than 0");
+            if (n < 0)
+                throw new FormatException("n must be greater than zero");
             if (skip < 0)
-                throw new FormatException("skip must not be greater negativ");
+                throw new FormatException("skip must be zero or greater");
             if (direction.ToUpper() != "ASC" && direction.ToUpper() != "DESC")
                 throw new FormatException("direction must either be 'ASC' or 'DESC'");
 
@@ -87,17 +84,7 @@ public class BookingController : ControllerBase
             }
 
         }
-        catch (ArgumentNullException e)
-        {
-            _logger.LogError(e, e.Message);
-            return BadRequest(e.Message);
-        }
         catch (FormatException e)
-        {
-            _logger.LogError(e, e.Message);
-            return BadRequest(e.Message);
-        }
-        catch (OverflowException e)
         {
             _logger.LogError(e, e.Message);
             return BadRequest(e.Message);
@@ -107,20 +94,23 @@ public class BookingController : ControllerBase
             _logger.LogError(e, e.Message);
             return BadRequest(e.Message);
         }
-        var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, start, end);
-        var mapped = bookings.Select(b => new RecentBooking()
-        {
-            Timestamp = b.Timestamp,
-            StartTime = b.StartTime,
-            EndTime = b.EndTime,
-            BuildingName = b.Desk.Room.Floor.Building.BuildingName,
-            FloorName = b.Desk.Room.Floor.FloorName,
-            RoomName = b.Desk.Room.RoomName
-        });
-        return Ok(bookings);
+        var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
+        var mapped = bookings.Select(
+            (b) =>
+            {
+                RecentBooking rb = new RecentBooking();
+                rb.Timestamp = b.Timestamp;
+                rb.StartTime = b.StartTime;
+                rb.EndTime = b.EndTime;
+                rb.BuildingName = b.Desk.Room.Floor.Building.BuildingName;
+                rb.FloorName = b.Desk.Room.Floor.FloorName;
+                rb.RoomName = b.Desk.Room.RoomName;
+                return rb;
+            }).ToList();
+        return Ok(mapped);
     }
 
-    
+
     /// <summary>
     /// Offers next ten Bookings for Token-User
     /// </summary>
@@ -134,7 +124,7 @@ public class BookingController : ControllerBase
     /// <response code="404">User not found</response>
     [HttpGet("recent")]
     [Authorize]
-    [ProducesResponseType(typeof(RecentBooking),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     public IActionResult RecentBookings()
