@@ -1,11 +1,12 @@
 import Head from "next/head";
-import { IBooking } from "../types/booking";
 import Collapse from "../components/Collapse";
+import { IDesk } from "../types/desk";
+import DesksTable from "../components/DesksTable";
 //TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
-import { bookings } from "../bookings";
+import { desks } from "../desks";
 
-const SearchResults = ({ results }: { results: IBooking[] }) => {
+const SearchResults = ({ results }: { results: IDesk[] }) => {
   // format results
   let formattedResults: any = {};
   for (const result of results) {
@@ -34,21 +35,13 @@ const SearchResults = ({ results }: { results: IBooking[] }) => {
           <Collapse key={location} index={locationIndex} title={location}>
             {Object.keys(formattedResults[location]).map(
               (building: string, buildingIndex: number) => (
-                <Collapse
-                  key={building}
-                  index={buildingIndex}
-                  title={building}
-                >
+                <Collapse key={building} index={buildingIndex} title={building}>
                   {Object.keys(formattedResults[location][building]).map(
                     (room: string, roomIndex: number) => (
-                      <Collapse
-                        key={room}
-                        index={
-                          roomIndex
-                        }
-                        title={room}
-                      >
-                        <div>Table results</div>
+                      <Collapse key={room} index={roomIndex} title={room}>
+                        <DesksTable
+                          desks={formattedResults[location][building][room]}
+                        />
                       </Collapse>
                     )
                   )}
@@ -64,12 +57,12 @@ const SearchResults = ({ results }: { results: IBooking[] }) => {
 
 //TODO: delete this - this is just for developing this component
 export const getServerSideProps: GetServerSideProps = async () => {
-  const sortedBookings = bookings.sort((a: IBooking, b: IBooking) =>
-    a.startTime.localeCompare(b.startTime)
+  const sortedDesks = desks.sort((a: IDesk, b: IDesk) =>
+    a.deskName.localeCompare(b.deskName)
   );
   return {
     props: {
-      results: sortedBookings,
+      results: sortedDesks,
     },
   };
 };
