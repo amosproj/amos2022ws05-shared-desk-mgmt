@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Deskstar.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221118185753_AddIsCompanyAdminToUser")]
-    partial class AddIsCompanyAdminToUser
+    [Migration("20221120161303_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
