@@ -38,9 +38,9 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
+        
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, int.MaxValue, 0, "DESC", DateTime.Now, DateTime.MaxValue);
+        var result = usecases.GetFilteredBookings(userID, int.MaxValue, 0, "DESC", DateTime.Now, DateTime.MaxValue);
 
         //assert
         Assert.That(result.Count == 1);
@@ -71,10 +71,9 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
 
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, n, skip, "", DateTime.Now, DateTime.MaxValue);
+        var result = usecases.GetFilteredBookings(userID, n, skip, "", DateTime.Now, DateTime.MaxValue);
 
         //assert
         Assert.That(result.Count == expectedBookings);
@@ -102,10 +101,9 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
 
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, 2, 0, "ASC", DateTime.Now, DateTime.MaxValue);
+        var result = usecases.GetFilteredBookings(userID, 2, 0, "ASC", DateTime.Now, DateTime.MaxValue);
 
         //assert
         Assert.That(result[0].BookingId == fbID);
@@ -131,10 +129,9 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
 
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, 2, 0, "DESC", DateTime.Now, DateTime.MaxValue);
+        var result = usecases.GetFilteredBookings(userID, 2, 0, "DESC", DateTime.Now, DateTime.MaxValue);
 
         //assert
         Assert.That(result[0].BookingId == sbID);
@@ -160,11 +157,10 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
         var start = firstBooking.StartTime.Add(TimeSpan.FromTicks(1));
 
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, 2, 0, "DESC", start, DateTime.MaxValue);
+        var result = usecases.GetFilteredBookings(userID, 2, 0, "DESC", start, DateTime.MaxValue);
 
         //assert
         Assert.That(result.Count == 1);
@@ -191,11 +187,10 @@ public class BookingUsecasesTest
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
         var usecases = new BookingUsecases(logger.Object, db);
-        var mailAddress = "test@example.de";
         var end = secondBooking.StartTime.Subtract(TimeSpan.FromTicks(1));
 
         //act
-        var result = usecases.GetFilteredBookings(mailAddress, 2, 0, "DESC", DateTime.Now, end);
+        var result = usecases.GetFilteredBookings(userID, 2, 0, "DESC", DateTime.Now, end);
 
         //assert
         Assert.That(result.Count == 1);
@@ -205,6 +200,49 @@ public class BookingUsecasesTest
         //cleanup
         db.Database.EnsureDeleted();
     }
+
+    public void CheckGetRecentBookings_ValidMailAddress_NoBookings()
+    {
+        //setup
+        using var mogDB = new DataContext();
+        AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var subject = new BookingUsecases(logger.Object, mogDB);
+
+        //act
+        const string address = "test@mail.de";
+        var result = subject.GetRecentBookings(mogDB.Users.First(u => u.MailAddress == address).UserId);
+
+
+        //assert
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public void CheckGetRecentBookings_ValidMailAddress_1Booking()
+    {
+        //setup
+        using var mogDB = new DataContext();
+        FillDatabaseWithEverything(mogDB, new PasswordHasher<User>());
+        const string address = "test@example.de";
+        var userId = mogDB.Users.First(u => u.MailAddress == address).UserId;
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var subject = new BookingUsecases(logger.Object, mogDB);
+
+        //act
+
+        var result = subject.GetRecentBookings(userId);
+
+
+        //assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result, Has.Count.EqualTo(1));
+    }
+
     private void setupMockData(DataContext moqDb, Guid companyID = new Guid(), Guid userID = new Guid(), Guid buildingID = new Guid(), Guid floorID = new Guid(), Guid roomID = new Guid(), Guid deskTypeID = new Guid(), Guid deskID = new Guid())
     {
         if (companyID.ToString() == "00000000-0000-0000-0000-000000000000")
@@ -322,5 +360,96 @@ public class BookingUsecasesTest
         db.Add(secondBooking);
         db.SaveChanges();
         return (firstBooking, secondBooking);
+    }
+
+    private void AddOneCompany_AddOneUser(DataContext mogDB, PasswordHasher<User> hasher)
+    {
+        var company = new Company
+        {
+            CompanyId = new Guid(),
+            CompanyName = "gehmalbierholn"
+        };
+        var user = new User
+        {
+            UserId = new Guid(),
+            MailAddress = "test@mail.de",
+            FirstName = "testF",
+            LastName = "testL",
+            Company = company,
+            IsApproved = true
+        };
+        user.Password = hasher.HashPassword(user, "testpw");
+        mogDB.Companies.Add(company);
+        mogDB.Users.Add(user);
+        mogDB.SaveChanges();
+    }
+
+    private void FillDatabaseWithEverything(DataContext mogDB, PasswordHasher<User> hasher)
+    {
+        var company = new Company
+        {
+            CompanyId = Guid.NewGuid(),
+            CompanyName = "gehmalbierholn"
+        };
+        var user = new User
+        {
+            UserId = Guid.NewGuid(),
+            MailAddress = "test@example.de",
+            FirstName = "testF",
+            LastName = "testL",
+            CompanyId = company.CompanyId,
+            IsApproved = true
+        };
+        user.Password = hasher.HashPassword(user, "testpw");
+        var building = new Building
+        {
+            BuildingId = Guid.NewGuid(),
+            BuildingName = "Gebäude1",
+            Location = "Location1",
+            CompanyId = company.CompanyId
+        };
+        var floor = new Floor
+        {
+            FloorId = Guid.NewGuid(),
+            FloorName = "Stockwerk1",
+            BuildingId = building.BuildingId
+        };
+        var room = new Room
+        {
+            RoomId = Guid.NewGuid(),
+            FloorId = floor.FloorId,
+            RoomName = "Raum1"
+        };
+        var deskTyp = new DeskType
+        {
+            DeskTypeId = Guid.NewGuid(),
+            CompanyId = company.CompanyId,
+            DeskTypeName = "Typ1"
+        };
+        var desk = new Desk
+        {
+            DeskId = Guid.NewGuid(),
+            DeskName = "Desk1",
+            DeskTypeId = deskTyp.DeskTypeId,
+            RoomId = room.RoomId
+        };
+        var booking = new Booking
+        {
+            UserId = user.UserId,
+            DeskId = desk.DeskId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now.Add(TimeSpan.FromHours(1)),
+            EndTime = DateTime.Now.Add(TimeSpan.FromHours(2))
+        };
+        mogDB.Companies.Add(company);
+        mogDB.Users.Add(user);
+        mogDB.Buildings.Add(building);
+        mogDB.Floors.Add(floor);
+        mogDB.Rooms.Add(room);
+        mogDB.DeskTypes.Add(deskTyp);
+        mogDB.Desks.Add(desk);
+        mogDB.Bookings.Add(booking);
+
+        mogDB.SaveChanges();
     }
 }

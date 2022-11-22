@@ -29,6 +29,8 @@ namespace Deskstar.DataAccess
         {
             if (!optionsBuilder.IsConfigured)
             {
+                //For migration purposes...
+                //optionsBuilder.UseNpgsql($"Host=localhost;Database=deskstar;Username=postgres;Password=root");
                 optionsBuilder.UseInMemoryDatabase(databaseName: "TestDB");
             }
         }
@@ -236,6 +238,7 @@ namespace Deskstar.DataAccess
                 entity.Property(e => e.FirstName).HasColumnType("character varying");
 
                 entity.Property(e => e.IsApproved).HasDefaultValueSql("false");
+                entity.Property(e => e.IsCompanyAdmin).HasDefaultValueSql("false");
 
                 entity.Property(e => e.LastName).HasColumnType("character varying");
 

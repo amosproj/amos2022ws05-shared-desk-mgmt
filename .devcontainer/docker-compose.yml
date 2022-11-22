@@ -16,9 +16,11 @@ services:
     network_mode: service:db
 
     environment:
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
+      DB__HOST: db
+      DB__USERNAME: postgres
+      DB__PASSWORD: postgres
+      DB__DATABASE: postgres
+      ASPNETCORE_ENVIRONMENT: Development
 
     # Uncomment the next line to use a non-root user for all processes.
     # user: vscode

@@ -5,9 +5,10 @@ namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/")]
+[Produces("text/plain")]
 public class HealthCheckController : ControllerBase
 {
-    
+
 
     private readonly ILogger<HealthCheckController> _logger;
 
@@ -18,15 +19,23 @@ public class HealthCheckController : ControllerBase
 
     [HttpGet()]
     [AllowAnonymous]
-    public String Get()
+    public string Get()
     {
         return "Hello World! We're live.";
     }
 
     [HttpGet("withToken")]
     [Authorize]
-    public String Auth()
+    public string Auth()
     {
         return "authenticated. We're live.";
+    }
+
+    [HttpGet("admin")]
+    [Authorize(Policy = "Admin")]
+    public string Admin()
+    {
+
+        return "you are an admin";
     }
 }
