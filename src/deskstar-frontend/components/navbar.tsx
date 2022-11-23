@@ -14,6 +14,10 @@ const navItems = [
     name: "Bookings",
     href: "/bookings",
   },
+  {
+    name: "Resources",
+    href: "/searchResults",
+  },
 ];
 
 export default function Navbar() {
