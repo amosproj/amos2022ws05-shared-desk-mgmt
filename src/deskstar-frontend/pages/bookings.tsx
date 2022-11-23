@@ -1,10 +1,10 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import BookingsTable from "../components/BookingsTable";
-import { bookings } from "../bookings";
+import { bookings as mockBookings } from "../bookings";
 import { IBooking } from "../types/booking";
 
-export default function Bookings() {
+export default function Bookings({ bookings }: { bookings: IBooking[] }) {
   const onDelete = (booking: IBooking) => {
     //TODO: implement
     console.log(`Pressed delete on ${booking.bookingId}`);
@@ -27,7 +27,7 @@ export default function Bookings() {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   //TODO: fetch here upcoming bookings from backend
-  const sortedBookings = bookings.sort((a: IBooking, b: IBooking) =>
+  const sortedBookings = mockBookings.sort((a: IBooking, b: IBooking) =>
     a.startTime.localeCompare(b.startTime)
   );
   return {
