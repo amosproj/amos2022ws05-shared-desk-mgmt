@@ -50,11 +50,11 @@ docker run -it -e DB__HOST=localhost -e DB__DATABASE=deskstar -e DB__USERNAME=po
 The backend will consist of 3 Layers:
 
 1. Service
-   will be represented by the Controllers, their job is to offer an endpoint and call some Logic if needed
+   will be represented by the Controllers, their job is to offer an endpoint and call some Logic if needed and map an entity to its corresponding model
 2. Logic
-   will be represented by the Usecases, all the domain logic usecases will be encapsulated here
+   will be represented by the Usecases, all the domain logic usecases will be encapsulated here this layer only knows entities
 3. Data Access
-   will be represented by the DataAccess, and stores the DB related logic
+   will be represented by the DataContext of EF Core, and stores the DB related access logic
 
 ### Entitites
 
