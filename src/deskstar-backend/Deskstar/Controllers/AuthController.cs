@@ -7,9 +7,9 @@ namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/auth")]
+[Produces("text/plain")]
 public class AuthController : ControllerBase
 {
-
     private readonly ILogger<AuthController> _logger;
     private readonly IAuthUsecases _authUsecases;
     private readonly IConfiguration _configuration;
@@ -22,26 +22,56 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
+    /// <summary>
+    /// Login functionality
+    /// </summary>
+    /// <returns> JWT, if users is approved and psw is correct </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /auth/createToken
+    /// </remarks>
+    /// 
+    /// <response code="200">Login succesful </response>
+    /// <response code="401">Credentials wrong or user not approved</response>
     [HttpPost("createToken")]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status401Unauthorized)]
     public IActionResult CreateToken(CreateTokenUser user)
     {
-        if (_authUsecases.checkCredentials(user.MailAddress, user.Password))
+        var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
+        if (returnValue.Message == LoginReturn.Ok)
         {
-            return Ok(_authUsecases.createToken(_configuration, user.MailAddress));
+            return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
         }
-        return Unauthorized();
+
+        return Unauthorized(returnValue.Message.ToString());
     }
 
+    /// <summary>
+    /// Register functionality
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /auth/register
+    /// </remarks>
+    /// 
+    /// <response code="200">User added to db</response>
+    /// <response code="400">Mail already in use</response>
+    /// <response code="404">Company not found</response>
     [HttpPost("register")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status404NotFound)]
     public IActionResult Register(RegisterUser registerUser)
     {
-        if (!_authUsecases.registerUser(registerUser))
+        var result = _authUsecases.RegisterUser(registerUser);
+        return result.Message switch
         {
-            return BadRequest();
-        }
-
-        return Ok();
+            RegisterReturn.Ok => Ok(),
+            RegisterReturn.CompanyNotFound => NotFound(result.Message.ToString()),
+            _ => BadRequest(result.Message.ToString())
+        };
     }
 }

@@ -16,7 +16,7 @@ export default function Login() {
         pathname: "/",
       });
     }
-  }, [session]);
+  }, [router, session]);
 
   if (session)
     //TODO: add nice loading component

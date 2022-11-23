@@ -16,7 +16,8 @@
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
-        "eamodio.gitlens"
+        "eamodio.gitlens",
+        "bradlc.vscode-tailwindcss"
       ]
     }
   },
@@ -25,7 +26,10 @@
   "forwardPorts": [3000, 5000, 5432],
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "export PATH=\"$PATH:/home/vscode/.dotnet/tools\""
+  "postCreateCommand": "dotnet tool install --global dotnet-ef",
+  "remoteEnv": {
+    "PATH": "${containerEnv:PATH}:/home/vscode/.dotnet/tools"
+  }
 
   // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
   // "remoteUser": "root"
