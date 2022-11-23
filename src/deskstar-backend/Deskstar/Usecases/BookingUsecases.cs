@@ -1,6 +1,7 @@
 ﻿using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
+using Microsoft.EntityFrameworkCore;
 namespace Deskstar.Usecases;
 
 public interface IBookingUsecases
@@ -28,9 +29,12 @@ public class BookingUsecases : IBookingUsecases
         var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
         var skipped = sortedBookings.Skip(skip);
         var takeN = skipped.Take(n);
+        var withReferences = takeN.Include(b => b.Desk)
+        .ThenInclude(d => d.Room)
+        .ThenInclude(r => r.Floor)
+        .ThenInclude(b => b.Building);
 
-        return takeN.ToList();
-
+        return withReferences.ToList();
     }
 
     public List<RecentBooking> GetRecentBookings(Guid userId)
@@ -39,6 +43,12 @@ public class BookingUsecases : IBookingUsecases
             .Where(b => b.UserId == userId && b.StartTime >= DateTime.Now)
             .OrderBy(b => b.StartTime)
             .Take(10);
+
+        var withReferences = bookings.Include(b => b.Desk)
+               .ThenInclude(d => d.Room)
+               .ThenInclude(r => r.Floor)
+               .ThenInclude(b => b.Building);
+
         var mapBookingsToRecentBookings = bookings.Select(b => new RecentBooking
         {
             DeskName = b.Desk.DeskName,
