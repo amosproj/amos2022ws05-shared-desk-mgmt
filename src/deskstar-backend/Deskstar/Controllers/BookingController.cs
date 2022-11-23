@@ -39,14 +39,8 @@ public class BookingController : ControllerBase
     [Authorize]
     [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    /*
-    n -> Amount of Bookings
-    skip -> Amount of Bookings we want to skip
-    direction / sort -> Sort direction depending on the start time of the bookings
-    start -> from that time (when not specified, everything until the end time)
-    end -> end or until this the bookings (when not specified, infinite into future)
-    */
     public IActionResult GetBookingsByDirection(int n = int.MaxValue, int skip = 0, string direction = "DESC", long start = 0, long end = 0)
     {
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
@@ -94,20 +88,28 @@ public class BookingController : ControllerBase
             _logger.LogError(e, e.Message);
             return BadRequest(e.Message);
         }
-        var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
-        var mapped = bookings.Select(
-            (b) =>
-            {
-                RecentBooking rb = new RecentBooking();
-                rb.Timestamp = b.Timestamp;
-                rb.StartTime = b.StartTime;
-                rb.EndTime = b.EndTime;
-                rb.BuildingName = b.Desk.Room.Floor.Building.BuildingName;
-                rb.FloorName = b.Desk.Room.Floor.FloorName;
-                rb.RoomName = b.Desk.Room.RoomName;
-                return rb;
-            }).ToList();
-        return Ok(mapped);
+        try
+        {
+            var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
+            var mapped = bookings.Select(
+                (b) =>
+                {
+                    RecentBooking rb = new RecentBooking();
+                    rb.Timestamp = b.Timestamp;
+                    rb.StartTime = b.StartTime;
+                    rb.EndTime = b.EndTime;
+                    rb.BuildingName = b.Desk.Room.Floor.Building.BuildingName;
+                    rb.FloorName = b.Desk.Room.Floor.FloorName;
+                    rb.RoomName = b.Desk.Room.RoomName;
+                    return rb;
+                }).ToList();
+            return Ok(mapped);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 
 
