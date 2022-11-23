@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import { useState } from "react";
 import { AuthError, AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
@@ -9,7 +10,11 @@ export default function RegisterPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+
   const [error, setError] = useState("");
+  const [clicked, setClicked] = useState(false);
+
+  const router = useRouter();
 
   return (
     <div className="flex flex-col">
@@ -19,7 +24,7 @@ export default function RegisterPanel() {
         className="flex flex-col"
         onSubmit={async (e) => {
           e.preventDefault();
-          debugger;
+          setClicked(true);
 
           if (password !== repeatPassword) {
             setError("Passwords must be equal!");
@@ -39,6 +44,18 @@ export default function RegisterPanel() {
               password,
             }),
           });
+
+          setClicked(false);
+
+          if (response.status !== 200) {
+            console.log(response.status);
+            const { error } = await response.json();
+
+            setError(error);
+            return;
+          }
+
+          router.push("/login");
         }}
       >
         <Input
@@ -84,12 +101,21 @@ export default function RegisterPanel() {
           />
         </div>
 
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          type="submit"
-        >
-          Register
-        </button>
+        {!clicked ? (
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            type="submit"
+          >
+            Register
+          </button>
+        ) : (
+          <button
+            className="btn bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded loading"
+            type="submit"
+          >
+            Loading
+          </button>
+        )}
       </form>
     </div>
   );

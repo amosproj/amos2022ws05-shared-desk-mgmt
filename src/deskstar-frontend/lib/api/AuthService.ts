@@ -16,6 +16,8 @@ export enum AuthResponse {
   ErrorEmailaddressAlreadyExists,
   ErrorNotAllowedToCreateUser,
   ErrorInvalidCredentials,
+  ErrorUserNotApproved,
+  ErrorServer,
   Success,
 }
 
@@ -35,7 +37,17 @@ export async function authorize(
   });
 
   if (response.status != 200) {
-    return AuthResponse.ErrorInvalidCredentials;
+    if (response.status == 401) {
+      const message = await response.text();
+
+      if (message == "NotYetApproved") {
+        return AuthResponse.ErrorUserNotApproved;
+      }
+
+      return AuthResponse.ErrorInvalidCredentials;
+    }
+
+    return AuthResponse.ErrorServer;
   }
 
   return response.text();
