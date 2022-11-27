@@ -151,7 +151,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
         </div>
       </div>
 
-      <button type="button" onClick={onClick}>
+      <button type="button" className="btn btn-secondary" onClick={onClick}>
         Search for Desks
       </button>
     </div>
