@@ -1,11 +1,11 @@
 import Head from "next/head";
 
-import Collapse from "../components/Collapse";
-import { IRoom } from "../types/room";
+import Collapse from "../../components/Collapse";
+import { IRoom } from "../../types/room";
 
 //TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
-import { rooms } from "../rooms";
+import { rooms } from "../../rooms";
 
 const Bookings = ({ results }: { results: IRoom[] }) => {
   const username = "Test User";

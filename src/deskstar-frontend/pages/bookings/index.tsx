@@ -1,8 +1,8 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
-import BookingsTable from "../components/BookingsTable";
-import { bookings as mockBookings } from "../bookings";
-import { IBooking } from "../types/booking";
+import BookingsTable from "../../components/BookingsTable";
+import { bookings as mockBookings } from "../../bookings";
+import { IBooking } from "../../types/booking";
 
 export default function Bookings({ bookings }: { bookings: IBooking[] }) {
   const onDelete = (booking: IBooking) => {

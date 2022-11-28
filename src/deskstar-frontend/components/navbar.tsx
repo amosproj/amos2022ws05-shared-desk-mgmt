@@ -20,7 +20,7 @@ const navItems = [
   },
   {
     name: "Add New Booking",
-    href: "/addBooking",
+    href: "/bookings/add",
   },
 ];
 
@@ -30,7 +30,7 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-deskstar-green-dark">
+    <nav className="flex flex-row justify-between p-4 py-3 rounded bg-deskstar-green-dark dark:text-black">
       <Link href="/">
         <Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />
         <span className="sr-only">Deskstar</span>
