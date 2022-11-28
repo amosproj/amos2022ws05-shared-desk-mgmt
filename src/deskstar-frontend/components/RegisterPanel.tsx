@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthError, AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 
@@ -11,53 +11,56 @@ export default function RegisterPanel() {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
+  const [msg, setMsg] = useState("");
+
   const [error, setError] = useState("");
   const [clicked, setClicked] = useState(false);
 
   const router = useRouter();
 
+  async function submitForm(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setClicked(true);
+
+    if (password !== repeatPassword) {
+      setError("Passwords must be equal!");
+
+      setClicked(false);
+      return;
+    }
+
+    const response = await fetch("http://localhost:3000/api/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        companyId: company,
+        firstName,
+        lastName,
+        mailAddress: email,
+        password,
+      }),
+    });
+
+    setClicked(false);
+
+    if (response.status !== 200) {
+      console.log(response.status);
+      const { error } = await response.json();
+
+      setError(error);
+      return;
+    }
+
+    setMsg("registered successful");
+  }
+
   return (
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Register</h1>
       <span className="text-red-400">{error}</span>
-      <form
-        className="flex flex-col"
-        onSubmit={async (e) => {
-          e.preventDefault();
-          setClicked(true);
-
-          if (password !== repeatPassword) {
-            setError("Passwords must be equal!");
-            return;
-          }
-
-          const response = await fetch("http://localhost:3000/api/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              companyId: company,
-              firstName,
-              lastName,
-              mailAddress: email,
-              password,
-            }),
-          });
-
-          setClicked(false);
-
-          if (response.status !== 200) {
-            console.log(response.status);
-            const { error } = await response.json();
-
-            setError(error);
-            return;
-          }
-
-          router.push("/login");
-        }}
-      >
+      <form className="flex flex-col" onSubmit={submitForm}>
         <Input
           name="company"
           value={company}
@@ -100,6 +103,8 @@ export default function RegisterPanel() {
             placeholder="Repeat password"
           />
         </div>
+
+        <p className="text-green-500 text-center py-4">{msg}</p>
 
         {!clicked ? (
           <button
