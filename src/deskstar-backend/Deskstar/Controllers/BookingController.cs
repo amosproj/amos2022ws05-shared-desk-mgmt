@@ -31,7 +31,7 @@ public class BookingController : ControllerBase
     /// Sample request:
     ///     Get /bookings/range?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
     /// </remarks>
-    /// 
+    ///
     /// <response code="200">Returns the booking list</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
@@ -122,7 +122,7 @@ public class BookingController : ControllerBase
     /// Sample request:
     ///     Get /bookings/recent with JWT Token
     /// </remarks>
-    /// 
+    ///
     /// <response code="200">Returns the booking list</response>
     /// <response code="404">User not found</response>
     [HttpGet("recent")]

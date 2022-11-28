@@ -1,10 +1,10 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
-  // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -46,6 +46,28 @@ export const authOptions = {
     }),
     // ...add more providers here
   ],
+  callbacks: {
+    async jwt({ token, user, account, isNewUser }) {
+      if (user) {
+        if (user.our_token) {
+          token = { accessToken: user.our_token };
+        }
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
+
+      // TODO: Needs to be fetched via /user/me route or so!
+      session.user = {
+        id: "1",
+        name: "testuser",
+        email: "test@example.com",
+        accessToken: token.accessToken as string,
+      };
+      return session;
+    },
+  },
   pages: {
     signIn: "/login",
     newUser: "/register",
