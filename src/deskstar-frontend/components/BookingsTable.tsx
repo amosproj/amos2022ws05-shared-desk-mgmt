@@ -12,8 +12,8 @@ const BookingsTable = ({
 }) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table table-zebra w-full">
-        <thead>
+      <table className="table table-zebra w-full ">
+        <thead className="dark:text-black">
           <tr>
             <th className="bg-deskstar-green-light text-center">Desk</th>
             <th className="bg-deskstar-green-light text-center">Room</th>
