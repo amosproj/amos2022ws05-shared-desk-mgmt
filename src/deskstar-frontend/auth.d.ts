@@ -6,7 +6,7 @@ declare module "next-auth" {
     email: string;
     name: string;
     isApproved: boolean;
-    isCompanyAdmin: boolean;
+    isAdmin: boolean;
   }
 
   interface Session {

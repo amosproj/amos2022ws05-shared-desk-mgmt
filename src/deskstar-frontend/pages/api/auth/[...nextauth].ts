@@ -36,7 +36,7 @@ export const authOptions = {
           name: "testuser",
           email: "test@example.com",
           isApproved : true,
-          isCompanyAdmin : true,
+          isAdmin : true,
           our_token: result as String,
         };
 
@@ -54,7 +54,7 @@ export const authOptions = {
       //TODO: refactor this if me route is available
       // Send properties to the client, like if user is approved or is admin
       session.user.isApproved = true;
-      session.user.isCompanyAdmin = true;
+      session.user.isAdmin = true;
 
       return session;
     },

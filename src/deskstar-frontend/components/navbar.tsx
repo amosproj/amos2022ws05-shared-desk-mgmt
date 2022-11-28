@@ -22,12 +22,8 @@ const userNavItems = [
 
 const adminNavItems = [
   {
-    name: "Overview",
+    name: "User Management",
     href: "/usersOverview",
-  },
-  {
-    name: "Requests",
-    href: "/userRequests",
   },
 ];
 
@@ -56,7 +52,7 @@ export default function Navbar() {
 
         {session &&
           session.user &&
-          session.user.isCompanyAdmin &&
+          session.user.isAdmin &&
           adminNavItems.map((item) => (
             <Link
               className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
@@ -104,6 +100,19 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              {session &&
+                session.user &&
+                session.user.isAdmin &&
+                adminNavItems.map((item) => (
+                  <Link
+                    href={item.href}
+                    key={item.name}
+                    onClick={() => setIsOpen(false)}
+                    className="w-full text-lg text-right p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
+                  >
+                    {item.name}
+                  </Link>
+                ))}
 
               {session && (
                 <span onClick={() => signOut()}>
