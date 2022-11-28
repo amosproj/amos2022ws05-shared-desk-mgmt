@@ -12,7 +12,7 @@ type RegisterUser = {
 
 export enum AuthResponse {
   ErrorUnknown,
-  ErrorCompanyAlreadyExists,
+  ErrorCompanyNotFound,
   ErrorEmailaddressAlreadyExists,
   ErrorNotAllowedToCreateUser,
   ErrorInvalidCredentials,
@@ -62,19 +62,25 @@ export async function register(user: RegisterUser): Promise<AuthResponse> {
     },
   });
 
+  console.log(await response.status);
+
   if (response.status != 200) {
     switch (response.status) {
       case 400:
-        // Error: company does not exist
-        // Error: mail address already exists
-        return AuthResponse.ErrorUnknown;
+        const text = await response.text();
 
-      case 403:
-        // not authorized to create a user
+        console.log(text);
+
+        switch (text) {
+          case "MailAddressInUse":
+            return AuthResponse.ErrorEmailaddressAlreadyExists;
+
+          case "CompanyNotFound":
+            return AuthResponse.ErrorCompanyNotFound;
+        }
+      default:
         return AuthResponse.ErrorUnknown;
     }
-
-    return AuthResponse.ErrorUnknown;
   }
 
   return AuthResponse.Success;

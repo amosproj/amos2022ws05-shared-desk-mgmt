@@ -11,7 +11,7 @@ export default function RegisterPanel() {
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
-  const [msg, setMsg] = useState("");
+  // const [msg, setMsg] = useState("");
 
   const [error, setError] = useState("");
   const [clicked, setClicked] = useState(false);
@@ -53,7 +53,7 @@ export default function RegisterPanel() {
       return;
     }
 
-    setMsg("registered successful");
+    document.location = "/login?msg=Registration+successful";
   }
 
   return (
@@ -104,7 +104,7 @@ export default function RegisterPanel() {
           />
         </div>
 
-        <p className="text-green-500 text-center py-4">{msg}</p>
+        {/* <p className="text-green-500 text-center py-4">{msg}</p> */}
 
         {!clicked ? (
           <button
