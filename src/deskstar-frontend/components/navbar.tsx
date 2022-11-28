@@ -18,6 +18,10 @@ const navItems = [
     name: "Resources",
     href: "/searchResults",
   },
+  {
+    name: "Add New Booking",
+    href: "/addBooking",
+  },
 ];
 
 export default function Navbar() {
