@@ -1,0 +1,36 @@
+# This workflow will build a next.js project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: next
+
+on:
+  push:
+    branches: ["develop", "main"]
+  pull_request:
+    branches: ["develop", "main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/deskstar-frontend
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install NodeJS
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.16.0'
+        cache: 'yarn'
+        cache-dependency-path: './src/deskstar-frontend/yarn.lock'
+    
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build next.js app
+      run: yarn build 
+
+    # - name: Test Next App
+      # run: yarn test 
