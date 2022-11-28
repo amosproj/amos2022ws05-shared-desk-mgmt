@@ -1,6 +1,6 @@
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { AuthError, AuthResponse, register } from "../lib/api/AuthService";
+import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 
 export default function RegisterPanel() {
