@@ -1,0 +1,50 @@
+name: .NET
+
+on:
+  push:
+    branches: ["develop", "main"]
+  pull_request:
+    branches: ["develop", "main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src/deskstar-backend/Teststar.Tests
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+
+      - name: List files
+        run: ls -las
+
+      - name: Restore dependencies
+        run: dotnet restore && dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory coverage
+      - name: Copy Coverage to Predictable Location
+        run: cp coverage/*/coverage.cobertura.xml coverage/coverage.cobertura.xml
+
+      - name: Code Coverage Summary Report
+        uses: irongut/CodeCoverageSummary@v1.3.0
+        with:
+          filename: ./src/deskstar-backend/Teststar.Tests/coverage/coverage.cobertura.xml
+          badge: true
+          format: 'markdown'
+          output: 'both'
+
+      - name: Upload coverage output to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage.corbertura.xml
+          path: ./src/deskstar-backend/Teststar.Tests/coverage/coverage.cobertura.xml
