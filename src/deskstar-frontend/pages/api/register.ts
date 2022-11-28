@@ -41,7 +41,7 @@ export default async function register(
         });
       case AuthResponse.ErrorEmailaddressAlreadyExists:
         return res.status(400).json({
-          error: "Emailadress already registered",
+          error: "Email adress already registered",
         });
       default:
         return res.status(400).json({
