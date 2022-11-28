@@ -65,16 +65,15 @@ export async function register(user: RegisterUser): Promise<AuthResponse> {
   console.log(await response.status);
 
   if (response.status != 200) {
+    const text = await response.text();
     switch (response.status) {
       case 400:
-        const text = await response.text();
-
-        console.log(text);
-
         switch (text) {
           case "MailAddressInUse":
             return AuthResponse.ErrorEmailaddressAlreadyExists;
-
+        }
+      case 404:
+        switch (text) {
           case "CompanyNotFound":
             return AuthResponse.ErrorCompanyNotFound;
         }
