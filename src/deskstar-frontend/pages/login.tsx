@@ -9,6 +9,8 @@ export default function Login() {
   const { data: session } = useSession();
   const router = useRouter();
 
+  const { msg } = router.query;
+
   useEffect(() => {
     if (session) {
       // redirect to homepage
@@ -27,6 +29,8 @@ export default function Login() {
       <Head>
         <title>Login</title>
       </Head>
+
+      <p className="bg-green-500">{msg}</p>
 
       <LoginPanel />
 
