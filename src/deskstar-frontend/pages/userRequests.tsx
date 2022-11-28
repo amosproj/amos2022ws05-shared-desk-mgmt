@@ -3,10 +3,29 @@ import { GetServerSideProps } from "next";
 import { UsersTable } from "../components/UsersTable";
 import { IUser } from "../types/users";
 import { UserManagementWrapper } from "../components/UserManagementWrapper";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 //TODO: delete this when using backend data instead of mockup
 import { users } from "../users";
 
 export default function UserRequests({ users }: { users: IUser[] }) {
+  const { data: session } = useSession();
+  const [calledRouter, setCalledRouter] = useState(false);
+  const router = useRouter();
+
+  // page is only accessable as admin
+  useEffect(() => {
+    if (!calledRouter && session && !session?.user.isAdmin) {
+      // redirect to homepage
+      router.push({
+        pathname: "/",
+      });
+      // prevent multiple router pushs
+      setCalledRouter(true);
+    }
+  }, [router, session, calledRouter]);
+
   const onApprovalUpdate = async (
     user: IUser,
     decision: boolean
@@ -15,6 +34,11 @@ export default function UserRequests({ users }: { users: IUser[] }) {
     if (decision) console.log(`Approving user ${user.userId}...`);
     else console.log(`Rejecting user ${user.userId}...`);
   };
+
+  if (!session?.user?.isAdmin) {
+    //TODO: Add loading animation
+    return <div>Loading...</div>;
+  }
 
   return (
     <UserManagementWrapper>
