@@ -34,10 +34,20 @@ export default async function register(
   });
 
   if (response !== AuthResponse.Success) {
-    res.status(400).json({
-      error: "unknown error",
-    });
-    return;
+    switch (response) {
+      case AuthResponse.ErrorCompanyNotFound:
+        return res.status(400).json({
+          error: "Company not Found",
+        });
+      case AuthResponse.ErrorEmailaddressAlreadyExists:
+        return res.status(400).json({
+          error: "Email adress already registered",
+        });
+      default:
+        return res.status(400).json({
+          error: "unknown error",
+        });
+    }
   }
 
   res.json(response);

@@ -5,7 +5,7 @@ const DesksTable = ({ desks }: { desks: IDesk[] }) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra w-full">
-        <thead>
+        <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
             <th className="w-1/4 bg-deskstar-green-light text-left">Desk</th>
