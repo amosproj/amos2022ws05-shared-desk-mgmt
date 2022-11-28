@@ -27,7 +27,7 @@ const userNavItems = [
 const adminNavItems = [
   {
     name: "User Management",
-    href: "/usersOverview",
+    href: "/users",
   },
 ];
 

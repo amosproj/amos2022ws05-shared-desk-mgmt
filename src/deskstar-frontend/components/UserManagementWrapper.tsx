@@ -8,11 +8,11 @@ export function UserManagementWrapper({ children }: LayoutProps) {
   const navItems = [
     {
       name: "Overview",
-      href: "/usersOverview",
+      href: "/users",
     },
     {
       name: "Requests",
-      href: "/userRequests",
+      href: "/users/requests",
     },
   ];
 

@@ -1,13 +1,13 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
-import { UsersTable } from "../components/UsersTable";
-import { IUser } from "../types/users";
-import { UserManagementWrapper } from "../components/UserManagementWrapper";
+import { UsersTable } from "../../components/UsersTable";
+import { IUser } from "../../types/users";
+import { UserManagementWrapper } from "../../components/UserManagementWrapper";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 //TODO: delete this when using backend data instead of mockup
-import { users } from "../users";
+import { users } from "../../users";
 
 export default function UserRequests({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
