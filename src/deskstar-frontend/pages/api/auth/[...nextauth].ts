@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
+import { Session } from "next-auth";
 
 export const authOptions = {
   secret: process.env.SECRET,
@@ -34,6 +35,8 @@ export const authOptions = {
           company: "INTERFLEX",
           name: "testuser",
           email: "test@example.com",
+          isApproved : true,
+          isAdmin : true,
           our_token: result as String,
         };
 
@@ -46,6 +49,16 @@ export const authOptions = {
     }),
     // ...add more providers here
   ],
+  callbacks: {
+    async session({ session }: {session: Session}) {
+      //TODO: refactor this if me route is available
+      // Send properties to the client, like if user is approved or is admin
+      session.user.isApproved = true;
+      session.user.isAdmin = true;
+
+      return session;
+    },
+  },
   pages: {
     signIn: "/login",
     newUser: "/register",

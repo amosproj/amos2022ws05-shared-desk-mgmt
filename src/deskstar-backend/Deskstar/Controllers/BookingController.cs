@@ -1,5 +1,4 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
-using System.Text.Json;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -102,6 +101,7 @@ public class BookingController : ControllerBase
                     rb.BuildingName = b.Desk.Room.Floor.Building.BuildingName;
                     rb.FloorName = b.Desk.Room.Floor.FloorName;
                     rb.RoomName = b.Desk.Room.RoomName;
+                    rb.DeskName = b.Desk.DeskName;
                     return rb;
                 }).ToList();
             return Ok(mapped);
@@ -139,7 +139,7 @@ public class BookingController : ControllerBase
         try
         {
             var bookings = _bookingUsecases.GetRecentBookings(userId);
-            return Ok(JsonSerializer.Serialize(bookings));
+            return Ok(bookings);
         }
         catch (Exception e)
         {
