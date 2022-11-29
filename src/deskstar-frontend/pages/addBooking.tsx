@@ -1,6 +1,6 @@
 import Head from "next/head";
 
-import { useSession} from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import { IRoom } from "../types/room";
 import { IDeskType } from "../types/desktypes";
@@ -10,7 +10,13 @@ import { GetServerSideProps } from "next";
 import { rooms } from "../rooms";
 import { deskTypes } from "../deskTypes";
 
-const Bookings = ({ results, types }: { results: IRoom[], types: IDeskType[] }) => {
+const Bookings = ({
+  results,
+  types,
+}: {
+  results: IRoom[];
+  types: IDeskType[];
+}) => {
   const { data: session } = useSession();
 
   let buildings: string[] = [];
@@ -24,10 +30,8 @@ const Bookings = ({ results, types }: { results: IRoom[], types: IDeskType[] }) 
   let chosenRooms: string[] = [];
   let chosenTypes: string[] = [];
 
-  let startDate: string;
-  let endDate: string;
-  let startTime: string;
-  let endTime: string;
+  let startDateTime: string;
+  let endDateTime: string;
 
   for (const result of results) {
     buildings.push(result.building);
@@ -45,56 +49,40 @@ const Bookings = ({ results, types }: { results: IRoom[], types: IDeskType[] }) 
         <title>Add New Booking</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Add New Booking</h1>
-      <h1 className="text-2xl font-bold text-center mt-10">Hello {session?.user?.name}, book your personal desk.</h1>
+      <h1 className="text-2xl font-bold text-center mt-10">
+        Hello {session?.user?.name}, book your personal desk.
+      </h1>
       <br />
       <div className="form-group">
-              <label className="form-label" htmlFor="start-date">
-                <b>Start Date:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="date"
-                id="start-date"
-                placeholder="Start Date"
-                onChange={(event) => startDate = event.target.value}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="start-time">
-                <b>Start Time:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="time"
-                id="start-time"
-                placeholder="Start Time"
-                onChange={(event) => startTime = event.target.value}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="end-date">
-                <b>End Date:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="date"
-                id="end-date"
-                placeholder="End Date"
-                onChange={(event) => endDate = event.target.value}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="end-time">
-                <b>End Time:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="time"
-                id="end-time"
-                placeholder="End Time"
-                onChange={(event) => endTime = event.target.value}
-              />
-            </div>
+        <label className="form-label" htmlFor="start-date">
+          <b>Start: </b> &nbsp;
+        </label>
+        <input
+          className="form-input"
+          type="datetime-local"
+          id="start-date-time"
+          name="Start"
+          value={new Date()
+            .toISOString()
+            .substring(0, "YYYY-MM-DDTHH:SS".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          onChange={(event) => (startDateTime = event.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="end-date">
+          <b>End: </b> &nbsp;
+        </label>
+        <input
+          className="form-input"
+          type="datetime-local"
+          id="end-date-time"
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          value={getEndDate()}
+          onChange={(event) => (endDateTime = event.target.value)}
+        />
+      </div>
 
       <div className="dropdown dropdown-hover">
         <label tabIndex={0} className="btn m-1">
@@ -377,13 +365,17 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       results: rooms,
-      types: deskTypes
+      types: deskTypes,
     },
   };
 };
 
-function onClick() {
-  
+function onClick() {}
+
+function getEndDate() {
+  let date = new Date();
+  date.setHours(date.getHours() + 1);
+  return date.toISOString().substring(0, "YYYY-MM-DDTHH:SS".length);
 }
 
 export default Bookings;
