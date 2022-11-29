@@ -62,7 +62,7 @@ const Bookings = ({
           type="datetime-local"
           id="start-date-time"
           name="Start"
-          value={new Date()
+          defaultValue={new Date()
             .toISOString()
             .substring(0, "YYYY-MM-DDTHH:SS".length)}
           min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
@@ -79,7 +79,7 @@ const Bookings = ({
           type="datetime-local"
           id="end-date-time"
           min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
-          value={getEndDate()}
+          defaultValue={getEndDate()}
           onChange={(event) => (endDateTime = event.target.value)}
         />
       </div>
