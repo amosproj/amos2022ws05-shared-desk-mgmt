@@ -1,6 +1,7 @@
 import Head from "next/head";
 
-import Collapse from "../components/Collapse";
+import { useSession} from "next-auth/react";
+
 import { IRoom } from "../types/room";
 
 //TODO: delete this - just used for mockup data
@@ -8,13 +9,20 @@ import { GetServerSideProps } from "next";
 import { rooms } from "../rooms";
 
 const Bookings = ({ results }: { results: IRoom[] }) => {
-  const username = "Test User";
+  const { data: session } = useSession();
+
   let buildings: string[] = [];
   let locations: string[] = [];
   let rooms: string[] = [];
+
   let chosenBuildings: string[] = [];
   let chosenLocations: string[] = [];
   let chosenRooms: string[] = [];
+
+  let startDate: string;
+  let endDate: string;
+  let startTime: string;
+  let endTime: string;
 
   for (const result of results) {
     buildings.push(result.building);
@@ -28,7 +36,56 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
         <title>Add New Booking</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Add New Booking</h1>
-      <div>Hello {username}, book your personal desk.</div>
+      <div>Hello {session?.user?.name}, book your personal desk.</div>
+
+      <div className="form-group">
+              <label className="form-label" htmlFor="start-date">
+                <b>Start Date:</b> &nbsp;
+              </label>
+              <input
+                className="form-input"
+                type="date"
+                id="start-date"
+                placeholder="Start Date"
+                onChange={(event) => this.setState({startDate: event.target.value})}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="start-time">
+                <b>Start Time:</b> &nbsp;
+              </label>
+              <input
+                className="form-input"
+                type="time"
+                id="start-time"
+                placeholder="Start Time"
+                onChange={(event) => this.setState({startTime: event.target.value})}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="end-date">
+                <b>End Date:</b> &nbsp;
+              </label>
+              <input
+                className="form-input"
+                type="date"
+                id="end-date"
+                placeholder="End Date"
+                onChange={(event) => this.setState({endDate: event.target.value})}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="end-time">
+                <b>End Time:</b> &nbsp;
+              </label>
+              <input
+                className="form-input"
+                type="time"
+                id="end-time"
+                placeholder="End Time"
+                onChange={(event) => this.setState({endTime: event.target.value})}
+              />
+            </div>
 
       <div className="dropdown dropdown-hover">
         <label tabIndex={0} className="btn m-1">
@@ -115,11 +172,10 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                   onClick={() => {
                     buildings.forEach((building) => {
                       var ebox = document.getElementById(building);
-
                       if (ebox != null && ebox instanceof HTMLInputElement) {
                         var box: HTMLInputElement = ebox;
                         if (!box.checked) {
-                          chosenLocations.push(building);
+                          chosenBuildings.push(building);
                         }
                         box.checked = true;
                       }
@@ -187,7 +243,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                       if (ebox != null && ebox instanceof HTMLInputElement) {
                         var box: HTMLInputElement = ebox;
                         if (!box.checked) {
-                          chosenLocations.push(room);
+                          chosenRooms.push(room);
                         }
                         box.checked = true;
                       }
