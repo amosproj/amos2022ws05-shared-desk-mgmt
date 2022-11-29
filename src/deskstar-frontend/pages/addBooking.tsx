@@ -3,21 +3,26 @@ import Head from "next/head";
 import { useSession} from "next-auth/react";
 
 import { IRoom } from "../types/room";
+import { IDeskType } from "../types/desktypes";
 
 //TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
 import { rooms } from "../rooms";
+import { deskTypes } from "../deskTypes";
 
-const Bookings = ({ results }: { results: IRoom[] }) => {
+const Bookings = ({ results, types }: { results: IRoom[], types: IDeskType[] }) => {
   const { data: session } = useSession();
 
   let buildings: string[] = [];
   let locations: string[] = [];
   let rooms: string[] = [];
+  let deskTypes: string[] = [];
 
+  // Fields to give to the backend
   let chosenBuildings: string[] = [];
   let chosenLocations: string[] = [];
   let chosenRooms: string[] = [];
+  let chosenTypes: string[] = [];
 
   let startDate: string;
   let endDate: string;
@@ -30,14 +35,18 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
     rooms.push(result.roomName);
   }
 
+  for (const type of types) {
+    deskTypes.push(type.typeName);
+  }
+
   return (
     <div>
       <Head>
         <title>Add New Booking</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Add New Booking</h1>
-      <div>Hello {session?.user?.name}, book your personal desk.</div>
-
+      <h1 className="text-2xl font-bold text-center mt-10">Hello {session?.user?.name}, book your personal desk.</h1>
+      <br />
       <div className="form-group">
               <label className="form-label" htmlFor="start-date">
                 <b>Start Date:</b> &nbsp;
@@ -47,7 +56,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                 type="date"
                 id="start-date"
                 placeholder="Start Date"
-                onChange={(event) => this.setState({startDate: event.target.value})}
+                onChange={(event) => startDate = event.target.value}
               />
             </div>
             <div className="form-group">
@@ -59,7 +68,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                 type="time"
                 id="start-time"
                 placeholder="Start Time"
-                onChange={(event) => this.setState({startTime: event.target.value})}
+                onChange={(event) => startTime = event.target.value}
               />
             </div>
             <div className="form-group">
@@ -71,7 +80,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                 type="date"
                 id="end-date"
                 placeholder="End Date"
-                onChange={(event) => this.setState({endDate: event.target.value})}
+                onChange={(event) => endDate = event.target.value}
               />
             </div>
             <div className="form-group">
@@ -83,7 +92,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                 type="time"
                 id="end-time"
                 placeholder="End Time"
-                onChange={(event) => this.setState({endTime: event.target.value})}
+                onChange={(event) => endTime = event.target.value}
               />
             </div>
 
@@ -287,6 +296,74 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
           </ul>
         </div>
       </div>
+
+      <div className="dropdown dropdown-hover">
+        <label tabIndex={0} className="btn m-1">
+          Types
+        </label>
+        <div className="form-control">
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            <li key="li_allTypes">
+              <label className="label cursor-pointer">
+                <span className="label-text">All Rooms</span>
+                <input
+                  id="allTypes"
+                  type="checkbox"
+                  className="checkbox"
+                  onClick={() => {
+                    deskTypes.forEach((type) => {
+                      var ebox = document.getElementById(type);
+
+                      if (ebox != null && ebox instanceof HTMLInputElement) {
+                        var box: HTMLInputElement = ebox;
+                        if (!box.checked) {
+                          chosenTypes.push(type);
+                        }
+                        box.checked = true;
+                      }
+                    });
+                  }}
+                />
+              </label>
+            </li>
+            <div className="divider"></div>
+
+            {deskTypes.map((type: string) => (
+              <li key={type}>
+                <label className="label cursor-pointer">
+                  <span className="label-text">{type}</span>
+                  <input
+                    id={type}
+                    type="checkbox"
+                    className="checkbox"
+                    onClick={() => {
+                      if (chosenTypes.includes(type)) {
+                        const index = chosenTypes.indexOf(type, 0);
+                        if (index > -1) {
+                          chosenTypes.splice(index, 1);
+                          var allBox = document.getElementById("allTypes");
+                          if (
+                            allBox != null &&
+                            allBox instanceof HTMLInputElement &&
+                            allBox.checked
+                          ) {
+                            allBox.checked = false;
+                          }
+                        }
+                      } else {
+                        chosenTypes.push(type);
+                      }
+                    }}
+                  />
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
       <br />
       <button type="button" className="btn btn-secondary" onClick={onClick}>
         Search for Desks
@@ -300,10 +377,13 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       results: rooms,
+      types: deskTypes
     },
   };
 };
 
-function onClick() {}
+function onClick() {
+  
+}
 
 export default Bookings;
