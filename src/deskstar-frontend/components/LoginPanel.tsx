@@ -35,6 +35,7 @@ export default function LoginPanel() {
         <Input
           name="email"
           value={email}
+          type="email"
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
         />

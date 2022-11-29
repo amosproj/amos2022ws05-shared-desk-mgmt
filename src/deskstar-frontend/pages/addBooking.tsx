@@ -1,25 +1,46 @@
 import Head from "next/head";
 
-import Collapse from "../components/Collapse";
+import { useSession } from "next-auth/react";
+
 import { IRoom } from "../types/room";
+import { IDeskType } from "../types/desktypes";
 
 //TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
 import { rooms } from "../rooms";
+import { deskTypes } from "../deskTypes";
 
-const Bookings = ({ results }: { results: IRoom[] }) => {
-  const username = "Test User";
+const Bookings = ({
+  results,
+  types,
+}: {
+  results: IRoom[];
+  types: IDeskType[];
+}) => {
+  const { data: session } = useSession();
+
   let buildings: string[] = [];
   let locations: string[] = [];
   let rooms: string[] = [];
+  let deskTypes: string[] = [];
+
+  // Fields to give to the backend
   let chosenBuildings: string[] = [];
   let chosenLocations: string[] = [];
   let chosenRooms: string[] = [];
+  let chosenTypes: string[] = [];
+
+  let startDateTime: string;
+  let endDateTime: string;
 
   for (const result of results) {
     buildings.push(result.building);
     locations.push(result.location);
     rooms.push(result.roomName);
+  }
+
+  for (const type of types) {
+    deskTypes.push(type.typeName);
   }
 
   return (
@@ -28,7 +49,40 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
         <title>Add New Booking</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Add New Booking</h1>
-      <div>Hello {username}, book your personal desk.</div>
+      <h1 className="text-2xl font-bold text-center mt-10">
+        Hello {session?.user?.name}, book your personal desk.
+      </h1>
+      <br />
+      <div className="form-group">
+        <label className="form-label" htmlFor="start-date">
+          <b>Start: </b> &nbsp;
+        </label>
+        <input
+          className="form-input"
+          type="datetime-local"
+          id="start-date-time"
+          name="Start"
+          value={new Date()
+            .toISOString()
+            .substring(0, "YYYY-MM-DDTHH:SS".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          onChange={(event) => (startDateTime = event.target.value)}
+        />
+      </div>
+
+      <div className="form-group">
+        <label className="form-label" htmlFor="end-date">
+          <b>End: </b> &nbsp;
+        </label>
+        <input
+          className="form-input"
+          type="datetime-local"
+          id="end-date-time"
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          value={getEndDate()}
+          onChange={(event) => (endDateTime = event.target.value)}
+        />
+      </div>
 
       <div className="dropdown dropdown-hover">
         <label tabIndex={0} className="btn m-1">
@@ -115,11 +169,10 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                   onClick={() => {
                     buildings.forEach((building) => {
                       var ebox = document.getElementById(building);
-
                       if (ebox != null && ebox instanceof HTMLInputElement) {
                         var box: HTMLInputElement = ebox;
                         if (!box.checked) {
-                          chosenLocations.push(building);
+                          chosenBuildings.push(building);
                         }
                         box.checked = true;
                       }
@@ -187,7 +240,7 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
                       if (ebox != null && ebox instanceof HTMLInputElement) {
                         var box: HTMLInputElement = ebox;
                         if (!box.checked) {
-                          chosenLocations.push(room);
+                          chosenRooms.push(room);
                         }
                         box.checked = true;
                       }
@@ -231,6 +284,74 @@ const Bookings = ({ results }: { results: IRoom[] }) => {
           </ul>
         </div>
       </div>
+
+      <div className="dropdown dropdown-hover">
+        <label tabIndex={0} className="btn m-1">
+          Types
+        </label>
+        <div className="form-control">
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+          >
+            <li key="li_allTypes">
+              <label className="label cursor-pointer">
+                <span className="label-text">All Rooms</span>
+                <input
+                  id="allTypes"
+                  type="checkbox"
+                  className="checkbox"
+                  onClick={() => {
+                    deskTypes.forEach((type) => {
+                      var ebox = document.getElementById(type);
+
+                      if (ebox != null && ebox instanceof HTMLInputElement) {
+                        var box: HTMLInputElement = ebox;
+                        if (!box.checked) {
+                          chosenTypes.push(type);
+                        }
+                        box.checked = true;
+                      }
+                    });
+                  }}
+                />
+              </label>
+            </li>
+            <div className="divider"></div>
+
+            {deskTypes.map((type: string) => (
+              <li key={type}>
+                <label className="label cursor-pointer">
+                  <span className="label-text">{type}</span>
+                  <input
+                    id={type}
+                    type="checkbox"
+                    className="checkbox"
+                    onClick={() => {
+                      if (chosenTypes.includes(type)) {
+                        const index = chosenTypes.indexOf(type, 0);
+                        if (index > -1) {
+                          chosenTypes.splice(index, 1);
+                          var allBox = document.getElementById("allTypes");
+                          if (
+                            allBox != null &&
+                            allBox instanceof HTMLInputElement &&
+                            allBox.checked
+                          ) {
+                            allBox.checked = false;
+                          }
+                        }
+                      } else {
+                        chosenTypes.push(type);
+                      }
+                    }}
+                  />
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
       <br />
       <button type="button" className="btn btn-secondary" onClick={onClick}>
         Search for Desks
@@ -244,10 +365,17 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       results: rooms,
+      types: deskTypes,
     },
   };
 };
 
 function onClick() {}
+
+function getEndDate() {
+  let date = new Date();
+  date.setHours(date.getHours() + 1);
+  return date.toISOString().substring(0, "YYYY-MM-DDTHH:SS".length);
+}
 
 export default Bookings;
