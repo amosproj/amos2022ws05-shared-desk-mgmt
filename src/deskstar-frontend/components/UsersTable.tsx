@@ -1,5 +1,10 @@
 import { IUser } from "../types/users";
-import { FaTrashAlt, FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import {
+  FaTrashAlt,
+  FaEdit,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa";
 
 export function UsersTable({
   users,
@@ -17,7 +22,7 @@ export function UsersTable({
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra w-full">
-        <thead>
+        <thead className="dark:text-black">
           <tr>
             <th className="bg-deskstar-green-light text-center">First Name</th>
             <th className="bg-deskstar-green-light text-center">LastName</th>
@@ -81,11 +86,17 @@ const UsersTableEntry = ({
       )}
       {onApprovalUpdate && (
         <td className="text-center">
-          <button className="btn btn-ghost" onClick={() => onApprovalUpdate(user, true)}>
-            <FaCheckCircle color="green"/>
+          <button
+            className="btn btn-ghost"
+            onClick={() => onApprovalUpdate(user, true)}
+          >
+            <FaCheckCircle color="green" />
           </button>
           <button className="btn btn-ghost">
-            <FaTimesCircle color="red" onClick={() => onApprovalUpdate(user, false)}/>
+            <FaTimesCircle
+              color="red"
+              onClick={() => onApprovalUpdate(user, false)}
+            />
           </button>
         </td>
       )}

@@ -21,7 +21,7 @@ export function UserManagementWrapper({ children }: LayoutProps) {
       <nav>
         {navItems.map((item) => (
           <Link
-            className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light"
+            className="flex items-center text-lg mx-2 p-2 py-1 rounded cursor-pointer hover:bg-deskstar-green-light dark:hover:text-black"
             href={item.href}
             key={item.name}
           >

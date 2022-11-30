@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 
 export default function RegisterPanel() {
@@ -28,27 +29,25 @@ export default function RegisterPanel() {
       return;
     }
 
-    const response = await fetch("http://localhost:3000/api/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        companyId: company,
-        firstName,
-        lastName,
-        mailAddress: email,
-        password,
-      }),
+    const response = await register({
+      companyId: company,
+      firstName,
+      lastName,
+      mailAddress: email,
+      password,
     });
 
     setClicked(false);
 
-    if (response.status !== 200) {
-      console.log(response.status);
-      const { error } = await response.json();
-
-      setError(error);
+    if (response !== AuthResponse.Success) {
+      switch (response) {
+        case AuthResponse.ErrorCompanyNotFound:
+          setError("Company not Found");
+        case AuthResponse.ErrorEmailaddressAlreadyExists:
+          setError("Email adress already registered");
+        default:
+          setError("unknown error");
+      }
       return;
     }
 
