@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 //TODO: delete this when using backend data instead of mockup
 import { users } from "../../users";
 
-export default function UsersOverview({ users }: { users: IUser[] }) {
+export default function UserRequests({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
@@ -26,20 +26,13 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     }
   }, [router, session, calledRouter]);
 
-  const onPermissionUpdate = async (user: IUser): Promise<void> => {
+  const onApprovalUpdate = async (
+    user: IUser,
+    decision: boolean
+  ): Promise<void> => {
     //TODO: Implement
-    if (user.isAdmin) console.log(`Demoting user ${user.userId}...`);
-    else console.log(`Promoting user ${user.userId}...`);
-  };
-
-  const onEdit = async (user: IUser): Promise<void> => {
-    //TODO: Implement
-    console.log(`Editing user ${user.userId}...`);
-  };
-
-  const onDelete = async (user: IUser): Promise<void> => {
-    //TODO: Implement
-    console.log(`Deleting user ${user.userId}...`);
+    if (decision) console.log(`Approving user ${user.userId}...`);
+    else console.log(`Rejecting user ${user.userId}...`);
   };
 
   if (!session?.user?.isAdmin) {
@@ -50,15 +43,10 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   return (
     <UserManagementWrapper>
       <Head>
-        <title>Users Overview</title>
+        <title>User Requests</title>
       </Head>
-      <h1 className="text-3xl font-bold text-center my-10">Users Overview</h1>
-      <UsersTable
-        users={users}
-        onPermissionUpdate={onPermissionUpdate}
-        onEdit={onEdit}
-        onDelete={onDelete}
-      />
+      <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
+      <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
     </UserManagementWrapper>
   );
 }
@@ -67,7 +55,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
-      users: users.filter((user: IUser) => user.isApproved),
+      users: users.filter((user: IUser) => !user.isApproved),
     },
   };
 };
