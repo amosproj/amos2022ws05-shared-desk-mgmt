@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 //TODO: delete this when using backend data instead of mockup
 import { users } from "../../users";
 
-export default function UserRequests({ users }: { users: IUser[] }) {
+export default function UsersOverview({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
@@ -26,13 +26,20 @@ export default function UserRequests({ users }: { users: IUser[] }) {
     }
   }, [router, session, calledRouter]);
 
-  const onApprovalUpdate = async (
-    user: IUser,
-    decision: boolean
-  ): Promise<void> => {
+  const onPermissionUpdate = async (user: IUser): Promise<void> => {
     //TODO: Implement
-    if (decision) console.log(`Approving user ${user.userId}...`);
-    else console.log(`Rejecting user ${user.userId}...`);
+    if (user.isAdmin) console.log(`Demoting user ${user.userId}...`);
+    else console.log(`Promoting user ${user.userId}...`);
+  };
+
+  const onEdit = async (user: IUser): Promise<void> => {
+    //TODO: Implement
+    console.log(`Editing user ${user.userId}...`);
+  };
+
+  const onDelete = async (user: IUser): Promise<void> => {
+    //TODO: Implement
+    console.log(`Deleting user ${user.userId}...`);
   };
 
   if (!session?.user?.isAdmin) {
@@ -43,10 +50,15 @@ export default function UserRequests({ users }: { users: IUser[] }) {
   return (
     <UserManagementWrapper>
       <Head>
-        <title>User Requests</title>
+        <title>Users Overview</title>
       </Head>
-      <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-      <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
+      <h1 className="text-3xl font-bold text-center my-10">Users Overview</h1>
+      <UsersTable
+        users={users}
+        onPermissionUpdate={onPermissionUpdate}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
     </UserManagementWrapper>
   );
 }
@@ -55,7 +67,7 @@ export default function UserRequests({ users }: { users: IUser[] }) {
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
-      users: users.filter((user: IUser) => !user.isApproved),
+      users: users.filter((user: IUser) => user.isApproved),
     },
   };
 };
