@@ -29,6 +29,10 @@ const adminNavItems = [
     name: "User Management",
     href: "/users",
   },
+  {
+    name: "Resource Management",
+    href: "/resources",
+  },
 ];
 
 export default function Navbar() {
