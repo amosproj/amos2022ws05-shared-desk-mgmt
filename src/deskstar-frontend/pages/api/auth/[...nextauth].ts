@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
+import NextAuth, { Awaitable, NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
 import { Session } from "next-auth";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
-  // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -13,7 +13,7 @@ export const authOptions = {
         email: { label: "E-Mailadresse", type: "text" },
         password: { label: "Passwort", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, req): Promise<User | null> {
         // Check if credentials contains an email and password
         if (!credentials || !credentials.email || !credentials.password) {
           return null;
@@ -35,9 +35,9 @@ export const authOptions = {
           company: "INTERFLEX",
           name: "testuser",
           email: "test@example.com",
-          isApproved : true,
-          isAdmin : true,
-          our_token: result as String,
+          isApproved: true,
+          isAdmin: true,
+          our_token: result as string,
         };
 
         if (user) {
@@ -50,11 +50,25 @@ export const authOptions = {
     // ...add more providers here
   ],
   callbacks: {
-    async session({ session }: {session: Session}) {
-      //TODO: refactor this if me route is available
-      // Send properties to the client, like if user is approved or is admin
-      session.user.isApproved = true;
-      session.user.isAdmin = true;
+    async jwt({ token, user, account, isNewUser }) {
+      if (user) {
+        if (user.our_token) {
+          token = { accessToken: user.our_token };
+        }
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken;
+
+      session.user = {
+        id: "1",
+        name: "testuser",
+        email: "text@example.com",
+        accessToken: token.accessToken,
+        isApproved: true,
+        isAdmin: true,
+      };
 
       return session;
     },

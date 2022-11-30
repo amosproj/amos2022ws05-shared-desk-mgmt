@@ -20,7 +20,7 @@ const userNavItems = [
   },
   {
     name: "Add New Booking",
-    href: "/addBooking",
+    href: "/bookings/add",
   },
 ];
 

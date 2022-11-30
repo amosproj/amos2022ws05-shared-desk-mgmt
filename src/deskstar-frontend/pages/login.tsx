@@ -30,7 +30,7 @@ export default function Login() {
         <title>Login</title>
       </Head>
 
-      <p className="bg-green-500">{msg}</p>
+      <p className="text-green-500">{msg}</p>
 
       <LoginPanel />
 

@@ -1,14 +1,14 @@
 import Head from "next/head";
 
-import { useSession } from "next-auth/react";
-
-import { IRoom } from "../types/room";
-import { IDeskType } from "../types/desktypes";
+import Collapse from "../../components/Collapse";
+import { IRoom } from "../../types/room";
 
 //TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
-import { rooms } from "../rooms";
-import { deskTypes } from "../deskTypes";
+import { rooms } from "../../rooms";
+import { deskTypes } from "../../deskTypes";
+import { IDeskType } from "../../types/desktypes";
+import { useSession } from "next-auth/react";
 
 const Bookings = ({
   results,
@@ -17,7 +17,7 @@ const Bookings = ({
   results: IRoom[];
   types: IDeskType[];
 }) => {
-  const { data: session } = useSession();
+  let { data: session } = useSession();
 
   let buildings: string[] = [];
   let locations: string[] = [];
