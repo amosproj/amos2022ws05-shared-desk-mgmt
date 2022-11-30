@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { Awaitable, NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
@@ -13,7 +13,7 @@ export const authOptions: NextAuthOptions = {
         email: { label: "E-Mailadresse", type: "text" },
         password: { label: "Passwort", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials, req): Promise<User | null> {
         // Check if credentials contains an email and password
         if (!credentials || !credentials.email || !credentials.password) {
           return null;
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
           email: "test@example.com",
           isApproved: true,
           isAdmin: true,
-          our_token: result as String,
+          our_token: result as string,
         };
 
         if (user) {
@@ -59,13 +59,13 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      session.accessToken = token.accessToken;
 
       session.user = {
         id: "1",
         name: "testuser",
         email: "text@example.com",
-        accessToken: token.accessToken as string,
+        accessToken: token.accessToken,
         isApproved: true,
         isAdmin: true,
       };
