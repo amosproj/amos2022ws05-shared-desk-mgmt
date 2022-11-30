@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
+import { Session } from "next-auth";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
@@ -34,6 +35,8 @@ export const authOptions: NextAuthOptions = {
           company: "INTERFLEX",
           name: "testuser",
           email: "test@example.com",
+          isApproved: true,
+          isAdmin: true,
           our_token: result as String,
         };
 
@@ -58,13 +61,15 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
 
-      // TODO: Needs to be fetched via /user/me route or so!
       session.user = {
         id: "1",
         name: "testuser",
-        email: "test@example.com",
+        email: "text@example.com",
         accessToken: token.accessToken as string,
+        isApproved: true,
+        isAdmin: true,
       };
+
       return session;
     },
   },
