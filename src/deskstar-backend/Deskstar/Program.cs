@@ -53,8 +53,8 @@ if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == 
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
-
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
+builder.Services.AddScoped<IUserUsecases, UserUsecases>();
 
 var app = builder.Build();
 // global cors policy

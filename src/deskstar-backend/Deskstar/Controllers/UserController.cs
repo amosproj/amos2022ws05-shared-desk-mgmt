@@ -13,10 +13,10 @@ namespace Deskstar.Controllers;
 public class UserController : ControllerBase
 {
 
-    private readonly ILogger<UserController> _logger;
     private readonly IUserUsecases _userUsecases;
+    private readonly ILogger<UserController> _logger;
 
-    UserController(ILogger<UserController> logger, IUserUsecases userUsecases)
+    public UserController(ILogger<UserController> logger, IUserUsecases userUsecases)
     {
         _logger = logger;
         _userUsecases = userUsecases;
