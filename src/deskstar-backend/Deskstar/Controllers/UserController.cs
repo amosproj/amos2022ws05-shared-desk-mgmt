@@ -9,7 +9,7 @@ namespace Deskstar.Controllers;
 [ApiController]
 [Route("/users")]
 [Produces("application/json")]
-public class UserController
+public class UserController : ControllerBase
 {
 
     private readonly ILogger<UserController> _logger;

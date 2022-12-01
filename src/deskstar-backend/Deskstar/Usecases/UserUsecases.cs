@@ -14,7 +14,7 @@ public class UserUsecases : IUserUsecases
     private readonly ILogger<UserUsecases> _logger;
 
     private readonly DataContext _context;
-    UserUsecases(ILogger<UserUsecases> logger, DataContext context)
+    public UserUsecases(ILogger<UserUsecases> logger, DataContext context)
     {
         _logger = logger;
         _context = context;
