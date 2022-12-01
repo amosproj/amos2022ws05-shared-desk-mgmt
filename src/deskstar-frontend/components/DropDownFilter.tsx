@@ -7,18 +7,31 @@ export const DropDownFilter = ({ title, options, onSelectionChanged }: { title: 
     const [selectedOptions, __] = useState(new Set<string>());
 
     const onSingleSelectionClicked = (option: string) => {
-        if (selectedOptions.has(option)) {
-            if (selectedOptions.size !== 0) {
-                selectedOptions.delete(option);
-                onSelectionChanged(Array.from(selectedOptions));
-                var allBox = document.getElementById("allLocations");
-                if (allBox != null && allBox instanceof HTMLInputElement && allBox.checked) {
-                    allBox.checked = false;
+        var allBox = document.getElementById(`all${title}`);
+
+        if (!selectedOptions.has(option)) {
+            selectedOptions.add(option);
+
+            // set all checkbox to true if all others are checked
+            if (selectedOptions.size === optionsSet.size) {
+                if (allBox != null && allBox instanceof HTMLInputElement) {
+                    allBox.checked = true;
                 }
             }
-        } else {
-            selectedOptions.add(option);
+
             onSelectionChanged(Array.from(selectedOptions));
+            return;
+        }
+
+        if (selectedOptions.size !== 0) {
+            selectedOptions.delete(option);
+
+            // reset all checkbox if not all others are checked
+            if (allBox != null && allBox instanceof HTMLInputElement) {
+                allBox.checked = false;
+            }
+            onSelectionChanged(Array.from(selectedOptions));
+            return;
         }
     }
 
