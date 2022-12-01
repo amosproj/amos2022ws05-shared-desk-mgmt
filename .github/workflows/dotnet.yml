@@ -21,27 +21,28 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      - name: List files
-        run: ls -las
+      - name: Install pycorbura
+        run: pip install pycobertura
+
+      - name: Remove untestable files
+        run: |
+          rm -rf ../Deskstar/Migrations \
+          && rm -rf ../Deskstar/Controllers
 
       - name: Restore dependencies
-        run: dotnet restore && dotnet restore
+        run: dotnet restore
 
       - name: Build
         run: dotnet build --no-restore
 
       - name: Test
         run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory coverage
+
       - name: Copy Coverage to Predictable Location
         run: cp coverage/*/coverage.cobertura.xml coverage/coverage.cobertura.xml
 
-      - name: Code Coverage Summary Report
-        uses: irongut/CodeCoverageSummary@v1.3.0
-        with:
-          filename: ./src/deskstar-backend/Teststar.Tests/coverage/coverage.cobertura.xml
-          badge: true
-          format: 'markdown'
-          output: 'both'
+      - name: Run pycobertura on coverage.corbertura.xml
+        run: pycobertura show coverage/coverage.cobertura.xml
 
       - name: Upload coverage output to artifacts
         uses: actions/upload-artifact@v3
