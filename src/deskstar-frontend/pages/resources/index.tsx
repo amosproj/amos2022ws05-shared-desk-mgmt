@@ -18,15 +18,18 @@ export default function ResourcesOverview({ resources }: { resources: IDesk[] })
     const [chosenLocations, _] = useState<Set<string>>(new Set<string>());
     const [chosenBuildings, __] = useState<Set<string>>(new Set<string>());
     const [chosenRooms, ___] = useState<Set<string>>(new Set<string>());
+    const [chosenFloors, ____] = useState<Set<string>>(new Set<string>());
     const router = useRouter();
 
     let buildings: Set<string> = new Set<string>();
     let locations: Set<string> = new Set<string>();
+    let floors: Set<string> = new Set<string>();
     let rooms: Set<string> = new Set<string>();
 
     for (const resource of chosenResources) {
         buildings.add(resource.building);
         locations.add(resource.location);
+        floors.add(resource.floor);
         rooms.add(resource.room);
     }
 
@@ -52,51 +55,40 @@ export default function ResourcesOverview({ resources }: { resources: IDesk[] })
         console.log(`Deleting desk ${desk.deskId}...`);
     };
 
-    const updateResources = () => {
-        let chosen: IDesk[] = [];
+    const checkSetAgainstFilter = (set: Set<string>, filter: string): boolean => {
+        if (set.size === 0) {
+            return true;
+        }
 
-        if (chosenLocations.size === 0 && chosenRooms.size === 0 && chosenBuildings.size === 0) {
-            console.log("filters empty");
+        return set.has(filter);
+    }
+
+    // compares the available resources to the filters and sets the chosen resources accordingly
+    const updateResources = () => {
+        if (chosenLocations.size === 0 && chosenRooms.size === 0 && chosenBuildings.size === 0 && chosenFloors.size === 0) {
             setChosenResources(desks);
             return;
         }
 
+        let chosen: IDesk[] = [];
         desks.forEach((d) => {
-            chosenLocations.forEach((l) => {
-                if (d.location === l && !chosen.includes(d))
-                    chosen.push(d);
-            });
+            if (checkSetAgainstFilter(chosenLocations, d.location)
+                && checkSetAgainstFilter(chosenBuildings, d.building)
+                && checkSetAgainstFilter(chosenFloors, d.floor)
+                && checkSetAgainstFilter(chosenRooms, d.room)) {
+                chosen.push(d);
+            }
+        });
 
-            chosenRooms.forEach((r) => {
-                if (d.room === r && !chosen.includes(d))
-                    chosen.push(d);
-            });
-
-            chosenBuildings.forEach((b) => {
-                if (d.building === b && !chosen.includes(d))
-                    chosen.push(d);
-            });
-        })
         setChosenResources(chosen);
-        console.log(chosenResources);
     }
 
-    const updateLocations = (ops: string[]) => {
-        chosenLocations.clear();
-        ops.forEach((o) => chosenLocations.add(o));
-        updateResources();
-    }
-
-    const updateBuildings = (ops: string[]) => {
-        chosenBuildings.clear();
-        ops.forEach((o) => chosenBuildings.add(o));
-        updateResources();
-    }
-
-    const updateRooms = (ops: string[]) => {
-        chosenRooms.clear();
-        ops.forEach((o) => chosenRooms.add(o));
-        updateResources();
+    const updateFilter = (set: Set<string>): ((selection: string[]) => any) => {
+        return (selection) => {
+            set.clear();
+            selection.forEach((s) => set.add(s));
+            updateResources();
+        };
     }
 
     return (
@@ -105,9 +97,10 @@ export default function ResourcesOverview({ resources }: { resources: IDesk[] })
                 <title>Resources Overview</title>
             </Head>
 
-            <DropDownFilter title="Locations" options={Array.from(locations)} onSelectionChanged={updateLocations} />
-            <DropDownFilter title="Buildings" options={Array.from(buildings)} onSelectionChanged={updateBuildings} />
-            <DropDownFilter title="Rooms" options={Array.from(rooms)} onSelectionChanged={updateRooms} />
+            <DropDownFilter title="Locations" options={Array.from(locations)} onSelectionChanged={updateFilter(chosenLocations)} />
+            <DropDownFilter title="Buildings" options={Array.from(buildings)} onSelectionChanged={updateFilter(chosenBuildings)} />
+            <DropDownFilter title="Floors" options={Array.from(floors)} onSelectionChanged={updateFilter(chosenFloors)} />
+            <DropDownFilter title="Rooms" options={Array.from(rooms)} onSelectionChanged={updateFilter(chosenRooms)} />
 
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold text-left my-10">Resources Overview</h1>
@@ -115,7 +108,7 @@ export default function ResourcesOverview({ resources }: { resources: IDesk[] })
                     Add Resource
                 </button>
             </div>
-            
+
             <ResourceManagementTable onEdit={onEdit} onDelete={onDelete} desks={chosenResources} />
         </>
     );
