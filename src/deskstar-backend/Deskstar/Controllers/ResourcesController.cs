@@ -54,15 +54,57 @@ public class ResourcesController : ControllerBase
     }
 
     /// <summary>
+    /// Creates a new Building.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /resources/buildings with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="205"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("buildings")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult CreateBuilding(string buildingId)
+    {
+        return Problem(statusCode: 501);
+    }
+    
+    /// <summary>
+    /// Deletes a Building.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     DELETE /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="205"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpDelete("buildings/{buildingId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status205ResetContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult DeleteBuilding(string buildingId)
+    {
+        return Problem(statusCode: 501);
+    }
+
+
+    /// <summary>
     /// Returns a list of Floors.
     /// </summary>
     /// <returns>A List of Floors in JSON Format by BuildingId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/buildings/{buildingId}/floors with JWT Token
+    ///     GET /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a/floors with JWT Token
     /// </remarks>
     ///
-    /// <response code="200">Returns the buildings list</response>
+    /// <response code="200">Returns the floor list</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("buildings/{buildingId}/floor")]
     [Authorize]
@@ -79,6 +121,48 @@ public class ResourcesController : ControllerBase
 
         return Ok(floor.ToList());
     }
+    
+    /// <summary>
+    /// Creates a new Floor.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /resources/floors with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="201"></response>
+    /// <response code="409"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("floors")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult CreateFloor(CurrentFloor newFloor)
+    {
+        return Problem(statusCode: 501);
+    }
+    
+    /// <summary>
+    /// Deletes a Floor.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="205"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpDelete("floors/{floorId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status205ResetContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult DeleteFloor(string floorId)
+    {
+        return Problem(statusCode: 501);
+    }
 
     /// <summary>
     /// Returns a list of Rooms.
@@ -86,10 +170,10 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Rooms in JSON Format by FloorId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/floors/{floorId}/rooms with JWT Token
+    ///     GET /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a/rooms with JWT Token
     /// </remarks>
     ///
-    /// <response code="200">Returns the buildings list</response>
+    /// <response code="200">Returns the rooms list</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("floors/{floorId}/rooms")]
     [Authorize]
@@ -106,6 +190,48 @@ public class ResourcesController : ControllerBase
 
         return Ok(rooms.ToList());
     }
+    
+    /// <summary>
+    /// Creates a new Room.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /resources/rooms with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="201"></response>
+    /// <response code="409"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("rooms")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult CreateRoom(CurrentRoom newRoom)
+    {
+        return Problem(statusCode: 501);
+    }
+    
+    /// <summary>
+    /// Deletes a Room.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     DELETE /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="205"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpDelete("rooms/{roomId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status205ResetContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult DeleteRoom(string roomId)
+    {
+        return Problem(statusCode: 501);
+    }
 
     /// <summary>
     /// Returns a list of Desks.
@@ -113,10 +239,10 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/rooms/{roomId}/desks with JWT Token
+    ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks with JWT Token
     /// </remarks>
     ///
-    /// <response code="200">Returns the buildings list</response>
+    /// <response code="200">Returns the desks list</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("rooms/{roomId}/desks")]
     [Authorize]
@@ -140,7 +266,7 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/desks/{deskId}?start=1669021730904&end=1669121730904 with JWT Token
+    ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904 with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>
@@ -188,5 +314,47 @@ public class ResourcesController : ControllerBase
         }
 
         return Ok(desk);
+    }
+    
+    /// <summary>
+    /// Creates a new Desk.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /resources/desks with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="201"></response>
+    /// <response code="409"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("desks")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult CreateDesk(CurrentDesk newDesk)
+    {
+        return Problem(statusCode: 501);
+    }
+    
+    /// <summary>
+    /// Deletes a Desk.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     DELETE /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="205"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpDelete("desks/{desksId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status205ResetContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult DeleteDesk(string desksId)
+    {
+        return Problem(statusCode: 501);
     }
 }

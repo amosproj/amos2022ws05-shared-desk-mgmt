@@ -11,7 +11,7 @@ public interface IResourceUsecases
     public List<CurrentFloor> GetFloors(Guid buildingId);
     public List<CurrentRoom> GetRooms(Guid floorId);
     public List<CurrentDesk> GetDesks(Guid roomId);
-    public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
+    public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -92,7 +92,7 @@ public class ResourceUsecases : IResourceUsecases
         return mapDesksToCurrentDesks.ToList();
     }
 
-    public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
+    public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
     {
         var booking = _context.Bookings.Where(booking => booking.DeskId == deskId);
         try
