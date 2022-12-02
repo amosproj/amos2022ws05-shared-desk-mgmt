@@ -1,5 +1,7 @@
-﻿namespace Deskstar.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Deskstar.Entities;
+
+namespace Deskstar.Models;
 public class CurrentDesk
 {
     [Required]
@@ -10,4 +12,6 @@ public class CurrentDesk
 
     [Required]
     public string DeskTyp { get; set; } = null!;
+    
+    public List<Booking> BookedAt { get; set; } = null!;
 }

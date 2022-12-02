@@ -12,7 +12,6 @@ namespace Deskstar.Controllers;
 [Produces("text/plain")]
 public class ResourcesController : ControllerBase
 {
-
     private readonly IResourceUsecases _resourceUsecases;
     private readonly ILogger<ResourcesController> _logger;
 
@@ -43,12 +42,14 @@ public class ResourcesController : ControllerBase
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var userId =
+            new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
         var buildings = _resourceUsecases.GetBuildings(userId);
-        if (buildings.Count==0)
+        if (buildings.Count == 0)
         {
             return Problem(statusCode: 500);
         }
+
         return Ok(buildings.ToList());
     }
 
@@ -71,10 +72,11 @@ public class ResourcesController : ControllerBase
     public IActionResult GetFloorsByBuildingId(string buildingId)
     {
         var floor = _resourceUsecases.GetFloors(new Guid(buildingId));
-        if (floor.Count==0)
+        if (floor.Count == 0)
         {
             return Problem(statusCode: 500);
         }
+
         return Ok(floor.ToList());
     }
 
@@ -97,10 +99,11 @@ public class ResourcesController : ControllerBase
     public IActionResult GetRoomsByFloorId(string floorId)
     {
         var rooms = _resourceUsecases.GetRooms(new Guid(floorId));
-        if (rooms.Count==0)
+        if (rooms.Count == 0)
         {
             return Problem(statusCode: 500);
         }
+
         return Ok(rooms.ToList());
     }
 
@@ -123,10 +126,11 @@ public class ResourcesController : ControllerBase
     public IActionResult GetDesksByRoomId(string roomId)
     {
         var desks = _resourceUsecases.GetDesks(new Guid(roomId));
-        if (desks.Count==0)
+        if (desks.Count == 0)
         {
             return Problem(statusCode: 500);
         }
+
         return Ok(desks.ToList());
     }
 
@@ -136,7 +140,7 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/desks/{deskId}?from=2&to=5 with JWT Token
+    ///     GET /resources/desks/{deskId}?start=1669021730904&end=1669121730904 with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>
@@ -146,8 +150,43 @@ public class ResourcesController : ControllerBase
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetDeskDetailsByDeskId(string deskId)
+    public IActionResult GetDeskDetailsByDeskId(string deskId, long start = 0, long end = 0)
     {
-        return Problem(statusCode: 501);
+        DateTime startDateTime;
+        DateTime endDateTime;
+        try
+        {
+            if (start == 0)
+                startDateTime = DateTime.Now;
+            else
+                startDateTime = DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
+
+            if (end == 0)
+                endDateTime = DateTime.MaxValue;
+            else
+                endDateTime = DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
+            if (start > end)
+            {
+                (endDateTime, startDateTime) = (startDateTime, endDateTime);
+            }
+        }
+        catch (FormatException e)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+
+        var desk = _resourceUsecases.GetDesk(new Guid(deskId), startDateTime, endDateTime);
+        if (desk == null)
+        {
+            return Problem(statusCode: 500);
+        }
+
+        return Ok(desk);
     }
 }
