@@ -348,12 +348,12 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="205"></response>
     /// <response code="500">Internal Server Error</response>
-    [HttpDelete("desks/{desksId}")]
+    [HttpDelete("desks/{deskId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status205ResetContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult DeleteDesk(string desksId)
+    public IActionResult DeleteDesk(string deskId)
     {
         return Problem(statusCode: 501);
     }
