@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -37,9 +38,18 @@ public class ResourcesController : ControllerBase
     [ProducesResponseType(typeof(List<CurrentBuilding>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetBuildings()
+    public IActionResult GetAllBuildings()
     {
-        return Problem(statusCode: 501);
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var buildings = _resourceUsecases.GetBuildings(userId);
+        if (buildings.Count==0)
+        {
+            return Problem(statusCode: 500);
+        }
+        return Ok(buildings.ToList());
     }
 
     /// <summary>
@@ -74,7 +84,7 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">Returns the buildings list</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("buildings/{buildingId}/floor")]
+    [HttpGet("floors/{floorId}/rooms")]
     [Authorize]
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -95,7 +105,7 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">Returns the buildings list</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("buildings/{buildingId}/floor")]
+    [HttpGet("rooms/{roomId}/desks")]
     [Authorize]
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -116,7 +126,7 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">Returns the buildings list</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("/resources/desks/{deskId}")]
+    [HttpGet("desks/{deskId}")]
     [Authorize]
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]

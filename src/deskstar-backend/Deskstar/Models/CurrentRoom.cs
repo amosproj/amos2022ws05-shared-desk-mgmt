@@ -1,6 +1,6 @@
 namespace Deskstar.Models;
 
-public class CurrentFloor
+public class CurrentRoom
 {
 
 }
