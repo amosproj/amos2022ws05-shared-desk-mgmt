@@ -8,6 +8,9 @@ namespace Deskstar.Usecases;
 public interface IResourceUsecases
 {
     public List<CurrentBuilding> GetBuildings(Guid userId);
+    public List<CurrentFloor> GetFloors(Guid buildingId);
+    public List<CurrentRoom> GetRooms(Guid floorId);
+    public List<CurrentDesk> GetDesks(Guid roomId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -36,5 +39,55 @@ public class ResourceUsecases : IResourceUsecases
         });
         
         return mapBuildingsToCurrentBuildings.ToList();
+    }
+
+    public List<CurrentFloor> GetFloors(Guid buildingId)
+    {
+        var databaseFloors =_context.Floors.Where(floor => floor.BuildingId == buildingId);
+        if (databaseFloors.ToList().Count == 0)
+        {
+            return new List<CurrentFloor>();
+        }
+        var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor()
+        {
+            BuildingName = f.Building.BuildingName,
+            FloorName = f.FloorName,
+            FloorID = f.FloorId.ToString()
+        });
+        
+        return mapFloorsToCurrentFloors.ToList();
+    }
+
+    public List<CurrentRoom> GetRooms(Guid floorId)
+    {
+        var databaseRooms =_context.Rooms.Where(room => room.FloorId == floorId);
+        if (databaseRooms.ToList().Count == 0)
+        {
+            return new List<CurrentRoom>();
+        }
+        var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom()
+        {
+            RoomId = r.RoomId.ToString(),
+            RoomName = r.RoomName
+        });
+        
+        return mapRoomsToCurrentRooms.ToList();
+    }
+
+    public List<CurrentDesk> GetDesks(Guid roomId)
+    {
+        var databaseDesks =_context.Desks.Where(desk => desk.RoomId == roomId);
+        if (databaseDesks.ToList().Count == 0)
+        {
+            return new List<CurrentDesk>();
+        }
+        var mapDesksToCurrentDesks = databaseDesks.Select(d => new CurrentDesk()
+        {
+            DeskId = d.DeskId.ToString(),
+            DeskName = d.DeskName,
+            DeskTyp = d.DeskType.DeskTypeName
+        });
+        
+        return mapDesksToCurrentDesks.ToList();
     }
 }
