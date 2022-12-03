@@ -55,7 +55,7 @@ builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
-builder.Services.AddScoped<IAdminUsecases, AdminUsecases>();
+builder.Services.AddScoped<IUserUsecases, UserUsecases>();
 
 var app = builder.Build();
 // global cors policy

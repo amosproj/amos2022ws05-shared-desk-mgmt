@@ -7,12 +7,12 @@ using Microsoft.Net.Http.Headers;
 namespace Deskstar.Controllers;
 
 [ApiController]
-[Route("/admin")]
-public class AdminController : ControllerBase
+[Route("/users")]
+public class UserController : ControllerBase
 {
-    private readonly ILogger<AdminController> _logger;
-    private readonly IAdminUsecases _adminUsecases;
-    public AdminController(ILogger<AdminController> logger, IAdminUsecases adminUsecases)
+    private readonly ILogger<UserController> _logger;
+    private readonly IUserUsecases _adminUsecases;
+    public UserController(ILogger<UserController> logger, IUserUsecases adminUsecases)
     {
         _logger = logger;
         _adminUsecases = adminUsecases;
@@ -30,7 +30,7 @@ public class AdminController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
-    [HttpPost("approve/{userId}")]
+    [HttpPost("{userId}/approve")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -71,7 +71,7 @@ public class AdminController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
-    [HttpPost("decline/{userId}")]
+    [HttpPost("{userId}/decline")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

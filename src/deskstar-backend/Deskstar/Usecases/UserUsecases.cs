@@ -2,17 +2,17 @@ using Deskstar.DataAccess;
 
 namespace Deskstar.Usecases;
 
-public interface IAdminUsecases
+public interface IUserUsecases
 {
     public Guid ApproveUser(Guid adminId, string userId);
     public Guid DeclineUser(Guid adminId, string userId);
 }
 
-public class AdminUsecases : IAdminUsecases
+public class UserUsecases : IUserUsecases
 {
-    private readonly ILogger<AdminUsecases> _logger;
+    private readonly ILogger<UserUsecases> _logger;
     private readonly DataContext _context;
-    public AdminUsecases(ILogger<AdminUsecases> logger, DataContext context)
+    public UserUsecases(ILogger<UserUsecases> logger, DataContext context)
     {
         _logger = logger;
         _context = context;

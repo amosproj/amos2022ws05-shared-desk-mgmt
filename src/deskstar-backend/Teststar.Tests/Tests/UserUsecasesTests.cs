@@ -7,7 +7,7 @@ using Moq;
 
 namespace Teststar.Tests.Tests;
 
-public class AdminUsecasesTests
+public class UserUsecasesTests
 {
 
     [Test]
@@ -20,8 +20,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act
         var result = adminUsecases.ApproveUser(admin.UserId, user.UserId.ToString());
@@ -43,8 +43,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, "invalidguid"));
@@ -62,8 +62,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, (new Guid()).ToString()));
@@ -81,8 +81,8 @@ public class AdminUsecasesTests
         SetupSingleUserInDifferentCompany(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, user.UserId.ToString()));
@@ -100,8 +100,8 @@ public class AdminUsecasesTests
         SetupSingleUserInDifferentCompany(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
@@ -120,8 +120,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
@@ -139,8 +139,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
         Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, (new Guid()).ToString()));
@@ -160,8 +160,8 @@ public class AdminUsecasesTests
         SetupSingleUser(db, isUserApproved, out user, out admin);
 
         //arrange
-        var logger = new Mock<ILogger<AdminUsecases>>();
-        var adminUsecases = new AdminUsecases(logger.Object, db);
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var adminUsecases = new UserUsecases(logger.Object, db);
 
         //act
         var result = adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString());
