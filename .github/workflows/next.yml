@@ -17,20 +17,20 @@ jobs:
         working-directory: ./src/deskstar-frontend
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Install NodeJS
-      uses: actions/setup-node@v3
-      with:
-        node-version: '16.16.0'
-        cache: 'yarn'
-        cache-dependency-path: './src/deskstar-frontend/yarn.lock'
-    
-    - name: Install dependencies
-      run: yarn install
+      - uses: actions/checkout@v3
 
-    - name: Build Next.js app
-      run: yarn build 
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.16.0"
+          cache: "yarn"
+          cache-dependency-path: "./src/deskstar-frontend/yarn.lock"
 
-    # - name: Test Next App
-      # run: yarn test 
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build Next.js app
+        run: yarn build
+
+      - name: Test Next App
+        run: yarn test
