@@ -15,11 +15,13 @@ public class UserController : ControllerBase
 
     private readonly IUserUsecases _userUsecases;
     private readonly ILogger<UserController> _logger;
+    private readonly IAutoMapperConfiguration _autoMapperConfiguration;
 
-    public UserController(ILogger<UserController> logger, IUserUsecases userUsecases)
+    public UserController(ILogger<UserController> logger, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
     {
         _logger = logger;
         _userUsecases = userUsecases;
+        _autoMapperConfiguration = autoMapperConfiguration;
     }
 
     /// <summary>
@@ -28,10 +30,10 @@ public class UserController : ControllerBase
     /// <returns> User information in JSON Format </returns>
     /// <remarks>
     /// Sample request:
-    ///     Get /bookings/range?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
+    ///     Get /users/me with JWT Token
     /// </remarks>
     /// 
-    /// <response code="200">Returns the booking list</response>
+    /// <response code="200">Returns information about the logged in user</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
     [HttpGet("me")]
@@ -42,7 +44,6 @@ public class UserController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetMe()
     {
-
         var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
@@ -51,17 +52,8 @@ public class UserController : ControllerBase
         try
         {
             var me = _userUsecases.ReadSpecificUser(userId);
-            var userDto = new UserDto
-            {
-                CompanyId = me.CompanyId,
-                CompanyName = me.Company.CompanyName,
-                FirstName = me.FirstName,
-                IsApproved = me.IsApproved,
-                IsCompanyAdmin = me.IsCompanyAdmin,
-                LastName = me.LastName,
-                MailAddress = me.MailAddress,
-                UserId = me.UserId
-            };
+            var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
+            var userDto = mapper.Map<Entities.User, UserDto>(me);
             return Ok(userDto);
         }
         catch (ArgumentException e)

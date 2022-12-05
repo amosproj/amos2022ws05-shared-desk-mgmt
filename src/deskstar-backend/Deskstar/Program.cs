@@ -1,8 +1,10 @@
 using System.Text;
+using AutoMapper;
 using Deskstar;
 using Deskstar.Core;
 
 using Deskstar.DataAccess;
+using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +57,7 @@ builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
 builder.Services.AddScoped<IUserUsecases, UserUsecases>();
+builder.Services.AddScoped<IAutoMapperConfiguration, AutoMapperConfiguration>();
 
 var app = builder.Build();
 // global cors policy
