@@ -4,28 +4,32 @@ export default function DropDownFilter<A>({
   title,
   options,
   getItemName,
-  selectedOptions,
-  setSelectedOptions,
+  setSelectedOptions: parentSetSelectedOptions,
 }: {
   title: string;
   getItemName: (item: A) => string;
   options: A[];
-  selectedOptions: A[];
   setSelectedOptions: (newSelectedOptions: A[]) => void;
 }) {
-  let [allChecked, setAllChecked] = useState(false);
+  const [allChecked, setAllChecked] = useState(false);
+  const [selectedOptions, _setSelectedOptions] = useState<A[]>([]);
+
+  function setSelectedOptions(newSelectedOptions: A[]) {
+    _setSelectedOptions(newSelectedOptions);
+    parentSetSelectedOptions(newSelectedOptions);
+  }
 
   const onSingleSelected = (option: A, selected: boolean) => {
     let newSelectedOptions = selected
       ? [...selectedOptions, option]
-      : selectedOptions.filter((o) => o !== option);
+      : selectedOptions.filter((o) => getItemName(o) != getItemName(option));
 
     // remove duplicates in newSelectedOptions
     newSelectedOptions = newSelectedOptions.filter(
       (o, i) => newSelectedOptions.indexOf(o) === i
     );
 
-    console.log(newSelectedOptions);
+    setAllChecked(newSelectedOptions.length === options.length);
 
     setSelectedOptions(newSelectedOptions);
   };
@@ -51,6 +55,18 @@ export default function DropDownFilter<A>({
                 checked={allChecked}
                 onChange={(e) => {
                   setAllChecked(e.target.checked);
+
+                  options.forEach((_, index) => {
+                    const checkbox = document.getElementById(
+                      `${title}_checkbox_${index}`
+                    ) as HTMLInputElement;
+
+                    if (checkbox) {
+                      checkbox.checked = e.target.checked;
+                    }
+                  });
+
+                  setSelectedOptions(e.target.checked ? options : []);
                 }}
               />
             </label>
@@ -59,15 +75,15 @@ export default function DropDownFilter<A>({
           {/* Single Selection Checkboxes */}
           <div className="divider"></div>
           {options &&
-            options.map((option) => {
+            options.map((option, index) => {
               return (
                 <li key={getItemName(option)}>
                   <DropDownFilterEntry
                     name={getItemName(option)}
+                    id={`${title}_checkbox_${index}`}
                     option={option}
-                    selected={selectedOptions.includes(option)}
+                    defaultChecked={selectedOptions.includes(option)}
                     setSelected={(selected) => {
-                      console.log(selected);
                       onSingleSelected(option, selected);
                     }}
                   />
@@ -82,23 +98,25 @@ export default function DropDownFilter<A>({
 
 function DropDownFilterEntry<A>({
   name,
+  id,
   option,
-  selected,
+  defaultChecked,
   setSelected,
 }: {
   name: string;
+  id: string;
   option: A;
-  selected: boolean;
+  defaultChecked: boolean;
   setSelected: (checked: boolean) => void;
 }) {
   return (
     <label className="label cursor-pointer">
       <span className="label-text">{name}</span>
       <input
-        id={name}
+        id={id}
         type="checkbox"
         className="checkbox"
-        checked={selected}
+        defaultChecked={defaultChecked}
         onChange={(e) => setSelected(e.target.checked)}
       />
     </label>

@@ -30,12 +30,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
 
-  const [selectedLocations, setSelectedLocations] = useState<ILocation[]>([]);
-  const [selectedBuildings, setSelectedBuildings] = useState<IBuilding[]>([]);
-  const [selectedFloors, setSelectedFloors] = useState<IFloor[]>([]);
-  const [selectedRooms, setSelectedRooms] = useState<IRoom[]>([]);
-  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
-
   let startDateTime: string;
   let endDateTime: string;
 
@@ -73,7 +67,9 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorId);
+        console.log(floor);
+
+        const resRooms = await getRooms(session, floor.floorID);
 
         return resRooms;
       })
@@ -151,50 +147,35 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         title="Locations"
         getItemName={(location) => location.locationName}
         options={locations}
-        selectedOptions={selectedLocations}
-        setSelectedOptions={setSelectedLocations}
+        setSelectedOptions={onSelectedLocationChange}
       />
 
       <DropDownFilter
         title="Buildings"
         getItemName={(building) => building.buildingName}
         options={buildings}
-        selectedOptions={selectedBuildings}
-        setSelectedOptions={setSelectedBuildings}
+        setSelectedOptions={onSelectedBuildingChange}
       />
 
       <DropDownFilter
         title="Floors"
         getItemName={(floor) => floor.floorName}
         options={floors}
-        selectedOptions={selectedFloors}
-        setSelectedOptions={setSelectedFloors}
+        setSelectedOptions={onSelectedFloorChange}
       />
 
       <DropDownFilter
         title="Rooms"
-        options={rooms.map((room) => ({
-          ...room,
-          getName() {
-            return room.roomName;
-          },
-        }))}
-        onOptionSelect={(selectedOptions) => {
-          console.log("Selected Rooms", selectedOptions);
-        }}
+        getItemName={(room) => room.roomName}
+        options={rooms}
+        setSelectedOptions={onSelectedRoomChange}
       />
 
       <DropDownFilter
         title="Types"
-        options={deskTypes.map((deskType) => ({
-          ...deskType,
-          getName() {
-            return deskType.typeName;
-          },
-        }))}
-        onOptionSelect={(selectedOptions) => {
-          console.log("Selected Types", selectedOptions);
-        }}
+        getItemName={(deskType) => deskType.typeName}
+        options={deskTypes}
+        setSelectedOptions={onSelectedDeskTypeChange}
       />
 
       <br />

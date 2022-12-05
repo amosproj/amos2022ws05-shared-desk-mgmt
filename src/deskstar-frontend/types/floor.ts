@@ -1,4 +1,4 @@
 export interface IFloor {
-  floorId: string;
+  floorID: string;
   floorName: string;
 }
