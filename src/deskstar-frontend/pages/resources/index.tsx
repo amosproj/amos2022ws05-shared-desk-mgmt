@@ -7,9 +7,7 @@ import { useState, useEffect } from "react";
 //TODO: delete this when using backend data instead of mockup
 import { users } from "../../users";
 import ResourceManagementTable from "../../components/ResourceManagementTable";
-import DropDownFilter, {
-  stringToSelectable,
-} from "../../components/DropDownFilter";
+import DropDownFilter from "../../components/DropDownFilter";
 import { desks } from "../../desks";
 import { IDesk } from "../../types/desk";
 import { rooms } from "../../rooms";
@@ -61,28 +59,32 @@ export default function ResourcesOverview({ results }: { results: IRoom[] }) {
 
       <DropDownFilter
         title="Locations"
-        options={stringToSelectable(locations)}
+        getItemName={(item) => item}
+        options={locations}
         setSelectedOptions={(selectedOptions) => {
           console.log("Selected locations: ", selectedOptions);
         }}
       />
       <DropDownFilter
         title="Buildings"
-        options={stringToSelectable(buildings)}
+        getItemName={(item) => item}
+        options={buildings}
         setSelectedOptions={(selectedOptions) => {
           console.log("Selected buildings: ", selectedOptions);
         }}
       />
       <DropDownFilter
         title="Floors"
-        options={stringToSelectable(floors)}
+        getItemName={(item) => item}
+        options={floors}
         setSelectedOptions={(selectedOptions) => {
           console.log("Selected floors: ", selectedOptions);
         }}
       />
       <DropDownFilter
         title="Rooms"
-        options={stringToSelectable(rooms)}
+        getItemName={(item) => item}
+        options={rooms}
         setSelectedOptions={(selectedOptions) => {
           console.log("Selected rooms: ", selectedOptions);
         }}

@@ -17,9 +17,14 @@ import { IFloor } from "../../types/floor";
 import { IRoom } from "../../types/room";
 import { IDeskType } from "../../types/desktypes";
 import { useState } from "react";
+import DeskSearchResults from "../../components/DeskSearchResults";
+import { IDesk } from "../../types/desk";
+import DesksTable from "../../components/DesksTable";
 
 const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let { data: session } = useSession();
+
+  console.log(session?.accessToken);
 
   const locations: ILocation[] = origBuildings.map((building) => ({
     locationName: building.location,
@@ -29,6 +34,9 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [floors, setFloors] = useState<IFloor[]>([]);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+
+  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
+  const [desks, setDesks] = useState<IDesk[]>([]);
 
   let startDateTime: string;
   let endDateTime: string;
@@ -91,15 +99,21 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
       })
     );
 
+    const desks = promises.flat();
+    setDesks(desks);
+    console.log(desks);
+
     setDeskTypes(
-      promises.flat().map((desk) => ({
-        typeId: desk.deskType,
-        typeName: `Name ${desk.deskType}`,
+      desks.map((desk) => ({
+        typeId: desk.deskTyp,
+        typeName: `Name ${desk.deskTyp}`,
       }))
     );
   }
 
-  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {}
+  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
+    setSelectedDeskTypes(selectedDeskTypes);
+  }
 
   return (
     <div>
@@ -150,38 +164,50 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         setSelectedOptions={onSelectedLocationChange}
       />
 
-      <DropDownFilter
-        title="Buildings"
-        getItemName={(building) => building.buildingName}
-        options={buildings}
-        setSelectedOptions={onSelectedBuildingChange}
-      />
+      {buildings.length > 0 && (
+        <DropDownFilter
+          title="Buildings"
+          getItemName={(building) => building.buildingName}
+          options={buildings}
+          setSelectedOptions={onSelectedBuildingChange}
+        />
+      )}
 
-      <DropDownFilter
-        title="Floors"
-        getItemName={(floor) => floor.floorName}
-        options={floors}
-        setSelectedOptions={onSelectedFloorChange}
-      />
+      {floors.length > 0 && (
+        <DropDownFilter
+          title="Floors"
+          getItemName={(floor) => floor.floorName}
+          options={floors}
+          setSelectedOptions={onSelectedFloorChange}
+        />
+      )}
 
-      <DropDownFilter
-        title="Rooms"
-        getItemName={(room) => room.roomName}
-        options={rooms}
-        setSelectedOptions={onSelectedRoomChange}
-      />
+      {rooms.length > 0 && (
+        <DropDownFilter
+          title="Rooms"
+          getItemName={(room) => room.roomName}
+          options={rooms}
+          setSelectedOptions={onSelectedRoomChange}
+        />
+      )}
 
-      <DropDownFilter
-        title="Types"
-        getItemName={(deskType) => deskType.typeName}
-        options={deskTypes}
-        setSelectedOptions={onSelectedDeskTypeChange}
-      />
+      {deskTypes.length > 0 && (
+        <DropDownFilter
+          title="Types"
+          getItemName={(deskType) => deskType.typeName}
+          options={deskTypes}
+          setSelectedOptions={onSelectedDeskTypeChange}
+        />
+      )}
 
-      <br />
-      <button type="button" className="btn btn-secondary" onClick={onClick}>
-        Search for Desks
-      </button>
+      <div className="my-4"></div>
+
+      {buildings.length == 0 && <p>Please select a location</p>}
+      {floors.length == 0 && <p>Please select a building</p>}
+      {rooms.length == 0 && <p>Please select a floor</p>}
+      {deskTypes.length == 0 && <p>Please select a room</p>}
+
+      {desks.length > 0 && <DesksTable desks={desks} />}
     </div>
   );
 };

@@ -77,7 +77,7 @@ export default function DropDownFilter<A>({
           {options &&
             options.map((option, index) => {
               return (
-                <li key={getItemName(option)}>
+                <li key={`${title}_checkbox_${index}`}>
                   <DropDownFilterEntry
                     name={getItemName(option)}
                     id={`${title}_checkbox_${index}`}
