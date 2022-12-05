@@ -17,7 +17,8 @@
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-typescript"
       ]
     }
   },

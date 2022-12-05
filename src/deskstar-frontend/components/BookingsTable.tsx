@@ -5,10 +5,12 @@ const BookingsTable = ({
   bookings,
   onEdit,
   onDelete,
+  onCheckIn,
 }: {
   bookings: IBooking[];
   onEdit?: (booking: IBooking) => void;
   onDelete?: Function;
+  onCheckIn?: Function;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -24,6 +26,7 @@ const BookingsTable = ({
             <th className="bg-deskstar-green-light text-center">End Time</th>
             {onEdit && <th className="bg-deskstar-green-light"></th>}
             {onDelete && <th className="bg-deskstar-green-light"></th>}
+            {onCheckIn && <th className="bg-deskstar-green-light"></th>}
           </tr>
         </thead>
         <tbody>
@@ -33,6 +36,7 @@ const BookingsTable = ({
               booking={booking}
               onEdit={onEdit}
               onDelete={onDelete}
+              onCheckIn={onCheckIn}
             />
           ))}
         </tbody>
@@ -45,10 +49,12 @@ const BookingTableEntry = ({
   booking,
   onEdit,
   onDelete,
+  onCheckIn,
 }: {
   booking: IBooking;
   onEdit?: Function;
   onDelete?: Function;
+  onCheckIn?: Function;
 }) => {
   const startDate = booking.startTime.split("T")[0];
   const startTime = booking.startTime.split("T")[1].replace("Z", "");
@@ -75,6 +81,13 @@ const BookingTableEntry = ({
         <td className="p-0">
           <button className="btn btn-ghost" onClick={() => onDelete(booking)}>
             <FaTrashAlt color="red" />
+          </button>
+        </td>
+      )}
+      {onCheckIn && (
+        <td className="text-right">
+          <button className="btn btn-ghost" onClick={() => onCheckIn(booking)}>
+            Check in
           </button>
         </td>
       )}

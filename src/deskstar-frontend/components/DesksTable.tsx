@@ -7,7 +7,6 @@ const DesksTable = ({ desks }: { desks: IDesk[] }) => {
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            {/* set size of Desk column */}
             <th className="w-1/4 bg-deskstar-green-light text-left">Desk</th>
             <th className="bg-deskstar-green-light text-left">Type</th>
             <th className="bg-deskstar-green-light"></th>
