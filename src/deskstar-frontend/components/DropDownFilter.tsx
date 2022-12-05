@@ -1,101 +1,124 @@
-import { IDesk } from "../types/desk";
-import React, { useState } from "react";
-import { time } from "console";
+import React, { useEffect, useState } from "react";
 
-export const DropDownFilter = ({ title, options, onSelectionChanged }: { title: string, options: string[], onSelectionChanged: (selection: string[]) => any }) => {
-    const [optionsSet, _] = useState(new Set<string>(options));
-    const [selectedOptions, __] = useState(new Set<string>());
+export default function DropDownFilter<A>({
+  title,
+  options,
+  getItemName,
+  setSelectedOptions: parentSetSelectedOptions,
+}: {
+  title: string;
+  getItemName: (item: A) => string;
+  options: A[];
+  setSelectedOptions: (newSelectedOptions: A[]) => void;
+}) {
+  const [allChecked, setAllChecked] = useState(false);
+  const [selectedOptions, _setSelectedOptions] = useState<A[]>([]);
 
-    const onSingleSelectionClicked = (option: string) => {
-        var allBox = document.getElementById(`all${title}`);
+  function setSelectedOptions(newSelectedOptions: A[]) {
+    _setSelectedOptions(newSelectedOptions);
+    parentSetSelectedOptions(newSelectedOptions);
+  }
 
-        if (!selectedOptions.has(option)) {
-            selectedOptions.add(option);
+  const onSingleSelected = (option: A, selected: boolean) => {
+    let newSelectedOptions = selected
+      ? [...selectedOptions, option]
+      : selectedOptions.filter((o) => getItemName(o) != getItemName(option));
 
-            // set all checkbox to true if all others are checked
-            if (selectedOptions.size === optionsSet.size) {
-                if (allBox != null && allBox instanceof HTMLInputElement) {
-                    allBox.checked = true;
-                }
-            }
+    // remove duplicates in newSelectedOptions
+    newSelectedOptions = newSelectedOptions.filter(
+      (o, i) => newSelectedOptions.indexOf(o) === i
+    );
 
-            onSelectionChanged(Array.from(selectedOptions));
-            return;
-        }
+    setAllChecked(newSelectedOptions.length === options.length);
 
-        if (selectedOptions.size !== 0) {
-            selectedOptions.delete(option);
+    setSelectedOptions(newSelectedOptions);
+  };
 
-            // reset all checkbox if not all others are checked
-            if (allBox != null && allBox instanceof HTMLInputElement) {
-                allBox.checked = false;
-            }
-            onSelectionChanged(Array.from(selectedOptions));
-            return;
-        }
-    }
-
-    const onAllSelectionClicked = () => {
-        let allBox = document.getElementById(`all${title}`);
-        let newState = true;
-        if (allBox != null && allBox instanceof HTMLInputElement && !allBox.checked) {
-            newState = false;
-        }
-
-        let newSelection = newState === true ? Array.from(optionsSet) : [];
-        selectedOptions.clear();
-        newSelection.forEach((s) => selectedOptions.add(s));
-
-        optionsSet.forEach((option) => {
-            let ebox = document.getElementById(option);
-            if (ebox != null && ebox instanceof HTMLInputElement) {
-                ebox.checked = newState;
-            }
-        });
-
-        onSelectionChanged(newSelection);
-    }
-
-    const allLocationsCheckbox = <li key={`li_all${title}`}>
-        <label className="label cursor-pointer">
-            <span className="label-text">All {title}</span>
-            <input
+  return (
+    <div className="dropdown dropdown-hover">
+      <label tabIndex={0} className="btn m-1">
+        {title}
+      </label>
+      <div className="form-control">
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+        >
+          {/* All Selection Checkbox */}
+          <li key={`li_all${title}`}>
+            <label className="label cursor-pointer">
+              <span className="label-text">All {title}</span>
+              <input
                 id={`all${title}`}
                 type="checkbox"
                 className="checkbox"
-                onClick={onAllSelectionClicked}
-            />
-        </label>
-    </li>;
+                checked={allChecked}
+                onChange={(e) => {
+                  setAllChecked(e.target.checked);
 
-    return (
-        <div className="dropdown dropdown-hover">
-            <label tabIndex={0} className="btn m-1">{title}</label>
-            <div className="form-control">
-                <ul tabIndex={0} className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
-                    {allLocationsCheckbox}
-                    <div className="divider"></div>
-                    {Array.from(optionsSet).map((option: string) => (
-                        <li key={`li_${option}`}>
-                            <DropDownFilterEntry option={option} onClick={onSingleSelectionClicked} />
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
+                  options.forEach((_, index) => {
+                    const checkbox = document.getElementById(
+                      `${title}_checkbox_${index}`
+                    ) as HTMLInputElement;
 
-    );
+                    if (checkbox) {
+                      checkbox.checked = e.target.checked;
+                    }
+                  });
+
+                  setSelectedOptions(e.target.checked ? options : []);
+                }}
+              />
+            </label>
+          </li>
+
+          {/* Single Selection Checkboxes */}
+          <div className="divider"></div>
+          {options &&
+            options.map((option, index) => {
+              return (
+                <li key={`${title}_checkbox_${index}`}>
+                  <DropDownFilterEntry
+                    name={getItemName(option)}
+                    id={`${title}_checkbox_${index}`}
+                    option={option}
+                    defaultChecked={selectedOptions.includes(option)}
+                    setSelected={(selected) => {
+                      onSingleSelected(option, selected);
+                    }}
+                  />
+                </li>
+              );
+            })}
+        </ul>
+      </div>
+    </div>
+  );
 }
 
-const DropDownFilterEntry = ({ option, onClick }: { option: string, onClick: (option: string) => any }) => {
-    return <label className="label cursor-pointer">
-        <span className="label-text">{option}</span>
-        <input
-            id={option}
-            type="checkbox"
-            className="checkbox"
-            onClick={() => { onClick(option); }}
-        />
+function DropDownFilterEntry<A>({
+  name,
+  id,
+  option,
+  defaultChecked,
+  setSelected,
+}: {
+  name: string;
+  id: string;
+  option: A;
+  defaultChecked: boolean;
+  setSelected: (checked: boolean) => void;
+}) {
+  return (
+    <label className="label cursor-pointer">
+      <span className="label-text">{name}</span>
+      <input
+        id={id}
+        type="checkbox"
+        className="checkbox"
+        defaultChecked={defaultChecked}
+        onChange={(e) => setSelected(e.target.checked)}
+      />
     </label>
-
+  );
 }

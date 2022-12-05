@@ -1,7 +1,7 @@
 export interface IDesk {
   deskId: string;
   deskName: string;
-  deskType: string;
+  deskTyp: string;
   room: string;
   floor: string;
   building: string;
