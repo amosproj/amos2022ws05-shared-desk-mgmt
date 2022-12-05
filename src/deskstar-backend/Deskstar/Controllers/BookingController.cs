@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-
 namespace Deskstar.Controllers;
 
 [ApiController]
@@ -146,5 +145,74 @@ public class BookingController : ControllerBase
             _logger.LogError(e, e.Message);
         }
         return NotFound();
+    }
+
+
+    /// <summary>
+    /// Creates a new Booking for Token-User
+    /// </summary>
+    /// <returns>Created Booking in JSON Format</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /bookings with JWT Token
+    /// </remarks>
+    ///
+    /// <response code="201">Returns the created booking</response>
+    /// <response code="404">User not found</response>
+    /// <response code="404">Desk not found</response>
+    /// <response code="409">Desk is not available at that time</response>
+    /// <response code="400">Bad Request</response>
+
+    [HttpPost]
+    [Authorize]
+    // [ProducesResponseType(typeof(ExtendedBooking), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+    public IActionResult CreateBooking([FromBody] BookingRequest bookingRequest)
+    {
+        // TODO: Why is this not working?
+        // if (!ModelState.IsValid)
+        // {
+        //     return BadRequest("Required fields are missing");
+        // }
+
+        if (bookingRequest.StartTime.Equals(DateTime.MinValue) || bookingRequest.EndTime.Equals(DateTime.MinValue) || bookingRequest.DeskId.Equals(Guid.Empty))
+        {
+            return BadRequest("Required fields are missing");
+        }
+
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+
+        // TODO: how to handle timezones? require milliseconds as parameter?
+        bookingRequest.StartTime = bookingRequest.StartTime.ToLocalTime();
+        bookingRequest.EndTime = bookingRequest.EndTime.ToLocalTime();
+
+        try
+        {
+            var createdBooking = _bookingUsecases.CreateBooking(userId, bookingRequest);
+            // TODO: return create?
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            switch (e.Message)
+            {
+                case "User not found":
+                    return NotFound(e.Message);
+                case "Desk not found":
+                    return NotFound(e.Message);
+                case "Desk is not available at that time":
+                    return Conflict(e.Message);
+                default:
+                    return Problem(statusCode: 500);
+            }
+        }
     }
 }
