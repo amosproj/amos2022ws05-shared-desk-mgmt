@@ -28,6 +28,16 @@ const adminNavItems = [
   {
     name: "User Management",
     href: "/users",
+    subNavItems: [
+      {
+        name: "Overview",
+        href: "/users",
+      },
+      {
+        name: "Requests",
+        href: "/users/requests",
+      },
+    ],
   },
   {
     name: "Resource Management",
@@ -62,9 +72,25 @@ export default function Sidebar({ children }: SidebarProps) {
           {session &&
             session.user &&
             session.user.isAdmin &&
-            adminNavItems.map((item) => (
-              <SidebarEntry key={item.name} href={item.href} name={item.name} />
-            ))}
+            adminNavItems.map((item) => {
+              if ("subNavItems" in item)
+                return (
+                  <CollapseSideBarEntry
+                    key={item.name}
+                    href={item.href}
+                    name={item.name}
+                    subNavItems={item.subNavItems}
+                  />
+                );
+              else
+                return (
+                  <SidebarEntry
+                    key={item.name}
+                    href={item.href}
+                    name={item.name}
+                  />
+                );
+            })}
           <li>
             <div onClick={() => signOut()}>Logout</div>
           </li>
@@ -89,6 +115,7 @@ const SidebarHeader = () => {
 type SidebarEntryProps = {
   href: string;
   name: string;
+  subNavItems?: SidebarEntryProps[];
 };
 
 const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
@@ -98,5 +125,27 @@ const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
     <li onClick={closeSidebar}>
       <Link href={href}>{name}</Link>
     </li>
+  );
+};
+
+const CollapseSideBarEntry = ({
+  href,
+  name,
+  subNavItems,
+}: SidebarEntryProps) => {
+  return (
+    <div tabIndex={0} className="collapse collapse-arrow">
+      <input type="checkbox" />
+      <div className="collapse-title">{name}</div>
+      <div className="collapse-content">
+        {subNavItems?.map((subItem) => (
+          <SidebarEntry
+            key={subItem.name}
+            href={subItem.href}
+            name={subItem.name}
+          />
+        ))}
+      </div>
+    </div>
   );
 };
