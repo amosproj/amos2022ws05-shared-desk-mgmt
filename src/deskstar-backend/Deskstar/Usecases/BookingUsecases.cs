@@ -8,6 +8,7 @@ public interface IBookingUsecases
 {
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
     public List<ExtendedBooking> GetRecentBookings(Guid userId);
+    public BookingResponse CreateBooking(BookingRequest bookingRequest);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -61,5 +62,57 @@ public class BookingUsecases : IBookingUsecases
         });
 
         return mapBookingsToRecentBookings.ToList();
+    }
+
+    public BookingResponse CreateBooking(BookingRequest bookingRequest)
+    {
+        // check if desk exists
+        var desk = _context.Desks.FirstOrDefault(d => d.DeskId == bookingRequest.DeskId);
+        if (desk == null)
+        {
+            return new BookingResponse
+            {
+                Message = BookingReturn.DeskNotFound
+            };
+        }
+
+        // check if user exists
+        var user = _context.Users.FirstOrDefault(u => u.UserId == bookingRequest.UserId);
+        if (user == null)
+        {
+            return new BookingResponse
+            {
+                Message = BookingReturn.UserNotFound
+            };
+        }
+
+        // check if desk available
+        var bookings = _context.Bookings.Where(b => b.DeskId == bookingRequest.DeskId);
+        var timeSlotAvailable = bookings.All(b => b.StartTime >= bookingRequest.EndTime || b.EndTime <= bookingRequest.StartTime);
+        if (!timeSlotAvailable)
+        {
+            return new BookingResponse
+            {
+                Message = BookingReturn.TimeSlotNotAvailable
+            };
+        }
+        var booking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            UserId = bookingRequest.UserId,
+            DeskId = bookingRequest.DeskId,
+            StartTime = bookingRequest.StartTime,
+            EndTime = bookingRequest.EndTime,
+            Timestamp = DateTime.Now
+        };
+
+        _context.Bookings.Add(booking);
+        _context.SaveChanges();
+
+        return new BookingResponse
+        {
+            Message = BookingReturn.Ok,
+            // TODO: return booking
+        };
     }
 }
