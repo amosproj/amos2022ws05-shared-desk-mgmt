@@ -61,6 +61,7 @@ export default function DropDownFilter({
                 type="checkbox"
                 className="checkbox"
                 checked={allChecked}
+                readOnly={true}
                 onClick={() => {
                   if (!allChecked) {
                     selectOptions(options);
@@ -108,6 +109,7 @@ const DropDownFilterEntry = ({
         type="checkbox"
         className="checkbox"
         checked={selected}
+        readOnly={true}
         onClick={() => {
           setSelected(!selected);
         }}
