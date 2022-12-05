@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Deskstar.Models;
 
-public class RecentBooking
+public class ExtendedBooking
 {
+    public Guid BookingId { get; set; }
+
     [Required]
     public DateTime Timestamp { get; set; }
 
@@ -17,9 +19,9 @@ public class RecentBooking
     public string DeskName { get; set; } = null!;
 
     [Required] public string BuildingName { get; set; } = null!;
-    
+
     [Required] public string FloorName { get; set; } = null!;
-    
+
     [Required] public string RoomName { get; set; } = null!;
 
 

@@ -7,7 +7,7 @@ namespace Deskstar.Usecases;
 public interface IBookingUsecases
 {
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
-    public List<RecentBooking> GetRecentBookings(Guid userId);
+    public List<ExtendedBooking> GetRecentBookings(Guid userId);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -37,7 +37,7 @@ public class BookingUsecases : IBookingUsecases
         return withReferences.ToList();
     }
 
-    public List<RecentBooking> GetRecentBookings(Guid userId)
+    public List<ExtendedBooking> GetRecentBookings(Guid userId)
     {
         var bookings = _context.Bookings
             .Where(b => b.UserId == userId && b.StartTime >= DateTime.Now)
@@ -49,7 +49,7 @@ public class BookingUsecases : IBookingUsecases
                .ThenInclude(r => r.Floor)
                .ThenInclude(b => b.Building);
 
-        var mapBookingsToRecentBookings = bookings.Select(b => new RecentBooking
+        var mapBookingsToRecentBookings = bookings.Select(b => new ExtendedBooking
         {
             DeskName = b.Desk.DeskName,
             EndTime = b.EndTime,

@@ -37,7 +37,7 @@ public class BookingController : ControllerBase
     /// <response code="400">Bad Request</response>
     [HttpGet("range")]
     [Authorize]
-    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
@@ -94,7 +94,7 @@ public class BookingController : ControllerBase
             var mapped = bookings.Select(
                 (b) =>
                 {
-                    RecentBooking rb = new RecentBooking();
+                    ExtendedBooking rb = new ExtendedBooking();
                     rb.Timestamp = b.Timestamp;
                     rb.StartTime = b.StartTime;
                     rb.EndTime = b.EndTime;
@@ -127,7 +127,7 @@ public class BookingController : ControllerBase
     /// <response code="404">User not found</response>
     [HttpGet("recent")]
     [Authorize]
-    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     public IActionResult RecentBookings()
