@@ -31,14 +31,13 @@ public class UserUsecases : IUserUsecases
             _context.SaveChanges();
 
             return guid;
-
         }
         catch (Exception e) when (e is FormatException || e is ArgumentNullException || e is OverflowException)
         {
             _logger.LogError(e, e.Message);
             throw new ArgumentException($"'{userId}' is not a valid UserId");
         }
-        catch (InvalidOperationException e)
+        catch (InvalidOperationException)
         {
             throw new ArgumentException($"There is no user with id '{userId}'");
         }
@@ -67,7 +66,7 @@ public class UserUsecases : IUserUsecases
             _context.SaveChanges();
             return guid;
         }
-        catch (InvalidOperationException e)
+        catch (InvalidOperationException)
         {
             throw new ArgumentException($"There is no user with id '{userId}'");
         }
