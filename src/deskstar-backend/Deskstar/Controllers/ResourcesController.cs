@@ -106,7 +106,7 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">Returns the floor list</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("buildings/{buildingId}/floor")]
+    [HttpGet("buildings/{buildingId}/floors")]
     [Authorize]
     [ProducesResponseType(typeof(List<CurrentFloor>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
