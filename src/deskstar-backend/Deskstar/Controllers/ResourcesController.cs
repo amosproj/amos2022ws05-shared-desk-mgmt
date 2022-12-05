@@ -73,7 +73,7 @@ public class ResourcesController : ControllerBase
     {
         return Problem(statusCode: 501);
     }
-    
+
     /// <summary>
     /// Deletes a Building.
     /// </summary>
@@ -121,7 +121,7 @@ public class ResourcesController : ControllerBase
 
         return Ok(floor.ToList());
     }
-    
+
     /// <summary>
     /// Creates a new Floor.
     /// </summary>
@@ -143,7 +143,7 @@ public class ResourcesController : ControllerBase
     {
         return Problem(statusCode: 501);
     }
-    
+
     /// <summary>
     /// Deletes a Floor.
     /// </summary>
@@ -190,7 +190,7 @@ public class ResourcesController : ControllerBase
 
         return Ok(rooms.ToList());
     }
-    
+
     /// <summary>
     /// Creates a new Room.
     /// </summary>
@@ -212,7 +212,7 @@ public class ResourcesController : ControllerBase
     {
         return Problem(statusCode: 501);
     }
-    
+
     /// <summary>
     /// Deletes a Room.
     /// </summary>
@@ -273,7 +273,7 @@ public class ResourcesController : ControllerBase
     /// <response code="500">Internal Server Error</response>
     [HttpGet("desks/{deskId}")]
     [Authorize]
-    [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<CurrentDesk>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     public IActionResult GetDeskDetailsByDeskId(string deskId, long start = 0, long end = 0)
@@ -315,7 +315,7 @@ public class ResourcesController : ControllerBase
 
         return Ok(desk);
     }
-    
+
     /// <summary>
     /// Creates a new Desk.
     /// </summary>
@@ -337,7 +337,7 @@ public class ResourcesController : ControllerBase
     {
         return Problem(statusCode: 501);
     }
-    
+
     /// <summary>
     /// Deletes a Desk.
     /// </summary>
