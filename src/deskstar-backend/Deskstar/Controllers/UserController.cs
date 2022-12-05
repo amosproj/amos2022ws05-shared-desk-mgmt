@@ -38,7 +38,7 @@ public class UserController : ControllerBase
     /// <response code="400">Bad Request</response>
     [HttpGet("me")]
     [Authorize]
-    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
@@ -53,8 +53,8 @@ public class UserController : ControllerBase
         {
             var me = _userUsecases.ReadSpecificUser(userId);
             var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
-            var userDto = mapper.Map<Entities.User, UserDto>(me);
-            return Ok(userDto);
+            var UserProfileDto = mapper.Map<Entities.User, UserProfileDto>(me);
+            return Ok(UserProfileDto);
         }
         catch (ArgumentException e)
         {

@@ -2,19 +2,19 @@ using AutoMapper;
 
 namespace Deskstar.Models
 {
-    public class UserDto
+    public class UserProfileDto
     {
-        public static readonly UserDto Null = new UserDto();
+        public static readonly UserProfileDto Null = new UserProfileDto();
 
-        public UserDto()
+        public UserProfileDto()
         {
 
         }
 
-        public static IMappingExpression<Entities.User, UserDto> getMapping(IMapperConfigurationExpression cfg)
+        public static void createMappings(IMapperConfigurationExpression cfg)
         {
-            return cfg.CreateMap<Entities.User, UserDto>()
-                .ForMember(dest => dest.CompanyName, act => act.MapFrom(src => src.Company.CompanyName));
+            cfg.CreateMap<Entities.User, UserProfileDto>()
+                .ForMember(dest => dest.Company, act => act.MapFrom(src => src.Company));
         }
 
         public Guid UserId { get; set; }
@@ -25,6 +25,6 @@ namespace Deskstar.Models
         public bool IsApproved { get; set; }
         public bool IsCompanyAdmin { get; set; }
 
-        public string CompanyName { get; set; } = null!;
+        public UserProfileCompanyDto Company { get; set; } = null!;
     }
 }

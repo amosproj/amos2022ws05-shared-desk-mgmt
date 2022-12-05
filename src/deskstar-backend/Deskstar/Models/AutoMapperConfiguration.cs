@@ -1,5 +1,4 @@
 using AutoMapper;
-using Deskstar.Entities;
 
 namespace Deskstar.Models
 {
@@ -14,7 +13,8 @@ namespace Deskstar.Models
         {
             var config = new MapperConfiguration(cfg =>
             {
-                UserDto.getMapping(cfg);
+                UserProfileDto.createMappings(cfg);
+                UserProfileCompanyDto.createMappings(cfg);
             });
             return config;
         }

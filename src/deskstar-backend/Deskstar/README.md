@@ -48,7 +48,7 @@ docker run -it -e DB__HOST=localhost -e DB__DATABASE=deskstar -e DB__USERNAME=po
 ## Convert Runtime Entities to DTOs with AutoMapper
 To map the runtime entities we use to DTOs we serve through the REST-API, we use AutoMapper
 to avoid writing additional boilerplate code. An example for using AutoMapper is implemented
-for the User (AutomapperConfiguration.cs UserDto.cs, UserController.cs).
+for the User (AutomapperConfiguration.cs UserProfileDto.cs, UserController.cs).
 
 ## Overall Architecture
 
