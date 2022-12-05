@@ -1,43 +1,109 @@
 import Head from "next/head";
 
-import { IRoom } from "../../types/room";
-
-//TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
-import { rooms } from "../../rooms";
-import { deskTypes } from "../../deskTypes";
-import { IDeskType } from "../../types/desktypes";
 import { useSession } from "next-auth/react";
-import DropDownFilter, {
-  stringToSelectable,
-} from "../../components/DropDownFilter";
+import DropDownFilter from "../../components/DropDownFilter";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
+import {
+  getBuildings,
+  getDesks,
+  getFloors,
+  getRooms,
+} from "../../lib/api/ResourceService";
+import { IBuilding } from "../../types/building";
+import { ILocation } from "../../types/location";
+import { IFloor } from "../../types/floor";
+import { IRoom } from "../../types/room";
+import { IDeskType } from "../../types/desktypes";
+import { useState } from "react";
 
-const Bookings = ({
-  results,
-  types,
-}: {
-  results: IRoom[];
-  types: IDeskType[];
-}) => {
+const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let { data: session } = useSession();
 
-  let buildings: string[] = [];
-  let locations: string[] = [];
-  let rooms: string[] = [];
-  let deskTypes: string[] = [];
+  const locations: ILocation[] = origBuildings.map((building) => ({
+    locationName: building.location,
+  }));
+
+  const [buildings, setBuildings] = useState<IBuilding[]>([]);
+  const [floors, setFloors] = useState<IFloor[]>([]);
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+
+  const [selectedLocations, setSelectedLocations] = useState<ILocation[]>([]);
+  const [selectedBuildings, setSelectedBuildings] = useState<IBuilding[]>([]);
+  const [selectedFloors, setSelectedFloors] = useState<IFloor[]>([]);
+  const [selectedRooms, setSelectedRooms] = useState<IRoom[]>([]);
+  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
 
   let startDateTime: string;
   let endDateTime: string;
 
-  for (const result of results) {
-    buildings.push(result.building);
-    locations.push(result.location);
-    rooms.push(result.roomName);
+  async function onSelectedLocationChange(selectedLocations: ILocation[]) {
+    console.log(selectedLocations);
+    let buildings = origBuildings.filter((building) =>
+      selectedLocations.some((location) => {
+        return location.locationName === building.location;
+      })
+    );
+
+    setBuildings(buildings);
   }
 
-  for (const type of types) {
-    deskTypes.push(type.typeName);
+  async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
+    const promises = await Promise.all(
+      selectedBuildings.map(async (building) => {
+        if (!session) {
+          return [];
+        }
+
+        const resFloors = await getFloors(session, building.buildingId);
+
+        return resFloors;
+      })
+    );
+
+    setFloors(promises.flat());
   }
+
+  async function onSelectedFloorChange(selectedFloors: IFloor[]) {
+    const promises = await Promise.all(
+      selectedFloors.map(async (floor) => {
+        if (!session) {
+          return [];
+        }
+
+        const resRooms = await getRooms(session, floor.floorId);
+
+        return resRooms;
+      })
+    );
+
+    setRooms(promises.flat());
+  }
+
+  async function onSelectedRoomChange(selectedRooms: IRoom[]) {
+    const promises = await Promise.all(
+      selectedRooms.map(async (room) => {
+        if (!session) {
+          return [];
+        }
+
+        const resDeskType = await getDesks(session, room.roomId);
+
+        return resDeskType;
+      })
+    );
+
+    setDeskTypes(
+      promises.flat().map((desk) => ({
+        typeId: desk.deskType,
+        typeName: `Name ${desk.deskType}`,
+      }))
+    );
+  }
+
+  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {}
 
   return (
     <div>
@@ -83,32 +149,50 @@ const Bookings = ({
 
       <DropDownFilter
         title="Locations"
-        options={stringToSelectable(locations)}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected Locations", selectedOptions);
-        }}
+        getItemName={(location) => location.locationName}
+        options={locations}
+        selectedOptions={selectedLocations}
+        setSelectedOptions={setSelectedLocations}
       />
 
       <DropDownFilter
         title="Buildings"
-        options={stringToSelectable(buildings)}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected Buildings", selectedOptions);
-        }}
+        getItemName={(building) => building.buildingName}
+        options={buildings}
+        selectedOptions={selectedBuildings}
+        setSelectedOptions={setSelectedBuildings}
+      />
+
+      <DropDownFilter
+        title="Floors"
+        getItemName={(floor) => floor.floorName}
+        options={floors}
+        selectedOptions={selectedFloors}
+        setSelectedOptions={setSelectedFloors}
       />
 
       <DropDownFilter
         title="Rooms"
-        options={stringToSelectable(rooms)}
-        setSelectedOptions={(selectedOptions) => {
+        options={rooms.map((room) => ({
+          ...room,
+          getName() {
+            return room.roomName;
+          },
+        }))}
+        onOptionSelect={(selectedOptions) => {
           console.log("Selected Rooms", selectedOptions);
         }}
       />
 
       <DropDownFilter
         title="Types"
-        options={stringToSelectable(deskTypes)}
-        setSelectedOptions={(selectedOptions) => {
+        options={deskTypes.map((deskType) => ({
+          ...deskType,
+          getName() {
+            return deskType.typeName;
+          },
+        }))}
+        onOptionSelect={(selectedOptions) => {
           console.log("Selected Types", selectedOptions);
         }}
       />
@@ -122,11 +206,26 @@ const Bookings = ({
 };
 
 //TODO: delete this - this is just for developing this component
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    const buildings = await getBuildings(session);
+
+    return {
+      props: {
+        buildings,
+      },
+    };
+  }
+
   return {
     props: {
-      results: rooms,
-      types: deskTypes,
+      buildings: [],
     },
   };
 };

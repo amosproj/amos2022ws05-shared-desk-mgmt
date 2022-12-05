@@ -1,45 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-interface Selectable {
-  getName: () => string;
-}
-
-export function stringToSelectable(list: string[]): Selectable[] {
-  return list.map((x) => ({
-    getName() {
-      return x;
-    },
-  }));
-}
-
-export default function DropDownFilter({
+export default function DropDownFilter<A>({
   title,
   options,
+  getItemName,
+  selectedOptions,
   setSelectedOptions,
 }: {
   title: string;
-  options: Selectable[];
-  setSelectedOptions: (newSelectedOptions: Selectable[]) => void;
+  getItemName: (item: A) => string;
+  options: A[];
+  selectedOptions: A[];
+  setSelectedOptions: (newSelectedOptions: A[]) => void;
 }) {
-  const [selectedOptions, _setSelectedOptions] = useState<Selectable[]>([]);
-
   let [allChecked, setAllChecked] = useState(false);
 
-  function selectOptions(selectedOptions: Selectable[]) {
-    _setSelectedOptions(selectedOptions);
-    setSelectedOptions(selectedOptions);
-
-    // check if newSelectedOptions is equal to options
-    // If the length is not equal, then not all options are selected
-    setAllChecked(selectedOptions.length === options.length);
-  }
-
-  const onSingleSelected = (option: Selectable, selected: boolean) => {
-    const newSelectedOptions = selected
+  const onSingleSelected = (option: A, selected: boolean) => {
+    let newSelectedOptions = selected
       ? [...selectedOptions, option]
       : selectedOptions.filter((o) => o !== option);
 
-    selectOptions(newSelectedOptions);
+    // remove duplicates in newSelectedOptions
+    newSelectedOptions = newSelectedOptions.filter(
+      (o, i) => newSelectedOptions.indexOf(o) === i
+    );
+
+    console.log(newSelectedOptions);
+
+    setSelectedOptions(newSelectedOptions);
   };
 
   return (
@@ -61,13 +49,8 @@ export default function DropDownFilter({
                 type="checkbox"
                 className="checkbox"
                 checked={allChecked}
-                readOnly={true}
-                onClick={() => {
-                  if (!allChecked) {
-                    selectOptions(options);
-                  } else {
-                    selectOptions([]);
-                  }
+                onChange={(e) => {
+                  setAllChecked(e.target.checked);
                 }}
               />
             </label>
@@ -75,45 +58,49 @@ export default function DropDownFilter({
 
           {/* Single Selection Checkboxes */}
           <div className="divider"></div>
-          {Array.from(options).map((option: Selectable) => (
-            <li key={option.getName()}>
-              <DropDownFilterEntry
-                option={option}
-                selected={selectedOptions.includes(option)}
-                setSelected={(selected) => {
-                  onSingleSelected(option, selected);
-                }}
-              />
-            </li>
-          ))}
+          {options &&
+            options.map((option) => {
+              return (
+                <li key={getItemName(option)}>
+                  <DropDownFilterEntry
+                    name={getItemName(option)}
+                    option={option}
+                    selected={selectedOptions.includes(option)}
+                    setSelected={(selected) => {
+                      console.log(selected);
+                      onSingleSelected(option, selected);
+                    }}
+                  />
+                </li>
+              );
+            })}
         </ul>
       </div>
     </div>
   );
 }
 
-const DropDownFilterEntry = ({
+function DropDownFilterEntry<A>({
+  name,
   option,
   selected,
   setSelected,
 }: {
-  option: Selectable;
+  name: string;
+  option: A;
   selected: boolean;
   setSelected: (checked: boolean) => void;
-}) => {
+}) {
   return (
     <label className="label cursor-pointer">
-      <span className="label-text">{option.getName()}</span>
+      <span className="label-text">{name}</span>
       <input
-        id={option.getName()}
+        id={name}
         type="checkbox"
         className="checkbox"
         checked={selected}
-        readOnly={true}
-        onClick={() => {
-          setSelected(!selected);
-        }}
+        onChange={(e) => setSelected(e.target.checked)}
       />
     </label>
   );
-};
+}
