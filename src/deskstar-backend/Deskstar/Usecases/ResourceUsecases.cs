@@ -120,7 +120,14 @@ public class ResourceUsecases : IResourceUsecases
             DeskId = d.DeskId.ToString(),
             DeskName = d.DeskName,
             DeskTyp = d.DeskType.DeskTypeName,
-            BookedAt = d.Bookings.ToList()
+            RoomId = d.RoomId.ToString(),
+            RoomName = d.Room.RoomName,
+            Location = d.Room.Floor.Building.Location,
+            BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
+            BuildingName = d.Room.Floor.Building.BuildingName,
+            FloorId=d.Room.Floor.FloorId.ToString(),
+            FloorName=d.Room.Floor.FloorName,
+            BookedAt = null!
         });
         
 
@@ -136,7 +143,12 @@ public class ResourceUsecases : IResourceUsecases
                 DeskId = d.DeskId.ToString(),
                 DeskName = d.DeskName,
                 DeskTyp = d.DeskType.DeskTypeName,
-                BookedAt = d.Bookings.ToList()
+                RoomId = d.RoomId.ToString(),
+                RoomName = d.Room.RoomName,
+                Location = d.Room.Floor.Building.Location,
+                BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
+                BuildingName = d.Room.Floor.Building.BuildingName,
+                BookedAt = null!
             }).First();
 
             return desk;

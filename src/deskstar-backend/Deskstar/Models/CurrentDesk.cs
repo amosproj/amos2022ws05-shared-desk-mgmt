@@ -2,17 +2,39 @@
 using Deskstar.Entities;
 
 namespace Deskstar.Models;
+
 public class CurrentDesk
 {
-    [Required]
-    public string DeskId { get; set; } = null!;
+    [Required] public string DeskId { get; set; } = null!;
 
-    [Required]
-    public string DeskName { get; set; } = null!;
+    [Required] public string DeskName { get; set; } = null!;
 
-    [Required]
-    public string DeskTyp { get; set; } = null!;
+    [Required] public string DeskTyp { get; set; } = null!;
     
-    public List<Booking> BookedAt { get; set; } = null!;
+    [Required] public string BuildingId { get; set; } = null!;
     
+    [Required] public string BuildingName { get; set; } = null!;
+    
+    [Required] public string Location { get; set; } = null!;
+    
+    [Required] public string RoomId { get; set; } = null!;
+    
+    [Required] public string RoomName { get; set; } = null!;
+    
+    [Required] public string FloorId { get; set; } = null!;
+    
+    [Required] public string FloorName { get; set; } = null!;
+
+    [Required] public List<BookingDesks> BookedAt { get; set; } = null!;
+}
+
+public class BookingDesks
+{
+    [Required] public Guid BookingId { get; set; }
+    
+    [Required] public Guid UserId { get; set; }
+    
+    [Required] public DateTime StartTime { get; set; }
+    
+    [Required] public DateTime EndTime { get; set; }
 }

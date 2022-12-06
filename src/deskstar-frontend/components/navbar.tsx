@@ -15,10 +15,6 @@ const userNavItems = [
     href: "/bookings",
   },
   {
-    name: "Resources",
-    href: "/searchResults",
-  },
-  {
     name: "Add New Booking",
     href: "/bookings/add",
   },
