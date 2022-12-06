@@ -15,10 +15,6 @@ const userNavItems = [
     href: "/bookings",
   },
   {
-    name: "Resources",
-    href: "/searchResults",
-  },
-  {
     name: "Add New Booking",
     href: "/bookings/add",
   },
@@ -92,7 +88,9 @@ export default function Sidebar({ children }: SidebarProps) {
                 );
             })}
           <li>
-            <div onClick={() => signOut()} className="dark:text-black">Logout</div>
+            <div onClick={() => signOut()} className="dark:text-black">
+              Logout
+            </div>
           </li>
         </ul>
       </div>
@@ -107,7 +105,9 @@ const SidebarHeader = () => {
         <Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />
         <span className="sr-only">Deskstar</span>
       </Link>
-      <h1 className="text-3xl ml-10 leading-normal dark:text-black">Deskstar</h1>
+      <h1 className="text-3xl ml-10 leading-normal dark:text-black">
+        Deskstar
+      </h1>
     </div>
   );
 };
@@ -123,7 +123,9 @@ const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
   const closeSidebar = () => document.getElementById("my-drawer")?.click();
   return (
     <li onClick={closeSidebar}>
-      <Link href={href} className="dark:text-black">{name}</Link>
+      <Link href={href} className="dark:text-black">
+        {name}
+      </Link>
     </li>
   );
 };

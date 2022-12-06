@@ -19,7 +19,7 @@ export default function AppHome({
 }) {
   const { data: session } = useSession();
 
-  console.log(session?.accessToken);
+  //console.log(session?.accessToken);
 
   const [buttonText, setButtonText] = useState("Check in");
   const [checkedIn, setCheckedIn] = useState(false);
