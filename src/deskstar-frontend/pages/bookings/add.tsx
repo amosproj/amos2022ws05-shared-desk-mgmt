@@ -24,8 +24,6 @@ import DesksTable from "../../components/DesksTable";
 const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let { data: session } = useSession();
 
-  console.log(session?.accessToken);
-
   const locations: ILocation[] = origBuildings.map((building) => ({
     locationName: building.location,
   }));
@@ -41,8 +39,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let startDateTime: string;
   let endDateTime: string;
 
+
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
-    console.log(selectedLocations);
     let buildings = origBuildings.filter((building) =>
       selectedLocations.some((location) => {
         return location.locationName === building.location;
@@ -75,8 +73,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           return [];
         }
 
-        console.log(floor);
-
         const resRooms = await getRooms(session, floor.floorID);
 
         return resRooms;
@@ -93,7 +89,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           return [];
         }
 
-        const resDeskType = await getDesks(session, room.roomId);
+        const resDeskType = await getDesks(session, room.roomId, startDateTime, endDateTime);
 
         return resDeskType;
       })
@@ -101,19 +97,24 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
 
     const desks = promises.flat();
     setDesks(desks);
-    console.log(desks);
 
     setDeskTypes(
       desks.map((desk) => ({
         typeId: desk.deskTyp,
-        typeName: `Name ${desk.deskTyp}`,
+        typeName: desk.deskTyp,
       }))
     );
   }
 
   function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
     setSelectedDeskTypes(selectedDeskTypes);
+    let filteredDesks=desks.filter(function (e){
+      return selectedDeskTypes.map((deskTypes)=>(deskTypes.typeName)).includes(e.deskTyp);
+    });
+
+    setDesks(filteredDesks);
   }
+
 
   return (
     <div>
@@ -137,8 +138,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           name="Start"
           defaultValue={new Date()
             .toISOString()
-            .substring(0, "YYYY-MM-DDTHH:SS".length)}
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+            .substring(0, "YYYY-MM-DDTHH:MM".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
           onChange={(event) => (startDateTime = event.target.value)}
         />
       </div>
@@ -151,7 +152,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           className="form-input"
           type="datetime-local"
           id="end-date-time"
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
           defaultValue={getEndDate()}
           onChange={(event) => (endDateTime = event.target.value)}
         />
@@ -202,10 +203,30 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
 
       <div className="my-4"></div>
 
-      {buildings.length == 0 && <p>Please select a location</p>}
-      {floors.length == 0 && <p>Please select a building</p>}
-      {rooms.length == 0 && <p>Please select a floor</p>}
-      {deskTypes.length == 0 && <p>Please select a room</p>}
+      {buildings.length == 0 && 
+      <div className="toast">
+        <div className="alert alert-info">
+          <span>Please select a location</span>
+         </div>
+      </div>}
+      {!(buildings.length==0) && floors.length == 0 && 
+      <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a building</span>
+          </div>
+        </div>}
+      {!(floors.length==0) && rooms.length == 0 && 
+      <div className="toast">
+       <div className="alert alert-info">
+         <span>Please select a floor</span>
+       </div>
+      </div>}
+      {!(rooms.length==0) && deskTypes.length == 0 && 
+      <div className="toast">
+       <div className="alert alert-info">
+         <span>Please select a room</span>
+       </div>
+      </div>}
 
       {desks.length > 0 && <DesksTable desks={desks} />}
     </div>
@@ -242,7 +263,7 @@ function onClick() {}
 function getEndDate() {
   let date = new Date();
   date.setHours(date.getHours() + 1);
-  return date.toISOString().substring(0, "YYYY-MM-DDTHH:SS".length);
+  return date.toISOString().substring(0, "YYYY-MM-DDTHH:MM".length);
 }
 
 export default Bookings;
