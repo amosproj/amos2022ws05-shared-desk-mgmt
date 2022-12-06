@@ -30,7 +30,7 @@ public class UserController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
-    [HttpPost("/{userId}/approve")]
+    [HttpPost("{userId}/approve")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -71,7 +71,7 @@ public class UserController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
-    [HttpPost("/{userId}/decline")]
+    [HttpPost("{userId}/decline")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
