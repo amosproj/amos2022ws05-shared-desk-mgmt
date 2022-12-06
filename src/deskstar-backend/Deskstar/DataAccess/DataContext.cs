@@ -30,7 +30,7 @@ namespace Deskstar.DataAccess
             if (!optionsBuilder.IsConfigured)
             {
                 //For migration purposes...
-                //optionsBuilder.UseNpgsql($"Host=localhost;Database=deskstar;Username=postgres;Password=root");
+                // optionsBuilder.UseNpgsql($"Host=localhost;Database=postgres;Username=postgres;Password=postgres");
                 optionsBuilder.UseInMemoryDatabase(databaseName: "TestDB");
             }
         }

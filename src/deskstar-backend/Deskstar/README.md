@@ -45,6 +45,11 @@ ENV variable.
 docker run -it -e DB__HOST=localhost -e DB__DATABASE=deskstar -e DB__USERNAME=postgres -e DB__PASSWORD=root -e ASPNETCORE_ENVIRONMENT=Development --rm -p 5000:5000 --name deskstar-backend deskstar-image
 ```
 
+## Convert Runtime Entities to DTOs with AutoMapper
+To map the runtime entities we use to DTOs we serve through the REST-API, we use AutoMapper
+to avoid writing additional boilerplate code. An example for using AutoMapper is implemented
+for the User (AutomapperConfiguration.cs UserProfileDto.cs, UserController.cs).
+
 ## Overall Architecture
 
 The backend will consist of 3 Layers:
