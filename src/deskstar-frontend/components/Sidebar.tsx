@@ -92,7 +92,7 @@ export default function Sidebar({ children }: SidebarProps) {
                 );
             })}
           <li>
-            <div onClick={() => signOut()}>Logout</div>
+            <div onClick={() => signOut()} className="dark:text-black">Logout</div>
           </li>
         </ul>
       </div>
@@ -107,7 +107,7 @@ const SidebarHeader = () => {
         <Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />
         <span className="sr-only">Deskstar</span>
       </Link>
-      <h1 className="text-3xl ml-10 leading-normal">Deskstar</h1>
+      <h1 className="text-3xl ml-10 leading-normal dark:text-black">Deskstar</h1>
     </div>
   );
 };
@@ -123,7 +123,7 @@ const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
   const closeSidebar = () => document.getElementById("my-drawer")?.click();
   return (
     <li onClick={closeSidebar}>
-      <Link href={href}>{name}</Link>
+      <Link href={href} className="dark:text-black">{name}</Link>
     </li>
   );
 };
@@ -136,7 +136,7 @@ const CollapseSideBarEntry = ({
   return (
     <div tabIndex={0} className="collapse collapse-arrow">
       <input type="checkbox" />
-      <div className="collapse-title">{name}</div>
+      <div className="collapse-title dark:text-black">{name}</div>
       <div className="collapse-content">
         {subNavItems?.map((subItem) => (
           <SidebarEntry
