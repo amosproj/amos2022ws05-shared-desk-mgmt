@@ -208,7 +208,7 @@ public class BookingController : ControllerBase
                     return NotFound(e.Message);
                 case "Desk not found":
                     return NotFound(e.Message);
-                case "Desk is not available at that time":
+                case "Time slot not available":
                     return Conflict(e.Message);
                 default:
                     return Problem(statusCode: 500);
