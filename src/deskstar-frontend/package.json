@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "playwright test",
+    "show-report": "playwright show-report"
   },
   "dependencies": {
     "daisyui": "^2.39.0",
@@ -17,6 +19,7 @@
     "react-icons": "^4.6.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.28.1",
     "@types/node": "^18.11.9",
     "@types/react": "^18.0.25",
     "@types/react-dom": "18.0.8",
