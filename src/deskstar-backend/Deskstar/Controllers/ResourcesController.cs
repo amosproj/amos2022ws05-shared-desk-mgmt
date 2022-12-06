@@ -239,7 +239,8 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks with JWT Token
+    ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks?start=1669021730904&end=1669121730904
+    ///     with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the desks list</response>
@@ -249,9 +250,9 @@ public class ResourcesController : ControllerBase
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetDesksByRoomId(string roomId)
+    public IActionResult GetDesksByRoomId(string roomId, long start = 0, long end = 0)
     {
-        var (noFound, desks) = _resourceUsecases.GetDesks(new Guid(roomId));
+        var (noFound, desks) = _resourceUsecases.GetDesks(new Guid(roomId), new DateTime(start), new DateTime(end));
         if (!noFound && desks.Count == 0)
         {
             return Problem(statusCode: 500);
@@ -266,7 +267,8 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904 with JWT Token
+    ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904
+    ///     with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>

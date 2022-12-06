@@ -14,4 +14,5 @@ public class CurrentDesk
     public string DeskTyp { get; set; } = null!;
     
     public List<Booking> BookedAt { get; set; } = null!;
+    
 }

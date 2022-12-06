@@ -9,7 +9,7 @@ public interface IResourceUsecases
     public (bool, List<CurrentBuilding>) GetBuildings(Guid userId);
     public (bool, List<CurrentFloor>) GetFloors(Guid buildingId);
     public (bool, List<CurrentRoom>) GetRooms(Guid floorId);
-    public (bool, List<CurrentDesk>) GetDesks(Guid roomId);
+    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 }
 
@@ -99,8 +99,9 @@ public class ResourceUsecases : IResourceUsecases
         return (false, mapRoomsToCurrentRooms.ToList());
     }
 
-    public (bool, List<CurrentDesk>) GetDesks(Guid roomId)
+    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end)
     {
+        //TODO filter booking time
         IQueryable<Desk> databaseDesks;
         try
         {
@@ -118,15 +119,16 @@ public class ResourceUsecases : IResourceUsecases
         {
             DeskId = d.DeskId.ToString(),
             DeskName = d.DeskName,
-            DeskTyp = d.DeskType.DeskTypeName
+            DeskTyp = d.DeskType.DeskTypeName,
+            BookedAt = d.Bookings.ToList()
         });
+        
 
         return (false, mapDesksToCurrentDesks.ToList());
     }
 
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
     {
-        var booking = _context.Bookings.Where(booking => booking.DeskId == deskId);
         try
         {
             var desk = _context.Desks.Where(room => room.DeskId == deskId).Select(d => new CurrentDesk
@@ -134,7 +136,7 @@ public class ResourceUsecases : IResourceUsecases
                 DeskId = d.DeskId.ToString(),
                 DeskName = d.DeskName,
                 DeskTyp = d.DeskType.DeskTypeName,
-                BookedAt = booking.ToList()
+                BookedAt = d.Bookings.ToList()
             }).First();
 
             return desk;
