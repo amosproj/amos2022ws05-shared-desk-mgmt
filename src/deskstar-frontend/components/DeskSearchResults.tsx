@@ -9,20 +9,21 @@ export default function DeskSearchResults({ results }: { results: IDesk[] }) {
     if (!formattedResults[result.location])
       formattedResults[result.location] = {};
 
-    if (!formattedResults[result.location][result.building])
-      formattedResults[result.location][result.building] = {};
+    if (!formattedResults[result.location][result.buildingName])
+      formattedResults[result.location][result.buildingName] = {};
 
-    if (!formattedResults[result.location][result.building][result.room])
-      formattedResults[result.location][result.building][result.room] = [];
+    if (
+      !formattedResults[result.location][result.buildingName][result.roomName]
+    )
+      formattedResults[result.location][result.buildingName][result.roomName] =
+        [];
 
-    formattedResults[result.location][result.building][result.room].push(
-      result
-    );
+    formattedResults[result.location][result.buildingName][
+      result.roomName
+    ].push(result);
   }
-
   return (
-    <>
-      <h1 className="text-3xl font-bold text-center my-10">Search Results</h1>
+    <div>
       {Object.keys(formattedResults).map(
         (location: string, locationIndex: number) => (
           <Collapse key={location} index={locationIndex} title={location}>
@@ -44,6 +45,6 @@ export default function DeskSearchResults({ results }: { results: IDesk[] }) {
           </Collapse>
         )
       )}
-    </>
+    </div>
   );
 }

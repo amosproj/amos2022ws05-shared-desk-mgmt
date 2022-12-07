@@ -77,10 +77,12 @@ export async function getRooms(
 
 export async function getDesks(
   session: Session,
-  roomId: string
+  roomId: string,
+  startTime: string,
+  endTime: string
 ): Promise<IDesk[]> {
   const response = await fetch(
-    BACKEND_URL + `/resources/rooms/${roomId}/desks`,
+    BACKEND_URL + `/resources/rooms/${roomId}/desks?from=${startTime}&to=${endTime}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -95,6 +97,6 @@ export async function getDesks(
   }
 
   const data = await response.json();
-
+  //console.log(data);
   return data;
 }

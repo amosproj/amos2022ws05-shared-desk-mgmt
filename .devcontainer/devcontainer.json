@@ -18,7 +18,8 @@
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
         "bradlc.vscode-tailwindcss",
-        "ms-vscode.vscode-typescript"
+        "ms-vscode.vscode-typescript",
+        "ms-playwright.playwright"
       ]
     }
   },

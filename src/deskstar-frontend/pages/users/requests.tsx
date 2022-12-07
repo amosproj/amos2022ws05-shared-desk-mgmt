@@ -2,7 +2,6 @@ import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { UsersTable } from "../../components/UsersTable";
 import { IUser } from "../../types/users";
-import { UserManagementWrapper } from "../../components/UserManagementWrapper";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -41,13 +40,13 @@ export default function UserRequests({ users }: { users: IUser[] }) {
   }
 
   return (
-    <UserManagementWrapper>
+    <>
       <Head>
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
       <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
-    </UserManagementWrapper>
+    </>
   );
 }
 

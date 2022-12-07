@@ -377,7 +377,8 @@ public class BookingUsecasesTest
         //cleanup
         db.Database.EnsureDeleted();
     }
-    
+
+    [Test]
     public void CheckGetRecentBookings_ValidMailAddress_NoBookings()
     {
         //setup
@@ -538,6 +539,9 @@ public class BookingUsecasesTest
             IsApproved = true
         };
         user.Password = hasher.HashPassword(user, "testpw");
+        mogDb.Companies.Add(company);
+        mogDb.Users.Add(user);
+        mogDb.SaveChanges();
         mogDb.Companies.Add(company);
         mogDb.Users.Add(user);
         mogDb.SaveChanges();

@@ -44,8 +44,8 @@ public class ResourcesController : ControllerBase
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
         var userId =
             new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
-        var buildings = _resourceUsecases.GetBuildings(userId);
-        if (buildings.Count == 0)
+        var (noFound, buildings) = _resourceUsecases.GetBuildings(userId);
+        if (!noFound && buildings.Count == 0)
         {
             return Problem(statusCode: 500);
         }
@@ -113,8 +113,8 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetFloorsByBuildingId(string buildingId)
     {
-        var floor = _resourceUsecases.GetFloors(new Guid(buildingId));
-        if (floor.Count == 0)
+        var (noFound, floor) = _resourceUsecases.GetFloors(new Guid(buildingId));
+        if (!noFound && floor.Count == 0)
         {
             return Problem(statusCode: 500);
         }
@@ -182,8 +182,8 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetRoomsByFloorId(string floorId)
     {
-        var rooms = _resourceUsecases.GetRooms(new Guid(floorId));
-        if (rooms.Count == 0)
+        var (noFound, rooms) = _resourceUsecases.GetRooms(new Guid(floorId));
+        if (!noFound && rooms.Count == 0)
         {
             return Problem(statusCode: 500);
         }
@@ -239,7 +239,8 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks with JWT Token
+    ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks?start=1669021730904&end=1669121730904
+    ///     with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the desks list</response>
@@ -249,10 +250,10 @@ public class ResourcesController : ControllerBase
     [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult GetDesksByRoomId(string roomId)
+    public IActionResult GetDesksByRoomId(string roomId, long start = 0, long end = 0)
     {
-        var desks = _resourceUsecases.GetDesks(new Guid(roomId));
-        if (desks.Count == 0)
+        var (noFound, desks) = _resourceUsecases.GetDesks(new Guid(roomId), new DateTime(start), new DateTime(end));
+        if (!noFound && desks.Count == 0)
         {
             return Problem(statusCode: 500);
         }
@@ -266,7 +267,8 @@ public class ResourcesController : ControllerBase
     /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904 with JWT Token
+    ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904
+    ///     with JWT Token
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>

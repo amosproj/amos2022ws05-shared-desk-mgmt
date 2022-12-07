@@ -1,16 +1,15 @@
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Deskstar.Usecases;
 
 public interface IResourceUsecases
 {
-    public List<CurrentBuilding> GetBuildings(Guid userId);
-    public List<CurrentFloor> GetFloors(Guid buildingId);
-    public List<CurrentRoom> GetRooms(Guid floorId);
-    public List<CurrentDesk> GetDesks(Guid roomId);
+    public (bool, List<CurrentBuilding>) GetBuildings(Guid userId);
+    public (bool, List<CurrentFloor>) GetFloors(Guid buildingId);
+    public (bool, List<CurrentRoom>) GetRooms(Guid floorId);
+    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 }
 
@@ -24,87 +23,134 @@ public class ResourceUsecases : IResourceUsecases
         _logger = logger;
         _context = context;
     }
-    public List<CurrentBuilding> GetBuildings(Guid userId)
+
+    public (bool, List<CurrentBuilding>) GetBuildings(Guid userId)
     {
-        var companyId = _context.Users.Where(user => user.UserId==userId).Select(user => user.CompanyId).First();
-        var databaseBuildings =_context.Buildings.Where(building => building.CompanyId == companyId);
-        if (databaseBuildings.ToList().Count == 0)
+        var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
+        IQueryable<Building> databaseBuildings;
+        try
         {
-            return new List<CurrentBuilding>();
+            databaseBuildings = _context.Buildings.Where(building => building.CompanyId == companyId);
         }
-        var mapBuildingsToCurrentBuildings = databaseBuildings.Select(b => new CurrentBuilding()
+        catch (Exception e)
         {
-            Location    = b.Location,
+            _logger.LogError(e, e.Message);
+            return (false, new List<CurrentBuilding>());
+        }
+
+        if (databaseBuildings.ToList().Count == 0) return (true, new List<CurrentBuilding>());
+
+        var mapBuildingsToCurrentBuildings = databaseBuildings.Select(b => new CurrentBuilding
+        {
+            Location = b.Location,
             BuildingId = b.BuildingId.ToString(),
             BuildingName = b.BuildingName
         });
-        
-        return mapBuildingsToCurrentBuildings.ToList();
+
+        return (false, mapBuildingsToCurrentBuildings.ToList());
     }
 
-    public List<CurrentFloor> GetFloors(Guid buildingId)
+    public (bool, List<CurrentFloor>) GetFloors(Guid buildingId)
     {
-        var databaseFloors =_context.Floors.Where(floor => floor.BuildingId == buildingId);
-        if (databaseFloors.ToList().Count == 0)
+        IQueryable<Floor> databaseFloors;
+        try
         {
-            return new List<CurrentFloor>();
+            databaseFloors = _context.Floors.Where(floor => floor.BuildingId == buildingId);
         }
-        var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor()
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return (false, new List<CurrentFloor>());
+        }
+
+        if (databaseFloors.ToList().Count == 0) return (true, new List<CurrentFloor>());
+
+        var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
         {
             BuildingName = f.Building.BuildingName,
             FloorName = f.FloorName,
             FloorID = f.FloorId.ToString()
         });
-        
-        return mapFloorsToCurrentFloors.ToList();
+
+        return (false, mapFloorsToCurrentFloors.ToList());
     }
 
-    public List<CurrentRoom> GetRooms(Guid floorId)
+    public (bool, List<CurrentRoom>) GetRooms(Guid floorId)
     {
-        var databaseRooms =_context.Rooms.Where(room => room.FloorId == floorId);
-        if (databaseRooms.ToList().Count == 0)
+        IQueryable<Room> databaseRooms;
+        try
         {
-            return new List<CurrentRoom>();
+            databaseRooms = _context.Rooms.Where(room => room.FloorId == floorId);
         }
-        var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom()
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return (false, new List<CurrentRoom>());
+        }
+
+        if (databaseRooms.ToList().Count == 0) return (true, new List<CurrentRoom>());
+
+        var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom
         {
             RoomId = r.RoomId.ToString(),
             RoomName = r.RoomName
         });
-        
-        return mapRoomsToCurrentRooms.ToList();
+
+        return (false, mapRoomsToCurrentRooms.ToList());
     }
 
-    public List<CurrentDesk> GetDesks(Guid roomId)
+    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end)
     {
-        var databaseDesks =_context.Desks.Where(desk => desk.RoomId == roomId);
-        if (databaseDesks.ToList().Count == 0)
+        //TODO filter booking time
+        IQueryable<Desk> databaseDesks;
+        try
         {
-            return new List<CurrentDesk>();
+            databaseDesks = _context.Desks.Where(desk => desk.RoomId == roomId);
         }
-        var mapDesksToCurrentDesks = databaseDesks.Select(d => new CurrentDesk()
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return (false, new List<CurrentDesk>());
+        }
+
+        if (databaseDesks.ToList().Count == 0) return (true, new List<CurrentDesk>());
+
+        var mapDesksToCurrentDesks = databaseDesks.Select(d => new CurrentDesk
         {
             DeskId = d.DeskId.ToString(),
             DeskName = d.DeskName,
-            DeskTyp = d.DeskType.DeskTypeName
+            DeskTyp = d.DeskType.DeskTypeName,
+            RoomId = d.RoomId.ToString(),
+            RoomName = d.Room.RoomName,
+            Location = d.Room.Floor.Building.Location,
+            BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
+            BuildingName = d.Room.Floor.Building.BuildingName,
+            FloorId=d.Room.Floor.FloorId.ToString(),
+            FloorName=d.Room.Floor.FloorName,
+            BookedAt = null!
         });
         
-        return mapDesksToCurrentDesks.ToList();
+
+        return (false, mapDesksToCurrentDesks.ToList());
     }
 
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
     {
-        var booking = _context.Bookings.Where(booking => booking.DeskId == deskId);
         try
         {
-            var desk = _context.Desks.Where(room => room.DeskId == deskId).Select(d=>new CurrentDesk()
+            var desk = _context.Desks.Where(room => room.DeskId == deskId).Select(d => new CurrentDesk
             {
                 DeskId = d.DeskId.ToString(),
                 DeskName = d.DeskName,
                 DeskTyp = d.DeskType.DeskTypeName,
-                BookedAt = booking.ToList()
+                RoomId = d.RoomId.ToString(),
+                RoomName = d.Room.RoomName,
+                Location = d.Room.Floor.Building.Location,
+                BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
+                BuildingName = d.Room.Floor.Building.BuildingName,
+                BookedAt = null!
             }).First();
-        
+
             return desk;
         }
         catch (Exception e)
@@ -112,6 +158,5 @@ public class ResourceUsecases : IResourceUsecases
             _logger.LogError(e, e.Message);
             return null;
         }
-        
     }
 }

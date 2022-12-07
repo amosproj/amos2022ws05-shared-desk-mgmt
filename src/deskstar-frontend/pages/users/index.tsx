@@ -2,7 +2,6 @@ import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { UsersTable } from "../../components/UsersTable";
 import { IUser } from "../../types/users";
-import { UserManagementWrapper } from "../../components/UserManagementWrapper";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
@@ -48,7 +47,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   }
 
   return (
-    <UserManagementWrapper>
+    <>
       <Head>
         <title>Users Overview</title>
       </Head>
@@ -59,7 +58,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         onEdit={onEdit}
         onDelete={onDelete}
       />
-    </UserManagementWrapper>
+    </>
   );
 }
 
