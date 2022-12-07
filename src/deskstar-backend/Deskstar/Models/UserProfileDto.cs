@@ -15,6 +15,8 @@ namespace Deskstar.Models
         {
             cfg.CreateMap<Entities.User, UserProfileDto>()
                 .ForMember(dest => dest.Company, act => act.MapFrom(src => src.Company));
+            cfg.CreateMap<UserProfileDto, Entities.User>()
+                .ForMember(dest => dest.Company, act => act.MapFrom(src => src.Company));
         }
 
         public Guid UserId { get; set; }
