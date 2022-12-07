@@ -11,6 +11,7 @@ public interface IResourceUsecases
     public (bool, List<CurrentRoom>) GetRooms(Guid floorId);
     public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
+    public List<DeskType> GetDeskTypes(Guid companyId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -125,11 +126,11 @@ public class ResourceUsecases : IResourceUsecases
             Location = d.Room.Floor.Building.Location,
             BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
             BuildingName = d.Room.Floor.Building.BuildingName,
-            FloorId=d.Room.Floor.FloorId.ToString(),
-            FloorName=d.Room.Floor.FloorName,
+            FloorId = d.Room.Floor.FloorId.ToString(),
+            FloorName = d.Room.Floor.FloorName,
             BookedAt = null!
         });
-        
+
 
         return (false, mapDesksToCurrentDesks.ToList());
     }
@@ -158,5 +159,10 @@ public class ResourceUsecases : IResourceUsecases
             _logger.LogError(e, e.Message);
             return null;
         }
+    }
+
+    public List<DeskType> GetDeskTypes(Guid companyId)
+    {
+        return _context.DeskTypes.Where(d => d.CompanyId == companyId).ToList();
     }
 }

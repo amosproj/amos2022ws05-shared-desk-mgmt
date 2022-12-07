@@ -13,12 +13,14 @@ namespace Deskstar.Controllers;
 public class ResourcesController : ControllerBase
 {
     private readonly IResourceUsecases _resourceUsecases;
+    private readonly IUserUsecases _userUsecases;
     private readonly ILogger<ResourcesController> _logger;
 
-    public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases)
+    public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases)
     {
         _logger = logger;
         _resourceUsecases = resourceUsecases;
+        _userUsecases = userUsecases;
     }
 
     /// <summary>
@@ -358,5 +360,61 @@ public class ResourcesController : ControllerBase
     public IActionResult DeleteDesk(string deskId)
     {
         return Problem(statusCode: 501);
+    }
+
+    /// <summary>
+    /// Creates a new DeskType.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     POST /resources/desktypes with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="201"></response>
+    /// <response code="400"></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("desktypes")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult CreateDeskType(CurrentDesk newDesk)
+    {
+        return Problem(statusCode: 501);
+    }
+    /// <summary>
+    /// Return a list of desk types
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     Get /resources/desktypes with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="200">List<DeskTypDTO></response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("desktypes")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult ReadDeskTypes()
+    {
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        var adminId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+
+        try
+        {
+            var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+            var deskTypes = _resourceUsecases.GetDeskTypes(companyId);
+            return Ok(deskTypes);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 }
