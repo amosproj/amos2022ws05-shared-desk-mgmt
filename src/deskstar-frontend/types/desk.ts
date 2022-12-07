@@ -4,9 +4,9 @@ export interface IDesk {
   deskTyp: string;
   roomId: string;
   roomName: string;
-  buildingName: string;
-  buildingId: string;
   floorId: string;
   floorName: string;
+  buildingId: string;
+  buildingName: string; 
   location: string;
 }

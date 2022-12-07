@@ -13,15 +13,18 @@ const SearchResults = ({ results }: { results: IDesk[] }) => {
     if (!formattedResults[result.location])
       formattedResults[result.location] = {};
 
-    if (!formattedResults[result.location][result.building])
-      formattedResults[result.location][result.building] = {};
+    if (!formattedResults[result.location][result.buildingName])
+      formattedResults[result.location][result.buildingName] = {};
 
-    if (!formattedResults[result.location][result.building][result.room])
-      formattedResults[result.location][result.building][result.room] = [];
+    if (
+      !formattedResults[result.location][result.buildingName][result.roomName]
+    )
+      formattedResults[result.location][result.buildingName][result.roomName] =
+        [];
 
-    formattedResults[result.location][result.building][result.room].push(
-      result
-    );
+    formattedResults[result.location][result.buildingName][
+      result.roomName
+    ].push(result);
   }
 
   return (
