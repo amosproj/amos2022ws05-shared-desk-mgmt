@@ -63,3 +63,42 @@ export async function getBookings(
 
   return bookings;
 }
+
+export async function createBooking(
+  session: Session,
+  deskId: string,
+  startTime: EpochTimeStamp,
+  endTime: EpochTimeStamp
+) {
+  const response = await fetch(BACKEND_URL + "/bookings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: JSON.stringify({
+      deskId,
+      startTime,
+      endTime,
+    }),
+  });
+  console.log(await response.status);
+  if (response.status !== 200) {
+    let text = await response.text();
+    // take away the quotes
+    text = text.substring(1, text.length - 1);
+    console.log(text);
+    switch (text) {
+      case "User not found":
+        return "User not found";
+      case "Desk not found":
+        return "The desk you are trying to book does not exist";
+      case "Time slot not available":
+        return "The time slot you are trying to book is not available";
+      default:
+        return "An unknown error occurred";
+    }
+  } else {
+    return "success";
+  }
+}
