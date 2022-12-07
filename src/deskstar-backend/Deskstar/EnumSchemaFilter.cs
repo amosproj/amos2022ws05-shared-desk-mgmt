@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Reflection;
+using System.Runtime.Serialization;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -14,9 +15,9 @@ public class EnumSchemaFilter : ISchemaFilter
             model.Enum.Clear();
             foreach (string enumName in Enum.GetNames(context.Type))
             {
-                System.Reflection.MemberInfo memberInfo = context.Type.GetMember(enumName)
+                MemberInfo? memberInfo = context.Type.GetMember(enumName)
                     .FirstOrDefault(m => m.DeclaringType == context.Type);
-                EnumMemberAttribute enumMemberAttribute = memberInfo == null
+                EnumMemberAttribute? enumMemberAttribute = memberInfo == null
                     ? null
                     : memberInfo.GetCustomAttributes(typeof(EnumMemberAttribute), false).OfType<EnumMemberAttribute>()
                         .FirstOrDefault();

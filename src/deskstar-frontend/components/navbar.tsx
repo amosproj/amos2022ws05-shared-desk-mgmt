@@ -15,10 +15,6 @@ const userNavItems = [
     href: "/bookings",
   },
   {
-    name: "Resources",
-    href: "/searchResults",
-  },
-  {
     name: "Add New Booking",
     href: "/bookings/add",
   },
@@ -28,6 +24,10 @@ const adminNavItems = [
   {
     name: "User Management",
     href: "/users",
+  },
+  {
+    name: "Resource Management",
+    href: "/resources",
   },
 ];
 

@@ -26,7 +26,7 @@ const DeskTableEntry = ({ desk }: { desk: IDesk }) => {
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
-      <td className="text-left">{desk.deskType}</td>
+      <td className="text-left">{desk.deskTyp}</td>
       <td className="text-right">
         <a href="#book-modal" className="btn btn-success">
           Book
@@ -40,13 +40,13 @@ const DeskTableEntry = ({ desk }: { desk: IDesk }) => {
               <b>Desk:</b> {desk.deskName}
             </p>
             <p>
-              <b>Type:</b> {desk.deskType}
+              <b>Type:</b> {desk.deskTyp}
             </p>
             <p>
-              <b>Building:</b> {desk.building}
+              <b>Building:</b> {desk.buildingName}
             </p>
             <p>
-              <b>Room:</b> {desk.room}
+              <b>Room:</b> {desk.roomName}
             </p>
             <div className="form-group">
               <label className="form-label" htmlFor="start-date">

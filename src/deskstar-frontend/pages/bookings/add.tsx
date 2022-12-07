@@ -1,46 +1,123 @@
 import Head from "next/head";
 
-import Collapse from "../../components/Collapse";
-import { IRoom } from "../../types/room";
-
-//TODO: delete this - just used for mockup data
 import { GetServerSideProps } from "next";
-import { rooms } from "../../rooms";
-import { deskTypes } from "../../deskTypes";
-import { IDeskType } from "../../types/desktypes";
 import { useSession } from "next-auth/react";
+import DropDownFilter from "../../components/DropDownFilter";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions } from "../api/auth/[...nextauth]";
+import {
+  getBuildings,
+  getDesks,
+  getFloors,
+  getRooms,
+} from "../../lib/api/ResourceService";
+import { IBuilding } from "../../types/building";
+import { ILocation } from "../../types/location";
+import { IFloor } from "../../types/floor";
+import { IRoom } from "../../types/room";
+import { IDeskType } from "../../types/desktypes";
+import { useState } from "react";
+import DeskSearchResults from "../../components/DeskSearchResults";
+import { IDesk } from "../../types/desk";
 
-const Bookings = ({
-  results,
-  types,
-}: {
-  results: IRoom[];
-  types: IDeskType[];
-}) => {
+const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let { data: session } = useSession();
 
-  let buildings: string[] = [];
-  let locations: string[] = [];
-  let rooms: string[] = [];
-  let deskTypes: string[] = [];
+  const locations: ILocation[] = origBuildings.map((building) => ({
+    locationName: building.location,
+  }));
 
-  // Fields to give to the backend
-  let chosenBuildings: string[] = [];
-  let chosenLocations: string[] = [];
-  let chosenRooms: string[] = [];
-  let chosenTypes: string[] = [];
+  const [buildings, setBuildings] = useState<IBuilding[]>([]);
+  const [floors, setFloors] = useState<IFloor[]>([]);
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+
+  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
+  const [desks, setDesks] = useState<IDesk[]>([]);
 
   let startDateTime: string;
   let endDateTime: string;
 
-  for (const result of results) {
-    buildings.push(result.building);
-    locations.push(result.location);
-    rooms.push(result.roomName);
+  async function onSelectedLocationChange(selectedLocations: ILocation[]) {
+    let buildings = origBuildings.filter((building) =>
+      selectedLocations.some((location) => {
+        return location.locationName === building.location;
+      })
+    );
+
+    setBuildings(buildings);
   }
 
-  for (const type of types) {
-    deskTypes.push(type.typeName);
+  async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
+    const promises = await Promise.all(
+      selectedBuildings.map(async (building) => {
+        if (!session) {
+          return [];
+        }
+
+        const resFloors = await getFloors(session, building.buildingId);
+
+        return resFloors;
+      })
+    );
+
+    setFloors(promises.flat());
+  }
+
+  async function onSelectedFloorChange(selectedFloors: IFloor[]) {
+    const promises = await Promise.all(
+      selectedFloors.map(async (floor) => {
+        if (!session) {
+          return [];
+        }
+
+        const resRooms = await getRooms(session, floor.floorID);
+
+        return resRooms;
+      })
+    );
+
+    setRooms(promises.flat());
+  }
+
+  async function onSelectedRoomChange(selectedRooms: IRoom[]) {
+    const promises = await Promise.all(
+      selectedRooms.map(async (room) => {
+        if (!session) {
+          return [];
+        }
+
+        const resDeskType = await getDesks(
+          session,
+          room.roomId,
+          startDateTime,
+          endDateTime
+        );
+
+        return resDeskType;
+      })
+    );
+
+    const desks = promises.flat();
+    setDesks(desks);
+
+    setDeskTypes(
+      desks.map((desk) => ({
+        typeId: desk.deskTyp,
+        typeName: desk.deskTyp,
+      }))
+    );
+  }
+
+  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
+    setSelectedDeskTypes(selectedDeskTypes);
+    let filteredDesks = desks.filter(function (e) {
+      return selectedDeskTypes
+        .map((deskTypes) => deskTypes.typeName)
+        .includes(e.deskTyp);
+    });
+
+    setDesks(filteredDesks);
   }
 
   return (
@@ -53,6 +130,7 @@ const Bookings = ({
         Hello {session?.user?.name}, book your personal desk.
       </h1>
       <br />
+
       <div className="form-group">
         <label className="form-label" htmlFor="start-date">
           <b>Start: </b> &nbsp;
@@ -64,8 +142,8 @@ const Bookings = ({
           name="Start"
           defaultValue={new Date()
             .toISOString()
-            .substring(0, "YYYY-MM-DDTHH:SS".length)}
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+            .substring(0, "YYYY-MM-DDTHH:MM".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
           onChange={(event) => (startDateTime = event.target.value)}
         />
       </div>
@@ -78,294 +156,112 @@ const Bookings = ({
           className="form-input"
           type="datetime-local"
           id="end-date-time"
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
+          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
           defaultValue={getEndDate()}
           onChange={(event) => (endDateTime = event.target.value)}
         />
       </div>
 
-      <div className="dropdown dropdown-hover">
-        <label tabIndex={0} className="btn m-1">
-          Locations
-        </label>
-        <div className="form-control">
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li key="li_allLocations">
-              <label className="label cursor-pointer">
-                <span className="label-text">All Locations</span>
-                <input
-                  id="allLocations"
-                  type="checkbox"
-                  className="checkbox"
-                  onClick={() => {
-                    locations.forEach((location) => {
-                      var ebox = document.getElementById(location);
-                      if (ebox != null && ebox instanceof HTMLInputElement) {
-                        var box: HTMLInputElement = ebox;
-                        if (!box.checked) {
-                          chosenLocations.push(location);
-                        }
-                        box.checked = true;
-                      }
-                    });
-                  }}
-                />
-              </label>
-            </li>
-            <div className="divider"></div>
-            {locations.map((location: string) => (
-              <li key={"li_" + location}>
-                <label className="label cursor-pointer">
-                  <span className="label-text">{location}</span>
-                  <input
-                    id={location}
-                    type="checkbox"
-                    className="checkbox"
-                    onClick={() => {
-                      if (chosenLocations.includes(location)) {
-                        const index = chosenLocations.indexOf(location, 0);
-                        if (index > -1) {
-                          chosenLocations.splice(index, 1);
-                          var allBox = document.getElementById("allLocations");
-                          if (
-                            allBox != null &&
-                            allBox instanceof HTMLInputElement &&
-                            allBox.checked
-                          ) {
-                            allBox.checked = false;
-                          }
-                        }
-                      } else {
-                        chosenLocations.push(location);
-                      }
-                    }}
-                  />
-                </label>
-              </li>
-            ))}
-          </ul>
+      <DropDownFilter
+        title="Locations"
+        getItemName={(location) => location.locationName}
+        options={locations}
+        setSelectedOptions={onSelectedLocationChange}
+      />
+
+      {buildings.length > 0 && (
+        <DropDownFilter
+          title="Buildings"
+          getItemName={(building) => building.buildingName}
+          options={buildings}
+          setSelectedOptions={onSelectedBuildingChange}
+        />
+      )}
+
+      {floors.length > 0 && (
+        <DropDownFilter
+          title="Floors"
+          getItemName={(floor) => floor.floorName}
+          options={floors}
+          setSelectedOptions={onSelectedFloorChange}
+        />
+      )}
+
+      {rooms.length > 0 && (
+        <DropDownFilter
+          title="Rooms"
+          getItemName={(room) => room.roomName}
+          options={rooms}
+          setSelectedOptions={onSelectedRoomChange}
+        />
+      )}
+
+      {deskTypes.length > 0 && (
+        <DropDownFilter
+          title="Types"
+          getItemName={(deskType) => deskType.typeName}
+          options={deskTypes}
+          setSelectedOptions={onSelectedDeskTypeChange}
+        />
+      )}
+
+      <div className="my-4"></div>
+
+      {buildings.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a location</span>
+          </div>
         </div>
-      </div>
-
-      <div className="dropdown dropdown-hover">
-        <label tabIndex={0} className="btn m-1">
-          Buildings
-        </label>
-        <div className="form-control">
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li key="li_allBuildings">
-              <label className="label cursor-pointer">
-                <span className="label-text">All Buildings</span>
-                <input
-                  id="allBuildings"
-                  type="checkbox"
-                  className="checkbox"
-                  onClick={() => {
-                    buildings.forEach((building) => {
-                      var ebox = document.getElementById(building);
-                      if (ebox != null && ebox instanceof HTMLInputElement) {
-                        var box: HTMLInputElement = ebox;
-                        if (!box.checked) {
-                          chosenBuildings.push(building);
-                        }
-                        box.checked = true;
-                      }
-                    });
-                  }}
-                />
-              </label>
-            </li>
-            <div className="divider"></div>
-
-            {buildings.map((building: string) => (
-              <li key={building}>
-                <label className="label cursor-pointer">
-                  <span className="label-text">{building}</span>
-                  <input
-                    id={building}
-                    type="checkbox"
-                    className="checkbox"
-                    onClick={() => {
-                      if (chosenBuildings.includes(building)) {
-                        const index = chosenBuildings.indexOf(building, 0);
-                        if (index > -1) {
-                          chosenBuildings.splice(index, 1);
-                          var allBox = document.getElementById("allBuildings");
-                          if (
-                            allBox != null &&
-                            allBox instanceof HTMLInputElement &&
-                            allBox.checked
-                          ) {
-                            allBox.checked = false;
-                          }
-                        }
-                      } else {
-                        chosenBuildings.push(building);
-                      }
-                    }}
-                  />
-                </label>
-              </li>
-            ))}
-          </ul>
+      )}
+      {!(buildings.length == 0) && floors.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a building</span>
+          </div>
         </div>
-      </div>
-
-      <div className="dropdown dropdown-hover">
-        <label tabIndex={0} className="btn m-1">
-          Rooms
-        </label>
-        <div className="form-control">
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li key="li_allRooms">
-              <label className="label cursor-pointer">
-                <span className="label-text">All Rooms</span>
-                <input
-                  id="allRooms"
-                  type="checkbox"
-                  className="checkbox"
-                  onClick={() => {
-                    rooms.forEach((room) => {
-                      var ebox = document.getElementById(room);
-
-                      if (ebox != null && ebox instanceof HTMLInputElement) {
-                        var box: HTMLInputElement = ebox;
-                        if (!box.checked) {
-                          chosenRooms.push(room);
-                        }
-                        box.checked = true;
-                      }
-                    });
-                  }}
-                />
-              </label>
-            </li>
-            <div className="divider"></div>
-
-            {rooms.map((room: string) => (
-              <li key={room}>
-                <label className="label cursor-pointer">
-                  <span className="label-text">{room}</span>
-                  <input
-                    id={room}
-                    type="checkbox"
-                    className="checkbox"
-                    onClick={() => {
-                      if (chosenRooms.includes(room)) {
-                        const index = chosenRooms.indexOf(room, 0);
-                        if (index > -1) {
-                          chosenRooms.splice(index, 1);
-                          var allBox = document.getElementById("allRooms");
-                          if (
-                            allBox != null &&
-                            allBox instanceof HTMLInputElement &&
-                            allBox.checked
-                          ) {
-                            allBox.checked = false;
-                          }
-                        }
-                      } else {
-                        chosenRooms.push(room);
-                      }
-                    }}
-                  />
-                </label>
-              </li>
-            ))}
-          </ul>
+      )}
+      {!(floors.length == 0) && rooms.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a floor</span>
+          </div>
         </div>
-      </div>
-
-      <div className="dropdown dropdown-hover">
-        <label tabIndex={0} className="btn m-1">
-          Types
-        </label>
-        <div className="form-control">
-          <ul
-            tabIndex={0}
-            className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li key="li_allTypes">
-              <label className="label cursor-pointer">
-                <span className="label-text">All Rooms</span>
-                <input
-                  id="allTypes"
-                  type="checkbox"
-                  className="checkbox"
-                  onClick={() => {
-                    deskTypes.forEach((type) => {
-                      var ebox = document.getElementById(type);
-
-                      if (ebox != null && ebox instanceof HTMLInputElement) {
-                        var box: HTMLInputElement = ebox;
-                        if (!box.checked) {
-                          chosenTypes.push(type);
-                        }
-                        box.checked = true;
-                      }
-                    });
-                  }}
-                />
-              </label>
-            </li>
-            <div className="divider"></div>
-
-            {deskTypes.map((type: string) => (
-              <li key={type}>
-                <label className="label cursor-pointer">
-                  <span className="label-text">{type}</span>
-                  <input
-                    id={type}
-                    type="checkbox"
-                    className="checkbox"
-                    onClick={() => {
-                      if (chosenTypes.includes(type)) {
-                        const index = chosenTypes.indexOf(type, 0);
-                        if (index > -1) {
-                          chosenTypes.splice(index, 1);
-                          var allBox = document.getElementById("allTypes");
-                          if (
-                            allBox != null &&
-                            allBox instanceof HTMLInputElement &&
-                            allBox.checked
-                          ) {
-                            allBox.checked = false;
-                          }
-                        }
-                      } else {
-                        chosenTypes.push(type);
-                      }
-                    }}
-                  />
-                </label>
-              </li>
-            ))}
-          </ul>
+      )}
+      {!(rooms.length == 0) && deskTypes.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a room</span>
+          </div>
         </div>
-      </div>
-      <br />
-      <button type="button" className="btn btn-secondary" onClick={onClick}>
-        Search for Desks
-      </button>
+      )}
+
+      {desks.length > 0 && <DeskSearchResults results={desks} />}
     </div>
   );
 };
 
 //TODO: delete this - this is just for developing this component
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    const buildings = await getBuildings(session);
+
+    return {
+      props: {
+        buildings,
+      },
+    };
+  }
+
   return {
     props: {
-      results: rooms,
-      types: deskTypes,
+      buildings: [],
     },
   };
 };
@@ -375,7 +271,7 @@ function onClick() {}
 function getEndDate() {
   let date = new Date();
   date.setHours(date.getHours() + 1);
-  return date.toISOString().substring(0, "YYYY-MM-DDTHH:SS".length);
+  return date.toISOString().substring(0, "YYYY-MM-DDTHH:MM".length);
 }
 
 export default Bookings;

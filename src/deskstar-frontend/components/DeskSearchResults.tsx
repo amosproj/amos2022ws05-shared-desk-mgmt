@@ -1,12 +1,8 @@
-import Head from "next/head";
-import Collapse from "../components/Collapse";
 import { IDesk } from "../types/desk";
-import DesksTable from "../components/DesksTable";
-//TODO: delete this - just used for mockup data
-import { GetServerSideProps } from "next";
-import { desks } from "../desks";
+import Collapse from "./Collapse";
+import DesksTable from "./DesksTable";
 
-const SearchResults = ({ results }: { results: IDesk[] }) => {
+export default function DeskSearchResults({ results }: { results: IDesk[] }) {
   // format results
   let formattedResults: any = {};
   for (const result of results) {
@@ -26,13 +22,8 @@ const SearchResults = ({ results }: { results: IDesk[] }) => {
       result.roomName
     ].push(result);
   }
-
   return (
-    <>
-      <Head>
-        <title>Search Results</title>
-      </Head>
-      <h1 className="text-3xl font-bold text-center my-10">Search Results</h1>
+    <div>
       {Object.keys(formattedResults).map(
         (location: string, locationIndex: number) => (
           <Collapse key={location} index={locationIndex} title={location}>
@@ -54,20 +45,6 @@ const SearchResults = ({ results }: { results: IDesk[] }) => {
           </Collapse>
         )
       )}
-    </>
+    </div>
   );
-};
-
-//TODO: delete this - this is just for developing this component
-export const getServerSideProps: GetServerSideProps = async () => {
-  const sortedDesks = desks.sort((a: IDesk, b: IDesk) =>
-    a.deskName.localeCompare(b.deskName)
-  );
-  return {
-    props: {
-      results: sortedDesks,
-    },
-  };
-};
-
-export default SearchResults;
+}
