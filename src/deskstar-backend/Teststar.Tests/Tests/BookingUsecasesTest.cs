@@ -378,49 +378,6 @@ public class BookingUsecasesTest
         db.Database.EnsureDeleted();
     }
 
-    [Test]
-    public void CheckGetRecentBookings_ValidMailAddress_NoBookings()
-    {
-        //setup
-        using var mogDb = new DataContext();
-        AddOneCompany_AddOneUser(mogDb, new PasswordHasher<User>());
-
-        //arrange
-        var logger = new Mock<ILogger<BookingUsecases>>();
-        var subject = new BookingUsecases(logger.Object, mogDb);
-
-        //act
-        const string address = "test@mail.de";
-        var result = subject.GetRecentBookings(mogDb.Users.First(u => u.MailAddress == address).UserId);
-
-
-        //assert
-        Assert.That(result, Is.Empty);
-    }
-
-    [Test]
-    public void CheckGetRecentBookings_ValidMailAddress_1Booking()
-    {
-        //setup
-        using var mogDb = new DataContext();
-        FillDatabaseWithEverything(mogDb, new PasswordHasher<User>());
-        const string address = "test@example.de";
-        var userId = mogDb.Users.First(u => u.MailAddress == address).UserId;
-
-        //arrange
-        var logger = new Mock<ILogger<BookingUsecases>>();
-        var subject = new BookingUsecases(logger.Object, mogDb);
-
-        //act
-
-        var result = subject.GetRecentBookings(userId);
-
-
-        //assert
-        Assert.That(result, Is.Not.Empty);
-        Assert.That(result, Has.Count.EqualTo(1));
-    }
-
     private void SetupMockData(DataContext moqDb, Guid companyId = new(), Guid userId = new(), Guid buildingId = new(),
         Guid floorId = new(), Guid roomId = new(), Guid deskTypeId = new(), Guid deskId = new())
     {
