@@ -18,9 +18,9 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DB__HOST": "localhost",
-        "DB__DATABASE": "deskstar",
+        "DB__DATABASE": "postgres",
         "DB__USERNAME": "postgres",
-        "DB__PASSWORD":"root"
+        "DB__PASSWORD": "root"
       }
     },
     "IIS Express": {
@@ -30,10 +30,9 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "CONFIG_DB_HOST": "localhost",
-        "CONFIG_DB_DATABASE": "deskstar",
-        "CONFIG_DB_USERNAME":"postgres", 
-        "CONFIG_DB_PASSWORD":"root"
-        
+        "DB__DATABASE": "postgres",
+        "DB__USERNAME": "postgres",
+        "DB__PASSWORD": "root"
       }
     }
   }
