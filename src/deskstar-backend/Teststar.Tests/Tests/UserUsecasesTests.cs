@@ -64,10 +64,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act
-        var result = adminUsecases.ApproveUser(admin.UserId, user.UserId.ToString());
+        var result = userUsecases.ApproveUser(admin.UserId, user.UserId.ToString());
 
         //assert
         Assert.That(result == user.UserId);
@@ -87,10 +87,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, "invalidguid"));
+        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, "invalidguid"));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -106,10 +106,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, (new Guid()).ToString()));
+        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, (new Guid()).ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -125,10 +125,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.ApproveUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -144,10 +144,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -164,10 +164,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -183,10 +183,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => adminUsecases.DeclineUser(admin.UserId, (new Guid()).ToString()));
+        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, (new Guid()).ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -204,10 +204,10 @@ public class UserUsecasesTests
 
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
-        var adminUsecases = new UserUsecases(logger.Object, db);
+        var userUsecases = new UserUsecases(logger.Object, db);
 
         //act
-        var result = adminUsecases.DeclineUser(admin.UserId, user.UserId.ToString());
+        var result = userUsecases.DeclineUser(admin.UserId, user.UserId.ToString());
 
         //assert
         var userWasRemoved = !db.Users.Contains(user);
@@ -216,6 +216,86 @@ public class UserUsecasesTests
 
         //cleanup
         db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void UpdateUser_WhenValidUserIsProvided_ShouldUpdateUser()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act
+        var result = userUsecases.UpdateUser(user);
+
+        //assert
+        Assert.That(result == user.UserId);
+
+    }
+    [Test]
+    public void UpdateUser_WhenInvalidUserIsProvided_ShouldThrowArgumentException()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act + assert
+        Assert.Throws<ArgumentException>(() => userUsecases.UpdateUser(new User()));
+
+    }
+    [Test]
+    public void ReadAllUsers_WhenValidUserIdIsProvided_ShouldReturnListOfAllUsersInTheSameCompany()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act 
+        var result = userUsecases.ReadAllUsers(admin.UserId);
+
+        //assert
+        Assert.That(result.Count != 0);
+        Assert.That(result.Contains(user));
+
+    }
+    [Test]
+    public void ReadAllUsers_WhenInvalidUserIdIsProvided_ShouldThrowArgumentException()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act + assert
+        Assert.Throws<ArgumentException>(() => userUsecases.ReadAllUsers(new Guid()));
+
     }
 
     private void SetupSingleUser(DataContext db, bool userApproved, out User user, out User admin)
