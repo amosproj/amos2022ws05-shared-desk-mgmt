@@ -2,7 +2,13 @@ import { IDesk } from "../types/desk";
 import Collapse from "./Collapse";
 import DesksTable from "./DesksTable";
 
-export default function DeskSearchResults({ results }: { results: IDesk[] }) {
+export default function DeskSearchResults({
+  results,
+  onBook,
+}: {
+  results: IDesk[];
+  onBook: Function;
+}) {
   // format results
   let formattedResults: any = {};
   for (const result of results) {
@@ -35,6 +41,7 @@ export default function DeskSearchResults({ results }: { results: IDesk[] }) {
                       <Collapse key={room} index={roomIndex} title={room}>
                         <DesksTable
                           desks={formattedResults[location][building][room]}
+                          onBook={onBook}
                         />
                       </Collapse>
                     )
