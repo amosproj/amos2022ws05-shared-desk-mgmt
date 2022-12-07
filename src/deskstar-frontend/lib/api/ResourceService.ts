@@ -17,7 +17,8 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
   });
 
   if (response.status !== 200) {
-    console.log("Error fetching buildings");
+    console.log(response.status);
+    console.log( "Error fetching buildings");
     return [];
   }
 
@@ -40,6 +41,7 @@ export async function getFloors(
   );
 
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching floors");
     return [];
   }
@@ -63,6 +65,7 @@ export async function getRooms(
   );
 
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching rooms");
     return [];
   }
@@ -86,6 +89,7 @@ export async function getDesks(
   );
 
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching desks");
     return [];
   }

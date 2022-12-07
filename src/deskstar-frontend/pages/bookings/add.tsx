@@ -11,6 +11,7 @@ import {
   getFloors,
   getRooms,
 } from "../../lib/api/ResourceService";
+import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
 import { ILocation } from "../../types/location";
 import { IFloor } from "../../types/floor";
@@ -38,8 +39,38 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
 
-  let startDateTime: string;
-  let endDateTime: string;
+  const [startDateTime, setStartDateTime] = useState<string>(
+    new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)
+  );
+  const [endDateTime, setEndDateTime] = useState<string>(getEndDate());
+
+  async function onBook(event, desk) {
+    event.target.setAttribute("class", "btn loading");
+    let message;
+
+    await createBooking(session, desk.deskId, startDateTime, endDateTime)
+      .then((response) => {
+        if (response == "success") {
+          message =
+            "You successfully booked the desk " +
+            desk.deskName +
+            " from " +
+            startDateTime +
+            " to " +
+            endDateTime;
+          event.target.setAttribute("class", "btn btn-disabled");
+        } else {
+          console.log(response);
+          message = response;
+          event.target.setAttribute("class", "btn btn-success");
+        }
+      })
+      .catch((error) => {
+        console.error("Error calling createBooking:", error);
+        event.target.setAttribute("class", "btn btn-success");
+      });
+    alert(message);
+  }
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     console.log(selectedLocations);
@@ -139,7 +170,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
             .toISOString()
             .substring(0, "YYYY-MM-DDTHH:SS".length)}
           min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
-          onChange={(event) => (startDateTime = event.target.value)}
+          onChange={(event) => setStartDateTime(event.target.value)}
         />
       </div>
 
@@ -153,7 +184,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           id="end-date-time"
           min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:SS".length)}
           defaultValue={getEndDate()}
-          onChange={(event) => (endDateTime = event.target.value)}
+          onChange={(event) => setEndDateTime(event.target.value)}
         />
       </div>
 
@@ -207,7 +238,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
       {rooms.length == 0 && <p>Please select a floor</p>}
       {deskTypes.length == 0 && <p>Please select a room</p>}
 
-      {desks.length > 0 && <DesksTable desks={desks} />}
+      {desks.length > 0 && <DesksTable desks={desks} onBook={onBook} />}
     </div>
   );
 };

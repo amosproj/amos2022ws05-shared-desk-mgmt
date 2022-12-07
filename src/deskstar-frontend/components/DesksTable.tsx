@@ -1,7 +1,13 @@
 import { IDesk } from "../types/desk";
 import React from "react";
 
-const DesksTable = ({ desks }: { desks: IDesk[] }) => {
+const DesksTable = ({
+  desks,
+  onBook,
+}: {
+  desks: IDesk[];
+  onBook: Function;
+}) => {
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra w-full">
@@ -14,7 +20,7 @@ const DesksTable = ({ desks }: { desks: IDesk[] }) => {
         </thead>
         <tbody>
           {desks.map((desk: IDesk) => (
-            <DeskTableEntry key={desk.deskId} desk={desk} />
+            <DeskTableEntry key={desk.deskId} desk={desk} onBook={onBook}/>
           ))}
         </tbody>
       </table>
@@ -22,16 +28,28 @@ const DesksTable = ({ desks }: { desks: IDesk[] }) => {
   );
 };
 
-const DeskTableEntry = ({ desk }: { desk: IDesk }) => {
+const DeskTableEntry = ({
+  desk,
+  onBook,
+}: {
+  desk: IDesk;
+  onBook: Function;
+}) => {
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
       <td className="text-left">{desk.deskTyp}</td>
       <td className="text-right">
-        <a href="#book-modal" className="btn btn-success">
+        <button
+          className="btn btn-success"
+          onClick={(event) => onBook(event, desk)}
+        >
           Book
-        </a>
-        <div id="book-modal" className="modal">
+        </button>
+        {/* <a href="#book-modal" className="btn btn-success">
+          Book
+        </a> */}
+        {/* <div id="book-modal" className="modal">
           <div className="modal-box text-left">
             <a href="#close" className="btn btn-sm btn-circle float-right">
               x
@@ -96,7 +114,7 @@ const DeskTableEntry = ({ desk }: { desk: IDesk }) => {
               Book
             </a>
           </div>
-        </div>
+        </div> */}
       </td>
     </tr>
   );
