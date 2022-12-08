@@ -35,11 +35,11 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
 
-  let startDateTime: string;
-  let endDateTime: string;
   let today = new Date();
-
   let nextBuisinessDay = getNextWork(today);
+
+  let startDateTime: Date = new Date(nextBuisinessDay.setHours(8, 0, 0, 0));
+  let endDateTime: Date = getEndDate(nextBuisinessDay);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     console.log(today);
@@ -95,8 +95,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         const resDeskType = await getDesks(
           session,
           room.roomId,
-          startDateTime,
-          endDateTime
+          startDateTime.toISOString(),
+          endDateTime.toISOString()
         );
 
         return resDeskType;
@@ -141,11 +141,9 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           type="datetime-local"
           id="start-date-time"
           name="Start"
-          defaultValue={getFormatedDate(
-            new Date(nextBuisinessDay.setHours(8, 0, 0, 0))
-          )}
+          defaultValue={getFormatedDate(startDateTime)}
           min={getFormatedDate(today)}
-          onChange={(event) => (startDateTime = event.target.value)}
+          onChange={(event) => (startDateTime = getUTCDate(event.target.value))}
         />
       </div>
 
@@ -158,8 +156,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           type="datetime-local"
           id="end-date-time"
           min={getFormatedDate(new Date(today.setHours(today.getHours() + 1)))}
-          defaultValue={getFormatedDate(getEndDate(nextBuisinessDay))}
-          onChange={(event) => (endDateTime = event.target.value)}
+          defaultValue={getFormatedDate(endDateTime)}
+          onChange={(event) => (endDateTime = getUTCDate(event.target.value))}
         />
       </div>
 
@@ -286,6 +284,12 @@ function getFormatedDate(date: Date) {
   return new Date(date.getTime() - offset * 60 * 1000)
     .toISOString()
     .substring(0, "YYYY-MM-DDTHH:MM".length);
+}
+
+function getUTCDate(dateString: string) {
+  const date = new Date(dateString);
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() + offset * 60 * 1000);
 }
 
 function getNextWork(date: Date) {
