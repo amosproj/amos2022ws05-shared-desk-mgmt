@@ -75,8 +75,8 @@ export async function getRooms(
 export async function getDesks(
   session: Session,
   roomId: string,
-  startTime: string,
-  endTime: string
+  startTime: number,
+  endTime: number
 ): Promise<IDesk[]> {
   const response = await fetch(
     BACKEND_URL + `/resources/rooms/${roomId}/desks?from=${startTime}&to=${endTime}`,
@@ -93,6 +93,6 @@ export async function getDesks(
   }
 
   const data = await response.json();
-  //console.log(data);
+  console.log(data);
   return data;
 }

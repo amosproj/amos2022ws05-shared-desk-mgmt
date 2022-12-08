@@ -42,8 +42,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let endDateTime: Date = getEndDate(nextBuisinessDay);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
-    console.log(today);
-    console.log(nextBuisinessDay);
     let buildings = origBuildings.filter((building) =>
       selectedLocations.some((location) => {
         return location.locationName === building.location;
@@ -95,8 +93,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         const resDeskType = await getDesks(
           session,
           room.roomId,
-          startDateTime.toISOString(),
-          endDateTime.toISOString()
+          startDateTime.getTime(),
+          endDateTime.getTime()
         );
 
         return resDeskType;
