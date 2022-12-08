@@ -101,23 +101,19 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     const desks = promises.flat();
     setDesks(desks);
 
-    setDeskTypes(
-      desks.map((desk) => ({
-        typeId: desk.deskTyp,
-        typeName: desk.deskTyp,
-      }))
-    );
+    let deskTypes = desks.map((desk) => ({
+      typeId: desk.deskTyp,
+      typeName: desk.deskTyp,
+    }));
+
+    setDeskTypes(deskTypes);
+    setSelectedDeskTypes(deskTypes);
   }
 
   function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
-    setSelectedDeskTypes(selectedDeskTypes);
-    let filteredDesks = desks.filter(function (e) {
-      return selectedDeskTypes
-        .map((deskTypes) => deskTypes.typeName)
-        .includes(e.deskTyp);
-    });
-
-    setDesks(filteredDesks);
+    setSelectedDeskTypes(
+      selectedDeskTypes.length === 0 ? deskTypes : selectedDeskTypes
+    );
   }
 
   return (
@@ -236,7 +232,15 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         </div>
       )}
 
-      {desks.length > 0 && <DeskSearchResults results={desks} />}
+      {desks.length > 0 && (
+        <DeskSearchResults
+          results={desks.filter(function (e) {
+            return selectedDeskTypes
+              .map((deskTypes) => deskTypes.typeName)
+              .includes(e.deskTyp);
+          })}
+        />
+      )}
     </div>
   );
 };
