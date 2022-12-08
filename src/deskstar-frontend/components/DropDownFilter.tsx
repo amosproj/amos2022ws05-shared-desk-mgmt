@@ -17,6 +17,7 @@ export default function DropDownFilter<A>({
   options: A[];
   setSelectedOptions: (newSelectedOptions: A[]) => void;
 }) {
+  options = getUniqueArray(options, getItemName);
   const [allChecked, setAllChecked] = useState(false);
   const [selectedOptions, _setSelectedOptions] = useState<A[]>([]);
 
@@ -85,7 +86,7 @@ export default function DropDownFilter<A>({
           {/* Single Selection Checkboxes */}
           <div className="divider"></div>
           {options &&
-            getUniqueArray(options, getItemName).map((option, index) => {
+            options.map((option, index) => {
               return (
                 <li key={`${title}_checkbox_${index}`}>
                   <DropDownFilterEntry

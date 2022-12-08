@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "daisyui": "^2.39.0",
+    "date-and-time": "^2.4.1",
     "next": "^13.0.2",
     "next-auth": "^4.16.3",
     "react": "18.2.0",

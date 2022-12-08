@@ -37,8 +37,13 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
 
   let startDateTime: string;
   let endDateTime: string;
+  let today = new Date();
+
+  let nextBuisinessDay = getNextWork(today);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
+    console.log(today);
+    console.log(nextBuisinessDay);
     let buildings = origBuildings.filter((building) =>
       selectedLocations.some((location) => {
         return location.locationName === building.location;
@@ -136,10 +141,10 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           type="datetime-local"
           id="start-date-time"
           name="Start"
-          defaultValue={new Date()
-            .toISOString()
-            .substring(0, "YYYY-MM-DDTHH:MM".length)}
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
+          defaultValue={getFormatedDate(
+            new Date(nextBuisinessDay.setHours(8, 0, 0, 0))
+          )}
+          min={getFormatedDate(today)}
           onChange={(event) => (startDateTime = event.target.value)}
         />
       </div>
@@ -152,8 +157,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           className="form-input"
           type="datetime-local"
           id="end-date-time"
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
-          defaultValue={getEndDate()}
+          min={getFormatedDate(new Date(today.setHours(today.getHours() + 1)))}
+          defaultValue={getFormatedDate(getEndDate(nextBuisinessDay))}
           onChange={(event) => (endDateTime = event.target.value)}
         />
       </div>
@@ -270,12 +275,26 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-function onClick() {}
+function getEndDate(tomorrow: Date) {
+  let date = new Date(tomorrow);
+  date.setHours(17, 0, 0, 0);
+  return date;
+}
 
-function getEndDate() {
-  let date = new Date();
-  date.setHours(date.getHours() + 1);
-  return date.toISOString().substring(0, "YYYY-MM-DDTHH:MM".length);
+function getFormatedDate(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60 * 1000)
+    .toISOString()
+    .substring(0, "YYYY-MM-DDTHH:MM".length);
+}
+
+function getNextWork(date: Date) {
+  var returnDate = new Date(date);
+  returnDate.setDate(returnDate.getDate() + 1);
+  if (returnDate.getDay() == 0) returnDate.setDate(returnDate.getDate() + 1);
+  else if (returnDate.getDay() == 6)
+    returnDate.setDate(returnDate.getDate() + 2);
+  return returnDate;
 }
 
 export default Bookings;
