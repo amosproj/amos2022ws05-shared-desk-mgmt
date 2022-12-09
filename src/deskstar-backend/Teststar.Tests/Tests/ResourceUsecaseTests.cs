@@ -266,7 +266,127 @@ public class ResourceUsecaseTests
     }
 
     [Test]
-    public void GetDesks_WhenDeskIsFound_ShouldReturnACurrentsDeskList()
+    public void GetDesks_WhenDeskIsFound_StartBevoreEndIn_ShouldReturnACurrentsDeskList()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var roomId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var start = DateTime.Now.AddHours(-1);
+        var end = DateTime.Now.AddHours(1);
+        SetupMockData(db, roomId: roomId, userId: userId, deskId: deskId);
+        var booking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = end
+        };
+        db.Add(booking);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db);
+
+
+        //act
+        var result = usecases.GetDesks(roomId, start, end);
+
+        //assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result[0], Is.Not.Null);
+            Assert.That(result[0].DeskId, Has.Length.EqualTo(36));
+            Assert.That(result[0].DeskName, Is.EqualTo("Desk1"));
+            Assert.That(result[0].RoomId, Has.Length.EqualTo(36));
+            Assert.That(result[0].RoomName, Is.EqualTo("Raum1"));
+            Assert.That(result[0].FloorId, Has.Length.EqualTo(36));
+            Assert.That(result[0].FloorName, Is.EqualTo("Stockwerk1"));
+            Assert.That(result[0].BuildingId, Has.Length.EqualTo(36));
+            Assert.That(result[0].BuildingName, Is.EqualTo("Gebäude1"));
+            Assert.That(result[0].DeskTyp, Is.EqualTo("Typ1"));
+            Assert.That(result[0].Location, Is.EqualTo("Location1"));
+            Assert.That(result[0].Bookings, Is.Not.Null);
+            Assert.That(result[0].Bookings, Has.Count.EqualTo(1));
+            Assert.That(result[0].Bookings[0], Is.Not.Null);
+        });
+
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    
+    [Test]
+    public void GetDesks_WhenDeskIsFound_StartInEndBevore_ShouldReturnACurrentsDeskList()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var roomId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var start = DateTime.Now.AddHours(1);
+        var end = DateTime.Now.AddHours(2);
+        SetupMockData(db, roomId: roomId, userId: userId, deskId: deskId);
+        var booking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = end.AddMinutes(-1)
+        };
+        db.Add(booking);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db);
+
+
+        //act
+        var result = usecases.GetDesks(roomId, start, end);
+
+        //assert
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result[0], Is.Not.Null);
+            Assert.That(result[0].DeskId, Has.Length.EqualTo(36));
+            Assert.That(result[0].DeskName, Is.EqualTo("Desk1"));
+            Assert.That(result[0].RoomId, Has.Length.EqualTo(36));
+            Assert.That(result[0].RoomName, Is.EqualTo("Raum1"));
+            Assert.That(result[0].FloorId, Has.Length.EqualTo(36));
+            Assert.That(result[0].FloorName, Is.EqualTo("Stockwerk1"));
+            Assert.That(result[0].BuildingId, Has.Length.EqualTo(36));
+            Assert.That(result[0].BuildingName, Is.EqualTo("Gebäude1"));
+            Assert.That(result[0].DeskTyp, Is.EqualTo("Typ1"));
+            Assert.That(result[0].Location, Is.EqualTo("Location1"));
+            Assert.That(result[0].Bookings, Is.Not.Null);
+            Assert.That(result[0].Bookings, Has.Count.EqualTo(1));
+            Assert.That(result[0].Bookings[0], Is.Not.Null);
+        });
+
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    
+    [Test]
+    public void GetDesks_WhenDeskIsFound_SameStartAndEndTime_ShouldReturnACurrentsDeskList()
     {
         //setup 
         using var db = new DataContext();
@@ -275,7 +395,7 @@ public class ResourceUsecaseTests
         var userId = Guid.NewGuid();
         var deskId = Guid.NewGuid();
         var start = DateTime.Now;
-        var end = new DateTime().AddHours(1);
+        var end = DateTime.Now.AddHours(1);
         SetupMockData(db, roomId: roomId, userId: userId, deskId: deskId);
         var booking = new Booking
         {

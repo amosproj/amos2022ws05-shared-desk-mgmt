@@ -75,7 +75,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         }
 
         const resRooms = await getRooms(session, floor.floorID);
-
         return resRooms;
       })
     );
@@ -102,9 +101,10 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     );
 
     const desks = promises.flat();
-    setDesks(desks);
+    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    setDesks(filteredDesks);
 
-    let deskTypes = desks.map((desk) => ({
+    let deskTypes = filteredDesks.map((desk) => ({
       typeId: desk.deskTyp,
       typeName: desk.deskTyp,
     }));

@@ -133,7 +133,7 @@ public class ResourceUsecases : IResourceUsecases
                 DeskId = desk.DeskId.ToString(),
                 DeskName = desk.DeskName,
                 DeskTyp = desk.DeskType.DeskTypeName,
-                Bookings = desk.Bookings.Where(booking => (booking.StartTime >= start && booking.EndTime <= end))
+                Bookings = desk.Bookings.Where(booking => (booking.StartTime < end && booking.EndTime > start))
                     .Select(booking => new BookingDesks
                     {
                         BookingId = booking.BookingId.ToString(),

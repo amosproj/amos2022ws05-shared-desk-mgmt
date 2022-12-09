@@ -264,13 +264,12 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetDesksByRoomId(string roomId, long start = 0, long end = 0)
     {
-        var startDateTime = start == 0 ? DateTime.MinValue : new DateTime(start);
-        var endDateTime = end == 0 ? DateTime.MaxValue : new DateTime(end);
+        var startDateTime = start == 0 ? DateTime.MinValue : DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
+        var endDateTime = end == 0 ? DateTime.MaxValue : DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
         List<CurrentDesk> desks;
         try
         {
             desks = _resourceUsecases.GetDesks(new Guid(roomId), startDateTime, endDateTime);
-            
         }
         catch (ArgumentException e)
         {
