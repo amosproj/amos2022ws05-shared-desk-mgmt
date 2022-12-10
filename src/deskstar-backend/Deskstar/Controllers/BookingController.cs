@@ -165,7 +165,6 @@ public class BookingController : ControllerBase
 
     [HttpPost]
     [Authorize]
-    // [ProducesResponseType(typeof(ExtendedBooking), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -173,11 +172,6 @@ public class BookingController : ControllerBase
     [Produces("application/json")]
     public IActionResult CreateBooking([FromBody] BookingRequest bookingRequest)
     {
-        // TODO: Why is this not working?
-        // if (!ModelState.IsValid)
-        // {
-        //     return BadRequest("Required fields are missing");
-        // }
 
         if (bookingRequest.StartTime.Equals(DateTime.MinValue) || bookingRequest.EndTime.Equals(DateTime.MinValue) || bookingRequest.DeskId.Equals(Guid.Empty))
         {
@@ -188,31 +182,25 @@ public class BookingController : ControllerBase
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
         var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
-
-        // TODO: how to handle timezones? require milliseconds as parameter?
+        //ToDo: require Frontend to Use Universaltime
         bookingRequest.StartTime = bookingRequest.StartTime.ToLocalTime();
         bookingRequest.EndTime = bookingRequest.EndTime.ToLocalTime();
 
         try
         {
-            var createdBooking = _bookingUsecases.CreateBooking(userId, bookingRequest);
-            // TODO: return create?
+            _bookingUsecases.CreateBooking(userId, bookingRequest);
             return Ok();
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-            switch (e.Message)
+            return e.Message switch
             {
-                case "User not found":
-                    return NotFound(e.Message);
-                case "Desk not found":
-                    return NotFound(e.Message);
-                case "Time slot not available":
-                    return Conflict(e.Message);
-                default:
-                    return Problem(statusCode: 500);
-            }
+                "User not found" => NotFound(e.Message),
+                "Desk not found" => NotFound(e.Message),
+                "Time slot not available" => Conflict(e.Message),
+                _ => Problem(statusCode: 500)
+            };
         }
     }
 }

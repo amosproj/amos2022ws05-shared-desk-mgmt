@@ -57,7 +57,12 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     event.target.setAttribute("class", "btn loading");
     let message;
 
-    await createBooking(session, desk.deskId, startDateTime, endDateTime)
+    await createBooking(
+      session,
+      desk.deskId,
+      new Date(startDateTime),
+      new Date(endDateTime)
+    )
       .then((response) => {
         if (response == "success") {
           message =

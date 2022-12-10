@@ -67,8 +67,8 @@ export async function getBookings(
 export async function createBooking(
   session: Session,
   deskId: string,
-  startTime: EpochTimeStamp,
-  endTime: EpochTimeStamp
+  startTime: Date,
+  endTime: Date
 ) {
   const response = await fetch(BACKEND_URL + "/bookings", {
     method: "POST",
@@ -82,6 +82,10 @@ export async function createBooking(
       endTime,
     }),
   });
+  console.log(JSON.stringify({
+    deskId,
+    startTime,
+    endTime,}));
   console.log(await response.status);
   if (response.status !== 200) {
     let text = await response.text();
