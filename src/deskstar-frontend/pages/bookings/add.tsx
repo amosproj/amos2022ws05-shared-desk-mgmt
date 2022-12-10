@@ -20,7 +20,6 @@ import { IDeskType } from "../../types/desktypes";
 import { useState } from "react";
 import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
-import { assert } from "console";
 
 const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let { data: session } = useSession();
@@ -42,7 +41,12 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   );
   const [endDateTime, setEndDateTime] = useState<string>(getEndDate());
 
-  async function onBook(event: Event, desk: IDesk) {
+  async function onBook(
+    event: {
+      target: Element;
+    },
+    desk: IDesk
+  ) {
     if (
       event == null ||
       event.target == null ||
