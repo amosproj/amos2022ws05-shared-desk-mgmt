@@ -246,31 +246,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   );
 };
 
-//TODO: delete this - this is just for developing this component
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
-
-  if (session) {
-    const buildings = await getBuildings(session);
-
-    return {
-      props: {
-        buildings,
-      },
-    };
-  }
-
-  return {
-    props: {
-      buildings: [],
-    },
-  };
-};
-
 function getEndDate(tomorrow: Date) {
   let date = new Date(tomorrow);
   date.setHours(17, 0, 0, 0);
@@ -298,5 +273,29 @@ function getNextWork(date: Date) {
     returnDate.setDate(returnDate.getDate() + 2);
   return returnDate;
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    const buildings = await getBuildings(session);
+
+    return {
+      props: {
+        buildings,
+      },
+    };
+  }
+
+  return {
+    props: {
+      buildings: [],
+    },
+  };
+};
 
 export default Bookings;
