@@ -12,6 +12,7 @@ public interface IResourceUsecases
     public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
     public List<DeskType> GetDeskTypes(Guid companyId);
+    public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -164,5 +165,41 @@ public class ResourceUsecases : IResourceUsecases
     public List<DeskType> GetDeskTypes(Guid companyId)
     {
         return _context.DeskTypes.Where(d => d.CompanyId == companyId).ToList();
+    }
+
+    public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
+    {
+        try
+        {
+            _context.DeskTypes.Single(dt => dt.DeskTypeId == deskTypeId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            throw new ArgumentException($"There is no desk type with id '{deskTypeId}'");
+        }
+        try
+        {
+            _context.Rooms.Single(r => r.RoomId == roomId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            throw new ArgumentException($"There is no room with id '{roomId}'");
+        }
+
+        var deskId = Guid.NewGuid();
+        var desk = new Desk
+        {
+            DeskId = deskId,
+            DeskName = deskName,
+            DeskTypeId = deskTypeId,
+            RoomId = roomId
+        };
+
+        _context.Desks.Add(desk);
+        _context.SaveChanges();
+
+        return deskId;
     }
 }

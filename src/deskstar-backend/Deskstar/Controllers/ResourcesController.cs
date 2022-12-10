@@ -328,18 +328,37 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/desks with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="201"></response>
-    /// <response code="409"></response>
+    /// <response code="200">Ok</response>
     /// <response code="500">Internal Server Error</response>
     [HttpPost("desks")]
-    [Authorize(Policy = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [Authorize(Policy="Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateDesk(CurrentDesk newDesk)
+    public IActionResult CreateDesk(CreateDeskDto desk)
     {
-        return Problem(statusCode: 501);
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        var adminId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+
+
+        try
+        {
+            _resourceUsecases.CreateDesk(desk.DeskName, new Guid(), new Guid());
+            //_resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypId, desk.RoomId);
+            return Ok();
+        }
+        catch (ArgumentException e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(detail: e.Message, statusCode: 400);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 
     /// <summary>
