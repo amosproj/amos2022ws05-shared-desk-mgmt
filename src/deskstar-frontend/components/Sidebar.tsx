@@ -3,6 +3,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import deskstarLogo from "assets/img/team-logo.png";
+import deskstarLogoChristmas from "assets/img/team-logo-christmas.png";
 import MobileNavbar from "./MobileNavbar";
 
 const userNavItems = [
@@ -102,12 +103,14 @@ const SidebarHeader = () => {
   return (
     <div className="flex flex-row justify-start mb-5">
       <Link href="/">
-        <Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />
+        {(new Date().getMonth() != 11) && 
+          (<Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />)
+        }
+        {(new Date().getMonth() == 11) && 
+          (<Image src={deskstarLogoChristmas} alt="Deskstar Logo Christmas" width={50} height={50} />)
+        }
         <span className="sr-only">Deskstar</span>
       </Link>
-      <h1 className="text-3xl ml-10 leading-normal dark:text-black">
-        Deskstar
-      </h1>
     </div>
   );
 };
