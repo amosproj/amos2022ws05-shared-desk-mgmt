@@ -48,4 +48,4 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Test Next App
-        run: yarn test --reporter github
+        run: npx playwright test --reporter github
