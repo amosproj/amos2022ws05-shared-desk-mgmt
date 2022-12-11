@@ -27,7 +27,7 @@ public class UserUsecases : IUserUsecases
         {
             return _context.Users.Include(u => u.Company).Include(u => u.Bookings).Single(u => u.UserId == userId);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             throw new ArgumentException($"There is no user with Id '{userId}'");
         }

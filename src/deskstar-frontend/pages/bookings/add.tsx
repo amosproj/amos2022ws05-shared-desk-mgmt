@@ -35,8 +35,11 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
 
-  let startDateTime: string;
-  let endDateTime: string;
+  let today = new Date();
+  let nextBuisinessDay = getNextWork(today);
+
+  let startDateTime: Date = new Date(nextBuisinessDay.setHours(8, 0, 0, 0));
+  let endDateTime: Date = getEndDate(nextBuisinessDay);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     let buildings = origBuildings.filter((building) =>
@@ -72,7 +75,6 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         }
 
         const resRooms = await getRooms(session, floor.floorID);
-
         return resRooms;
       })
     );
@@ -90,8 +92,8 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
         const resDeskType = await getDesks(
           session,
           room.roomId,
-          startDateTime,
-          endDateTime
+          startDateTime.getTime(),
+          endDateTime.getTime()
         );
 
         return resDeskType;
@@ -99,9 +101,10 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     );
 
     const desks = promises.flat();
-    setDesks(desks);
+    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    setDesks(filteredDesks);
 
-    let deskTypes = desks.map((desk) => ({
+    let deskTypes = filteredDesks.map((desk) => ({
       typeId: desk.deskTyp,
       typeName: desk.deskTyp,
     }));
@@ -136,11 +139,9 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           type="datetime-local"
           id="start-date-time"
           name="Start"
-          defaultValue={new Date()
-            .toISOString()
-            .substring(0, "YYYY-MM-DDTHH:MM".length)}
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
-          onChange={(event) => (startDateTime = event.target.value)}
+          defaultValue={getFormatedDate(startDateTime)}
+          min={getFormatedDate(today)}
+          onChange={(event) => (startDateTime = getUTCDate(event.target.value))}
         />
       </div>
 
@@ -152,9 +153,9 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           className="form-input"
           type="datetime-local"
           id="end-date-time"
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
-          defaultValue={getEndDate()}
-          onChange={(event) => (endDateTime = event.target.value)}
+          min={getFormatedDate(new Date(today.setHours(today.getHours() + 1)))}
+          defaultValue={getFormatedDate(endDateTime)}
+          onChange={(event) => (endDateTime = getUTCDate(event.target.value))}
         />
       </div>
 
@@ -245,7 +246,34 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   );
 };
 
-//TODO: delete this - this is just for developing this component
+function getEndDate(tomorrow: Date) {
+  let date = new Date(tomorrow);
+  date.setHours(17, 0, 0, 0);
+  return date;
+}
+
+function getFormatedDate(date: Date) {
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60 * 1000)
+    .toISOString()
+    .substring(0, "YYYY-MM-DDTHH:MM".length);
+}
+
+function getUTCDate(dateString: string) {
+  const date = new Date(dateString);
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() + offset * 60 * 1000);
+}
+
+function getNextWork(date: Date) {
+  var returnDate = new Date(date);
+  returnDate.setDate(returnDate.getDate() + 1);
+  if (returnDate.getDay() == 0) returnDate.setDate(returnDate.getDate() + 1);
+  else if (returnDate.getDay() == 6)
+    returnDate.setDate(returnDate.getDate() + 2);
+  return returnDate;
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
@@ -269,13 +297,5 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   };
 };
-
-function onClick() {}
-
-function getEndDate() {
-  let date = new Date();
-  date.setHours(date.getHours() + 1);
-  return date.toISOString().substring(0, "YYYY-MM-DDTHH:MM".length);
-}
 
 export default Bookings;
