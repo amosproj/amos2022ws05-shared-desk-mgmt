@@ -2,9 +2,6 @@ import Head from "next/head";
 import Collapse from "../components/Collapse";
 import { IDesk } from "../types/desk";
 import DesksTable from "../components/DesksTable";
-//TODO: delete this - just used for mockup data
-import { GetServerSideProps } from "next";
-import { desks } from "../desks";
 
 const SearchResults = ({ results }: { results: IDesk[] }) => {
   // format results
@@ -56,18 +53,6 @@ const SearchResults = ({ results }: { results: IDesk[] }) => {
       )}
     </>
   );
-};
-
-//TODO: delete this - this is just for developing this component
-export const getServerSideProps: GetServerSideProps = async () => {
-  const sortedDesks = desks.sort((a: IDesk, b: IDesk) =>
-    a.deskName.localeCompare(b.deskName)
-  );
-  return {
-    props: {
-      results: sortedDesks,
-    },
-  };
 };
 
 export default SearchResults;
