@@ -45,7 +45,7 @@ jobs:
         run: yarn install
 
       - name: Install playwright browsers
-        run: npx playwright install --with-deps
+        run: yarn run playwright install --with-deps
 
       - name: Test Next App
         run: yarn test --reporter github
