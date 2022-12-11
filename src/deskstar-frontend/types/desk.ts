@@ -9,4 +9,12 @@ export interface IDesk {
   buildingId: string;
   buildingName: string; 
   location: string;
+  bookings: IDeskBooking[];
+}
+
+export interface IDeskBooking {
+  bookingId: string;
+  userId: string;
+  endTime: string;
+  startTime: string;
 }

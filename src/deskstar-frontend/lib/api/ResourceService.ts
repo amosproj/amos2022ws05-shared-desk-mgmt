@@ -78,18 +78,18 @@ export async function getRooms(
 export async function getDesks(
   session: Session,
   roomId: string,
-  startTime: string,
-  endTime: string
+  startTime: number,
+  endTime: number
 ): Promise<IDesk[]> {
   const response = await fetch(
-    BACKEND_URL + `/resources/rooms/${roomId}/desks?from=${startTime}&to=${endTime}`,
+    BACKEND_URL + `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
     }
   );
-
+  
   if (response.status !== 200) {
     console.log(response.status);
     console.log("Error fetching desks");
@@ -97,6 +97,6 @@ export async function getDesks(
   }
 
   const data = await response.json();
-  //console.log(data);
+  
   return data;
 }
