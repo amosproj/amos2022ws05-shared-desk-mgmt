@@ -59,14 +59,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if(session){
-    const users = await getUsers(session)
+  if (session) {
+    const users = await getUsers(session);
 
     return {
       props: {
-        users: users.filter((user: IUser) => !user.isApproved)
-      }
-    }
+        users: users.filter((user: IUser) => !user.isApproved),
+      },
+    };
   }
 
   return {

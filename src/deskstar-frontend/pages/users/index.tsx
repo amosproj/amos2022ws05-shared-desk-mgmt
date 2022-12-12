@@ -9,7 +9,6 @@ import { getUsers } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 
-
 export default function UsersOverview({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
@@ -72,14 +71,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if(session){
-    const users = await getUsers(session)
+  if (session) {
+    const users = await getUsers(session);
 
     return {
       props: {
-        users: users.filter((user: IUser) => user.isApproved)
-      }
-    }
+        users: users.filter((user: IUser) => user.isApproved),
+      },
+    };
   }
 
   return {

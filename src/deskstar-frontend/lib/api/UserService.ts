@@ -1,5 +1,5 @@
 import { Session } from "next-auth";
-import { IUser } from "../../types/users"
+import { IUser } from "../../types/users";
 import { BACKEND_URL } from "./constants";
 
 export async function getUsers(session: Session): Promise<IUser[]> {
@@ -10,11 +10,22 @@ export async function getUsers(session: Session): Promise<IUser[]> {
     },
   });
 
-  if(response.status !== 200){
-    console.log("Error fetching ")
+  if (response.status !== 200) {
+    console.log("Error fetching ");
     return [];
   }
 
   const data = await response.json();
-  return data;
+
+  return data.map((userData: any): IUser => {
+    return {
+      userId: userData?.userId,
+      firstName: userData?.firstName,
+      lastName: userData?.lastName,
+      email: userData?.mailAddress,
+      company: userData?.companyId,
+      isAdmin: userData?.isCompanyAdmin,
+      isApproved: userData?.isApproved,
+    };
+  });
 }
