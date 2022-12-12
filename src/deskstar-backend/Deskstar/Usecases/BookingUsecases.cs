@@ -7,7 +7,8 @@ namespace Deskstar.Usecases;
 public interface IBookingUsecases
 {
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
-    public List<RecentBooking> GetRecentBookings(Guid userId);
+    public List<ExtendedBooking> GetRecentBookings(Guid userId);
+    public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -37,7 +38,7 @@ public class BookingUsecases : IBookingUsecases
         return withReferences.ToList();
     }
 
-    public List<RecentBooking> GetRecentBookings(Guid userId)
+    public List<ExtendedBooking> GetRecentBookings(Guid userId)
     {
         var bookings = _context.Bookings
             .Where(b => b.UserId == userId && b.StartTime >= DateTime.Now)
@@ -49,7 +50,7 @@ public class BookingUsecases : IBookingUsecases
                .ThenInclude(r => r.Floor)
                .ThenInclude(b => b.Building);
 
-        var mapBookingsToRecentBookings = bookings.Select(b => new RecentBooking
+        var mapBookingsToRecentBookings = bookings.Select(b => new ExtendedBooking
         {
             DeskName = b.Desk.DeskName,
             EndTime = b.EndTime,
@@ -61,5 +62,45 @@ public class BookingUsecases : IBookingUsecases
         });
 
         return mapBookingsToRecentBookings.ToList();
+    }
+
+    public Booking CreateBooking(Guid userId, BookingRequest bookingRequest)
+    {
+        // check if desk exists
+        var desk = _context.Desks.FirstOrDefault(d => d.DeskId == bookingRequest.DeskId);
+        if (desk == null)
+        {
+            // throw an exception that deks was not found with error code 404
+            throw new ArgumentException("Desk not found");
+        }
+
+        // check if user exists
+        var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+
+        // check if desk available
+        var bookings = _context.Bookings.Where(b => b.DeskId == bookingRequest.DeskId);
+        var timeSlotAvailable = bookings.All(b => b.StartTime >= bookingRequest.EndTime || b.EndTime <= bookingRequest.StartTime);
+        if (!timeSlotAvailable)
+        {
+            throw new ArgumentException("Time slot not available");
+        }
+        var booking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            UserId = userId,
+            DeskId = bookingRequest.DeskId,
+            StartTime = bookingRequest.StartTime,
+            EndTime = bookingRequest.EndTime,
+            Timestamp = DateTime.Now
+        };
+
+        _context.Bookings.Add(booking);
+        _context.SaveChanges();
+
+        return booking;
     }
 }
