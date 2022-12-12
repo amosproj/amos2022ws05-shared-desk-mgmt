@@ -42,13 +42,16 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   const [startDateTime, setStartDateTime] = useState<Date>(
     new Date(nextBuisinessDay.setHours(8, 0, 0, 0))
   );
-  const [endDateTime, setEndDateTime] = useState<Date>(getEndDate(nextBuisinessDay));
+  const [endDateTime, setEndDateTime] = useState<Date>(
+    getEndDate(nextBuisinessDay)
+  );
 
   async function onBook(
     event: {
       target: Element;
     },
-    desk: IDesk
+    desk: IDesk,
+    setButtonText: Function
   ) {
     if (
       event == null ||
@@ -76,6 +79,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
             " to " +
             endDateTime;
           event.target.setAttribute("class", "btn btn-disabled");
+          setButtonText("Booked");
         } else {
           console.log(response);
           message = response;
@@ -189,7 +193,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           name="Start"
           defaultValue={getFormatedDate(startDateTime)}
           min={getFormatedDate(today)}
-          onChange={(event) => (setStartDateTime(getUTCDate(event.target.value)))}
+          onChange={(event) => setStartDateTime(getUTCDate(event.target.value))}
         />
       </div>
 
@@ -203,7 +207,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           id="end-date-time"
           min={getFormatedDate(new Date(today.setHours(today.getHours() + 1)))}
           defaultValue={getFormatedDate(endDateTime)}
-          onChange={(event) => (setEndDateTime( getUTCDate(event.target.value)))}
+          onChange={(event) => setEndDateTime(getUTCDate(event.target.value))}
         />
       </div>
 

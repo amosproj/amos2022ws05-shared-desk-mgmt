@@ -1,5 +1,5 @@
 import { IDesk } from "../types/desk";
-import React from "react";
+import React, { useState } from "react";
 
 const DesksTable = ({
   desks,
@@ -20,7 +20,7 @@ const DesksTable = ({
         </thead>
         <tbody>
           {desks.map((desk: IDesk) => (
-            <DeskTableEntry key={desk.deskId} desk={desk} onBook={onBook}/>
+            <DeskTableEntry key={desk.deskId} desk={desk} onBook={onBook} />
           ))}
         </tbody>
       </table>
@@ -35,6 +35,7 @@ const DeskTableEntry = ({
   desk: IDesk;
   onBook: Function;
 }) => {
+  const [buttonText, setButtonText] = useState("Book");
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
@@ -42,9 +43,9 @@ const DeskTableEntry = ({
       <td className="text-right">
         <button
           className="btn btn-success"
-          onClick={(event) => onBook(event, desk)}
+          onClick={(event) => onBook(event, desk, setButtonText)}
         >
-          Book
+          {buttonText}
         </button>
         {/* <a href="#book-modal" className="btn btn-success">
           Book
