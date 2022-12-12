@@ -37,9 +37,7 @@ export default function AppHome({
       <h1 className="text-3xl font-bold text-center mt-10">
         Hello {session?.user?.name}, welcome back to Deskstar
       </h1>
-      <h1 className="text-2xl font-bold text-left my-10">
-        Your bookings today
-      </h1>
+      <h1 className="text-2xl font-bold text-left my-10">Bookings Today</h1>
       <BookingsTable bookings={bookingsToday} />
       {bookingsToday.length === 0 && (
         <h1 className="text-l text-center my-10">You have no bookings today</h1>
@@ -60,9 +58,7 @@ export default function AppHome({
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-left my-10">
-        Your upcoming bookings
-      </h1>
+      <h1 className="text-2xl font-bold text-left my-10">Upcoming Bookings</h1>
       <BookingsTable bookings={bookingsTomorrow} />
     </div>
   );
@@ -86,11 +82,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     });
 
     const bookingsToday = bookings.filter((booking: IBooking) => {
-      const today = new Date().getTime();
-      let endOfDay = new Date();
-      endOfDay.setHours(24, 59, 59);
-      const startTime = new Date(booking.startTime).getTime();
-      return startTime >= today && startTime <= endOfDay.getTime();
+      const today = new Date().toISOString();
+      const startOfDay = new Date(today);
+      startOfDay.setHours(0, 0, 0);
+      const endOfDay = new Date(today);
+      endOfDay.setHours(23, 59, 59);
+      const startTime = new Date(booking.startTime).toISOString();
+      const endTime = new Date(booking.endTime).toISOString();
+
+      return (
+        (startTime >= startOfDay.toISOString() &&
+          startTime <= endOfDay.toISOString()) ||
+        (endTime >= startOfDay.toISOString() &&
+          endTime <= endOfDay.toISOString())
+      );
     });
 
     const bookingsTomorrow = bookings.filter((booking: IBooking) => {
