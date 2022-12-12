@@ -16,7 +16,7 @@ const userNavItems = [
     href: "/bookings",
   },
   {
-    name: "Add New Booking",
+    name: "Book a Desk",
     href: "/bookings/add",
   },
 ];
