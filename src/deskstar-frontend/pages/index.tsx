@@ -9,6 +9,7 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { getBookings } from "../lib/api/BookingService";
 import { useState } from "react";
+import { classes } from "../lib/helpers";
 
 export default function AppHome({
   bookingsToday,
@@ -37,7 +38,7 @@ export default function AppHome({
       <h1 className="text-3xl font-bold text-center mt-10">
         Hello {session?.user?.name}, welcome back to Deskstar
       </h1>
-      <h1 className="text-2xl font-bold text-left my-10">Bookings Today</h1>
+      <h1 className="text-2xl font-bold text-left my-10">Today</h1>
       <BookingsTable bookings={bookingsToday} />
       {bookingsToday.length === 0 && (
         <h1 className="text-l text-center my-10">You have no bookings today</h1>
@@ -45,13 +46,15 @@ export default function AppHome({
       {bookingsToday.length != 0 && (
         <div className="flex justify-center">
           <button
-            className="btn dark:text-black"
+            className={classes(
+              "btn dark:text-black hover:dark:text-white border-none",
+              checkedIn ? "bg-red-500" : "bg-green-500"
+            )}
             onClick={() =>
               handleCheckIn(
                 buttonText === "Check in" ? "Check out" : "Check in"
               )
             }
-            style={{ backgroundColor: checkedIn ? "red" : "green" }}
           >
             {buttonText}
           </button>
