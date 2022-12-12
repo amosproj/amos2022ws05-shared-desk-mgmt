@@ -11,6 +11,7 @@ import { useState } from "react";
 import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
 import Filterbar from "../../components/Filterbar";
+import DesksTable from "../../components/DesksTable";
 
 export default function AddBooking({
   buildings: origBuildings,
@@ -20,6 +21,7 @@ export default function AddBooking({
   let { data: session } = useSession();
 
   const [desks, setDesks] = useState<IDesk[]>([]);
+  const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
   let today = new Date();
   today.setHours(8, 0, 0, 0);
@@ -116,16 +118,20 @@ export default function AddBooking({
         </div>
       </div>
 
+      <div className="my-4"></div>
+
       <Filterbar
         buildings={origBuildings}
         desks={desks}
         setDesks={setDesks}
+        setFilteredDesks={setFilteredDesks}
         startDateTime={startDateTime}
         endDateTime={endDateTime}
       />
 
-      {desks.length > 0 && (
-        <DeskSearchResults results={desks} onBook={onBook} />
+      {filteredDesks.length > 0 && (
+        <DesksTable desks={filteredDesks} onBook={onBook} />
+        // <DeskSearchResults results={filteredDesks} onBook={onBook} />
       )}
     </div>
   );

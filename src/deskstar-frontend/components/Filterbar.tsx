@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import { getDesks, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -7,7 +7,7 @@ import { IDeskType } from "../types/desktypes";
 import { IFloor } from "../types/floor";
 import { ILocation } from "../types/location";
 import { IRoom } from "../types/room";
-import DropDownFilter from "./DropDownFilter";
+import FilterListbox from "./FilterListbox";
 
 type FilterbarProps = {
   buildings: IBuilding[];
@@ -15,6 +15,7 @@ type FilterbarProps = {
   endDateTime: Date;
   desks: IDesk[];
   setDesks: (desks: IDesk[]) => void;
+  setFilteredDesks: (desks: IDesk[]) => void;
 };
 
 export default function Filterbar({
@@ -23,82 +24,104 @@ export default function Filterbar({
   endDateTime,
   desks,
   setDesks,
+  setFilteredDesks,
 }: FilterbarProps) {
   const { data: session } = useSession();
 
   const locations: ILocation[] = origBuildings.map((building) => ({
     locationName: building.location,
   }));
+  const [selectedLocation, _setSelectedLocation] = useState<ILocation | null>(
+    null
+  );
+
+  const [selectedBuilding, _setSelectedBuilding] = useState<IBuilding | null>(
+    null
+  );
+  const [selectedFloor, _setSelectedFloor] = useState<IFloor | null>(null);
+  const [selectedRoom, _setSelectedRoom] = useState<IRoom | null>(null);
+  const [selectedDeskType, _setSelectedDeskType] = useState<IDeskType | null>(
+    null
+  );
 
   const [buildings, setBuildings] = useState<IBuilding[]>([]);
   const [floors, setFloors] = useState<IFloor[]>([]);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
-  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
 
-  async function onSelectedLocationChange(selectedLocations: ILocation[]) {
-    let buildings = origBuildings.filter((building) =>
-      selectedLocations.some((location) => {
-        return location.locationName === building.location;
-      })
+  async function setSelectedLocation(selectedLocation: ILocation | null) {
+    if (!selectedLocation) {
+      setBuildings([]);
+      setSelectedBuilding(null);
+      return;
+    }
+    _setSelectedLocation(selectedLocation);
+
+    let buildings = origBuildings.filter(
+      (building) => selectedLocation.locationName === building.location
     );
 
     setBuildings(buildings);
+    setSelectedBuilding(null);
   }
 
-  async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
-    const promises = await Promise.all(
-      selectedBuildings.map(async (building) => {
-        if (!session) {
-          return [];
-        }
+  async function setSelectedBuilding(selectedBuilding: IBuilding | null) {
+    _setSelectedBuilding(selectedBuilding);
+    if (!selectedBuilding) {
+      setFloors([]);
+      setSelectedFloor(null);
+      return;
+    }
 
-        const resFloors = await getFloors(session, building.buildingId);
+    if (!session) {
+      setFloors([]);
+      return;
+    }
 
-        return resFloors;
-      })
-    );
+    const floors = await getFloors(session, selectedBuilding.buildingId);
 
-    setFloors(promises.flat());
+    setFloors(floors);
+    setSelectedFloor(null);
   }
 
-  async function onSelectedFloorChange(selectedFloors: IFloor[]) {
-    const promises = await Promise.all(
-      selectedFloors.map(async (floor) => {
-        if (!session) {
-          return [];
-        }
+  async function setSelectedFloor(selectedFloor: IFloor | null) {
+    _setSelectedFloor(selectedFloor);
+    if (!selectedFloor) {
+      setRooms([]);
+      setSelectedRoom(null);
+      return;
+    }
 
-        const resRooms = await getRooms(session, floor.floorID);
-        return resRooms;
-      })
-    );
+    if (!session) {
+      setRooms([]);
+      return;
+    }
 
-    setRooms(promises.flat());
+    const rooms = await getRooms(session, selectedFloor.floorID);
+
+    setRooms(rooms);
+    setSelectedRoom(null);
   }
 
-  async function onSelectedRoomChange(selectedRooms: IRoom[]) {
-    const promises = await Promise.all(
-      selectedRooms.map(async (room) => {
-        if (!session) {
-          return [];
-        }
+  async function setSelectedRoom(selectedRoom: IRoom | null) {
+    _setSelectedRoom(selectedRoom);
+    if (!selectedRoom) {
+      return;
+    }
 
-        const resDeskType = await getDesks(
-          session,
-          room.roomId,
-          startDateTime.getTime(),
-          endDateTime.getTime()
-        );
+    if (!session) {
+      setRooms([]);
+      return;
+    }
 
-        return resDeskType;
-      })
+    const desks = await getDesks(
+      session,
+      selectedRoom.roomId,
+      startDateTime.getTime(),
+      endDateTime.getTime()
     );
 
-    const desks = promises.flat();
     const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
-    console.log(filteredDesks);
-    setDesks(filteredDesks);
 
     let deskTypes = filteredDesks.map((desk) => ({
       typeId: desk.deskTyp,
@@ -106,59 +129,83 @@ export default function Filterbar({
     }));
 
     setDeskTypes(deskTypes);
-    setSelectedDeskTypes(deskTypes);
+    setSelectedDeskType(null); // Equals all there
+
+    setDesks(filteredDesks);
+    setFilteredDesks(filteredDesks);
   }
 
-  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
-    setSelectedDeskTypes(
-      selectedDeskTypes.length === 0 ? deskTypes : selectedDeskTypes
+  function setSelectedDeskType(selectedDeskType: IDeskType | null) {
+    _setSelectedDeskType(selectedDeskType);
+    if (!selectedDeskType) {
+      setFilteredDesks(desks);
+      return;
+    }
+
+    const filteredDesks = desks.filter(
+      (desk) => desk.deskTyp === selectedDeskType.typeName
     );
+
+    setFilteredDesks(filteredDesks);
   }
 
   return (
     <div>
-      <DropDownFilter
-        title="Locations"
-        getItemName={(location) => location.locationName}
-        options={locations}
-        setSelectedOptions={onSelectedLocationChange}
-      />
-
-      {buildings.length > 0 && (
-        <DropDownFilter
-          title="Buildings"
-          getItemName={(building) => building.buildingName}
-          options={buildings}
-          setSelectedOptions={onSelectedBuildingChange}
+      <div className="flex gap-2">
+        <FilterListbox
+          items={locations}
+          selectedItem={selectedLocation}
+          setSelectedItem={setSelectedLocation}
+          getName={(location) =>
+            location ? location.locationName : "Kein Ort ausgewählt"
+          }
         />
-      )}
 
-      {floors.length > 0 && (
-        <DropDownFilter
-          title="Floors"
-          getItemName={(floor) => floor.floorName}
-          options={floors}
-          setSelectedOptions={onSelectedFloorChange}
-        />
-      )}
+        {buildings.length > 0 && (
+          <FilterListbox
+            items={buildings}
+            selectedItem={selectedBuilding}
+            setSelectedItem={setSelectedBuilding}
+            getName={(building) =>
+              building?.buildingName ?? "Kein Gebäude ausgewählt"
+            }
+            getKey={(building) => building?.buildingId}
+          />
+        )}
 
-      {rooms.length > 0 && (
-        <DropDownFilter
-          title="Rooms"
-          getItemName={(room) => room.roomName}
-          options={rooms}
-          setSelectedOptions={onSelectedRoomChange}
-        />
-      )}
+        {floors.length > 0 && (
+          <FilterListbox
+            items={floors}
+            selectedItem={selectedFloor}
+            setSelectedItem={setSelectedFloor}
+            getName={(floor) => floor?.floorName ?? "Kein Stockwerk ausgewählt"}
+            getKey={(floor) => floor?.floorID}
+          />
+        )}
 
-      {deskTypes.length > 0 && (
-        <DropDownFilter
-          title="Types"
-          getItemName={(deskType) => deskType.typeName}
-          options={deskTypes}
-          setSelectedOptions={onSelectedDeskTypeChange}
-        />
-      )}
+        {rooms.length > 0 && (
+          <FilterListbox
+            items={rooms}
+            selectedItem={selectedRoom}
+            setSelectedItem={setSelectedRoom}
+            getName={(room) => room?.roomName ?? "Kein Raum ausgewählt"}
+            getKey={(room) => room?.roomId}
+          />
+        )}
+
+        {deskTypes.length > 0 && (
+          <FilterListbox
+            items={deskTypes}
+            selectedItem={selectedDeskType}
+            setSelectedItem={setSelectedDeskType}
+            getName={(deskType) =>
+              deskType?.typeName ?? "Kein Schreibtischtyp ausgewählt"
+            }
+            getKey={(deskType) => deskType.typeId}
+            allOption={true}
+          />
+        )}
+      </div>
 
       <div className="my-4"></div>
 
