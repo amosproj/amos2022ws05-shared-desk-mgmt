@@ -11,6 +11,7 @@ import {
   getFloors,
   getRooms,
 } from "../../lib/api/ResourceService";
+import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
 import { ILocation } from "../../types/location";
 import { IFloor } from "../../types/floor";
@@ -38,8 +39,55 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
   let today = new Date();
   let nextBuisinessDay = getNextWork(today);
 
-  let startDateTime: Date = new Date(nextBuisinessDay.setHours(8, 0, 0, 0));
-  let endDateTime: Date = getEndDate(nextBuisinessDay);
+  const [startDateTime, setStartDateTime] = useState<Date>(
+    new Date(nextBuisinessDay.setHours(8, 0, 0, 0))
+  );
+  const [endDateTime, setEndDateTime] = useState<Date>(getEndDate(nextBuisinessDay));
+
+  async function onBook(
+    event: {
+      target: Element;
+    },
+    desk: IDesk
+  ) {
+    if (
+      event == null ||
+      event.target == null ||
+      desk == null ||
+      session == null
+    )
+      return;
+    event.target.setAttribute("class", "btn loading");
+    let message;
+
+    await createBooking(
+      session,
+      desk.deskId,
+      new Date(startDateTime),
+      new Date(endDateTime)
+    )
+      .then((response) => {
+        if (response == "success") {
+          message =
+            "You successfully booked the desk " +
+            desk.deskName +
+            " from " +
+            startDateTime +
+            " to " +
+            endDateTime;
+          event.target.setAttribute("class", "btn btn-disabled");
+        } else {
+          console.log(response);
+          message = response;
+          event.target.setAttribute("class", "btn btn-success");
+        }
+      })
+      .catch((error) => {
+        console.error("Error calling createBooking:", error);
+        event.target.setAttribute("class", "btn btn-success");
+      });
+    alert(message);
+  }
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     let buildings = origBuildings.filter((building) =>
@@ -141,7 +189,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           name="Start"
           defaultValue={getFormatedDate(startDateTime)}
           min={getFormatedDate(today)}
-          onChange={(event) => (startDateTime = getUTCDate(event.target.value))}
+          onChange={(event) => (setStartDateTime(getUTCDate(event.target.value)))}
         />
       </div>
 
@@ -155,7 +203,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
           id="end-date-time"
           min={getFormatedDate(new Date(today.setHours(today.getHours() + 1)))}
           defaultValue={getFormatedDate(endDateTime)}
-          onChange={(event) => (endDateTime = getUTCDate(event.target.value))}
+          onChange={(event) => (setEndDateTime( getUTCDate(event.target.value)))}
         />
       </div>
 
@@ -240,6 +288,7 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
               .map((deskTypes) => deskTypes.typeName)
               .includes(e.deskTyp);
           })}
+          onBook={onBook}
         />
       )}
     </div>

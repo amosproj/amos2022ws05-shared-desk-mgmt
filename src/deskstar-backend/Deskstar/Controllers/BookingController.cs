@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
-
 namespace Deskstar.Controllers;
 
 [ApiController]
@@ -37,7 +36,7 @@ public class BookingController : ControllerBase
     /// <response code="400">Bad Request</response>
     [HttpGet("range")]
     [Authorize]
-    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
@@ -94,7 +93,7 @@ public class BookingController : ControllerBase
             var mapped = bookings.Select(
                 (b) =>
                 {
-                    RecentBooking rb = new RecentBooking();
+                    ExtendedBooking rb = new ExtendedBooking();
                     rb.Timestamp = b.Timestamp;
                     rb.StartTime = b.StartTime;
                     rb.EndTime = b.EndTime;
@@ -127,7 +126,7 @@ public class BookingController : ControllerBase
     /// <response code="404">User not found</response>
     [HttpGet("recent")]
     [Authorize]
-    [ProducesResponseType(typeof(List<RecentBooking>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces("application/json")]
     public IActionResult RecentBookings()
@@ -146,5 +145,62 @@ public class BookingController : ControllerBase
             _logger.LogError(e, e.Message);
         }
         return NotFound();
+    }
+
+
+    /// <summary>
+    /// Creates a new Booking for Token-User
+    /// </summary>
+    /// <returns>Created Booking in JSON Format</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /bookings with JWT Token
+    /// </remarks>
+    ///
+    /// <response code="201">Returns the created booking</response>
+    /// <response code="404">User not found</response>
+    /// <response code="404">Desk not found</response>
+    /// <response code="409">Desk is not available at that time</response>
+    /// <response code="400">Bad Request</response>
+
+    [HttpPost]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+    public IActionResult CreateBooking([FromBody] BookingRequest bookingRequest)
+    {
+
+        if (bookingRequest.StartTime.Equals(DateTime.MinValue) || bookingRequest.EndTime.Equals(DateTime.MinValue) || bookingRequest.DeskId.Equals(Guid.Empty))
+        {
+            return BadRequest("Required fields are missing");
+        }
+
+        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
+        var handler = new JwtSecurityTokenHandler();
+        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
+        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        //ToDo: require Frontend to Use Universaltime
+        bookingRequest.StartTime = bookingRequest.StartTime.ToLocalTime();
+        bookingRequest.EndTime = bookingRequest.EndTime.ToLocalTime();
+
+        try
+        {
+            _bookingUsecases.CreateBooking(userId, bookingRequest);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return e.Message switch
+            {
+                "User not found" => NotFound(e.Message),
+                "Desk not found" => NotFound(e.Message),
+                "Time slot not available" => Conflict(e.Message),
+                _ => Problem(statusCode: 500)
+            };
+        }
     }
 }
