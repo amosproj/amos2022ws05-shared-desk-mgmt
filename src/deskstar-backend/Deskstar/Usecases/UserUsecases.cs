@@ -6,6 +6,8 @@ namespace Deskstar.Usecases;
 
 public interface IUserUsecases
 {
+    public List<User> ReadAllUsers(Guid adminId);
+    public Guid UpdateUser(User user);
     public User ReadSpecificUser(Guid userId);
     public Guid ApproveUser(Guid adminId, string userId);
     public Guid DeclineUser(Guid adminId, string userId);
@@ -84,6 +86,34 @@ public class UserUsecases : IUserUsecases
         catch (InvalidOperationException)
         {
             throw new ArgumentException($"There is no user with id '{userId}'");
+        }
+    }
+
+    public List<User> ReadAllUsers(Guid adminId)
+    {
+        try
+        {
+            var admin = _context.Users.Single(user => user.UserId == adminId);
+            return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no admin with id '{adminId}'");
+        }
+    }
+
+    public Guid UpdateUser(User user)
+    {
+        try
+        {
+            _context.Users.Single(u => u.UserId == user.UserId);
+            _context.Users.Update(user);
+            _context.SaveChanges();
+            return user.UserId;
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no user with id '{user.UserId}'");
         }
     }
 }
