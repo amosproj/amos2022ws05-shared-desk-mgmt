@@ -11,6 +11,5 @@ public class RequestInteractions
         var handler = new JwtSecurityTokenHandler();
         var jwtSecurityToken = handler.ReadJwtToken(accessToken);
         return new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
-
     }
 }
