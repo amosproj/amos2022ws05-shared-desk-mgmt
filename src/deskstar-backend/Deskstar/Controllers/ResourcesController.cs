@@ -1,15 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 using Deskstar.Usecases;
 using Deskstar.Models;
+using Deskstar.Core;
 
 namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/resources")]
-[Produces("text/plain")]
+[Produces("application/json")]
 public class ResourcesController : ControllerBase
 {
     private readonly IResourceUsecases _resourceUsecases;
@@ -39,11 +38,7 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetAllBuildings()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId =
-            new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
         List<CurrentBuilding> buildings;
         try
         {
