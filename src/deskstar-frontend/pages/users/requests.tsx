@@ -17,7 +17,11 @@ export default function UserRequests({
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState(
+    initialUsers.map((user: IUser): IUser => {
+      return { selected: false, ...user };
+    })
+  );
 
   // page is only accessable as admin
   useEffect(() => {
@@ -32,38 +36,36 @@ export default function UserRequests({
   }, [router, session, calledRouter]);
 
   const onApprovalUpdate = async (
-    user: IUser,
+    selectedUsers: IUser[],
     decision: boolean
   ): Promise<void> => {
+    if (!session) return;
     try {
-      if (session) {
-        if (decision) {
-          const response: Response = await approveUser(session, user.userId);
+      for (const user of selectedUsers) {
+        const response: Response = decision
+          ? await approveUser(session, user.userId)
+          : await declineUser(session, user.userId);
 
-          if (!response.ok) {
-            const error = await response.json();
-            alert(error.detail);
-          }
-
-          // success
-          alert(`${user.email} successfully approved!`);
-          setUsers(users.filter((u) => u.userId !== user.userId));
-        } else {
-          const response: Response = await declineUser(session, user.userId);
-
-          if (!response.ok) {
-            const error = await response.json();
-            alert(error.detail);
-          }
-
-          // success
-          alert(`${user.email} successfully rejected!`);
-          setUsers(users.filter((u) => u.userId !== user.userId));
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.detail);
         }
       }
+
+      // success
+      alert(
+        `${selectedUsers.length > 1 ? "Users" : "User"} successfully ${
+          decision ? "approved" : "rejected"
+        }!`
+      );
+      setUsers(
+        users.filter(
+          (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
+        )
+      );
     } catch (error) {
-      console.error(error)
-      alert(`There has been a problem with your fetch operation: ${error}`)
+      console.error(error);
+      alert(`There has been a problem with your fetch operation: ${error}`);
     }
   };
 
@@ -78,7 +80,11 @@ export default function UserRequests({
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-      <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
+      <UsersTable
+        users={users}
+        onApprovalUpdate={onApprovalUpdate}
+        onUsersSelection={setUsers}
+      />
     </>
   );
 }
