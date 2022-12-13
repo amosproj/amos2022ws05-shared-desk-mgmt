@@ -92,11 +92,11 @@ const UsersTableEntry = ({
           >
             <FaCheckCircle color="green" />
           </button>
-          <button className="btn btn-ghost">
-            <FaTimesCircle
-              color="red"
-              onClick={() => onApprovalUpdate(user, false)}
-            />
+          <button
+            className="btn btn-ghost"
+            onClick={() => onApprovalUpdate(user, false)}
+          >
+            <FaTimesCircle color="red" />
           </button>
         </td>
       )}

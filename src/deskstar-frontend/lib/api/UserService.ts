@@ -29,3 +29,21 @@ export async function getUsers(session: Session): Promise<IUser[]> {
     };
   });
 }
+
+export function approveUser(session: Session, userId: string): Promise<Response> {
+  return fetch(BACKEND_URL + `/users/${userId}/approve`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
+export function declineUser(session: Session, userId: string): Promise<Response> {
+  return fetch(BACKEND_URL + `/users/${userId}/decline`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
