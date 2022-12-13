@@ -39,51 +39,30 @@ export default function UserRequests({
     selectedUsers: IUser[],
     decision: boolean
   ): Promise<void> => {
+    if (!session) return;
     try {
-      if (session) {
-        if (decision) {
-          for (const user of selectedUsers) {
-            const response: Response = await approveUser(session, user.userId);
-            if (!response.ok) {
-              const error = await response.json();
-              alert(error.detail);
-            }
-          }
+      for (const user of selectedUsers) {
+        const response: Response = decision
+          ? await approveUser(session, user.userId)
+          : await declineUser(session, user.userId);
 
-          // success
-          alert(
-            `${
-              selectedUsers.length > 1 ? "Users" : "User"
-            } successfully approved!`
-          );
-          setUsers(
-            users.filter(
-              (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
-            )
-          );
-        } else {
-          for (const user of selectedUsers) {
-            const response: Response = await declineUser(session, user.userId);
-
-            if (!response.ok) {
-              const error = await response.json();
-              alert(error.detail);
-            }
-          }
-
-          // success
-          alert(
-            `${
-              selectedUsers.length > 1 ? "Users" : "User"
-            } successfully rejected!`
-          );
-          setUsers(
-            users.filter(
-              (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
-            )
-          );
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.detail);
         }
       }
+
+      // success
+      alert(
+        `${selectedUsers.length > 1 ? "Users" : "User"} successfully ${
+          decision ? "approved" : "rejected"
+        }!`
+      );
+      setUsers(
+        users.filter(
+          (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
+        )
+      );
     } catch (error) {
       console.error(error);
       alert(`There has been a problem with your fetch operation: ${error}`);
