@@ -1,6 +1,7 @@
 import { Session } from "next-auth";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
+import { IDeskType } from "../../types/desktypes";
 import { IFloor } from "../../types/floor";
 import { IRoom } from "../../types/room";
 import { BACKEND_URL } from "./constants";
@@ -18,7 +19,7 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
 
   if (response.status !== 200) {
     console.log(response.status);
-    console.log( "Error fetching buildings");
+    console.log("Error fetching buildings");
     return [];
   }
 
@@ -89,7 +90,7 @@ export async function getDesks(
       },
     }
   );
-  
+
   if (response.status !== 200) {
     console.log(response.status);
     console.log("Error fetching desks");
@@ -97,13 +98,13 @@ export async function getDesks(
   }
 
   const data = await response.json();
-  
+
   return data;
 }
 
 export async function getDeskTypes(
   session: Session,
-): Promise<IDesk[]> {
+): Promise<IDeskType[]> {
   const response = await fetch(
     BACKEND_URL + `/resources/desktypes`,
     {
@@ -112,7 +113,7 @@ export async function getDeskTypes(
       },
     }
   );
-  
+
   if (response.status !== 200) {
     console.log(response.status);
     console.log("Error fetching desks");
@@ -120,6 +121,11 @@ export async function getDeskTypes(
   }
 
   const data = await response.json();
-  
+  data.map((e: any) => {
+    return {
+      typeId: e["deskTypeId"],
+      typeName: e["deskTypeName"]
+    }
+  });
   return data;
 }

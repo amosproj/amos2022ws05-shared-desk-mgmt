@@ -6,6 +6,7 @@ import { getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/Resource
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
+import { IDeskType } from "../types/desktypes";
 import { IFloor } from "../types/floor";
 import { ILocation } from "../types/location";
 import { IRoom } from "../types/room";
@@ -19,7 +20,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
 
     const [desk, setDesk] = useState("");
-    const [deskType, setDeskType] = useState("");
+    const [deskType, setDeskType] = useState<IDeskType | null>();
     const [room, setRoom] = useState<IRoom | null>();
     const [floor, setFloor] = useState<IFloor | null>();
     const [building, setBuilding] = useState<IBuilding | null>();
@@ -33,6 +34,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
     const [floors, setFloors] = useState<IFloor[]>([]);
     const [rooms, setRooms] = useState<IRoom[]>([]);
     const [desks, setDesks] = useState<IDesk[]>([]);
+    const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
 
     async function onSelectedLocationChange(selectedLocation: ILocation | null | undefined) {
         if (!selectedLocation) {
@@ -50,7 +52,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         setRoom(null);
     }
 
-    async function onSelectedBuildingChange(selectedBuilding: IBuilding | null | undefined) {
+    async function onSelectedBuildingChange(selectedBuilding: IBuilding  | null | undefined) {
         if (!selectedBuilding) {
             return;
         }
@@ -66,7 +68,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         setRoom(null);
     }
 
-    async function onSelectedFloorChange(selectedFloor: IFloor | null | undefined) {
+    async function onSelectedFloorChange(selectedFloor: IFloor  | null | undefined) {
         if (!selectedFloor) {
             return;
         }
@@ -80,6 +82,18 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
 
         setRoom(null);
     }
+    async function onSelectedDeskTypeChange(onSelectedDeskType: IDeskType  | null | undefined) {
+        if(!onSelectedDeskType){
+            return;
+        }
+        if (!session) {
+            return [];
+        }
+        const resDeskTypes = await getDeskTypes(session);
+        setDeskTypes(resDeskTypes);
+
+        setDeskType(null);
+    }
 
     return <>
         <div id="create-resource-modal" className="modal">
@@ -87,9 +101,9 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                 <a href="#close" className="btn btn-sm btn-circle float-right">
                     x
                 </a>
-                <h1 className="text-2xl pb-4">Ressource Hinzufügen</h1>
+                <h1 className="text-2xl pb-4">Add Resources</h1>
 
-                <div>Ressourcentyp</div>
+                <div>Resource Type</div>
 
                 <div className="flex items-center">
                     {resourceTypes.map((type: string) => (
@@ -105,7 +119,17 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
 
                 {selectedResourceType === "Desk" && <>
                     <Input name="Desk" onChange={(e) => { setDesk(e.target.value) }} value={desk} placeholder="Desk Name" />
-                    <Input name="Desk Types" onChange={(e) => { setDeskType(e.target.value) }} value={deskType} placeholder="Desk Type" />
+                    <>
+                        <div>Desk Type</div>
+                        <FilterListbox
+                            items={deskTypes}
+                            selectedItem={deskType}
+                            setSelectedItem={(o) => onSelectedDeskTypeChange(o)}
+                            getName={(deskType) =>
+                                deskType ? deskType.typeName : "No type selected"
+                            }
+                        />
+                    </>
 
                     <div>Ort</div>
                     <FilterListbox
@@ -113,7 +137,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         selectedItem={location}
                         setSelectedItem={(o) => onSelectedLocationChange(o)}
                         getName={(location) =>
-                            location ? location.locationName : "Kein Ort ausgewählt"
+                            location ? location.locationName : "select location"
                         }
                     />
 
@@ -124,7 +148,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                             selectedItem={building}
                             setSelectedItem={(o) => onSelectedBuildingChange(o)}
                             getName={(building) =>
-                                building ? building.buildingName : "Kein Gebäude ausgewählt"
+                                building ? building.buildingName : "select building"
                             }
                         />
                     </>}
@@ -136,7 +160,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                             selectedItem={floor}
                             setSelectedItem={(o) => onSelectedFloorChange(o)}
                             getName={(floor) =>
-                                floor ? floor.floorName : "Kein Stockwerk ausgewählt"
+                                floor ? floor.floorName : "select floor"
                             }
                         />
                     </>}
@@ -148,14 +172,14 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                             selectedItem={room}
                             setSelectedItem={(o) => setRoom(o)}
                             getName={(room) =>
-                                room ? room.roomName : "Kein Raum ausgewählt"
+                                room ? room.roomName : "select room"
                             }
                         />
                     </>}
                 </>}
 
                 <a href="#close" className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right">
-                    Hinzufügen
+                    Add
                 </a>
             </div>
         </div>
