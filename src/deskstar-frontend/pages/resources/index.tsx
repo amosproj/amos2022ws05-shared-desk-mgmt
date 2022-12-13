@@ -18,6 +18,7 @@ import {
   getRooms,
 } from "../../lib/api/ResourceService";
 import { GetServerSideProps } from "next";
+import AddResourceModal from "../../components/AddResourceModal";
 
 const ResourceOverview = ({
   buildings: origBuildings,
@@ -131,13 +132,15 @@ const ResourceOverview = ({
         <h1 className="text-3xl font-bold text-left my-10">
           Resources Overview
         </h1>
-        <button
+        <a
+          href="#create-resource-modal"
           type="button"
           className="btn btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light"
-          onClick={() => {}}
-        >
+          onClick={() => { }}>
           Add Resource
-        </button>
+        </a>
+        <AddResourceModal buildings={origBuildings}/>
+
       </div>
       <DropDownFilter
         title="Locations"

@@ -100,3 +100,26 @@ export async function getDesks(
   
   return data;
 }
+
+export async function getDeskTypes(
+  session: Session,
+): Promise<IDesk[]> {
+  const response = await fetch(
+    BACKEND_URL + `/resources/desktypes`,
+    {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+  
+  if (response.status !== 200) {
+    console.log(response.status);
+    console.log("Error fetching desks");
+    return [];
+  }
+
+  const data = await response.json();
+  
+  return data;
+}
