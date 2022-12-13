@@ -16,7 +16,7 @@ const userNavItems = [
     href: "/bookings",
   },
   {
-    name: "Add New Booking",
+    name: "Book a Desk",
     href: "/bookings/add",
   },
 ];
@@ -60,7 +60,7 @@ export default function Sidebar({ children }: SidebarProps) {
 
       <div className="drawer-side ">
         <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 bg-base-100 text-base-content bg-deskstar-green-dark">
+        <ul className="menu p-4 w-80 text-base-content bg-deskstar-green-dark">
           {/* Sidebar content here */}
           <SidebarHeader />
           {userNavItems.map((item) => (
@@ -103,12 +103,22 @@ const SidebarHeader = () => {
   return (
     <div className="flex flex-row justify-start mb-5">
       <Link href="/">
-        {(new Date().getMonth() != 11) && 
-          (<Image src={deskstarLogo} alt="Deskstar Logo" width={50} height={50} />)
-        }
-        {(new Date().getMonth() == 11) && 
-          (<Image src={deskstarLogoChristmas} alt="Deskstar Logo Christmas" width={50} height={50} />)
-        }
+        {new Date().getMonth() != 11 && (
+          <Image
+            src={deskstarLogo}
+            alt="Deskstar Logo"
+            width={50}
+            height={50}
+          />
+        )}
+        {new Date().getMonth() == 11 && (
+          <Image
+            src={deskstarLogoChristmas}
+            alt="Deskstar Logo Christmas"
+            width={50}
+            height={50}
+          />
+        )}
         <span className="sr-only">Deskstar</span>
       </Link>
     </div>
@@ -125,8 +135,11 @@ const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
   // close mobile drawer on click
   const closeSidebar = () => document.getElementById("my-drawer")?.click();
   return (
-    <li onClick={closeSidebar}>
-      <Link href={href} className="dark:text-black">
+    <li className=" cursor-pointer" onClick={closeSidebar}>
+      <Link
+        href={href}
+        className="active:bg-deskstar-green-light hover:bg-deskstar-green-light dark:text-black"
+      >
         {name}
       </Link>
     </li>
@@ -141,7 +154,9 @@ const CollapseSideBarEntry = ({
   return (
     <div tabIndex={0} className="collapse collapse-arrow">
       <input type="checkbox" />
-      <div className="collapse-title dark:text-black">{name}</div>
+      <div className="cursor-pointer collapse-title dark:text-black">
+        {name}
+      </div>
       <div className="collapse-content">
         {subNavItems?.map((subItem) => (
           <SidebarEntry
