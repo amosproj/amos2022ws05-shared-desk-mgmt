@@ -144,6 +144,7 @@ public class ResourceUsecaseTests
         var logger = new Mock<ILogger<ResourceUsecases>>();
         var usecases = new ResourceUsecases(logger.Object, db);
         var callId = Guid.NewGuid();
+        
         //act
         try
         {

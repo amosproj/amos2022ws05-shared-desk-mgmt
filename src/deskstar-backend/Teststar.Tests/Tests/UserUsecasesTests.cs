@@ -1,3 +1,4 @@
+using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Usecases;
@@ -10,7 +11,7 @@ namespace Teststar.Tests.Tests;
 public class UserUsecasesTests
 {
     [Test]
-    public void ReadSpecificUser_ShouldThrowArgumentException_WhenInvalidUserIdIsGiven()
+    public void ReadSpecificUser_WhenInvalidUserIdIsGiven_ShouldThrowEntityNotFoundException()
     {
         //setup 
         using var db = new DataContext();
@@ -24,13 +25,13 @@ public class UserUsecasesTests
         var usecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => usecases.ReadSpecificUser(invalidId));
+        Assert.Throws<EntityNotFoundException>(() => usecases.ReadSpecificUser(invalidId));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
     [Test]
-    public void ReadSpecificUser_ShouldReturnUser_WhenValidUserIdIsGiven()
+    public void ReadSpecificUser_WhenValidUserIdIsGiven_ShouldReturnUser()
     {
         //setup 
         using var db = new DataContext();
@@ -54,7 +55,7 @@ public class UserUsecasesTests
     }
 
     [Test]
-    public void ApproveUser_ShouldApproveUser_WhenValidUserIdIsGiven()
+    public void ApproveUser_WhenValidUserIdIsGiven_ShouldApproveUser()
     {
         //setup
         using var db = new DataContext();
@@ -77,7 +78,7 @@ public class UserUsecasesTests
     }
 
     [Test]
-    public void ApproveUser_ShouldThrowArgumentException_WhenInvalidUserIdIsGiven()
+    public void ApproveUser_WhenInvalidUserIdIsGiven_ShouldThrowArgumentInvalidException()
     {
         //setup
         using var db = new DataContext();
@@ -90,13 +91,13 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, "invalidguid"));
+        Assert.Throws<ArgumentInvalidException>(() => userUsecases.ApproveUser(admin.UserId, "invalidguid"));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
     [Test]
-    public void ApproveUser_ShouldThrowArgumentException_WhenThereIsNoUserWithGivenId()
+    public void ApproveUser_WhenThereIsNoUserWithGivenId_ShouldThrowEntityNotFoundException()
     {
         //setup
         using var db = new DataContext();
@@ -109,13 +110,13 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, (new Guid()).ToString()));
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.ApproveUser(admin.UserId, (new Guid()).ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
     [Test]
-    public void ApproveUser_ShouldThrowArgumentException_WhenValidUserIsGivenButAdminIsFromDifferentCompany()
+    public void ApproveUser_WhenValidUserIsGivenButAdminIsFromDifferentCompany_ShouldThrowInsufficientPermissionException()
     {
         //setup
         using var db = new DataContext();
@@ -128,13 +129,13 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.ApproveUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<InsufficientPermissionException>(() => userUsecases.ApproveUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
     [Test]
-    public void DeclineUser_ShouldThrowArgumentException_WhenValidUserIsGivenButAdminIsFromDifferentCompany()
+    public void DeclineUser_WhenValidUserIsGivenButAdminIsFromDifferentCompany_ShouldThrowInsufficientPermissionException()
     {
         //setup
         using var db = new DataContext();
@@ -147,14 +148,14 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<InsufficientPermissionException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
 
     [Test]
-    public void DeclineUser_ShouldThrowArgumentException_WhenUserIsAlreadyApproved()
+    public void DeclineUser_WhenUserIsAlreadyApproved_ShouldThrowArgumentInvalidException()
     {
         //setup
         using var db = new DataContext();
@@ -167,13 +168,13 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
+        Assert.Throws<ArgumentInvalidException>(() => userUsecases.DeclineUser(admin.UserId, user.UserId.ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
     [Test]
-    public void DeclineUser_ShouldThrowArgumentException_WhenNoUserExistsWithGivenId()
+    public void DeclineUser_WhenNoUserExistsWithGivenId_ShouldThrowEntityNotFoundException()
     {
         //setup
         using var db = new DataContext();
@@ -186,14 +187,14 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.DeclineUser(admin.UserId, (new Guid()).ToString()));
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.DeclineUser(admin.UserId, (new Guid()).ToString()));
 
         //cleanup
         db.Database.EnsureDeleted();
     }
 
     [Test]
-    public void DeclineUser_ShouldRemoveUser_WhenValidUserIdIsGiven()
+    public void DeclineUser_WhenValidUserIdIsGiven_ShouldRemoveUser()
     {
         //setup
         using var db = new DataContext();
@@ -240,7 +241,7 @@ public class UserUsecasesTests
 
     }
     [Test]
-    public void UpdateUser_WhenInvalidUserIsProvided_ShouldThrowArgumentException()
+    public void UpdateUser_WhenInvalidUserIsProvided_ShouldThrowEntityNotFoundException()
     {
         //setup
         using var db = new DataContext();
@@ -254,7 +255,7 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.UpdateUser(new User()));
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.UpdateUser(new User()));
 
     }
     [Test]
@@ -280,7 +281,7 @@ public class UserUsecasesTests
 
     }
     [Test]
-    public void ReadAllUsers_WhenInvalidUserIdIsProvided_ShouldThrowArgumentException()
+    public void ReadAllUsers_WhenInvalidUserIdIsProvided_ShouldThrowEntityNotFoundException()
     {
         //setup
         using var db = new DataContext();
@@ -294,7 +295,7 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<ArgumentException>(() => userUsecases.ReadAllUsers(new Guid()));
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.ReadAllUsers(new Guid()));
 
     }
 
