@@ -1,9 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 
 namespace Deskstar.Controllers;
 
@@ -14,11 +13,13 @@ public class BookingController : ControllerBase
 {
     private readonly IBookingUsecases _bookingUsecases;
     private readonly ILogger<BookingController> _logger;
+    private readonly IAutoMapperConfiguration _autoMapperConfiguration;
 
-    public BookingController(ILogger<BookingController> logger, IBookingUsecases bookingUsecases)
+    public BookingController(ILogger<BookingController> logger, IBookingUsecases bookingUsecases, IAutoMapperConfiguration autoMapperConfiguration)
     {
         _logger = logger;
         _bookingUsecases = bookingUsecases;
+        _autoMapperConfiguration = autoMapperConfiguration;
     }
 
 
@@ -32,8 +33,8 @@ public class BookingController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the booking list</response>
-    /// <response code="500">Internal Server Error</response>
     /// <response code="400">Bad Request</response>
+    /// <response code="500">Internal Server Error</response>
     [HttpGet("range")]
     [Authorize]
     [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
@@ -42,10 +43,7 @@ public class BookingController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetBookingsByDirection(int n = int.MaxValue, int skip = 0, string direction = "DESC", long start = 0, long end = 0)
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
 
         DateTime startDateTime;
         DateTime endDateTime;
@@ -90,19 +88,10 @@ public class BookingController : ControllerBase
         try
         {
             var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
-            var mapped = bookings.Select(
-                (b) =>
-                {
-                    ExtendedBooking rb = new ExtendedBooking();
-                    rb.Timestamp = b.Timestamp;
-                    rb.StartTime = b.StartTime;
-                    rb.EndTime = b.EndTime;
-                    rb.BuildingName = b.Desk.Room.Floor.Building.BuildingName;
-                    rb.FloorName = b.Desk.Room.Floor.FloorName;
-                    rb.RoomName = b.Desk.Room.RoomName;
-                    rb.DeskName = b.Desk.DeskName;
-                    return rb;
-                }).ToList();
+
+            var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
+            var mapped = bookings.Select((b) => mapper.Map<Entities.Booking, ExtendedBooking>(b)).ToList();
+
             return Ok(mapped);
         }
         catch (Exception e)
@@ -131,10 +120,7 @@ public class BookingController : ControllerBase
     [Produces("application/json")]
     public IActionResult RecentBookings()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
         try
         {
             var bookings = _bookingUsecases.GetRecentBookings(userId);
@@ -178,10 +164,8 @@ public class BookingController : ControllerBase
             return BadRequest("Required fields are missing");
         }
 
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
+
         //ToDo: require Frontend to Use Universaltime
         bookingRequest.StartTime = bookingRequest.StartTime.ToLocalTime();
         bookingRequest.EndTime = bookingRequest.EndTime.ToLocalTime();
