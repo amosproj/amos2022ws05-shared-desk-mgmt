@@ -1,5 +1,6 @@
 ﻿using Deskstar.DataAccess;
 using Deskstar.Entities;
+using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -204,46 +205,177 @@ public class BookingUsecasesTest
     }
 
     [Test]
-    public void CheckGetRecentBookings_WhenValidMailAddressIsProvided_ShouldReturnNoBookings()
+    public void CreateBooking_WhenDesksNotExists_ShouldThrowAnArgumentException()
     {
-        //setup
-        using var mogDb = new DataContext();
-        AddOneCompany_AddOneUser(mogDb, new PasswordHasher<User>());
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        SetupMockData(db, userId: userId);
 
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
-        var subject = new BookingUsecases(logger.Object, mogDb);
+        var usecases = new BookingUsecases(logger.Object, db);
 
+        var bookingRequest = new BookingRequest
+        {
+            DeskId = Guid.NewGuid(),
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
         //act
-        const string address = "test@mail.de";
-        var result = subject.GetRecentBookings(mogDb.Users.First(u => u.MailAddress == address).UserId);
+        try
+        {
+            var result = usecases.CreateBooking(Guid.NewGuid(), bookingRequest);
 
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("Desk not found"));
+        }
 
-        //assert
-        Assert.That(result, Is.Empty);
+        //cleanup
+        db.Database.EnsureDeleted();
     }
 
     [Test]
-    public void CheckGetRecentBookings_WhenValidMailAddressIsProvided_ShouldReturnSingleBooking()
+    public void CreateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
     {
-        //setup
-        using var mogDb = new DataContext();
-        FillDatabaseWithEverything(mogDb, new PasswordHasher<User>());
-        const string address = "test@example.de";
-        var userId = mogDb.Users.First(u => u.MailAddress == address).UserId;
+        //setup 
+        using var db = new DataContext();
+
+        var deskId = Guid.NewGuid();
+        SetupMockData(db, deskId: deskId);
 
         //arrange
         var logger = new Mock<ILogger<BookingUsecases>>();
-        var subject = new BookingUsecases(logger.Object, mogDb);
+        var usecases = new BookingUsecases(logger.Object, db);
 
+        var bookingRequest = new BookingRequest
+        {
+            DeskId = deskId,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
         //act
+        try
+        {
+            var result = usecases.CreateBooking(Guid.NewGuid(), bookingRequest);
 
-        var result = subject.GetRecentBookings(userId);
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("User not found"));
+        }
 
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void CreateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+        var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var bookingRequest = new BookingRequest
+        {
+            DeskId = deskId,
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        //act
+        try
+        {
+            var result = usecases.CreateBooking(userId, bookingRequest);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("Time slot not available"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void CreateBooking_WhenAvailable_ShouldReturnABooking()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+        var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
+
+        var bookingRequest = new BookingRequest
+        {
+            DeskId = deskId,
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        //act
+        var result = usecases.CreateBooking(userId, bookingRequest);
 
         //assert
-        Assert.That(result, Is.Not.Empty);
-        Assert.That(result, Has.Count.EqualTo(1));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.DeskId, Is.EqualTo(deskId));
+        Assert.That(result.StartTime, Is.EqualTo(fbStart));
+        Assert.That(result.EndTime, Is.EqualTo(fbEnd));
+
+
+        //cleanup
+        db.Database.EnsureDeleted();
     }
 
     private void SetupMockData(DataContext moqDb, Guid companyId = new(), Guid userId = new(), Guid buildingId = new(),
@@ -256,6 +388,7 @@ public class BookingUsecasesTest
         if (roomId.ToString() == "00000000-0000-0000-0000-000000000000") roomId = Guid.NewGuid();
         if (deskTypeId.ToString() == "00000000-0000-0000-0000-000000000000") deskTypeId = Guid.NewGuid();
         if (deskId.ToString() == "00000000-0000-0000-0000-000000000000") deskId = Guid.NewGuid();
+
         var hasher = new PasswordHasher<User>();
         var company = new Company
         {
@@ -363,6 +496,9 @@ public class BookingUsecasesTest
             IsApproved = true
         };
         user.Password = hasher.HashPassword(user, "testpw");
+        mogDb.Companies.Add(company);
+        mogDb.Users.Add(user);
+        mogDb.SaveChanges();
         mogDb.Companies.Add(company);
         mogDb.Users.Add(user);
         mogDb.SaveChanges();

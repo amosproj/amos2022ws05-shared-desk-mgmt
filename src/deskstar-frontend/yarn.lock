@@ -32,6 +32,13 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@headlessui/react@^1.7.5":
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-1.7.5.tgz#c8864b0731d95dbb34aa6b3a60d0ee9ae6f8a7ca"
+  integrity sha512-UZSxOfA0CYKO7QDT5OGlFvesvlR1SKkawwSjwQJwt7XQItpzRKdE3ZUQxHcg4LEz3C0Wler2s9psdb872ynwrQ==
+  dependencies:
+    client-only "^0.0.1"
+
 "@humanwhocodes/config-array@^0.11.6":
   version "0.11.7"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.11.7.tgz#38aec044c6c828f6ed51d5d7ae3d9b9faf6dbb0f"
@@ -484,7 +491,7 @@ chokidar@^3.5.3:
   optionalDependencies:
     fsevents "~2.3.2"
 
-client-only@0.0.1:
+client-only@0.0.1, client-only@^0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
   integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
@@ -573,11 +580,6 @@ damerau-levenshtein@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/damerau-levenshtein/-/damerau-levenshtein-1.0.8.tgz#b43d286ccbd36bc5b2f7ed41caf2d0aba1f8a6e7"
   integrity sha512-sdQSFB7+llfUcQHUQO3+B8ERRj0Oa4w9POWMI/puGtuf7gFywGmkaLCElnudfTiKZV+NvHqL0ifzdrI8Ro7ESA==
-
-date-and-time@^2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/date-and-time/-/date-and-time-2.4.1.tgz#e028851fcaf01e2626934742cf625e75d9bc2258"
-  integrity sha512-fG+ClATev+wHryqxOoGcTTegr5RhYE+tz/XHUkTQ/zvpWqQ90oOxjOhuMQ02bw87Oy9N3qBENCHHHSKdWJjgTg==
 
 debug@^2.6.9:
   version "2.6.9"

@@ -3,20 +3,22 @@ using AutoMapper;
 
 namespace Deskstar.Models;
 
-public class RecentBooking
+public class ExtendedBooking
 {
     public static void createMappings(IMapperConfigurationExpression cfg)
     {
-        cfg.CreateMap<Entities.Booking, RecentBooking>()
+        cfg.CreateMap<Entities.Booking, ExtendedBooking>()
         .ForMember(dest => dest.BuildingName, act => act.MapFrom(src => src.Desk.Room.Floor.Building.BuildingName))
         .ForMember(dest => dest.FloorName, act => act.MapFrom(src => src.Desk.Room.Floor.FloorName))
         .ForMember(dest => dest.RoomName, act => act.MapFrom(src => src.Desk.Room.RoomName))
         .ForMember(dest => dest.DeskName, act => act.MapFrom(src => src.Desk.DeskName));
     }
-    public RecentBooking()
+    public ExtendedBooking()
     {
 
     }
+    public Guid BookingId { get; set; }
+
     [Required]
     public DateTime Timestamp { get; set; }
 
