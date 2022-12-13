@@ -5,8 +5,9 @@ import { IUser } from "../../types/users";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-//TODO: delete this when using backend data instead of mockup
-import { users } from "../../users";
+import { getUsers } from "../../lib/api/UserService";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { unstable_getServerSession } from "next-auth";
 
 export default function UserRequests({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
@@ -51,10 +52,26 @@ export default function UserRequests({ users }: { users: IUser[] }) {
 }
 
 //TODO: delete this when using backend data instead of mockup
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    const users = await getUsers(session);
+
+    return {
+      props: {
+        users: users.filter((user: IUser) => !user.isApproved),
+      },
+    };
+  }
+
   return {
     props: {
-      users: users.filter((user: IUser) => !user.isApproved),
+      users: [],
     },
   };
 };
