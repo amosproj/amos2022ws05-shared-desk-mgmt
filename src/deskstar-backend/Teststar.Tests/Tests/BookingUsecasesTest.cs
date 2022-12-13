@@ -204,7 +204,7 @@ public class BookingUsecasesTest
     }
 
     [Test]
-    public void CheckGetRecentBookings_ValidMailAddress_NoBookings()
+    public void CheckGetRecentBookings_WhenValidMailAddressIsProvided_ShouldReturnNoBookings()
     {
         //setup
         using var mogDb = new DataContext();
@@ -224,7 +224,7 @@ public class BookingUsecasesTest
     }
 
     [Test]
-    public void CheckGetRecentBookings_ValidMailAddress_1Booking()
+    public void CheckGetRecentBookings_WhenValidMailAddressIsProvided_ShouldReturnSingleBooking()
     {
         //setup
         using var mogDb = new DataContext();

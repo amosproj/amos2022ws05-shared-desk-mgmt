@@ -8,8 +8,6 @@ namespace Deskstar.Controllers;
 [Produces("text/plain")]
 public class HealthCheckController : ControllerBase
 {
-
-
     private readonly ILogger<HealthCheckController> _logger;
 
     public HealthCheckController(ILogger<HealthCheckController> logger)
@@ -35,7 +33,6 @@ public class HealthCheckController : ControllerBase
     [Authorize(Policy = "Admin")]
     public string Admin()
     {
-
         return "you are an admin";
     }
 }
