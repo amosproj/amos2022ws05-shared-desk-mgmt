@@ -20,13 +20,15 @@ export function UsersTable({
   onEdit?: (user: IUser) => Promise<void>;
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
-  onApprovalUpdate?: (user: IUser, decision: boolean) => Promise<void>;
+  onApprovalUpdate?: (user: IUser[], decision: boolean) => Promise<void>;
   onUsersSelection?: React.Dispatch<React.SetStateAction<IUser[]>>;
 }) {
   const [allUsersButtonState, setAllUsersButtonState] = useState(false);
 
+  // define selection handler
   let toggleUserSelection: (user: IUser) => void;
   let toggleAllUsersSelection: () => void;
+  let selectedUsersCount = 0;
   if (onUsersSelection) {
     toggleUserSelection = (selectedUser: IUser) => {
       // update user state
@@ -58,6 +60,13 @@ export function UsersTable({
       );
       setAllUsersButtonState(!allUsersButtonState);
     };
+
+    selectedUsersCount = users.reduce(
+      (acc: number, currUser: IUser): number => {
+        return currUser.selected ? acc + 1 : acc;
+      },
+      0
+    );
   }
 
   return (
@@ -106,6 +115,32 @@ export function UsersTable({
           ))}
         </tbody>
       </table>
+      {onApprovalUpdate && onUsersSelection && selectedUsersCount > 0 && (
+        <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
+          <button
+            className="btn bg-green-900 mb-5 lg:mr-5"
+            onClick={() =>
+              onApprovalUpdate(
+                users.filter((u) => u.selected),
+                true
+              )
+            }
+          >
+            Approve selection
+          </button>
+          <button
+            className="btn bg-red-900"
+            onClick={() =>
+              onApprovalUpdate(
+                users.filter((u) => u.selected),
+                false
+              )
+            }
+          >
+            Reject selection
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -122,7 +157,7 @@ const UsersTableEntry = ({
   onEdit?: (user: IUser) => Promise<void>;
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
-  onApprovalUpdate?: (user: IUser, decision: boolean) => Promise<void>;
+  onApprovalUpdate?: (user: IUser[], decision: boolean) => Promise<void>;
   onUserSelection?: (user: IUser) => void;
 }) => {
   return (
@@ -156,13 +191,13 @@ const UsersTableEntry = ({
         <td className="text-center">
           <button
             className="btn btn-ghost"
-            onClick={() => onApprovalUpdate(user, true)}
+            onClick={() => onApprovalUpdate([user], true)}
           >
             <FaCheckCircle color="green" />
           </button>
           <button
             className="btn btn-ghost"
-            onClick={() => onApprovalUpdate(user, false)}
+            onClick={() => onApprovalUpdate([user], false)}
           >
             <FaTimesCircle color="red" />
           </button>

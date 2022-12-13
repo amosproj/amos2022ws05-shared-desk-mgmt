@@ -36,33 +36,52 @@ export default function UserRequests({
   }, [router, session, calledRouter]);
 
   const onApprovalUpdate = async (
-    user: IUser,
+    selectedUsers: IUser[],
     decision: boolean
   ): Promise<void> => {
     try {
       if (session) {
         if (decision) {
-          const response: Response = await approveUser(session, user.userId);
-
-          if (!response.ok) {
-            const error = await response.json();
-            alert(error.detail);
+          for (const user of selectedUsers) {
+            const response: Response = await approveUser(session, user.userId);
+            if (!response.ok) {
+              const error = await response.json();
+              alert(error.detail);
+            }
           }
 
           // success
-          alert(`${user.email} successfully approved!`);
-          setUsers(users.filter((u) => u.userId !== user.userId));
+          alert(
+            `${
+              selectedUsers.length > 1 ? "Users" : "User"
+            } successfully approved!`
+          );
+          setUsers(
+            users.filter(
+              (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
+            )
+          );
         } else {
-          const response: Response = await declineUser(session, user.userId);
+          for (const user of selectedUsers) {
+            const response: Response = await declineUser(session, user.userId);
 
-          if (!response.ok) {
-            const error = await response.json();
-            alert(error.detail);
+            if (!response.ok) {
+              const error = await response.json();
+              alert(error.detail);
+            }
           }
 
           // success
-          alert(`${user.email} successfully rejected!`);
-          setUsers(users.filter((u) => u.userId !== user.userId));
+          alert(
+            `${
+              selectedUsers.length > 1 ? "Users" : "User"
+            } successfully rejected!`
+          );
+          setUsers(
+            users.filter(
+              (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
+            )
+          );
         }
       }
     } catch (error) {
