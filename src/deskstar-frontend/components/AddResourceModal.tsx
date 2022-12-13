@@ -16,6 +16,13 @@ import Input from "./forms/Input";
 const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     let { data: session } = useSession();
 
+  useEffect(() => {
+    if (!session) return;
+    getDeskTypes(session)
+      .then((deskTypes) => setDeskTypes(deskTypes))
+      .catch((err) => alert(err));
+  }, [session]);
+
     const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
 
@@ -108,8 +115,10 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                 <div className="flex items-center">
                     {resourceTypes.map((type: string) => (
                         <button
+                key={type}
                             className="btn mr-2"
-                            onClick={() => setSelectedResourceType(type)}>
+                onClick={() => setSelectedResourceType(type)}
+              >
                             {type}
                         </button>
                     ))}
