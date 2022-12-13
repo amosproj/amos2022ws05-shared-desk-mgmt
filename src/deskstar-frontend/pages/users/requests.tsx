@@ -17,7 +17,11 @@ export default function UserRequests({
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState(
+    initialUsers.map((user: IUser): IUser => {
+      return { selected: false, ...user };
+    })
+  );
 
   // page is only accessable as admin
   useEffect(() => {
@@ -62,8 +66,8 @@ export default function UserRequests({
         }
       }
     } catch (error) {
-      console.error(error)
-      alert(`There has been a problem with your fetch operation: ${error}`)
+      console.error(error);
+      alert(`There has been a problem with your fetch operation: ${error}`);
     }
   };
 
@@ -78,7 +82,11 @@ export default function UserRequests({
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-      <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
+      <UsersTable
+        users={users}
+        onApprovalUpdate={onApprovalUpdate}
+        onUsersSelection={setUsers}
+      />
     </>
   );
 }

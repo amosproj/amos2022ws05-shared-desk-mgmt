@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { IUser } from "../types/users";
 import {
   FaTrashAlt,
@@ -12,18 +13,70 @@ export function UsersTable({
   onDelete,
   onPermissionUpdate,
   onApprovalUpdate,
+  onUsersSelection,
 }: {
   users: IUser[];
+  selectedUsers?: { [userId: string]: boolean };
   onEdit?: (user: IUser) => Promise<void>;
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
   onApprovalUpdate?: (user: IUser, decision: boolean) => Promise<void>;
+  onUsersSelection?: React.Dispatch<React.SetStateAction<IUser[]>>;
 }) {
+  const [allUsersButtonState, setAllUsersButtonState] = useState(false);
+
+  let toggleUserSelection: (user: IUser) => void;
+  let toggleAllUsersSelection: () => void;
+  if (onUsersSelection) {
+    toggleUserSelection = (selectedUser: IUser) => {
+      // update user state
+      const updatedUser: IUser = {
+        ...selectedUser,
+        selected: !selectedUser.selected,
+      };
+
+      const updatedUsers = users.map((u: IUser) =>
+        u.userId !== selectedUser.userId ? u : updatedUser
+      );
+
+      onUsersSelection(updatedUsers);
+
+      // update all users selection button, if needed
+      setAllUsersButtonState(
+        updatedUsers.reduce((acc: boolean, currUser: IUser): boolean => {
+          if (!currUser.selected) return false;
+          return acc && currUser.selected;
+        }, true)
+      );
+    };
+
+    toggleAllUsersSelection = () => {
+      onUsersSelection(
+        users.map((user: IUser) => {
+          return { ...user, selected: !allUsersButtonState };
+        })
+      );
+      setAllUsersButtonState(!allUsersButtonState);
+    };
+  }
+
   return (
     <div className="overflow-x-auto">
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
+            {onUsersSelection && (
+              <th className="bg-deskstar-green-light">
+                <label>
+                  <input
+                    type="checkbox"
+                    className="checkbox dark:border-black"
+                    checked={allUsersButtonState}
+                    onChange={() => toggleAllUsersSelection()}
+                  />
+                </label>
+              </th>
+            )}
             <th className="bg-deskstar-green-light text-center">First Name</th>
             <th className="bg-deskstar-green-light text-center">LastName</th>
             <th className="bg-deskstar-green-light text-center">E-Mail</th>
@@ -48,6 +101,7 @@ export function UsersTable({
               onDelete={onDelete}
               onPermissionUpdate={onPermissionUpdate}
               onApprovalUpdate={onApprovalUpdate}
+              onUserSelection={toggleUserSelection}
             />
           ))}
         </tbody>
@@ -62,15 +116,29 @@ const UsersTableEntry = ({
   onDelete,
   onPermissionUpdate,
   onApprovalUpdate,
+  onUserSelection,
 }: {
   user: IUser;
   onEdit?: (user: IUser) => Promise<void>;
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
   onApprovalUpdate?: (user: IUser, decision: boolean) => Promise<void>;
+  onUserSelection?: (user: IUser) => void;
 }) => {
   return (
     <tr className="hover">
+      {onUserSelection && (
+        <th>
+          <label>
+            <input
+              type="checkbox"
+              className="checkbox"
+              checked={user.selected}
+              onChange={() => onUserSelection(user)}
+            />
+          </label>
+        </th>
+      )}
       <td className="text-center">{user.firstName}</td>
       <td className="text-center">{user.lastName}</td>
       <td className="text-center">{user.email}</td>
