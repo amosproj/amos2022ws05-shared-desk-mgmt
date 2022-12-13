@@ -6,13 +6,13 @@ namespace Deskstar.Usecases;
 
 public interface IResourceUsecases
 {
-    public (bool, List<CurrentBuilding>) GetBuildings(Guid userId);
-    public (bool, List<CurrentFloor>) GetFloors(Guid buildingId);
-    public (bool, List<CurrentRoom>) GetRooms(Guid floorId);
-    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end);
-    public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
     public List<DeskType> GetDeskTypes(Guid companyId);
     public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
+    public List<CurrentBuilding> GetBuildings(Guid userId);
+    public List<CurrentFloor> GetFloors(Guid buildingId);
+    public List<CurrentRoom> GetRooms(Guid floorId);
+    public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end);
+    public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -26,21 +26,26 @@ public class ResourceUsecases : IResourceUsecases
         _context = context;
     }
 
-    public (bool, List<CurrentBuilding>) GetBuildings(Guid userId)
+    public List<CurrentBuilding> GetBuildings(Guid userId)
     {
-        var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
+        
         IQueryable<Building> databaseBuildings;
         try
         {
+            var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
             databaseBuildings = _context.Buildings.Where(building => building.CompanyId == companyId);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
             _logger.LogError(e, e.Message);
-            return (false, new List<CurrentBuilding>());
+            throw new ArgumentException($"'{userId}' is not a valid UserId");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no User with id '{userId}'");
         }
 
-        if (databaseBuildings.ToList().Count == 0) return (true, new List<CurrentBuilding>());
+        if (databaseBuildings.ToList().Count == 0) return new List<CurrentBuilding>();
 
         var mapBuildingsToCurrentBuildings = databaseBuildings.Select(b => new CurrentBuilding
         {
@@ -49,23 +54,32 @@ public class ResourceUsecases : IResourceUsecases
             BuildingName = b.BuildingName
         });
 
-        return (false, mapBuildingsToCurrentBuildings.ToList());
+        return mapBuildingsToCurrentBuildings.ToList();
     }
 
-    public (bool, List<CurrentFloor>) GetFloors(Guid buildingId)
+    public List<CurrentFloor> GetFloors(Guid buildingId)
     {
         IQueryable<Floor> databaseFloors;
         try
         {
             databaseFloors = _context.Floors.Where(floor => floor.BuildingId == buildingId);
+            if (databaseFloors.ToList().Count == 0)
+            {
+                var databaseBuilding = _context.Buildings.First(building => building.BuildingId == buildingId);
+                if( databaseBuilding== null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
+            }
         }
-        catch (Exception e)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
             _logger.LogError(e, e.Message);
-            return (false, new List<CurrentFloor>());
+            throw new ArgumentException($"'{buildingId}' is not a valid FloorId");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no Floor with id '{buildingId}'");
         }
 
-        if (databaseFloors.ToList().Count == 0) return (true, new List<CurrentFloor>());
+        if (databaseFloors.ToList().Count == 0) return new List<CurrentFloor>();
 
         var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
         {
@@ -74,23 +88,27 @@ public class ResourceUsecases : IResourceUsecases
             FloorID = f.FloorId.ToString()
         });
 
-        return (false, mapFloorsToCurrentFloors.ToList());
+        return mapFloorsToCurrentFloors.ToList();
     }
 
-    public (bool, List<CurrentRoom>) GetRooms(Guid floorId)
+    public List<CurrentRoom> GetRooms(Guid floorId)
     {
         IQueryable<Room> databaseRooms;
         try
         {
             databaseRooms = _context.Rooms.Where(room => room.FloorId == floorId);
         }
-        catch (Exception e)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
             _logger.LogError(e, e.Message);
-            return (false, new List<CurrentRoom>());
+            throw new ArgumentException($"'{floorId}' is not a valid FloorId");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no Floor with id '{floorId}'");
         }
 
-        if (databaseRooms.ToList().Count == 0) return (true, new List<CurrentRoom>());
+        if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
 
         var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom
         {
@@ -98,68 +116,96 @@ public class ResourceUsecases : IResourceUsecases
             RoomName = r.RoomName
         });
 
-        return (false, mapRoomsToCurrentRooms.ToList());
+        return mapRoomsToCurrentRooms.ToList();
     }
 
-    public (bool, List<CurrentDesk>) GetDesks(Guid roomId, DateTime start, DateTime end)
+    public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end)
     {
-        //TODO filter booking time
-        IQueryable<Desk> databaseDesks;
+        IQueryable<CurrentDesk> mapDesksToCurrentDesks;
         try
         {
-            databaseDesks = _context.Desks.Where(desk => desk.RoomId == roomId);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
-            return (false, new List<CurrentDesk>());
-        }
-
-        if (databaseDesks.ToList().Count == 0) return (true, new List<CurrentDesk>());
-
-        var mapDesksToCurrentDesks = databaseDesks.Select(d => new CurrentDesk
-        {
-            DeskId = d.DeskId.ToString(),
-            DeskName = d.DeskName,
-            DeskTyp = d.DeskType.DeskTypeName,
-            RoomId = d.RoomId.ToString(),
-            RoomName = d.Room.RoomName,
-            Location = d.Room.Floor.Building.Location,
-            BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
-            BuildingName = d.Room.Floor.Building.BuildingName,
-            FloorId = d.Room.Floor.FloorId.ToString(),
-            FloorName = d.Room.Floor.FloorName,
-            BookedAt = null!
-        });
-
-
-        return (false, mapDesksToCurrentDesks.ToList());
-    }
-
-    public CurrentDesk? GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
-    {
-        try
-        {
-            var desk = _context.Desks.Where(room => room.DeskId == deskId).Select(d => new CurrentDesk
+            var databaseDesks = _context.Desks.Where(desk => desk.RoomId == roomId);
+            if (databaseDesks.ToList().Count == 0)
             {
-                DeskId = d.DeskId.ToString(),
-                DeskName = d.DeskName,
-                DeskTyp = d.DeskType.DeskTypeName,
-                RoomId = d.RoomId.ToString(),
-                RoomName = d.Room.RoomName,
-                Location = d.Room.Floor.Building.Location,
-                BuildingId = d.Room.Floor.Building.BuildingId.ToString(),
-                BuildingName = d.Room.Floor.Building.BuildingName,
-                BookedAt = null!
-            }).First();
-
-            return desk;
+                var databaseRoom = _context.Rooms.First(room => room.RoomId == roomId);
+                if( databaseRoom== null) throw new ArgumentException($"There is no Room with id '{roomId}'");
+            }
+            mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
+            {
+                DeskId = desk.DeskId.ToString(),
+                DeskName = desk.DeskName,
+                DeskTyp = desk.DeskType.DeskTypeName,
+                Bookings = desk.Bookings.Where(booking => (booking.StartTime < end && booking.EndTime > start))
+                    .Select(booking => new BookingDesks
+                    {
+                        BookingId = booking.BookingId.ToString(),
+                        StartTime = booking.StartTime,
+                        EndTime = booking.EndTime,
+                        UserId = booking.UserId.ToString(),
+                    }).ToList(),
+                FloorName = desk.Room.Floor.FloorName,
+                FloorId = desk.Room.Floor.FloorId.ToString(),
+                RoomId = desk.Room.RoomId.ToString(),
+                RoomName = desk.Room.RoomName,
+                BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
+                BuildingName = desk.Room.Floor.Building.BuildingName,
+                Location = desk.Room.Floor.Building.Location
+            });
         }
-        catch (Exception e)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
             _logger.LogError(e, e.Message);
-            return null;
+            throw new ArgumentException($"'{roomId}' is not a valid RoomId");
         }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no Room with id '{roomId}'");
+        }
+
+        return mapDesksToCurrentDesks.ToList();
+    }
+
+    public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
+    {
+        CurrentDesk mapDeskToCurrentDesk;
+        try
+        {
+            var databaseDesks = _context.Desks.Where(desk => desk.DeskId == deskId);
+
+            mapDeskToCurrentDesk = databaseDesks.Select(desk => new CurrentDesk
+            {
+                DeskId = desk.DeskId.ToString(),
+                DeskName = desk.DeskName,
+                DeskTyp = desk.DeskType.DeskTypeName,
+                Bookings = desk.Bookings.Where(booking =>
+                        (booking.StartTime >= startDateTime && booking.EndTime <= endDateTime))
+                    .Select(booking => new BookingDesks
+                    {
+                        BookingId = booking.BookingId.ToString(),
+                        StartTime = booking.StartTime,
+                        EndTime = booking.EndTime,
+                        UserId = booking.UserId.ToString(),
+                    }).ToList(),
+                FloorName = desk.Room.Floor.FloorName,
+                FloorId = desk.Room.Floor.FloorId.ToString(),
+                RoomId = desk.Room.RoomId.ToString(),
+                RoomName = desk.Room.RoomName,
+                BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
+                BuildingName = desk.Room.Floor.Building.BuildingName,
+                Location = desk.Room.Floor.Building.Location
+            }).First();
+        }
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            throw new ArgumentException($"'{deskId}' is not a valid DeskId");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new ArgumentException($"There is no Desk with id '{deskId}'");
+        }
+
+        return mapDeskToCurrentDesk;
     }
 
     public List<DeskType> GetDeskTypes(Guid companyId)

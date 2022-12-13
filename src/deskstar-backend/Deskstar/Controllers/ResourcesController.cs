@@ -1,15 +1,14 @@
-using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
 using Deskstar.Usecases;
 using Deskstar.Models;
+using Deskstar.Core;
 
 namespace Deskstar.Controllers;
 
 [ApiController]
 [Route("/resources")]
-[Produces("text/plain")]
+[Produces("application/json")]
 public class ResourcesController : ControllerBase
 {
     private readonly IResourceUsecases _resourceUsecases;
@@ -41,15 +40,15 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetAllBuildings()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var userId =
-            new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
-        var (noFound, buildings) = _resourceUsecases.GetBuildings(userId);
-        if (!noFound && buildings.Count == 0)
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
+        List<CurrentBuilding> buildings;
+        try
         {
-            return Problem(statusCode: 500);
+            buildings = _resourceUsecases.GetBuildings(userId);
+        }
+        catch (ArgumentException e)
+        {
+            return Problem(statusCode: 500, detail: e.Message);
         }
 
         return Ok(buildings.ToList());
@@ -115,10 +114,14 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetFloorsByBuildingId(string buildingId)
     {
-        var (noFound, floor) = _resourceUsecases.GetFloors(new Guid(buildingId));
-        if (!noFound && floor.Count == 0)
+        List<CurrentFloor> floor;
+        try
         {
-            return Problem(statusCode: 500);
+            floor = _resourceUsecases.GetFloors(new Guid(buildingId));
+        }
+        catch (ArgumentException e)
+        {
+            return Problem(statusCode: 500, detail: e.Message);
         }
 
         return Ok(floor.ToList());
@@ -184,10 +187,14 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult GetRoomsByFloorId(string floorId)
     {
-        var (noFound, rooms) = _resourceUsecases.GetRooms(new Guid(floorId));
-        if (!noFound && rooms.Count == 0)
+        List<CurrentRoom> rooms;
+        try
         {
-            return Problem(statusCode: 500);
+            rooms = _resourceUsecases.GetRooms(new Guid(floorId));
+        }
+        catch (ArgumentException e)
+        {
+            return Problem(statusCode: 500, detail: e.Message);
         }
 
         return Ok(rooms.ToList());
@@ -249,15 +256,21 @@ public class ResourcesController : ControllerBase
     /// <response code="500">Internal Server Error</response>
     [HttpGet("rooms/{roomId}/desks")]
     [Authorize]
-    [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<CurrentDesk>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     public IActionResult GetDesksByRoomId(string roomId, long start = 0, long end = 0)
     {
-        var (noFound, desks) = _resourceUsecases.GetDesks(new Guid(roomId), new DateTime(start), new DateTime(end));
-        if (!noFound && desks.Count == 0)
+        var startDateTime = start == 0 ? DateTime.MinValue : DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
+        var endDateTime = end == 0 ? DateTime.MaxValue : DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
+        List<CurrentDesk> desks;
+        try
         {
-            return Problem(statusCode: 500);
+            desks = _resourceUsecases.GetDesks(new Guid(roomId), startDateTime, endDateTime);
+        }
+        catch (ArgumentException e)
+        {
+            return Problem(statusCode: 500, detail: e.Message);
         }
 
         return Ok(desks.ToList());
@@ -274,6 +287,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("desks/{deskId}")]
     [Authorize]
@@ -286,15 +300,9 @@ public class ResourcesController : ControllerBase
         DateTime endDateTime;
         try
         {
-            if (start == 0)
-                startDateTime = DateTime.Now;
-            else
-                startDateTime = DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
+            startDateTime = start == 0 ? DateTime.Now : DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
 
-            if (end == 0)
-                endDateTime = DateTime.MaxValue;
-            else
-                endDateTime = DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
+            endDateTime = end == 0 ? DateTime.MaxValue : DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
             if (start > end)
             {
                 (endDateTime, startDateTime) = (startDateTime, endDateTime);
@@ -311,10 +319,14 @@ public class ResourcesController : ControllerBase
             return BadRequest(e.Message);
         }
 
-        var desk = _resourceUsecases.GetDesk(new Guid(deskId), startDateTime, endDateTime);
-        if (desk == null)
+        CurrentDesk desk;
+        try
         {
-            return Problem(statusCode: 500);
+            desk = _resourceUsecases.GetDesk(new Guid(deskId), startDateTime, endDateTime);
+        }
+        catch (ArgumentException e)
+        {
+            return Problem(statusCode: 500, detail: e.Message);
         }
 
         return Ok(desk);
@@ -329,6 +341,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpPost("desks")]
     [Authorize(Policy="Admin")]
@@ -337,16 +350,11 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult CreateDesk(CreateDeskDto desk)
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var adminId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
-
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
 
         try
         {
-            _resourceUsecases.CreateDesk(desk.DeskName, new Guid(), new Guid());
-            //_resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypId, desk.RoomId);
+            _resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypId, desk.RoomId);
             return Ok();
         }
         catch (ArgumentException e)
@@ -419,10 +427,7 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult ReadDeskTypes()
     {
-        var accessToken = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", string.Empty);
-        var handler = new JwtSecurityTokenHandler();
-        var jwtSecurityToken = handler.ReadJwtToken(accessToken);
-        var adminId = new Guid(jwtSecurityToken.Claims.First(claim => claim.Type == JwtRegisteredClaimNames.NameId).Value);
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
 
         try
         {
