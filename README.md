@@ -4,7 +4,7 @@
 
 Feature Board: https://github.com/orgs/amosproj/projects/11
 
-Impediments backlog: https://github.com/users/alexKoltman/projects/1
+Impediments backlog: https://github.com/orgs/amosproj/projects/12
 
 Product Vision
 ---------------

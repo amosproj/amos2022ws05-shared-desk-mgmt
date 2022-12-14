@@ -1,3 +1,4 @@
+using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +7,8 @@ namespace Deskstar.Usecases;
 
 public interface IUserUsecases
 {
+    public List<User> ReadAllUsers(Guid adminId);
+    public Guid UpdateUser(User user);
     public User ReadSpecificUser(Guid userId);
     public Guid ApproveUser(Guid adminId, string userId);
     public Guid DeclineUser(Guid adminId, string userId);
@@ -23,39 +26,35 @@ public class UserUsecases : IUserUsecases
     }
     public User ReadSpecificUser(Guid userId)
     {
-        try
-        {
-            return _context.Users.Include(u => u.Company).Include(u => u.Bookings).Single(u => u.UserId == userId);
-        }
-        catch (Exception e)
-        {
-            throw new ArgumentException($"There is no user with Id '{userId}'");
-        }
+        var user = _context.Users.Include(u => u.Company).Include(u => u.Bookings).SingleOrDefault(u => u.UserId == userId);
+        if (user == null)
+            throw new EntityNotFoundException($"There is no user with Id '{userId}'");
+        return user;
     }
     public Guid ApproveUser(Guid adminId, string userId)
     {
+        Guid guid;
         try
         {
-            var guid = new Guid(userId);
-            var user = _context.Users.Single(u => u.UserId == guid);
-
-            CheckSameCompany(adminId, guid);
-            user.IsApproved = true;
-
-            _context.Update(user);
-            _context.SaveChanges();
-
-            return guid;
+            guid = new Guid(userId);
         }
-        catch (Exception e) when (e is FormatException || e is ArgumentNullException || e is OverflowException)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
             _logger.LogError(e, e.Message);
-            throw new ArgumentException($"'{userId}' is not a valid UserId");
+            throw new ArgumentInvalidException($"'{userId}' is not a valid UserId");
         }
-        catch (InvalidOperationException)
-        {
-            throw new ArgumentException($"There is no user with id '{userId}'");
-        }
+
+        var user = _context.Users.SingleOrDefault(u => u.UserId == guid);
+        if (user == null)
+            throw new EntityNotFoundException($"There is no user with id '{userId}'");
+
+        CheckSameCompany(adminId, guid);
+        user.IsApproved = true;
+
+        _context.Update(user);
+        _context.SaveChanges();
+
+        return guid;
 
     }
 
@@ -63,27 +62,51 @@ public class UserUsecases : IUserUsecases
     {
         var accessDenied = _context.Users.Where(u => u.UserId == adminId || u.UserId == guid).Select(u => u.CompanyId).ToHashSet().Count != 1;
         if (accessDenied)
-            throw new ArgumentException($"'{adminId}' has no access to administrate '{guid}'");
+            throw new InsufficientPermissionException($"'{adminId}' has no access to administrate '{guid}'");
     }
 
     public Guid DeclineUser(Guid adminId, string userId)
     {
+        Guid guid;
         try
         {
-            var guid = new Guid(userId);
-            var user = _context.Users.Single(u => u.UserId == guid);
-
-            CheckSameCompany(adminId, guid);
-            if (user.IsApproved)
-                throw new ArgumentException($"You cannot decline an already approved user '{guid}'");
-
-            _context.Users.Remove(user);
-            _context.SaveChanges();
-            return guid;
+            guid = new Guid(userId);
         }
-        catch (InvalidOperationException)
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
         {
-            throw new ArgumentException($"There is no user with id '{userId}'");
+            _logger.LogError(e, e.Message);
+            throw new ArgumentInvalidException($"'{userId}' is not a valid UserId");
         }
+        
+        var user = _context.Users.SingleOrDefault(u => u.UserId == guid);
+        if (user == null)
+            throw new EntityNotFoundException($"There is no user with id '{userId}'");
+
+        CheckSameCompany(adminId, guid);
+        if (user.IsApproved)
+            throw new ArgumentInvalidException($"You cannot decline an already approved user '{guid}'");
+
+        _context.Users.Remove(user);
+        _context.SaveChanges();
+
+        return guid;
+    }
+
+    public List<User> ReadAllUsers(Guid adminId)
+    {
+        var admin = _context.Users.SingleOrDefault(user => user.UserId == adminId);
+        if (admin == null)
+            throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
+        return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
+    }
+
+    public Guid UpdateUser(User user)
+    {
+        var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
+        if (userDbInstance == null)
+            throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
+        _context.Users.Update(user);
+        _context.SaveChanges();
+        return user.UserId;
     }
 }

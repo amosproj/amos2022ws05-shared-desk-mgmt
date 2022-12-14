@@ -17,7 +17,8 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
   });
 
   if (response.status !== 200) {
-    console.log("Error fetching buildings");
+    console.log(response.status);
+    console.log( "Error fetching buildings");
     return [];
   }
 
@@ -40,6 +41,7 @@ export async function getFloors(
   );
 
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching floors");
     return [];
   }
@@ -63,6 +65,7 @@ export async function getRooms(
   );
 
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching rooms");
     return [];
   }
@@ -75,24 +78,25 @@ export async function getRooms(
 export async function getDesks(
   session: Session,
   roomId: string,
-  startTime: string,
-  endTime: string
+  startTime: number,
+  endTime: number
 ): Promise<IDesk[]> {
   const response = await fetch(
-    BACKEND_URL + `/resources/rooms/${roomId}/desks?from=${startTime}&to=${endTime}`,
+    BACKEND_URL + `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
     }
   );
-
+  
   if (response.status !== 200) {
+    console.log(response.status);
     console.log("Error fetching desks");
     return [];
   }
 
   const data = await response.json();
-  //console.log(data);
+  
   return data;
 }

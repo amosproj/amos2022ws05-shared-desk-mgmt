@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 
+function getUniqueArray<A>(array: A[], getKey: (item: A) => string): A[] {
+  return array.filter((item, index) => {
+    return array.findIndex((item2) => getKey(item) === getKey(item2)) === index;
+  });
+}
+
 export default function DropDownFilter<A>({
   title,
   options,
@@ -11,6 +17,7 @@ export default function DropDownFilter<A>({
   options: A[];
   setSelectedOptions: (newSelectedOptions: A[]) => void;
 }) {
+  options = getUniqueArray(options, getItemName);
   const [allChecked, setAllChecked] = useState(false);
   const [selectedOptions, _setSelectedOptions] = useState<A[]>([]);
 
@@ -33,6 +40,10 @@ export default function DropDownFilter<A>({
 
     setSelectedOptions(newSelectedOptions);
   };
+
+  useEffect(() => {
+    setAllChecked(selectedOptions.length === options.length);
+  }, [setAllChecked, selectedOptions, options]);
 
   return (
     <div className="dropdown dropdown-hover">

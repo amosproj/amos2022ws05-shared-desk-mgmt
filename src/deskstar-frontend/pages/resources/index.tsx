@@ -1,37 +1,107 @@
 import Head from "next/head";
-import { GetServerSideProps } from "next";
-import { IUser } from "../../types/users";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-//TODO: delete this when using backend data instead of mockup
-import { users } from "../../users";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { unstable_getServerSession } from "next-auth";
 import ResourceManagementTable from "../../components/ResourceManagementTable";
 import DropDownFilter from "../../components/DropDownFilter";
-import { desks } from "../../desks";
 import { IDesk } from "../../types/desk";
-import { rooms } from "../../rooms";
 import { IRoom } from "../../types/room";
+import { IBuilding } from "../../types/building";
+import { ILocation } from "../../types/location";
+import { IFloor } from "../../types/floor";
+import {
+  getBuildings,
+  getDesks,
+  getFloors,
+  getRooms,
+} from "../../lib/api/ResourceService";
+import { GetServerSideProps } from "next";
 
-export default function ResourcesOverview({ results }: { results: IRoom[] }) {
-  const { data: session } = useSession();
+const ResourceOverview = ({
+  buildings: origBuildings,
+}: {
+  buildings: IBuilding[];
+}) => {
+  let { data: session } = useSession();
 
-  const [chosenResources, setChosenResources] = useState<IDesk[]>(desks);
+  const locations: ILocation[] = origBuildings.map((building) => ({
+    locationName: building.location,
+  }));
+
   const router = useRouter();
 
-  let buildings: string[] = [];
-  let locations: string[] = [];
-  let floors: string[] = [];
-  let rooms: string[] = [];
+  const [buildings, setBuildings] = useState<IBuilding[]>([]);
+  const [floors, setFloors] = useState<IFloor[]>([]);
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [desks, setDesks] = useState<IDesk[]>([]);
 
-  for (const resource of results) {
-    buildings.push(resource.building);
-    locations.push(resource.location);
-    floors.push(resource.floor);
-    rooms.push(resource.roomName);
+  async function onSelectedLocationChange(selectedLocations: ILocation[]) {
+    let buildings = origBuildings.filter((building) =>
+      selectedLocations.some((location) => {
+        return location.locationName === building.location;
+      })
+    );
+
+    setBuildings(buildings);
   }
 
-  // page is only accessable as admin
+  async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
+    const promises = await Promise.all(
+      selectedBuildings.map(async (building) => {
+        if (!session) {
+          return [];
+        }
+
+        const resFloors = await getFloors(session, building.buildingId);
+
+        return resFloors;
+      })
+    );
+
+    setFloors(promises.flat());
+  }
+
+  async function onSelectedFloorChange(selectedFloors: IFloor[]) {
+    const promises = await Promise.all(
+      selectedFloors.map(async (floor) => {
+        if (!session) {
+          return [];
+        }
+
+        const resRooms = await getRooms(session, floor.floorID);
+        return resRooms;
+      })
+    );
+
+    setRooms(promises.flat());
+  }
+
+  async function onSelectedRoomChange(selectedRooms: IRoom[]) {
+    const promises = await Promise.all(
+      selectedRooms.map(async (room) => {
+        if (!session) {
+          return [];
+        }
+
+        const resDeskType = await getDesks(
+          session,
+          room.roomId,
+          new Date().getTime(),
+          new Date().getTime()
+        );
+
+        return resDeskType;
+      })
+    );
+
+    const desks = promises.flat();
+    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    setDesks(filteredDesks);
+  }
+
+  // redirect if user is not admin as page is only accessible for admins
   useEffect(() => {
     if (session && !session?.user.isAdmin) {
       // redirect to homepage
@@ -57,39 +127,6 @@ export default function ResourcesOverview({ results }: { results: IRoom[] }) {
         <title>Resources Overview</title>
       </Head>
 
-      <DropDownFilter
-        title="Locations"
-        getItemName={(item) => item}
-        options={locations}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected locations: ", selectedOptions);
-        }}
-      />
-      <DropDownFilter
-        title="Buildings"
-        getItemName={(item) => item}
-        options={buildings}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected buildings: ", selectedOptions);
-        }}
-      />
-      <DropDownFilter
-        title="Floors"
-        getItemName={(item) => item}
-        options={floors}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected floors: ", selectedOptions);
-        }}
-      />
-      <DropDownFilter
-        title="Rooms"
-        getItemName={(item) => item}
-        options={rooms}
-        setSelectedOptions={(selectedOptions) => {
-          console.log("Selected rooms: ", selectedOptions);
-        }}
-      />
-
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-left my-10">
           Resources Overview
@@ -102,22 +139,104 @@ export default function ResourcesOverview({ results }: { results: IRoom[] }) {
           Add Resource
         </button>
       </div>
-
-      <ResourceManagementTable
-        onEdit={onEdit}
-        onDelete={onDelete}
-        desks={chosenResources}
+      <DropDownFilter
+        title="Locations"
+        getItemName={(location) => location.locationName}
+        options={locations}
+        setSelectedOptions={onSelectedLocationChange}
       />
+
+      {buildings.length > 0 && (
+        <DropDownFilter
+          title="Buildings"
+          getItemName={(building) => building.buildingName}
+          options={buildings}
+          setSelectedOptions={onSelectedBuildingChange}
+        />
+      )}
+
+      {floors.length > 0 && (
+        <DropDownFilter
+          title="Floors"
+          getItemName={(floor) => floor.floorName}
+          options={floors}
+          setSelectedOptions={onSelectedFloorChange}
+        />
+      )}
+
+      {rooms.length > 0 && (
+        <DropDownFilter
+          title="Rooms"
+          getItemName={(room) => room.roomName}
+          options={rooms}
+          setSelectedOptions={onSelectedRoomChange}
+        />
+      )}
+
+      <div className="my-4"></div>
+
+      {desks.length > 0 && (
+        <ResourceManagementTable
+          onEdit={onEdit}
+          onDelete={onDelete}
+          desks={desks}
+        />
+      )}
+
+      {buildings.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a location</span>
+          </div>
+        </div>
+      )}
+      {!(buildings.length == 0) && floors.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a building</span>
+          </div>
+        </div>
+      )}
+      {!(floors.length == 0) && rooms.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a floor</span>
+          </div>
+        </div>
+      )}
+      {!(rooms.length == 0) && desks.length == 0 && (
+        <div className="toast">
+          <div className="alert alert-info">
+            <span>Please select a room</span>
+          </div>
+        </div>
+      )}
     </>
   );
-}
+};
 
-//TODO: delete this when using backend data instead of mockup
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
+
+  if (session) {
+    const buildings = await getBuildings(session);
+
+    return {
+      props: {
+        buildings,
+      },
+    };
+  }
+
   return {
     props: {
-      results: rooms,
-      users: users.filter((user: IUser) => user.isApproved),
+      buildings: [],
     },
   };
 };
+
+export default ResourceOverview;

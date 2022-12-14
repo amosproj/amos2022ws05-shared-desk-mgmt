@@ -2,122 +2,79 @@ import Head from "next/head";
 
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
-import DropDownFilter from "../../components/DropDownFilter";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import {
-  getBuildings,
-  getDesks,
-  getFloors,
-  getRooms,
-} from "../../lib/api/ResourceService";
+import { getBuildings } from "../../lib/api/ResourceService";
+import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
-import { ILocation } from "../../types/location";
-import { IFloor } from "../../types/floor";
-import { IRoom } from "../../types/room";
-import { IDeskType } from "../../types/desktypes";
 import { useState } from "react";
 import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
+import Filterbar from "../../components/Filterbar";
+import DesksTable from "../../components/DesksTable";
 
-const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
+export default function AddBooking({
+  buildings: origBuildings,
+}: {
+  buildings: IBuilding[];
+}) {
   let { data: session } = useSession();
 
-  const locations: ILocation[] = origBuildings.map((building) => ({
-    locationName: building.location,
-  }));
-
-  const [buildings, setBuildings] = useState<IBuilding[]>([]);
-  const [floors, setFloors] = useState<IFloor[]>([]);
-  const [rooms, setRooms] = useState<IRoom[]>([]);
-  const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
-
-  const [selectedDeskTypes, setSelectedDeskTypes] = useState<IDeskType[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
+  const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
-  let startDateTime: string;
-  let endDateTime: string;
+  let today = new Date();
+  today.setHours(8, 0, 0, 0);
+  let nextBusinessDay = getNextBusinessDay(today);
 
-  async function onSelectedLocationChange(selectedLocations: ILocation[]) {
-    let buildings = origBuildings.filter((building) =>
-      selectedLocations.some((location) => {
-        return location.locationName === building.location;
-      })
-    );
+  const [startDateTime, setStartDateTime] = useState<Date>(
+    new Date(nextBusinessDay.setHours(8, 0, 0, 0))
+  );
+  const [endDateTime, setEndDateTime] = useState<Date>(
+    new Date(nextBusinessDay.setHours(17, 0, 0, 0))
+  );
 
-    setBuildings(buildings);
-  }
+  async function onBook(
+    event: {
+      target: Element;
+    },
+    desk: IDesk,
+    setButtonText: Function
+  ) {
+    if (
+      event == null ||
+      event.target == null ||
+      desk == null ||
+      session == null
+    )
+      return;
+    event.target.setAttribute("class", "btn loading");
 
-  async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
-    const promises = await Promise.all(
-      selectedBuildings.map(async (building) => {
-        if (!session) {
-          return [];
-        }
+    try {
+      let message;
 
-        const resFloors = await getFloors(session, building.buildingId);
+      let response = await createBooking(
+        session,
+        desk.deskId,
+        startDateTime,
+        endDateTime
+      );
 
-        return resFloors;
-      })
-    );
+      if (response == "success") {
+        message = `You successfully booked the desk ${desk.deskName} from ${startDateTime} to ${endDateTime}`;
+        event.target.setAttribute("class", "btn btn-disabled");
+        setButtonText("Booked");
+      } else {
+        console.log(response);
+        message = response;
+        event.target.setAttribute("class", "btn btn-success");
+      }
 
-    setFloors(promises.flat());
-  }
-
-  async function onSelectedFloorChange(selectedFloors: IFloor[]) {
-    const promises = await Promise.all(
-      selectedFloors.map(async (floor) => {
-        if (!session) {
-          return [];
-        }
-
-        const resRooms = await getRooms(session, floor.floorID);
-
-        return resRooms;
-      })
-    );
-
-    setRooms(promises.flat());
-  }
-
-  async function onSelectedRoomChange(selectedRooms: IRoom[]) {
-    const promises = await Promise.all(
-      selectedRooms.map(async (room) => {
-        if (!session) {
-          return [];
-        }
-
-        const resDeskType = await getDesks(
-          session,
-          room.roomId,
-          startDateTime,
-          endDateTime
-        );
-
-        return resDeskType;
-      })
-    );
-
-    const desks = promises.flat();
-    setDesks(desks);
-
-    setDeskTypes(
-      desks.map((desk) => ({
-        typeId: desk.deskTyp,
-        typeName: desk.deskTyp,
-      }))
-    );
-  }
-
-  function onSelectedDeskTypeChange(selectedDeskTypes: IDeskType[]) {
-    setSelectedDeskTypes(selectedDeskTypes);
-    let filteredDesks = desks.filter(function (e) {
-      return selectedDeskTypes
-        .map((deskTypes) => deskTypes.typeName)
-        .includes(e.deskTyp);
-    });
-
-    setDesks(filteredDesks);
+      alert(message);
+    } catch (error) {
+      console.error("Error calling createBooking:", error);
+      event.target.setAttribute("class", "btn btn-success");
+    }
   }
 
   return (
@@ -125,123 +82,82 @@ const Bookings = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
       <Head>
         <title>Add New Booking</title>
       </Head>
-      <h1 className="text-3xl font-bold text-center my-10">Add New Booking</h1>
-      <h1 className="text-2xl font-bold text-center mt-10">
-        Hello {session?.user?.name}, book your personal desk.
-      </h1>
-      <br />
+      <h1 className="text-4xl mb-5">Book a desk</h1>
 
-      <div className="form-group">
-        <label className="form-label" htmlFor="start-date">
-          <b>Start: </b> &nbsp;
-        </label>
-        <input
-          className="form-input"
-          type="datetime-local"
-          id="start-date-time"
-          name="Start"
-          defaultValue={new Date()
-            .toISOString()
-            .substring(0, "YYYY-MM-DDTHH:MM".length)}
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
-          onChange={(event) => (startDateTime = event.target.value)}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="form-control">
+          <label className="label" htmlFor="start-date">
+            <b>Start: </b>
+          </label>
+          <input
+            className="input input-bordered"
+            type="datetime-local"
+            id="start-date-time"
+            name="Start"
+            defaultValue={formatDateForInputField(startDateTime)}
+            min={formatDateForInputField(today)}
+            onChange={(event) => setStartDateTime(new Date(event.target.value))}
+          />
+        </div>
+
+        <div className="form-control">
+          <label className="label" htmlFor="end-date">
+            <b>End: </b>
+          </label>
+          <input
+            className="input input-bordered"
+            type="datetime-local"
+            id="end-date-time"
+            // Bind the value of the input to enddatetime
+            min={formatDateForInputField(
+              new Date(startDateTime.setHours(startDateTime.getHours() + 1))
+            )}
+            defaultValue={formatDateForInputField(endDateTime)}
+            onChange={(event) => setEndDateTime(new Date(event.target.value))}
+          />
+        </div>
       </div>
-
-      <div className="form-group">
-        <label className="form-label" htmlFor="end-date">
-          <b>End: </b> &nbsp;
-        </label>
-        <input
-          className="form-input"
-          type="datetime-local"
-          id="end-date-time"
-          min={new Date().toISOString().substring(0, "YYYY-MM-DDTHH:MM".length)}
-          defaultValue={getEndDate()}
-          onChange={(event) => (endDateTime = event.target.value)}
-        />
-      </div>
-
-      <DropDownFilter
-        title="Locations"
-        getItemName={(location) => location.locationName}
-        options={locations}
-        setSelectedOptions={onSelectedLocationChange}
-      />
-
-      {buildings.length > 0 && (
-        <DropDownFilter
-          title="Buildings"
-          getItemName={(building) => building.buildingName}
-          options={buildings}
-          setSelectedOptions={onSelectedBuildingChange}
-        />
-      )}
-
-      {floors.length > 0 && (
-        <DropDownFilter
-          title="Floors"
-          getItemName={(floor) => floor.floorName}
-          options={floors}
-          setSelectedOptions={onSelectedFloorChange}
-        />
-      )}
-
-      {rooms.length > 0 && (
-        <DropDownFilter
-          title="Rooms"
-          getItemName={(room) => room.roomName}
-          options={rooms}
-          setSelectedOptions={onSelectedRoomChange}
-        />
-      )}
-
-      {deskTypes.length > 0 && (
-        <DropDownFilter
-          title="Types"
-          getItemName={(deskType) => deskType.typeName}
-          options={deskTypes}
-          setSelectedOptions={onSelectedDeskTypeChange}
-        />
-      )}
 
       <div className="my-4"></div>
 
-      {buildings.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a location</span>
-          </div>
-        </div>
-      )}
-      {!(buildings.length == 0) && floors.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a building</span>
-          </div>
-        </div>
-      )}
-      {!(floors.length == 0) && rooms.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a floor</span>
-          </div>
-        </div>
-      )}
-      {!(rooms.length == 0) && deskTypes.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a room</span>
-          </div>
-        </div>
-      )}
+      <Filterbar
+        buildings={origBuildings}
+        desks={desks}
+        setDesks={setDesks}
+        setFilteredDesks={setFilteredDesks}
+        startDateTime={startDateTime}
+        endDateTime={endDateTime}
+      />
 
-      {desks.length > 0 && <DeskSearchResults results={desks} />}
+      {filteredDesks.length > 0 && (
+        <DesksTable desks={filteredDesks} onBook={onBook} />
+        // <DeskSearchResults results={filteredDesks} onBook={onBook} />
+      )}
     </div>
   );
-};
+}
 
-//TODO: delete this - this is just for developing this component
+function formatDateForInputField(date: Date) {
+  const offset = date.getTimezoneOffset();
+
+  return new Date(date.getTime() - offset * 60 * 1000)
+    .toISOString()
+    .substring(0, "YYYY-MM-DDTHH:MM".length);
+}
+
+function getNextBusinessDay(date: Date) {
+  var returnDate = new Date(date);
+  returnDate.setDate(returnDate.getDate() + 1);
+
+  if (returnDate.getDay() == 0) {
+    returnDate.setDate(returnDate.getDate() + 1);
+  } else if (returnDate.getDay() == 6) {
+    returnDate.setDate(returnDate.getDate() + 2);
+  }
+
+  return returnDate;
+}
+
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
@@ -265,13 +181,3 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   };
 };
-
-function onClick() {}
-
-function getEndDate() {
-  let date = new Date();
-  date.setHours(date.getHours() + 1);
-  return date.toISOString().substring(0, "YYYY-MM-DDTHH:MM".length);
-}
-
-export default Bookings;

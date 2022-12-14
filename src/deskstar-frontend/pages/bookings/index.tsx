@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { GetServerSideProps } from "next";
 import BookingsTable from "../../components/BookingsTable";
-import { bookings as mockBookings } from "../../bookings";
 import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
@@ -43,7 +42,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       d: string | undefined;
     };
 
-    const direction = d == "ASC" || d == "DESC" ? d : "DESC";
+    const direction = d == "DESC" || d == "ASC" ? d : "ASC";
 
     const bookings = await getBookings(session, {
       n: parseInt(n ?? "10") ?? 10,
