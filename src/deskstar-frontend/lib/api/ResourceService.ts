@@ -121,11 +121,37 @@ export async function getDeskTypes(
   }
 
   const data = await response.json();
-  data.map((e: any) => {
+  const resDeskTypes = data.map((e: any) => {
     return {
       typeId: e["deskTypeId"],
       typeName: e["deskTypeName"]
     }
   });
-  return data;
+  return resDeskTypes;
+}
+type CreateDeskDto = {
+  roomId: string;
+  deskName: string;
+  deskTypeId: string;
+};
+export async function createDesk(
+  session: Session,
+  createDeskDto: CreateDeskDto,
+) {
+  const b = JSON.stringify(createDeskDto);
+  console.log(b);
+  const response = await fetch(BACKEND_URL + "/resources/desks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added desk '${createDeskDto.deskName}'`;
+  }
 }

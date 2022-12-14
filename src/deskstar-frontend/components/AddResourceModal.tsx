@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
+import { createDesk, getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -16,12 +16,12 @@ import Input from "./forms/Input";
 const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     let { data: session } = useSession();
 
-  useEffect(() => {
-    if (!session) return;
-    getDeskTypes(session)
-      .then((deskTypes) => setDeskTypes(deskTypes))
-      .catch((err) => alert(err));
-  }, [session]);
+    useEffect(() => {
+        if (!session) return;
+        getDeskTypes(session)
+            .then((deskTypes) => setDeskTypes(deskTypes))
+            .catch((err) => alert(err));
+    }, [session]);
 
     const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
@@ -40,7 +40,6 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
     const [buildings, setBuildings] = useState<IBuilding[]>([]);
     const [floors, setFloors] = useState<IFloor[]>([]);
     const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [desks, setDesks] = useState<IDesk[]>([]);
     const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
 
     async function onSelectedLocationChange(selectedLocation: ILocation | null | undefined) {
@@ -59,7 +58,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         setRoom(null);
     }
 
-    async function onSelectedBuildingChange(selectedBuilding: IBuilding  | null | undefined) {
+    async function onSelectedBuildingChange(selectedBuilding: IBuilding | null | undefined) {
         if (!selectedBuilding) {
             return;
         }
@@ -75,7 +74,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         setRoom(null);
     }
 
-    async function onSelectedFloorChange(selectedFloor: IFloor  | null | undefined) {
+    async function onSelectedFloorChange(selectedFloor: IFloor | null | undefined) {
         if (!selectedFloor) {
             return;
         }
@@ -89,17 +88,41 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
 
         setRoom(null);
     }
-    async function onSelectedDeskTypeChange(onSelectedDeskType: IDeskType  | null | undefined) {
-        if(!onSelectedDeskType){
+    async function onSelectedDeskTypeChange(onSelectedDeskType: IDeskType | null | undefined) {
+        if (!onSelectedDeskType) {
             return;
         }
-        if (!session) {
-            return [];
-        }
-        const resDeskTypes = await getDeskTypes(session);
-        setDeskTypes(resDeskTypes);
+        setDeskType(onSelectedDeskType);
 
-        setDeskType(null);
+    }
+    async function addDesk() {
+        if (!session)
+            return;
+        if (desk == "") {
+            alert("please enter a desk name");
+            return;
+        }
+        if (!deskType) {
+            alert("please choose a desk type");
+            return;
+        }
+        if (!location) {
+            alert("please choose a location");
+            return;
+        }
+        if (!building) {
+            alert("please choose a building");
+            return;
+        }
+        if (!floor) {
+            alert("please choose a floor");
+            return;
+        }
+        if (!room) {
+            alert("please choose a room");
+            return;
+        }
+        alert(await createDesk(session, { deskName: desk, deskTypeId: deskType.typeId, roomId: room?.roomId }));
     }
 
     return <>
@@ -115,22 +138,23 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                 <div className="flex items-center">
                     {resourceTypes.map((type: string) => (
                         <button
-                key={type}
+                            key={type}
                             className="btn mr-2"
-                onClick={() => setSelectedResourceType(type)}
-              >
+                            onClick={() => setSelectedResourceType(type)}
+                        >
                             {type}
                         </button>
                     ))}
                 </div>
 
-                {selectedResourceType !== "Desk" && <div className="py-5">Zur Zeit können nur Tische hinzugefügt werden.</div>}
+                {selectedResourceType !== "Desk" && <div className="py-5">You can only add desks right now</div>}
 
                 {selectedResourceType === "Desk" && <>
                     <Input name="Desk" onChange={(e) => { setDesk(e.target.value) }} value={desk} placeholder="Desk Name" />
                     <>
                         <div>Desk Type</div>
                         <FilterListbox
+                            key={"deskTypeListBox"}
                             items={deskTypes}
                             selectedItem={deskType}
                             setSelectedItem={(o) => onSelectedDeskTypeChange(o)}
@@ -140,8 +164,9 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         />
                     </>
 
-                    <div>Ort</div>
+                    <div>Location</div>
                     <FilterListbox
+                        key={"locationListBox"}
                         items={locations}
                         selectedItem={location}
                         setSelectedItem={(o) => onSelectedLocationChange(o)}
@@ -151,8 +176,9 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                     />
 
                     {location && <>
-                        <div>Gebäude</div>
+                        <div>Building</div>
                         <FilterListbox
+                            key={"buildingListBox"}
                             items={buildings}
                             selectedItem={building}
                             setSelectedItem={(o) => onSelectedBuildingChange(o)}
@@ -163,8 +189,9 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                     </>}
 
                     {building && <>
-                        <div>Stockwerk</div>
+                        <div>Floor</div>
                         <FilterListbox
+                            key={"floorListBox"}
                             items={floors}
                             selectedItem={floor}
                             setSelectedItem={(o) => onSelectedFloorChange(o)}
@@ -175,8 +202,9 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                     </>}
 
                     {floor && <>
-                        <div>Raum</div>
+                        <div>Room</div>
                         <FilterListbox
+                            key={"roomListBox"}
                             items={rooms}
                             selectedItem={room}
                             setSelectedItem={(o) => setRoom(o)}
@@ -185,11 +213,10 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                             }
                         />
                     </>}
+                    <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addDesk()}>
+                        Add
+                    </a>
                 </>}
-
-                <a href="#close" className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right">
-                    Add
-                </a>
             </div>
         </div>
     </>;

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Deskstar.Usecases;
 using Deskstar.Models;
 using Deskstar.Core;
+using Deskstar.Entities;
+using Deskstar.Core.Exceptions;
 
 namespace Deskstar.Controllers;
 
@@ -15,11 +17,14 @@ public class ResourcesController : ControllerBase
     private readonly IUserUsecases _userUsecases;
     private readonly ILogger<ResourcesController> _logger;
 
-    public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases)
+    private readonly IAutoMapperConfiguration _autoMapperConfiguration;
+
+    public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
     {
         _logger = logger;
         _resourceUsecases = resourceUsecases;
         _userUsecases = userUsecases;
+        _autoMapperConfiguration = autoMapperConfiguration;
     }
 
     /// <summary>
@@ -342,10 +347,13 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
     [HttpPost("desks")]
-    [Authorize(Policy="Admin")]
+    [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     public IActionResult CreateDesk(CreateDeskDto desk)
@@ -354,13 +362,18 @@ public class ResourcesController : ControllerBase
 
         try
         {
-            _resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypId, desk.RoomId);
+            _resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypeId, desk.RoomId);
             return Ok();
         }
-        catch (ArgumentException e)
+        catch (EntityNotFoundException e)
         {
             _logger.LogError(e, e.Message);
-            return Problem(detail: e.Message, statusCode: 400);
+            return NotFound(e.Message);
+        }
+        catch (ArgumentInvalidException e)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
         }
         catch (Exception e)
         {
@@ -420,7 +433,7 @@ public class ResourcesController : ControllerBase
     ///
     /// <response code="200">List<DeskTypDTO></response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("desktypes")]
+    [HttpGet("desktypes")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -432,7 +445,11 @@ public class ResourcesController : ControllerBase
         try
         {
             var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
-            var deskTypes = _resourceUsecases.GetDeskTypes(companyId);
+            var entities = _resourceUsecases.GetDeskTypes(companyId);
+
+            var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
+            var deskTypes = entities.Select<DeskType, DeskTypeDto>(desktype => mapper.Map<DeskType, DeskTypeDto>(desktype)).ToList();
+
             return Ok(deskTypes);
         }
         catch (Exception e)

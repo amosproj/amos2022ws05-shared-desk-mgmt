@@ -1,3 +1,4 @@
+using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
@@ -28,7 +29,7 @@ public class ResourceUsecases : IResourceUsecases
 
     public List<CurrentBuilding> GetBuildings(Guid userId)
     {
-        
+
         IQueryable<Building> databaseBuildings;
         try
         {
@@ -66,7 +67,7 @@ public class ResourceUsecases : IResourceUsecases
             if (databaseFloors.ToList().Count == 0)
             {
                 var databaseBuilding = _context.Buildings.First(building => building.BuildingId == buildingId);
-                if( databaseBuilding== null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
+                if (databaseBuilding == null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
             }
         }
         catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
@@ -128,7 +129,7 @@ public class ResourceUsecases : IResourceUsecases
             if (databaseDesks.ToList().Count == 0)
             {
                 var databaseRoom = _context.Rooms.First(room => room.RoomId == roomId);
-                if( databaseRoom== null) throw new ArgumentException($"There is no Room with id '{roomId}'");
+                if (databaseRoom == null) throw new ArgumentException($"There is no Room with id '{roomId}'");
             }
             mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
             {
@@ -215,24 +216,17 @@ public class ResourceUsecases : IResourceUsecases
 
     public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
     {
-        try
-        {
-            _context.DeskTypes.Single(dt => dt.DeskTypeId == deskTypeId);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, e.Message);
-            throw new ArgumentException($"There is no desk type with id '{deskTypeId}'");
-        }
-        try
-        {
-            _context.Rooms.Single(r => r.RoomId == roomId);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, e.Message);
-            throw new ArgumentException($"There is no room with id '{roomId}'");
-        }
+        var desktype = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);
+        if (desktype == null)
+            throw new EntityNotFoundException($"There is no desk type with id '{deskTypeId}'");
+
+        var room = _context.Rooms.SingleOrDefault(r => r.RoomId == roomId);
+        if (room == null)
+            throw new EntityNotFoundException($"There is no room with id '{roomId}'");
+
+        var deskNameExists = _context.Desks.SingleOrDefault(d => d.RoomId == roomId && d.DeskName == deskName) != null;
+        if (deskNameExists)
+            throw new ArgumentInvalidException($"In this room there is already a desk named '{deskName}'");
 
         var deskId = Guid.NewGuid();
         var desk = new Desk

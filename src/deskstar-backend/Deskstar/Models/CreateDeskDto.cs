@@ -10,5 +10,5 @@ public class CreateDeskDto
     public string DeskName { get; set; } = null!;
 
     [Required]
-    public Guid DeskTypId { get; set; }
+    public Guid DeskTypeId { get; set; }
 }

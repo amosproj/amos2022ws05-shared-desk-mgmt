@@ -1,5 +1,4 @@
 using AutoMapper;
-using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
@@ -14,10 +13,11 @@ public class DeskTypeDto
 
     public static void createMappings(IMapperConfigurationExpression cfg)
     {
-        cfg.CreateMap<DeskTypeDto, DeskType>();
-        cfg.CreateMap<DeskType, DeskTypeDto>();
+        cfg.CreateMap<DeskTypeDto, Entities.DeskType>();
+        cfg.CreateMap<Entities.DeskType, DeskTypeDto>();
     }
 
     public Guid DeskTypeId { get; set; }
     public string DeskTypeName { get; set; } = null!;
+    public Guid CompanyId { get; set; }
 }
