@@ -25,10 +25,13 @@ public class ResourceUsecases : IResourceUsecases
     private readonly DataContext _context;
     private readonly ILogger<ResourceUsecases> _logger;
 
-    public ResourceUsecases(ILogger<ResourceUsecases> logger, DataContext context)
+    private readonly IUserUsecases _userUsecases;
+
+    public ResourceUsecases(ILogger<ResourceUsecases> logger, DataContext context, IUserUsecases userUsecases)
     {
         _logger = logger;
         _context = context;
+        _userUsecases = userUsecases;
     }
 
     public List<CurrentBuilding> GetBuildings(Guid userId)
@@ -332,10 +335,10 @@ public class ResourceUsecases : IResourceUsecases
         var company = _context.Companies.SingleOrDefault(c => c.CompanyId == companyId);
         if (company == null)
             throw new EntityNotFoundException($"There is no company with id '{companyId}'");
-        
+
         if (location == "")
             throw new ArgumentInvalidException($"'{location}' is not a valid name for a building'");
-        
+
         if (buildingName == "")
             throw new ArgumentInvalidException($"'{buildingName}' is not a valid name for a building'");
         var buildingExists = _context.Buildings.SingleOrDefault(b => b.CompanyId == companyId && b.BuildingName == buildingName) != null;

@@ -26,8 +26,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
     const [roomName, setRoomName] = useState("");
     const [deskName, setDeskName] = useState("");
     const [deskTypeName, setDeskTypeName] = useState("");
-    //TODO: get companyID injected to component
-    const companyId = "";
+
     const [deskType, setDeskType] = useState<IDeskType | null>();
     const [room, setRoom] = useState<IRoom | null>();
     const [floor, setFloor] = useState<IFloor | null>();
@@ -103,11 +102,11 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please enter a building name");
             return;
         }
-        if (!locationName) {
-            alert("please enter a location");
+        if ((!locationName || (locationName == "")) && !location) {
+            alert("please choose or enter a location");
             return;
         }
-        alert(await createBuilding(session, { companyId: companyId, buildingName: buildingName, location: locationName }));
+        alert(await createBuilding(session, { buildingName: buildingName, location: locationName == "" ? (location?.locationName ?? "") : locationName }));
     }
     async function addFloor() {
         if (!session)
@@ -124,7 +123,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please choose a building");
             return;
         }
-        alert(await createFloor(session, { BuildingId: building.buildingId, floorName: floorName }));
+        alert(await createFloor(session, { buildingId: building.buildingId, floorName: floorName }));
     }
     async function addRoom() {
         if (!session)
@@ -183,7 +182,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please enter a desk type name");
             return;
         }
-        alert(await createDeskType(session, { companyId: companyId, deskTypeName: deskTypeName }));
+        alert(await createDeskType(session, { deskTypeName: deskTypeName }));
     }
 
     return <>
@@ -201,7 +200,17 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                         <button
                             key={type}
                             className="btn mr-2"
-                            onClick={() => setSelectedResourceType(type)}
+                            onClick={() => {
+                                if (selectedResourceType != type) {
+                                    setBuildingName("");
+                                    setFloorName("");
+                                    setLocationName("");
+                                    setRoomName("");
+                                    setDeskName("");
+                                    setDeskTypeName("");
+                                }
+                                setSelectedResourceType(type);
+                            }}
                         >
                             {type}
                         </button>
@@ -210,15 +219,15 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
 
                 {
                     selectedResourceType === "Building" && <>
-                        <Input name="Building" onChange={(e) => { setBuildingName(e.target.value) }} value={deskName} placeholder="Building Name" />
-                        <Input name="Location" onChange={(e) => { setLocationName(e.target.value) }} value={deskName} placeholder="Location" />
+                        <Input name="Building" onChange={(e) => { setBuildingName(e.target.value) }} value={buildingName} placeholder="Building Name" />
+                        <Input name="Location" onChange={(e) => { setLocationName(e.target.value); setLocation(null); }} value={locationName} placeholder="New Location" />
 
-                        <div>Location</div>
+                        <div>Existing Location</div>
                         <FilterListbox
                             key={"locationListBox"}
                             items={locations}
                             selectedItem={location}
-                            setSelectedItem={(o) => onSelectedLocationChange(o)}
+                            setSelectedItem={(o) => { onSelectedLocationChange(o); setLocationName("") }}
                             getName={(location) =>
                                 location ? location.locationName : "select location"
                             }
@@ -231,7 +240,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                 }
                 {
                     selectedResourceType === "Floor" && <>
-                        <Input name="Floor" onChange={(e) => { setFloorName(e.target.value) }} value={deskName} placeholder="Floor Name" />
+                        <Input name="Floor" onChange={(e) => { setFloorName(e.target.value) }} value={floorName} placeholder="Floor Name" />
 
                         <div>Location</div>
                         <FilterListbox
@@ -264,7 +273,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                 }
                 {
                     selectedResourceType === "Room" && <>
-                        <Input name="Room" onChange={(e) => { setRoomName(e.target.value) }} value={deskName} placeholder="Room Name" />
+                        <Input name="Room" onChange={(e) => { setRoomName(e.target.value) }} value={roomName} placeholder="Room Name" />
 
                         <div>Location</div>
                         <FilterListbox
@@ -381,7 +390,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
 
                 {
                     selectedResourceType === "DeskType" && <>
-                        <Input name="Desk Type" onChange={(e) => { setDeskTypeName(e.target.value) }} value={deskName} placeholder="Desk Type Name" />
+                        <Input name="Desk Type" onChange={(e) => { setDeskTypeName(e.target.value) }} value={deskTypeName} placeholder="Desk Type Name" />
                         <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addDeskType()}>
                             Add
                         </a>

@@ -11,7 +11,4 @@ public class CreateBuildingDto
 
     [Required]
     public string Location { get; set; } = null!;
-
-    [Required]
-    public string CompanyId { get; set; } = null!;
 }

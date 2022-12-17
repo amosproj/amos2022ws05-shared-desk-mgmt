@@ -84,7 +84,7 @@ public class ResourcesController : ControllerBase
 
         try
         {
-            var companyId = new Guid(buildingDto.CompanyId);
+            var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
             _resourceUsecases.CreateBuilding(buildingDto.BuildingName, buildingDto.BuildingName, companyId);
             return Ok();
         }
@@ -495,9 +495,10 @@ public class ResourcesController : ControllerBase
     [Produces("application/json")]
     public IActionResult CreateDeskType(CreateDeskTypeDto deskTypeDto)
     {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
         try
         {
-            var companyId = new Guid(deskTypeDto.CompanyId);
+            var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
             _resourceUsecases.CreateDeskType(deskTypeDto.DeskTypeName, companyId);
             return Ok();
         }

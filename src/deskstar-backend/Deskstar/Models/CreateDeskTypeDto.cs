@@ -11,7 +11,4 @@ public class CreateDeskTypeDto
     [Required]
     public string DeskTypeName { get; set; } = null!;
 
-    [Required]
-    public string CompanyId { get; set; } = null!;
-
 }

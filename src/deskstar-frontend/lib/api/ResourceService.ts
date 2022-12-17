@@ -154,7 +154,7 @@ export async function createRoom(
   }
 }
 type CreateFloorDto = {
-  BuildingId: string;
+  buildingId: string;
   floorName: string;
 };
 export async function createFloor(
@@ -178,7 +178,6 @@ export async function createFloor(
   }
 }
 type CreateBuildingDto = {
-  companyId: string;
   buildingName: string;
   location: string;
 };
@@ -204,7 +203,6 @@ export async function createBuilding(
 }
 type CreateDeskTypeDto = {
   deskTypeName: string;
-  companyId: string;
 };
 export async function createDeskType(
   session: Session,
