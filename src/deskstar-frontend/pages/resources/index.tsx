@@ -14,16 +14,20 @@ import { IFloor } from "../../types/floor";
 import {
   getBuildings,
   getDesks,
+  getDeskTypes,
   getFloors,
   getRooms,
 } from "../../lib/api/ResourceService";
 import { GetServerSideProps } from "next";
 import AddResourceModal from "../../components/AddResourceModal";
+import { IDeskType } from "../../types/desktypes";
 
 const ResourceOverview = ({
   buildings: origBuildings,
+  deskTypes: deskTypes,
 }: {
   buildings: IBuilding[];
+  deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
 
@@ -139,7 +143,7 @@ const ResourceOverview = ({
           onClick={() => { }}>
           Add Resource
         </a>
-        <AddResourceModal buildings={origBuildings}/>
+        <AddResourceModal buildings={origBuildings} deskTypes={deskTypes}/>
 
       </div>
       <DropDownFilter
@@ -227,10 +231,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (session) {
     const buildings = await getBuildings(session);
+    const deskTypes = await getDeskTypes(session);
 
     return {
       props: {
         buildings,
+        deskTypes,
       },
     };
   }
@@ -238,6 +244,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       buildings: [],
+      deskTypes: [],
     },
   };
 };

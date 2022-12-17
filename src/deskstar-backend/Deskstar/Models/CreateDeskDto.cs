@@ -5,10 +5,10 @@ namespace Deskstar.Models;
 public class CreateDeskDto
 {
     [Required]
-    public Guid RoomId { get; set; }
+    public string RoomId { get; set; } = null!;
     [Required]
     public string DeskName { get; set; } = null!;
 
     [Required]
-    public Guid DeskTypeId { get; set; }
+    public string DeskTypeId { get; set; } = null!;
 }

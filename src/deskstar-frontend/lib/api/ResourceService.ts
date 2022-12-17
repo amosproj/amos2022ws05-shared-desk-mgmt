@@ -129,6 +129,103 @@ export async function getDeskTypes(
   });
   return resDeskTypes;
 }
+type CreateRoomDto = {
+  floorId: string;
+  roomName: string;
+};
+export async function createRoom(
+  session: Session,
+  createRoomDto: CreateRoomDto,
+) {
+  const b = JSON.stringify(createRoomDto);
+  const response = await fetch(BACKEND_URL + "/resources/rooms", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added room '${createRoomDto.roomName}'`;
+  }
+}
+type CreateFloorDto = {
+  BuildingId: string;
+  floorName: string;
+};
+export async function createFloor(
+  session: Session,
+  createFloorDto: CreateFloorDto,
+) {
+  const b = JSON.stringify(createFloorDto);
+  const response = await fetch(BACKEND_URL + "/resources/floors", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added floor '${createFloorDto.floorName}'`;
+  }
+}
+type CreateBuildingDto = {
+  companyId: string;
+  buildingName: string;
+  location: string;
+};
+export async function createBuilding(
+  session: Session,
+  createBuildingDto: CreateBuildingDto,
+) {
+  const b = JSON.stringify(createBuildingDto);
+  const response = await fetch(BACKEND_URL + "/resources/buildings", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added building '${createBuildingDto.buildingName}'`;
+  }
+}
+type CreateDeskTypeDto = {
+  deskTypeName: string;
+  companyId: string;
+};
+export async function createDeskType(
+  session: Session,
+  createDeskDto: CreateDeskTypeDto,
+) {
+  const b = JSON.stringify(createDeskDto);
+  const response = await fetch(BACKEND_URL + "/resources/desktypes", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added desk type '${createDeskDto.deskTypeName}'`;
+  }
+}
 type CreateDeskDto = {
   roomId: string;
   deskName: string;
@@ -139,9 +236,8 @@ export async function createDesk(
   createDeskDto: CreateDeskDto,
 ) {
   const b = JSON.stringify(createDeskDto);
-  console.log(b);
   const response = await fetch(BACKEND_URL + "/resources/desks", {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.accessToken}`,
@@ -153,5 +249,22 @@ export async function createDesk(
     return JSON.parse(text);
   } else {
     return `success! Added desk '${createDeskDto.deskName}'`;
+  }
+}
+
+async function CreateEnity(entityType: string, entityName: string, body: string, session: Session) {
+  const response = await fetch(BACKEND_URL + `/resources/${entityType}s`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: body,
+  });
+  if (response.status !== 200) {
+    const text = await response.text();
+    return JSON.parse(text);
+  } else {
+    return `success! Added ${entityType} '${entityName}'`;
   }
 }

@@ -64,20 +64,45 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     POST /resources/buildings with JWT-Admin Token
+    ///     PUT /resources/buildings with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="205"></response>
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("buildings")]
+    [HttpPut("buildings")]
     [Authorize(Policy = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateBuilding(string buildingId)
+    public IActionResult CreateBuilding(CreateBuildingDto buildingDto)
     {
-        return Problem(statusCode: 501);
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+            var companyId = new Guid(buildingDto.CompanyId);
+            _resourceUsecases.CreateBuilding(buildingDto.BuildingName, buildingDto.BuildingName, companyId);
+            return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+            _logger.LogError(e, e.Message);
+            return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 
     /// <summary>
@@ -137,21 +162,44 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     POST /resources/floors with JWT-Admin Token
+    ///     Put /resources/floors with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="201"></response>
-    /// <response code="409"></response>
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("floors")]
+    [HttpPut("floors")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateFloor(CurrentFloor newFloor)
+    public IActionResult CreateFloor(CreateFloorDto floorDto)
     {
-        return Problem(statusCode: 501);
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+            var buildingId = new Guid(floorDto.BuildingId);
+            _resourceUsecases.CreateFloor(floorDto.FloorName, buildingId);
+            return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+            _logger.LogError(e, e.Message);
+            return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 
     /// <summary>
@@ -210,21 +258,45 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     POST /resources/rooms with JWT-Admin Token
+    ///     Put /resources/rooms with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="201"></response>
-    /// <response code="409"></response>
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("rooms")]
+    [HttpPut("rooms")]
     [Authorize(Policy = "Admin")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateRoom(CurrentRoom newRoom)
+    public IActionResult CreateRoom(CreateRoomDto roomDto)
     {
-        return Problem(statusCode: 501);
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+            var floorId = new Guid(roomDto.FloorId);
+            _resourceUsecases.CreateRoom(roomDto.RoomName, floorId);
+            return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+            _logger.LogError(e, e.Message);
+            return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
 
     /// <summary>
@@ -342,27 +414,29 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     POST /resources/desks with JWT-Admin Token
+    ///     PUT /resources/desks with JWT-Admin Token
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("desks")]
+    [HttpPut("desks")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateDesk(CreateDeskDto desk)
+    public IActionResult CreateDesk(CreateDeskDto deskDto)
     {
         var adminId = RequestInteractions.ExtractIdFromRequest(Request);
 
         try
         {
-            _resourceUsecases.CreateDesk(desk.DeskName, desk.DeskTypeId, desk.RoomId);
+            var deskTypeId = new Guid(deskDto.DeskTypeId);
+            var roomId = new Guid(deskDto.RoomId);
+            _resourceUsecases.CreateDesk(deskDto.DeskName, deskTypeId, roomId);
             return Ok();
         }
         catch (EntityNotFoundException e)
@@ -370,7 +444,7 @@ public class ResourcesController : ControllerBase
             _logger.LogError(e, e.Message);
             return NotFound(e.Message);
         }
-        catch (ArgumentInvalidException e)
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
         {
             _logger.LogError(e, e.Message);
             return BadRequest(e.Message);
@@ -413,15 +487,25 @@ public class ResourcesController : ControllerBase
     /// <response code="201"></response>
     /// <response code="400"></response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("desktypes")]
+    [HttpPut("desktypes")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
-    public IActionResult CreateDeskType(CurrentDesk newDesk)
+    public IActionResult CreateDeskType(CreateDeskTypeDto deskTypeDto)
     {
-        return Problem(statusCode: 501);
+        try
+        {
+            var companyId = new Guid(deskTypeDto.CompanyId);
+            _resourceUsecases.CreateDeskType(deskTypeDto.DeskTypeName, companyId);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
     }
     /// <summary>
     /// Return a list of desk types

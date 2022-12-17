@@ -2,7 +2,7 @@ import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { createDesk, getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
+import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
 import { authOptions } from "../pages/api/auth/[...nextauth]";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -13,20 +13,21 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
 
-const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
+const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }: { buildings: IBuilding[], deskTypes: IDeskType[] }) => {
     let { data: session } = useSession();
 
-    useEffect(() => {
-        if (!session) return;
-        getDeskTypes(session)
-            .then((deskTypes) => setDeskTypes(deskTypes))
-            .catch((err) => alert(err));
-    }, [session]);
 
-    const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk"];
+    const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk", "DeskType"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
 
-    const [desk, setDesk] = useState("");
+    const [buildingName, setBuildingName] = useState("");
+    const [locationName, setLocationName] = useState("");
+    const [floorName, setFloorName] = useState("");
+    const [roomName, setRoomName] = useState("");
+    const [deskName, setDeskName] = useState("");
+    const [deskTypeName, setDeskTypeName] = useState("");
+    //TODO: get companyID injected to component
+    const companyId = "";
     const [deskType, setDeskType] = useState<IDeskType | null>();
     const [room, setRoom] = useState<IRoom | null>();
     const [floor, setFloor] = useState<IFloor | null>();
@@ -40,7 +41,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
     const [buildings, setBuildings] = useState<IBuilding[]>([]);
     const [floors, setFloors] = useState<IFloor[]>([]);
     const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+    const [deskTypes, setDeskTypes] = useState<IDeskType[]>(origDeskTypes);
 
     async function onSelectedLocationChange(selectedLocation: ILocation | null | undefined) {
         if (!selectedLocation) {
@@ -95,10 +96,61 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         setDeskType(onSelectedDeskType);
 
     }
+    async function addBuilding() {
+        if (!session)
+            return;
+        if (!buildingName) {
+            alert("please enter a building name");
+            return;
+        }
+        if (!locationName) {
+            alert("please enter a location");
+            return;
+        }
+        alert(await createBuilding(session, { companyId: companyId, buildingName: buildingName, location: locationName }));
+    }
+    async function addFloor() {
+        if (!session)
+            return;
+        if (!floorName) {
+            alert("please enter a floor name");
+            return;
+        }
+        if (!location) {
+            alert("please choose a location");
+            return;
+        }
+        if (!building) {
+            alert("please choose a building");
+            return;
+        }
+        alert(await createFloor(session, { BuildingId: building.buildingId, floorName: floorName }));
+    }
+    async function addRoom() {
+        if (!session)
+            return;
+        if (!roomName) {
+            alert("please enter a room name");
+            return;
+        }
+        if (!location) {
+            alert("please choose a location");
+            return;
+        }
+        if (!building) {
+            alert("please choose a building");
+            return;
+        }
+        if (!floor) {
+            alert("please choose a floor");
+            return;
+        }
+        alert(await createRoom(session, { floorId: floor.floorID, roomName: roomName }));
+    }
     async function addDesk() {
         if (!session)
             return;
-        if (desk == "") {
+        if (deskName == "") {
             alert("please enter a desk name");
             return;
         }
@@ -122,7 +174,16 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
             alert("please choose a room");
             return;
         }
-        alert(await createDesk(session, { deskName: desk, deskTypeId: deskType.typeId, roomId: room?.roomId }));
+        alert(await createDesk(session, { deskName: deskName, deskTypeId: deskType.typeId, roomId: room?.roomId }));
+    }
+    async function addDeskType() {
+        if (!session)
+            return;
+        if (!deskTypeName) {
+            alert("please enter a desk type name");
+            return;
+        }
+        alert(await createDeskType(session, { companyId: companyId, deskTypeName: deskTypeName }));
     }
 
     return <>
@@ -147,10 +208,110 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                     ))}
                 </div>
 
-                {selectedResourceType !== "Desk" && <div className="py-5">You can only add desks right now</div>}
+                {
+                    selectedResourceType === "Building" && <>
+                        <Input name="Building" onChange={(e) => { setBuildingName(e.target.value) }} value={deskName} placeholder="Building Name" />
+                        <Input name="Location" onChange={(e) => { setLocationName(e.target.value) }} value={deskName} placeholder="Location" />
+
+                        <div>Location</div>
+                        <FilterListbox
+                            key={"locationListBox"}
+                            items={locations}
+                            selectedItem={location}
+                            setSelectedItem={(o) => onSelectedLocationChange(o)}
+                            getName={(location) =>
+                                location ? location.locationName : "select location"
+                            }
+                        />
+
+                        <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addBuilding()}>
+                            Add
+                        </a>
+                    </>
+                }
+                {
+                    selectedResourceType === "Floor" && <>
+                        <Input name="Floor" onChange={(e) => { setFloorName(e.target.value) }} value={deskName} placeholder="Floor Name" />
+
+                        <div>Location</div>
+                        <FilterListbox
+                            key={"locationListBox"}
+                            items={locations}
+                            selectedItem={location}
+                            setSelectedItem={(o) => onSelectedLocationChange(o)}
+                            getName={(location) =>
+                                location ? location.locationName : "select location"
+                            }
+                        />
+
+                        {location && <>
+                            <div>Building</div>
+                            <FilterListbox
+                                key={"buildingListBox"}
+                                items={buildings}
+                                selectedItem={building}
+                                setSelectedItem={(o) => onSelectedBuildingChange(o)}
+                                getName={(building) =>
+                                    building ? building.buildingName : "select building"
+                                }
+                            />
+                        </>
+                        }
+                        <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addFloor()}>
+                            Add
+                        </a>
+                    </>
+                }
+                {
+                    selectedResourceType === "Room" && <>
+                        <Input name="Room" onChange={(e) => { setRoomName(e.target.value) }} value={deskName} placeholder="Room Name" />
+
+                        <div>Location</div>
+                        <FilterListbox
+                            key={"locationListBox"}
+                            items={locations}
+                            selectedItem={location}
+                            setSelectedItem={(o) => onSelectedLocationChange(o)}
+                            getName={(location) =>
+                                location ? location.locationName : "select location"
+                            }
+                        />
+
+                        {location && <>
+                            <div>Building</div>
+                            <FilterListbox
+                                key={"buildingListBox"}
+                                items={buildings}
+                                selectedItem={building}
+                                setSelectedItem={(o) => onSelectedBuildingChange(o)}
+                                getName={(building) =>
+                                    building ? building.buildingName : "select building"
+                                }
+                            />
+                        </>}
+
+                        {building && <>
+                            <div>Floor</div>
+                            <FilterListbox
+                                key={"floorListBox"}
+                                items={floors}
+                                selectedItem={floor}
+                                setSelectedItem={(o) => onSelectedFloorChange(o)}
+                                getName={(floor) =>
+                                    floor ? floor.floorName : "select floor"
+                                }
+                            />
+                        </>
+                        }
+                        <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addRoom()}>
+                            Add
+                        </a>
+                    </>
+                }
+
 
                 {selectedResourceType === "Desk" && <>
-                    <Input name="Desk" onChange={(e) => { setDesk(e.target.value) }} value={desk} placeholder="Desk Name" />
+                    <Input name="Desk" onChange={(e) => { setDeskName(e.target.value) }} value={deskName} placeholder="Desk Name" />
                     <>
                         <div>Desk Type</div>
                         <FilterListbox
@@ -217,6 +378,15 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         Add
                     </a>
                 </>}
+
+                {
+                    selectedResourceType === "DeskType" && <>
+                        <Input name="Desk Type" onChange={(e) => { setDeskTypeName(e.target.value) }} value={deskName} placeholder="Desk Type Name" />
+                        <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addDeskType()}>
+                            Add
+                        </a>
+                    </>
+                }
             </div>
         </div>
     </>;
@@ -224,3 +394,4 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
 }
 
 export default AddResourceModal;
+
