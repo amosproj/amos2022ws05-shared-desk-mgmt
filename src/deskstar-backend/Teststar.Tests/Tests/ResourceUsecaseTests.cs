@@ -40,7 +40,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -66,7 +66,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -117,7 +117,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -143,7 +143,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -219,7 +219,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -247,7 +247,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -294,7 +294,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -354,7 +354,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -414,7 +414,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -463,7 +463,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -509,7 +509,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -551,7 +551,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -579,7 +579,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -607,14 +607,14 @@ public class ResourceUsecaseTests
         //arrange
         var deskName = "validDeskName";
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
         var result = usecases.CreateDesk(deskName, deskTypeId, roomId);
 
         //assert
-        Assert.That(result != new Guid());
+        Assert.That(result != null);
 
         //cleanup
         db.Database.EnsureDeleted();
@@ -635,7 +635,7 @@ public class ResourceUsecaseTests
         //arrange
         var duplicated = "Desk1";
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
         //act+assert
         Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(duplicated, deskTypeId, roomId));
@@ -660,7 +660,7 @@ public class ResourceUsecaseTests
         //arrange
         var noDeskName = "";
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
         //act+assert
         Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(noDeskName, deskTypeId, roomId));
@@ -685,7 +685,7 @@ public class ResourceUsecaseTests
         //arrange
         var deskName = "validDeskName";
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
         //act+assert
         Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, invalidDeskTypeId, roomId));
@@ -709,7 +709,7 @@ public class ResourceUsecaseTests
         //arrange
         var deskName = "validDeskName";
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
         //act+assert
         Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, deskTypeId, invalidRoomId));
@@ -728,7 +728,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var deskTypeName = "validDeskName";
         var invalidCompanyId = Guid.NewGuid();
 
@@ -750,7 +750,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var noDeskTypeName = "";
 
         //act+assert
@@ -771,7 +771,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var duplicateName = "Typ1";
 
         //act+assert
@@ -792,7 +792,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var deskTypeName = "ValidName";
 
         //act+assert
@@ -812,7 +812,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var roomName = "validRoomName";
         var invalidFloorId = Guid.NewGuid();
 
@@ -835,7 +835,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var noRoomName = "";
 
         //act+assert
@@ -857,7 +857,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var duplicateName = "Raum1";
 
         //act+assert
@@ -879,7 +879,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var roomName = "ValidName";
 
         //act+assert
@@ -899,7 +899,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var floorName = "validName";
         var invalidBuildingId = Guid.NewGuid();
 
@@ -922,7 +922,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var noFloorName = "";
 
         //act+assert
@@ -944,7 +944,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var duplicateName = "Stockwerk1";
 
         //act+assert
@@ -966,7 +966,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var floorName = "ValidName";
 
         //act+assert
@@ -986,7 +986,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var buildingName = "validName";
         var location = "validLocation";
         var invalidCompanyId = Guid.NewGuid();
@@ -1009,7 +1009,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var buildingName = "validName";
         var noLocation = "";
 
@@ -1031,7 +1031,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var noBuildingName = "";
         var location = "validLocation";
 
@@ -1053,7 +1053,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var duplicateName = "Gebäude1";
         var location = "validLocation";
 
@@ -1075,7 +1075,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var buildingName = "validName";
         var location = "validLocation";
 
@@ -1084,6 +1084,14 @@ public class ResourceUsecaseTests
 
         //cleanup
         db.Database.EnsureDeleted();
+    }
+
+    private UserUsecases SetupUserUsecases(DataContext db)
+    {
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        return userUsecases;
     }
 
     private void SetupMockData(DataContext moqDb, Guid companyId = new(), Guid userId = new(), Guid buildingId = new(),
