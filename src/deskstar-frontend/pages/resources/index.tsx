@@ -75,7 +75,7 @@ const ResourceOverview = ({
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorID);
+        const resRooms = await getRooms(session, floor.floorId);
         return resRooms;
       })
     );

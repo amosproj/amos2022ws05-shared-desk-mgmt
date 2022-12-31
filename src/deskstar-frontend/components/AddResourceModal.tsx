@@ -1,11 +1,7 @@
-import { GetServerSideProps } from "next";
-import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getDesks, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
-import { authOptions } from "../pages/api/auth/[...nextauth]";
+import { useState } from "react";
+import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
-import { IDesk } from "../types/desk";
 import { IDeskType } from "../types/desktypes";
 import { IFloor } from "../types/floor";
 import { ILocation } from "../types/location";
@@ -16,9 +12,9 @@ import Input from "./forms/Input";
 const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }: { buildings: IBuilding[], deskTypes: IDeskType[] }) => {
     let { data: session } = useSession();
 
-
     const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk", "DeskType"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
+    const [isLoading, setIsLoading] = useState(false);
 
     const [buildingName, setBuildingName] = useState("");
     const [locationName, setLocationName] = useState("");
@@ -33,9 +29,9 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
     const [building, setBuilding] = useState<IBuilding | null>();
     const [location, setLocation] = useState<ILocation | null>();
 
-    const locations: ILocation[] = origBuildings.map((building) => ({
+    const [locations, setLocations] = useState<ILocation[]>(origBuildings.map((building) => ({
         locationName: building.location,
-    }));
+    })));
 
     const [buildings, setBuildings] = useState<IBuilding[]>([]);
     const [floors, setFloors] = useState<IFloor[]>([]);
@@ -79,22 +75,25 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             return;
         }
 
+        console.log("floor: ")
+        console.log(selectedFloor);
         setFloor(selectedFloor);
         if (!session) {
             return [];
         }
-        const resRooms = await getRooms(session, selectedFloor.floorID);
-        setRooms(resRooms);
 
+        const resRooms = await getRooms(session, selectedFloor.floorId);
+        setRooms(resRooms);
         setRoom(null);
     }
+
     async function onSelectedDeskTypeChange(onSelectedDeskType: IDeskType | null | undefined) {
         if (!onSelectedDeskType) {
             return;
         }
         setDeskType(onSelectedDeskType);
-
     }
+
     async function addBuilding() {
         if (!session)
             return;
@@ -102,12 +101,20 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please enter a building name");
             return;
         }
-        if ((!locationName || (locationName == "")) && !location) {
+        if ((!locationName || (locationName === "")) && !location) {
             alert("please choose or enter a location");
             return;
         }
-        alert(await createBuilding(session, { buildingName: buildingName, location: locationName == "" ? (location?.locationName ?? "") : locationName }));
+
+        setIsLoading(true);
+        console.log(locationName);
+        let res = await createBuilding(session, { buildingName: buildingName, location: location ? location.locationName : locationName });
+        alert(res.message);
+        setBuildings([...buildings, res.data as IBuilding]);
+        setLocations([...locations, { locationName: (res.data as IBuilding).location }]);
+        setIsLoading(false);
     }
+
     async function addFloor() {
         if (!session)
             return;
@@ -123,8 +130,14 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please choose a building");
             return;
         }
-        alert(await createFloor(session, { buildingId: building.buildingId, floorName: floorName }));
+
+        setIsLoading(true);
+        let res = await createFloor(session, { buildingId: building.buildingId, floorName: floorName });
+        alert(res.message);
+        setFloors([...floors, res.data as IFloor])
+        setIsLoading(false);
     }
+
     async function addRoom() {
         if (!session)
             return;
@@ -144,12 +157,33 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please choose a floor");
             return;
         }
-        alert(await createRoom(session, { floorId: floor.floorID, roomName: roomName }));
+
+        setIsLoading(true);
+        let res = await createRoom(session, { floorId: floor.floorId, roomName: roomName });
+        alert(res.message);
+        setRooms([...rooms, res.data as IRoom])
+        setIsLoading(false);
     }
+
+    async function addDeskType() {
+        if (!session)
+            return;
+        if (!deskTypeName) {
+            alert("please enter a desk type name");
+            return;
+        }
+
+        setIsLoading(true);
+        let res = await createDeskType(session, { deskTypeName: deskTypeName });
+        alert(res.message);
+        setDeskTypes([...deskTypes, res.data as IDeskType])
+        setIsLoading(false);
+    }
+
     async function addDesk() {
         if (!session)
             return;
-        if (deskName == "") {
+        if (deskName === "") {
             alert("please enter a desk name");
             return;
         }
@@ -173,16 +207,11 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
             alert("please choose a room");
             return;
         }
-        alert(await createDesk(session, { deskName: deskName, deskTypeId: deskType.typeId, roomId: room?.roomId }));
-    }
-    async function addDeskType() {
-        if (!session)
-            return;
-        if (!deskTypeName) {
-            alert("please enter a desk type name");
-            return;
-        }
-        alert(await createDeskType(session, { deskTypeName: deskTypeName }));
+
+        setIsLoading(true);
+        let res = await createDesk(session, { deskName: deskName, deskTypeId: deskType.deskTypeId, roomId: room?.roomId });
+        alert(res.message);
+        setIsLoading(false);
     }
 
     return <>
@@ -199,9 +228,9 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                     {resourceTypes.map((type: string) => (
                         <button
                             key={type}
-                            className="btn mr-2"
+                            className={`btn mr-2 ${selectedResourceType === type ? "bg-deskstar-green-dark text-black hover:bg-deskstar-green-light" : ""}`}
                             onClick={() => {
-                                if (selectedResourceType != type) {
+                                if (selectedResourceType !== type) {
                                     setBuildingName("");
                                     setFloorName("");
                                     setLocationName("");
@@ -329,7 +358,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                             selectedItem={deskType}
                             setSelectedItem={(o) => onSelectedDeskTypeChange(o)}
                             getName={(deskType) =>
-                                deskType ? deskType.typeName : "No type selected"
+                                deskType ? deskType.deskTypeName : "No type selected"
                             }
                         />
                     </>
@@ -395,6 +424,16 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
                             Add
                         </a>
                     </>
+                }
+                {
+                    isLoading &&
+                    <div className="h-2">
+                        <progress className="progress"></progress>
+                    </div>
+                }
+                {
+                    !isLoading &&
+                    <div className="h-2 mb-4" />
                 }
             </div>
         </div>

@@ -6,6 +6,7 @@ public class CreateDeskDto
 {
     [Required]
     public string RoomId { get; set; } = null!;
+
     [Required]
     public string DeskName { get; set; } = null!;
 

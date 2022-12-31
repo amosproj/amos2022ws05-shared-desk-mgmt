@@ -6,8 +6,15 @@ import { IFloor } from "../../types/floor";
 import { IRoom } from "../../types/room";
 import { BACKEND_URL } from "./constants";
 
-export async function getLocations() {
-  //   const response = await fetch(BACKEND_URL + "/resources/locations");
+export interface ICreateResourceResult {
+  response: ResourceResponse;
+  message: string;
+  data?: Object;
+}
+
+export enum ResourceResponse {
+  Error,
+  Success,
 }
 
 export async function getBuildings(session: Session): Promise<IBuilding[]> {
@@ -120,149 +127,205 @@ export async function getDeskTypes(
     return [];
   }
 
+
   const data = await response.json();
   const resDeskTypes = data.map((e: any) => {
     return {
-      typeId: e["deskTypeId"],
-      typeName: e["deskTypeName"]
+      deskTypeId: e["deskTypeId"],
+      deskTypeName: e["deskTypeName"]
     }
   });
+
   return resDeskTypes;
 }
-type CreateRoomDto = {
-  floorId: string;
-  roomName: string;
-};
-export async function createRoom(
-  session: Session,
-  createRoomDto: CreateRoomDto,
-) {
-  const b = JSON.stringify(createRoomDto);
-  const response = await fetch(BACKEND_URL + "/resources/rooms", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
-  if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
-  } else {
-    return `success! Added room '${createRoomDto.roomName}'`;
-  }
-}
-type CreateFloorDto = {
-  buildingId: string;
-  floorName: string;
-};
-export async function createFloor(
-  session: Session,
-  createFloorDto: CreateFloorDto,
-) {
-  const b = JSON.stringify(createFloorDto);
-  const response = await fetch(BACKEND_URL + "/resources/floors", {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
-  if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
-  } else {
-    return `success! Added floor '${createFloorDto.floorName}'`;
-  }
-}
+
 type CreateBuildingDto = {
   buildingName: string;
   location: string;
 };
+
 export async function createBuilding(
   session: Session,
   createBuildingDto: CreateBuildingDto,
-) {
+): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createBuildingDto);
   const response = await fetch(BACKEND_URL + "/resources/buildings", {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.accessToken}`,
     },
     body: b,
   });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
   if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
   } else {
-    return `success! Added building '${createBuildingDto.buildingName}'`;
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IBuilding,
+      message: `Success! Created building '${createBuildingDto.buildingName}'`
+    }
   }
+
+  return result;
 }
+
+
+type CreateFloorDto = {
+  buildingId: string;
+  floorName: string;
+};
+
+export async function createFloor(
+  session: Session,
+  createFloorDto: CreateFloorDto,
+): Promise<ICreateResourceResult> {
+  const b = JSON.stringify(createFloorDto);
+  const response = await fetch(BACKEND_URL + "/resources/floors", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IFloor,
+      message: `Success! Created floor '${createFloorDto.floorName}'`
+    }
+  }
+
+  return result;
+}
+
+type CreateRoomDto = {
+  floorId: string;
+  roomName: string;
+};
+
+export async function createRoom(
+  session: Session,
+  createRoomDto: CreateRoomDto,
+): Promise<ICreateResourceResult> {
+  const b = JSON.stringify(createRoomDto);
+  const response = await fetch(BACKEND_URL + "/resources/rooms", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: b,
+  });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IRoom,
+      message: `Success! Created room '${createRoomDto.roomName}'`
+    }
+  }
+
+  return result;
+}
+
 type CreateDeskTypeDto = {
   deskTypeName: string;
 };
+
 export async function createDeskType(
   session: Session,
-  createDeskDto: CreateDeskTypeDto,
-) {
-  const b = JSON.stringify(createDeskDto);
+  createDeskTypeDto: CreateDeskTypeDto,
+): Promise<ICreateResourceResult> {
+  const b = JSON.stringify(createDeskTypeDto);
   const response = await fetch(BACKEND_URL + "/resources/desktypes", {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.accessToken}`,
     },
     body: b,
   });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
   if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
   } else {
-    return `success! Added desk type '${createDeskDto.deskTypeName}'`;
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IDeskType,
+      message: `Success! Created type '${createDeskTypeDto.deskTypeName}'`
+    }
   }
+
+  console.log("x");
+  return result;
 }
 type CreateDeskDto = {
   roomId: string;
   deskName: string;
   deskTypeId: string;
 };
+
 export async function createDesk(
   session: Session,
   createDeskDto: CreateDeskDto,
-) {
+): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createDeskDto);
   const response = await fetch(BACKEND_URL + "/resources/desks", {
-    method: "PUT",
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.accessToken}`,
     },
     body: b,
   });
-  if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
-  } else {
-    return `success! Added desk '${createDeskDto.deskName}'`;
-  }
-}
 
-async function CreateEnity(entityType: string, entityName: string, body: string, session: Session) {
-  const response = await fetch(BACKEND_URL + `/resources/${entityType}s`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: body,
-  });
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
   if (response.status !== 200) {
-    const text = await response.text();
-    return JSON.parse(text);
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
   } else {
-    return `success! Added ${entityType} '${entityName}'`;
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IDesk,
+      message: `Success! Created desk '${createDeskDto.deskName}'`
+    }
   }
+
+  return result;
 }

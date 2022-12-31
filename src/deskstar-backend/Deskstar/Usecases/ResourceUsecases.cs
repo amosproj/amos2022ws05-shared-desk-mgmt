@@ -8,16 +8,17 @@ namespace Deskstar.Usecases;
 public interface IResourceUsecases
 {
     public List<DeskType> GetDeskTypes(Guid companyId);
-    public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
     public List<CurrentBuilding> GetBuildings(Guid userId);
     public List<CurrentFloor> GetFloors(Guid buildingId);
     public List<CurrentRoom> GetRooms(Guid floorId);
     public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
-    public Guid CreateDeskType(string deskTypeName, Guid companyId);
-    public Guid CreateRoom(string roomName, Guid floorId);
-    public Guid CreateFloor(string floorName, Guid buildingId);
-    public Guid CreateBuilding(string buildingName, string location, Guid companyId);
+
+    public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
+    public DeskType CreateDeskType(string deskTypeName, Guid companyId);
+    public Room CreateRoom(string roomName, Guid floorId);
+    public Floor CreateFloor(string floorName, Guid buildingId);
+    public Building CreateBuilding(string buildingName, string location, Guid companyId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -93,7 +94,7 @@ public class ResourceUsecases : IResourceUsecases
         {
             BuildingName = f.Building.BuildingName,
             FloorName = f.FloorName,
-            FloorID = f.FloorId.ToString()
+            FloorId = f.FloorId.ToString()
         });
 
         return mapFloorsToCurrentFloors.ToList();
@@ -221,7 +222,7 @@ public class ResourceUsecases : IResourceUsecases
         return _context.DeskTypes.Where(d => d.CompanyId == companyId).ToList();
     }
 
-    public Guid CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
+    public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
     {
         var desktype = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);
         if (desktype == null)
@@ -249,10 +250,10 @@ public class ResourceUsecases : IResourceUsecases
         _context.Desks.Add(desk);
         _context.SaveChanges();
 
-        return deskId;
+        return desk;
     }
 
-    public Guid CreateDeskType(string deskTypeName, Guid companyId)
+    public DeskType CreateDeskType(string deskTypeName, Guid companyId)
     {
         var company = _context.Companies.SingleOrDefault(c => c.CompanyId == companyId);
         if (company == null)
@@ -275,10 +276,10 @@ public class ResourceUsecases : IResourceUsecases
         _context.DeskTypes.Add(deskType);
         _context.SaveChanges();
 
-        return deskTypeId;
+        return deskType;
     }
 
-    public Guid CreateRoom(string roomName, Guid floorId)
+    public Room CreateRoom(string roomName, Guid floorId)
     {
         var floor = _context.Floors.SingleOrDefault(f => f.FloorId == floorId);
         if (floor == null)
@@ -301,10 +302,10 @@ public class ResourceUsecases : IResourceUsecases
         _context.Rooms.Add(room);
         _context.SaveChanges();
 
-        return roomId;
+        return room;
     }
 
-    public Guid CreateFloor(string floorName, Guid buildingId)
+    public Floor CreateFloor(string floorName, Guid buildingId)
     {
         var building = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
         if (building == null)
@@ -327,10 +328,10 @@ public class ResourceUsecases : IResourceUsecases
         _context.Floors.Add(floor);
         _context.SaveChanges();
 
-        return floorId;
+        return floor;
     }
 
-    public Guid CreateBuilding(string buildingName, string location, Guid companyId)
+    public Building CreateBuilding(string buildingName, string location, Guid companyId)
     {
         var company = _context.Companies.SingleOrDefault(c => c.CompanyId == companyId);
         if (company == null)
@@ -357,6 +358,6 @@ public class ResourceUsecases : IResourceUsecases
         _context.Buildings.Add(building);
         _context.SaveChanges();
 
-        return buildingId;
+        return building;
     }
 }

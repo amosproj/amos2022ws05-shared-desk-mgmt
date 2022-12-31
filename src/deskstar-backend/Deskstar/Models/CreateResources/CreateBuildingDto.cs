@@ -4,7 +4,7 @@ namespace Deskstar.Models;
 
 public class CreateBuildingDto
 {
-    public CreateBuildingDto() { }
+
 
     [Required]
     public string BuildingName { get; set; } = null!;

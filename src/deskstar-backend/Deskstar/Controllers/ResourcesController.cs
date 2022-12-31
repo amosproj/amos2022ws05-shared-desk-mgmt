@@ -17,14 +17,14 @@ public class ResourcesController : ControllerBase
     private readonly IUserUsecases _userUsecases;
     private readonly ILogger<ResourcesController> _logger;
 
-    private readonly IAutoMapperConfiguration _autoMapperConfiguration;
+    private readonly AutoMapper.IMapper _mapper;
 
     public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
     {
         _logger = logger;
         _resourceUsecases = resourceUsecases;
         _userUsecases = userUsecases;
-        _autoMapperConfiguration = autoMapperConfiguration;
+        _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
     }
 
     /// <summary>
@@ -64,14 +64,14 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     PUT /resources/buildings with JWT-Admin Token
+    ///     POST /resources/buildings with JWT-Admin Token
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPut("buildings")]
+    [HttpPost("buildings")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -85,8 +85,9 @@ public class ResourcesController : ControllerBase
         try
         {
             var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
-            _resourceUsecases.CreateBuilding(buildingDto.BuildingName, buildingDto.BuildingName, companyId);
-            return Ok();
+            var building = _resourceUsecases.CreateBuilding(buildingDto.BuildingName, buildingDto.Location, companyId);
+            var resultBuilding = _mapper.Map<Building, CreateBuildingResponseObject>(building);
+            return Ok(resultBuilding);
         }
         catch (EntityNotFoundException e)
         {
@@ -162,14 +163,14 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     Put /resources/floors with JWT-Admin Token
+    ///     POST /resources/floors with JWT-Admin Token
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPut("floors")]
+    [HttpPost("floors")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -182,8 +183,9 @@ public class ResourcesController : ControllerBase
         try
         {
             var buildingId = new Guid(floorDto.BuildingId);
-            _resourceUsecases.CreateFloor(floorDto.FloorName, buildingId);
-            return Ok();
+            var floor = _resourceUsecases.CreateFloor(floorDto.FloorName, buildingId);
+            var resultFloor = _mapper.Map<Floor, CreateFloorResponseObject>(floor);
+            return Ok(resultFloor);
         }
         catch (EntityNotFoundException e)
         {
@@ -258,14 +260,14 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     Put /resources/rooms with JWT-Admin Token
+    ///     POST /resources/rooms with JWT-Admin Token
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPut("rooms")]
+    [HttpPost("rooms")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -279,8 +281,9 @@ public class ResourcesController : ControllerBase
         try
         {
             var floorId = new Guid(roomDto.FloorId);
-            _resourceUsecases.CreateRoom(roomDto.RoomName, floorId);
-            return Ok();
+            var room = _resourceUsecases.CreateRoom(roomDto.RoomName, floorId);
+            var resultRoom = _mapper.Map<Room, CreateRoomResponseObject>(room);
+            return Ok(resultRoom);
         }
         catch (EntityNotFoundException e)
         {
@@ -414,14 +417,14 @@ public class ResourcesController : ControllerBase
     /// </summary>
     /// <remarks>
     /// Sample request:
-    ///     PUT /resources/desks with JWT-Admin Token
+    ///     POST /resources/desks with JWT-Admin Token
     /// </remarks>
     ///
     /// <response code="200">Ok</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPut("desks")]
+    [HttpPost("desks")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -436,8 +439,9 @@ public class ResourcesController : ControllerBase
         {
             var deskTypeId = new Guid(deskDto.DeskTypeId);
             var roomId = new Guid(deskDto.RoomId);
-            _resourceUsecases.CreateDesk(deskDto.DeskName, deskTypeId, roomId);
-            return Ok();
+            var desk = _resourceUsecases.CreateDesk(deskDto.DeskName, deskTypeId, roomId);
+            var resultDesk = _mapper.Map<Desk, CreateDeskResponseObject>(desk);
+            return Ok(resultDesk);
         }
         catch (EntityNotFoundException e)
         {
@@ -487,7 +491,7 @@ public class ResourcesController : ControllerBase
     /// <response code="201"></response>
     /// <response code="400"></response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPut("desktypes")]
+    [HttpPost("desktypes")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -499,8 +503,9 @@ public class ResourcesController : ControllerBase
         try
         {
             var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
-            _resourceUsecases.CreateDeskType(deskTypeDto.DeskTypeName, companyId);
-            return Ok();
+            var deskType = _resourceUsecases.CreateDeskType(deskTypeDto.DeskTypeName, companyId);
+            var resultDeskType = _mapper.Map<DeskType, CreateDeskTypeResponseObject>(deskType);
+            return Ok(resultDeskType);
         }
         catch (Exception e)
         {
@@ -516,7 +521,7 @@ public class ResourcesController : ControllerBase
     ///     Get /resources/desktypes with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="200">List<DeskTypDTO></response>
+    /// <response code="200">List<DeskTypeDto></response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("desktypes")]
     [Authorize(Policy = "Admin")]
@@ -531,10 +536,7 @@ public class ResourcesController : ControllerBase
         {
             var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
             var entities = _resourceUsecases.GetDeskTypes(companyId);
-
-            var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
-            var deskTypes = entities.Select<DeskType, DeskTypeDto>(desktype => mapper.Map<DeskType, DeskTypeDto>(desktype)).ToList();
-
+            var deskTypes = entities.Select<DeskType, DeskTypeDto>(desktype => _mapper.Map<DeskType, DeskTypeDto>(desktype)).ToList();
             return Ok(deskTypes);
         }
         catch (Exception e)
