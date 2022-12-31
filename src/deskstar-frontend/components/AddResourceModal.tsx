@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
-import { useState } from "react";
-import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getFloors, getRooms } from "../lib/api/ResourceService";
+import { useEffect, useState } from "react";
+import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDeskType } from "../types/desktypes";
 import { IFloor } from "../types/floor";
@@ -9,8 +9,16 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
 
-const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }: { buildings: IBuilding[], deskTypes: IDeskType[] }) => {
+const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
     let { data: session } = useSession();
+
+    useEffect(() => {
+        if (!session) {
+            return;
+        }
+
+        getDeskTypes(session).then((dTypes) => setDeskTypes(dTypes));
+    });
 
     const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk", "DeskType"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
@@ -36,7 +44,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes }
     const [buildings, setBuildings] = useState<IBuilding[]>([]);
     const [floors, setFloors] = useState<IFloor[]>([]);
     const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [deskTypes, setDeskTypes] = useState<IDeskType[]>(origDeskTypes);
+    const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
 
     async function onSelectedLocationChange(selectedLocation: ILocation | null | undefined) {
         if (!selectedLocation) {

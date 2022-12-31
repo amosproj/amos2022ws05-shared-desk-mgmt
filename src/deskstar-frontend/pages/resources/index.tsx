@@ -1,33 +1,29 @@
-import Head from "next/head";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
-import { authOptions } from "../api/auth/[...nextauth]";
+import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
-import ResourceManagementTable from "../../components/ResourceManagementTable";
+import { useSession } from "next-auth/react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
-import { IDesk } from "../../types/desk";
-import { IRoom } from "../../types/room";
-import { IBuilding } from "../../types/building";
-import { ILocation } from "../../types/location";
-import { IFloor } from "../../types/floor";
+import ResourceManagementTable from "../../components/ResourceManagementTable";
 import {
   getBuildings,
   getDesks,
-  getDeskTypes,
   getFloors,
-  getRooms,
+  getRooms
 } from "../../lib/api/ResourceService";
-import { GetServerSideProps } from "next";
-import AddResourceModal from "../../components/AddResourceModal";
-import { IDeskType } from "../../types/desktypes";
+import { IBuilding } from "../../types/building";
+import { IDesk } from "../../types/desk";
+import { IFloor } from "../../types/floor";
+import { ILocation } from "../../types/location";
+import { IRoom } from "../../types/room";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 const ResourceOverview = ({
   buildings: origBuildings,
-  deskTypes: deskTypes,
 }: {
   buildings: IBuilding[];
-  deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
 
@@ -143,7 +139,7 @@ const ResourceOverview = ({
           onClick={() => { }}>
           Add Resource
         </a>
-        <AddResourceModal buildings={origBuildings} deskTypes={deskTypes}/>
+        <AddResourceModal buildings={origBuildings} />
 
       </div>
       <DropDownFilter
@@ -231,12 +227,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (session) {
     const buildings = await getBuildings(session);
-    const deskTypes = await getDeskTypes(session);
 
     return {
       props: {
         buildings,
-        deskTypes,
       },
     };
   }
@@ -244,7 +238,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       buildings: [],
-      deskTypes: [],
     },
   };
 };
