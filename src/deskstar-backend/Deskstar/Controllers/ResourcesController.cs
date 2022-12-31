@@ -37,6 +37,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the buildings list</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("buildings")]
     [Authorize]
@@ -67,7 +68,7 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/buildings with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="200">Ok</response>
+    /// <response code="200">CreateBuildingResponseObject</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -114,8 +115,8 @@ public class ResourcesController : ControllerBase
     ///     DELETE /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="205"></response>
-    /// <response code="500">Internal Server Error</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="501">Not Implemented</response>
     [HttpDelete("buildings/{buildingId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status205ResetContent)]
@@ -137,6 +138,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the floor list</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("buildings/{buildingId}/floors")]
     [Authorize]
@@ -166,7 +168,7 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/floors with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="200">Ok</response>
+    /// <response code="200">CreateFloorResponseObject</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -212,8 +214,8 @@ public class ResourcesController : ControllerBase
     ///     DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="205"></response>
-    /// <response code="500">Internal Server Error</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="501">Not Impelemented</response>
     [HttpDelete("floors/{floorId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status205ResetContent)]
@@ -234,6 +236,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the rooms list</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("floors/{floorId}/rooms")]
     [Authorize]
@@ -263,7 +266,7 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/rooms with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="200">Ok</response>
+    /// <response code="200">CreateRoomResponseObject</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -310,8 +313,8 @@ public class ResourcesController : ControllerBase
     ///     DELETE /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="205"></response>
-    /// <response code="500">Internal Server Error</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="501">Not Implemented</response>
     [HttpDelete("rooms/{roomId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status205ResetContent)]
@@ -333,6 +336,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">Returns the desks list</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("rooms/{roomId}/desks")]
     [Authorize]
@@ -420,7 +424,7 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/desks with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="200">Ok</response>
+    /// <response code="200">CreateDeskResponseObject</response>
     /// <response code="400">Bad Request</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -468,8 +472,8 @@ public class ResourcesController : ControllerBase
     ///     DELETE /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="205"></response>
-    /// <response code="500">Internal Server Error</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="501">Not Implemented</response>
     [HttpDelete("desks/{deskId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(StatusCodes.Status205ResetContent)]
@@ -488,8 +492,8 @@ public class ResourcesController : ControllerBase
     ///     POST /resources/desktypes with JWT-Admin Token
     /// </remarks>
     ///
-    /// <response code="201"></response>
-    /// <response code="400"></response>
+    /// <response code="200">CreateDeskTypeResponseObject</response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpPost("desktypes")]
     [Authorize(Policy = "Admin")]
@@ -522,6 +526,7 @@ public class ResourcesController : ControllerBase
     /// </remarks>
     ///
     /// <response code="200">List<DeskTypeDto></response>
+    /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
     [HttpGet("desktypes")]
     [Authorize(Policy = "Admin")]

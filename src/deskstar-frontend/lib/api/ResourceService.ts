@@ -288,7 +288,6 @@ export async function createDeskType(
     }
   }
 
-  console.log("x");
   return result;
 }
 type CreateDeskDto = {
