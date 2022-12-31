@@ -5,14 +5,23 @@ import { IUser } from "../../types/users";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { getUsers } from "../../lib/api/UserService";
+import { getUsers, approveUser, declineUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 
-export default function UserRequests({ users }: { users: IUser[] }) {
+export default function UserRequests({
+  initialUsers,
+}: {
+  initialUsers: IUser[];
+}) {
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
+  const [users, setUsers] = useState(
+    initialUsers.map((user: IUser): IUser => {
+      return { selected: false, ...user };
+    })
+  );
 
   // page is only accessable as admin
   useEffect(() => {
@@ -27,12 +36,37 @@ export default function UserRequests({ users }: { users: IUser[] }) {
   }, [router, session, calledRouter]);
 
   const onApprovalUpdate = async (
-    user: IUser,
+    selectedUsers: IUser[],
     decision: boolean
   ): Promise<void> => {
-    //TODO: Implement
-    if (decision) console.log(`Approving user ${user.userId}...`);
-    else console.log(`Rejecting user ${user.userId}...`);
+    if (!session) return;
+    try {
+      for (const user of selectedUsers) {
+        const response: Response = decision
+          ? await approveUser(session, user.userId)
+          : await declineUser(session, user.userId);
+
+        if (!response.ok) {
+          const error = await response.json();
+          alert(error.detail);
+        }
+      }
+
+      // success
+      alert(
+        `${selectedUsers.length > 1 ? "Users" : "User"} successfully ${
+          decision ? "approved" : "rejected"
+        }!`
+      );
+      setUsers(
+        users.filter(
+          (u) => !selectedUsers.map((u2) => u2.userId).includes(u.userId)
+        )
+      );
+    } catch (error) {
+      console.error(error);
+      alert(`There has been a problem with your fetch operation: ${error}`);
+    }
   };
 
   if (!session?.user?.isAdmin) {
@@ -46,7 +80,11 @@ export default function UserRequests({ users }: { users: IUser[] }) {
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-      <UsersTable users={users} onApprovalUpdate={onApprovalUpdate} />
+      <UsersTable
+        users={users}
+        onApprovalUpdate={onApprovalUpdate}
+        onUsersSelection={setUsers}
+      />
     </>
   );
 }
@@ -64,7 +102,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     return {
       props: {
-        users: users.filter((user: IUser) => !user.isApproved),
+        initialUsers: users.filter((user: IUser) => !user.isApproved),
       },
     };
   }
