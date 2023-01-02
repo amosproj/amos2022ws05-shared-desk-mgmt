@@ -103,4 +103,22 @@ public class BookingUsecases : IBookingUsecases
 
         return booking;
     }
+
+    public void DeleteBooking(Guid userId, Guid bookingId)
+    {
+        var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking == null)
+        {
+            throw new ArgumentException("Booking not found");
+        }
+
+        if (booking.UserId != userId)
+        {
+            throw new ArgumentException("You are not allowed to delete this booking");
+        }
+
+        _context.Bookings.Remove(booking);
+        _context.SaveChanges();
+        return booking;
+    }
 }
