@@ -188,7 +188,6 @@ public class BookingController : ControllerBase
         }
     }
 
-        // create controller for deleting a booking. The booking id is passed in the url
     /// <summary>
     /// Deletes a Booking for Token-User
     /// </summary>
@@ -225,7 +224,7 @@ public class BookingController : ControllerBase
             {
                 "User not found" => NotFound(e.Message),
                 "Booking not found" => NotFound(e.Message),
-                "You are not allowed to delete this booking" => Forbid(e.Message),
+                "You are not allowed to delete this booking" => BadRequest(e.Message),
                 _ => Problem(statusCode: 500)
             };
         }

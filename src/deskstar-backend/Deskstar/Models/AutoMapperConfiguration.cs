@@ -15,6 +15,7 @@ namespace Deskstar.Models
             {
                 UserProfileDto.createMappings(cfg);
                 UserProfileCompanyDto.createMappings(cfg);
+                ExtendedBooking.createMappings(cfg);
             });
             return config;
         }
