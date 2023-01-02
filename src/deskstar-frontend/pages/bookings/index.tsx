@@ -16,6 +16,8 @@ export default function Bookings({ bookings }: { bookings: IBooking[] }) {
   const { data: session } = useSession();
 
   async function onDelete(booking: IBooking) {
+    if (session == null) return;
+
     console.log(`Pressed delete on ${booking.bookingId}`);
 
     try {
