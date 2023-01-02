@@ -3,6 +3,11 @@ import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
 import { IDeskType } from "../../types/desktypes";
 import { IFloor } from "../../types/floor";
+import { CreateBuildingDto } from "../../types/models/CreateBuildingDto";
+import { CreateDeskDto } from "../../types/models/CreateDeskDto";
+import { CreateDeskTypeDto } from "../../types/models/CreateDeskTypeDto";
+import { CreateFloorDto } from "../../types/models/CreateFloorDto";
+import { CreateRoomDto } from "../../types/models/CreateRoomDto";
 import { IRoom } from "../../types/room";
 import { BACKEND_URL } from "./constants";
 
@@ -139,11 +144,6 @@ export async function getDeskTypes(
   return resDeskTypes;
 }
 
-type CreateBuildingDto = {
-  buildingName: string;
-  location: string;
-};
-
 export async function createBuilding(
   session: Session,
   createBuildingDto: CreateBuildingDto,
@@ -176,12 +176,6 @@ export async function createBuilding(
 
   return result;
 }
-
-
-type CreateFloorDto = {
-  buildingId: string;
-  floorName: string;
-};
 
 export async function createFloor(
   session: Session,
@@ -216,11 +210,6 @@ export async function createFloor(
   return result;
 }
 
-type CreateRoomDto = {
-  floorId: string;
-  roomName: string;
-};
-
 export async function createRoom(
   session: Session,
   createRoomDto: CreateRoomDto,
@@ -254,10 +243,6 @@ export async function createRoom(
   return result;
 }
 
-type CreateDeskTypeDto = {
-  deskTypeName: string;
-};
-
 export async function createDeskType(
   session: Session,
   createDeskTypeDto: CreateDeskTypeDto,
@@ -290,11 +275,6 @@ export async function createDeskType(
 
   return result;
 }
-type CreateDeskDto = {
-  roomId: string;
-  deskName: string;
-  deskTypeId: string;
-};
 
 export async function createDesk(
   session: Session,

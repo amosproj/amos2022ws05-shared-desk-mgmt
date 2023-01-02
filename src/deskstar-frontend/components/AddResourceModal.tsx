@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createBuilding, createDesk, createDeskType, createFloor, createRoom, getDeskTypes, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDeskType } from "../types/desktypes";
@@ -9,16 +9,8 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
 
-const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[] }) => {
+const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, }: { buildings: IBuilding[]; deskTypes: IDeskType[] }) => {
     let { data: session } = useSession();
-
-    useEffect(() => {
-        if (!session) {
-            return;
-        }
-
-        getDeskTypes(session).then((dTypes) => setDeskTypes(dTypes));
-    });
 
     const resourceTypes: string[] = ["Building", "Floor", "Room", "Desk", "DeskType"];
     const [selectedResourceType, setSelectedResourceType] = useState("Desk");
@@ -36,15 +28,17 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
     const [floor, setFloor] = useState<IFloor | null>();
     const [building, setBuilding] = useState<IBuilding | null>();
     const [location, setLocation] = useState<ILocation | null>();
-
-    const [locations, setLocations] = useState<ILocation[]>(origBuildings.map((building) => ({
-        locationName: building.location,
-    })));
+    const uniqueLocation = (ogBuildings: IBuilding[])=>{
+        const t = new Map<string, ILocation>();
+        ogBuildings.forEach((element) => t.set(element.location, { locationName: element.location }));
+        return Array.from(t.values())
+    }
+    const [locations, setLocations] = useState<ILocation[]>(uniqueLocation(origBuildings));
 
     const [buildings, setBuildings] = useState<IBuilding[]>([]);
     const [floors, setFloors] = useState<IFloor[]>([]);
     const [rooms, setRooms] = useState<IRoom[]>([]);
-    const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+    const [deskTypes, setDeskTypes] = useState<IDeskType[]>(origDeskTypes);
 
     async function onSelectedLocationChange(selectedLocation: ILocation | null | undefined) {
         if (!selectedLocation) {
@@ -52,11 +46,11 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         }
 
         setLocation(selectedLocation);
-        let buildings = origBuildings.filter((building) =>
+        let filteredBuildings = origBuildings.filter((building) =>
             selectedLocation.locationName === building.location
         );
 
-        setBuildings(buildings);
+        setBuildings(filteredBuildings);
         setBuilding(null);
         setFloor(null);
         setRoom(null);
@@ -118,8 +112,12 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
         console.log(locationName);
         let res = await createBuilding(session, { buildingName: buildingName, location: location ? location.locationName : locationName });
         alert(res.message);
+        origBuildings.push(res.data as IBuilding);
         setBuildings([...buildings, res.data as IBuilding]);
-        setLocations([...locations, { locationName: (res.data as IBuilding).location }]);
+        const tmp = new Map<string, ILocation>();
+        [...locations, { locationName: (res.data as IBuilding).location }].forEach((element) => tmp.set(element.locationName, { locationName: element.locationName }));
+        setLocations(Array.from(tmp.values()));
+        console.log("");
         setIsLoading(false);
     }
 
@@ -271,7 +269,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         />
 
                         <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addBuilding()}>
-                            Add
+                            Confirm
                         </a>
                     </>
                 }
@@ -304,7 +302,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         </>
                         }
                         <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addFloor()}>
-                            Add
+                            Confirm
                         </a>
                     </>
                 }
@@ -350,7 +348,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         </>
                         }
                         <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addRoom()}>
-                            Add
+                            Confirm
                         </a>
                     </>
                 }
@@ -421,7 +419,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                         />
                     </>}
                     <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addDesk()}>
-                        Add
+                        Confirm
                     </a>
                 </>}
 
@@ -429,7 +427,7 @@ const AddResourceModal = ({ buildings: origBuildings }: { buildings: IBuilding[]
                     selectedResourceType === "DeskType" && <>
                         <Input name="Desk Type" onChange={(e) => { setDeskTypeName(e.target.value) }} value={deskTypeName} placeholder="Desk Type Name" />
                         <a className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right" onClick={() => addDeskType()}>
-                            Add
+                            Confirm
                         </a>
                     </>
                 }

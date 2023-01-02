@@ -10,11 +10,13 @@ import ResourceManagementTable from "../../components/ResourceManagementTable";
 import {
   getBuildings,
   getDesks,
+  getDeskTypes,
   getFloors,
   getRooms
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
+import { IDeskType } from "../../types/desktypes";
 import { IFloor } from "../../types/floor";
 import { ILocation } from "../../types/location";
 import { IRoom } from "../../types/room";
@@ -22,8 +24,10 @@ import { authOptions } from "../api/auth/[...nextauth]";
 
 const ResourceOverview = ({
   buildings: origBuildings,
+  deskTypes: origDeskTypes,
 }: {
   buildings: IBuilding[];
+  deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
 
@@ -139,7 +143,7 @@ const ResourceOverview = ({
           onClick={() => { }}>
           Add Resource
         </a>
-        <AddResourceModal buildings={origBuildings} />
+        <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes}/>
 
       </div>
       <DropDownFilter
@@ -227,10 +231,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (session) {
     const buildings = await getBuildings(session);
-
+    const deskTypes = await getDeskTypes(session);
     return {
       props: {
         buildings,
+        deskTypes
       },
     };
   }
@@ -238,6 +243,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       buildings: [],
+      deskTypes: [],
     },
   };
 };
