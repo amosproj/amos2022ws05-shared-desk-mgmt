@@ -9,6 +9,7 @@ public interface IBookingUsecases
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
     public List<ExtendedBooking> GetRecentBookings(Guid userId);
     public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
+    public Booking DeleteBooking(Guid userId, Guid bookingId);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -104,7 +105,7 @@ public class BookingUsecases : IBookingUsecases
         return booking;
     }
 
-    public void DeleteBooking(Guid userId, Guid bookingId)
+    public Booking DeleteBooking(Guid userId, Guid bookingId)
     {
         var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
         if (booking == null)
