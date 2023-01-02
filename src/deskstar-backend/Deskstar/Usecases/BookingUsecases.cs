@@ -107,6 +107,12 @@ public class BookingUsecases : IBookingUsecases
 
     public Booking DeleteBooking(Guid userId, Guid bookingId)
     {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+
         var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
         if (booking == null)
         {

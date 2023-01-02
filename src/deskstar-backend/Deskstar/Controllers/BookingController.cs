@@ -201,6 +201,7 @@ public class BookingController : ControllerBase
     /// <response code="200">Returns the deleted booking</response>
     /// <response code="404">User not found</response>
     /// <response code="404">Booking not found</response>
+    /// <response code="403">User is not allowed to delete this booking</response>
     /// <response code="400">Bad Request</response>
     [HttpDelete("{bookingId}")]
     [Authorize]
@@ -224,6 +225,7 @@ public class BookingController : ControllerBase
             {
                 "User not found" => NotFound(e.Message),
                 "Booking not found" => NotFound(e.Message),
+                "You are not allowed to delete this booking" => Forbid(e.Message),
                 _ => Problem(statusCode: 500)
             };
         }
