@@ -1,3 +1,12 @@
+/**
+ * Program
+ *
+ * Version 1.0
+ *
+ * 2023-01-03
+ *
+ * MIT License
+ */
 using System.Text;
 using AutoMapper;
 using Deskstar;
@@ -7,6 +16,7 @@ using Deskstar.DataAccess;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -36,6 +46,7 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireClaim("IsCompanyAdmin"));
 });
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -52,8 +63,18 @@ if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == 
     Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null}), database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
     return;
 }
+var emailPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PASSWORD) ?? null;
+var emailHost= builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_HOST) ?? null;
+var emailPort = int.Parse(builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PORT) ?? string.Empty);
+var emailUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_USERNAME) ?? null;
+if(emailPassword == null || emailHost == null || emailPort == 0 || emailUsername == null)
+{
+    Console.Error.WriteLine($"missing email configuration. email configuration has password({emailPassword != null}), host({emailHost != null}), port({emailPort != 0}), username({emailUsername != null})");
+    return;
+}
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
+//TODO: add email configuration
 
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
