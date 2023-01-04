@@ -22,8 +22,9 @@
         "DB__USERNAME": "postgres",
         "DB__PASSWORD": "root",
         "EMAIL__HOST": "smtp.web.de",
-        "EMAIL__PORT": "587",
-        "EMAIL__PSW": "dfszjgdfkjhbsdgfu7e87439843"
+        "EMAIL__PORT": "465",
+        "EMAIL__PSW": "dfszjgdfkjhbsdgfu7e87439843",
+        "EMAIL__ADDRESS":"deskstar@web.de"
       }
     },
     "IIS Express": {
@@ -37,8 +38,9 @@
         "DB__USERNAME": "postgres",
         "DB__PASSWORD": "root",
         "EMAIL__HOST": "smtp.web.de",
-        "EMAIL__PORT": "587",
-        "EMAIL__PSW": "dfszjgdfkjhbsdgfu7e87439843"
+        "EMAIL__PORT": "465",
+        "EMAIL__PSW": "dfszjgdfkjhbsdgfu7e87439843",
+        "EMAIL__ADDRESS":"deskstar@web.de"
       }
     }
   }

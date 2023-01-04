@@ -13,6 +13,7 @@ using Deskstar;
 using Deskstar.Core;
 
 using Deskstar.DataAccess;
+using Deskstar.Helper;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -74,7 +75,10 @@ if(emailPassword == null || emailHost == null || emailPort == 0 || emailUsername
 }
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
-//TODO: add email configuration
+EmailHelper.SetMailPort(emailPort);
+EmailHelper.SetMailHost(emailHost);
+EmailHelper.SetMailUsername(emailUsername);
+EmailHelper.SetMailPassword(emailPassword);
 
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();

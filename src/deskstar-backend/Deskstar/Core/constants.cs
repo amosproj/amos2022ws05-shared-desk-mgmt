@@ -15,7 +15,7 @@ namespace Deskstar.Core
         public static readonly string CONFIG_DB_DATABASE = "Db:Database";
         public static readonly string CONFIG_DB_USERNAME = "Db:Username";
         public static readonly string CONFIG_DB_PASSWORD = "Db:Password";
-        public static readonly string CONFIG_EMAIL_PASSWORD = "Email:Password";
+        public static readonly string CONFIG_EMAIL_PASSWORD = "Email:PSW";
         public static readonly string CONFIG_EMAIL_HOST= "Email:Host";
         public static readonly string CONFIG_EMAIL_PORT= "Email:Port";
         public static readonly string CONFIG_EMAIL_USERNAME= "Email:Address";
