@@ -9,6 +9,7 @@ public interface IBookingUsecases
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
     public List<ExtendedBooking> GetRecentBookings(Guid userId);
     public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
+    int CountValidBookings(Guid userId, string direction, DateTime start, DateTime end);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -102,5 +103,15 @@ public class BookingUsecases : IBookingUsecases
         _context.SaveChanges();
 
         return booking;
+    }
+
+    public int CountValidBookings(Guid userId, string direction, DateTime start, DateTime end)
+    {
+        var allBookingsFromUser = _context.Bookings.Where(booking => booking.UserId == userId);
+        var filteredEnd = allBookingsFromUser.Where(b => b.StartTime < end);
+        var filteredStart = filteredEnd.Where(b => b.StartTime >= start);
+        var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
+
+        return sortedBookings.Count();
     }
 }
