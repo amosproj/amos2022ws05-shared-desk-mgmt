@@ -1,13 +1,12 @@
 import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
 import Input from "./forms/Input";
+import { toast } from "react-toastify";
 
 export default function LoginPanel() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [clicked, setClicked] = useState(false);
-
-  const [error, setError] = useState("");
 
   const onSubmit = async (
     e: React.FormEvent<HTMLFormElement>
@@ -21,16 +20,14 @@ export default function LoginPanel() {
     });
     if (result && result.status !== 200) {
       const msg = result.error;
-      setError(msg || "Unknown Error");
+      toast.error(msg);
     }
-    //TODO: display error on status != 200
     setClicked(false);
   };
 
   return (
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Login</h1>
-      <p className="text-red-400">{error}</p>
       <form className="flex flex-col" onSubmit={onSubmit}>
         <Input
           name="email"

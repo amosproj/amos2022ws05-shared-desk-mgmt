@@ -5,15 +5,16 @@ import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { getBookings } from "../../lib/api/BookingService";
+import { toast } from "react-toastify";
 
 export default function Bookings({ bookings }: { bookings: IBooking[] }) {
   const onDelete = (booking: IBooking) => {
     //TODO: implement
-    console.log(`Pressed delete on ${booking.bookingId}`);
+    toast.success(`Pressed delete on ${booking.bookingId}`);
   };
   const onEdit = (booking: IBooking) => {
     //TODO: implement
-    console.log(`Pressed edit on ${booking.bookingId}`);
+    toast.success(`Pressed edit on ${booking.bookingId}`);
   };
 
   return (

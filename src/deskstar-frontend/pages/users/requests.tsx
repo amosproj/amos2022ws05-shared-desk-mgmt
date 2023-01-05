@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { getUsers, approveUser, declineUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
+import { toast } from "react-toastify";
 
 export default function UserRequests({
   initialUsers,
@@ -48,12 +49,12 @@ export default function UserRequests({
 
         if (!response.ok) {
           const error = await response.json();
-          alert(error.detail);
+          toast.error(error.detail);
         }
       }
 
       // success
-      alert(
+      toast.success(
         `${selectedUsers.length > 1 ? "Users" : "User"} successfully ${
           decision ? "approved" : "rejected"
         }!`
@@ -64,8 +65,9 @@ export default function UserRequests({
         )
       );
     } catch (error) {
-      console.error(error);
-      alert(`There has been a problem with your fetch operation: ${error}`);
+      toast.error(
+        `There has been a problem with your fetch operation: ${error}`
+      );
     }
   };
 

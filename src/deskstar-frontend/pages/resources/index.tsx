@@ -18,6 +18,7 @@ import {
   getRooms,
 } from "../../lib/api/ResourceService";
 import { GetServerSideProps } from "next";
+import { toast } from "react-toastify";
 
 const ResourceOverview = ({
   buildings: origBuildings,
@@ -113,12 +114,12 @@ const ResourceOverview = ({
 
   const onEdit = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Editing desk ${desk.deskId}...`);
+    toast.success(`Editing desk ${desk.deskId}...`);
   };
 
   const onDelete = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Deleting desk ${desk.deskId}...`);
+    toast.success(`Deleting desk ${desk.deskId}...`);
   };
 
   return (
