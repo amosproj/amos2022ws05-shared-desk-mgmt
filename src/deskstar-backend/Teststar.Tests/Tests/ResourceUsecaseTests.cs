@@ -1,4 +1,5 @@
-﻿using Deskstar.DataAccess;
+﻿using Deskstar.Core.Exceptions;
+using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Identity;
@@ -39,7 +40,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -65,7 +66,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -116,7 +117,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -142,9 +143,9 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
-        
+
         //act
         try
         {
@@ -218,7 +219,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -246,7 +247,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -293,7 +294,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -325,7 +326,7 @@ public class ResourceUsecaseTests
         //cleanup
         db.Database.EnsureDeleted();
     }
-    
+
     [Test]
     public void GetDesks_WhenDeskIsFound_StartInEndBevore_ShouldReturnACurrentsDeskList()
     {
@@ -353,7 +354,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -385,7 +386,7 @@ public class ResourceUsecaseTests
         //cleanup
         db.Database.EnsureDeleted();
     }
-    
+
     [Test]
     public void GetDesks_WhenDeskIsFound_SameStartAndEndTime_ShouldReturnACurrentsDeskList()
     {
@@ -413,7 +414,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -462,7 +463,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
         var callId = Guid.NewGuid();
 
         //act
@@ -508,7 +509,7 @@ public class ResourceUsecaseTests
 
         //arrange
         var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db);
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
 
         //act
@@ -534,6 +535,563 @@ public class ResourceUsecaseTests
         });
         //cleanup
         db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void GetDeskTypes_WhenDeskTypeIsFound_ShouldReturnDeskTypes()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        SetupMockData(db, deskTypeId: deskTypeId, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+        //act
+        var result = usecases.GetDeskTypes(companyId);
+
+        //assert
+        Assert.That(result, Is.Not.Empty);
+        Assert.That(result[0].DeskTypeId == deskTypeId);
+        Assert.That(result[0].CompanyId == companyId);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void GetDeskTypes_WhenCompanyHasNoDeskTypes_ShouldReturnEmptyList()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        SetupMockData(db, deskTypeId: deskTypeId, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+        //act
+        var result = usecases.GetDeskTypes(new Guid());
+
+        //assert
+        Assert.That(result, Is.Empty);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDesk_WhenValidDeskTypeAndRoomId_ShouldAddDeskAndReturnItsGuid()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        var roomId = Guid.NewGuid();
+        SetupMockData(db, deskTypeId: deskTypeId, companyId: companyId, roomId: roomId);
+
+        db.SaveChanges();
+
+        //arrange
+        var deskName = "validDeskName";
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+        //act
+        var result = usecases.CreateDesk(deskName, deskTypeId, roomId);
+
+        //assert
+        Assert.That(result != null);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDesk_WhenDuplicatedNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        var roomId = Guid.NewGuid();
+        SetupMockData(db, deskTypeId: deskTypeId, companyId: companyId, roomId: roomId);
+
+        db.SaveChanges();
+
+        //arrange
+        var duplicated = "Desk1";
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(duplicated, deskTypeId, roomId));
+
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDesk_WhenNoNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        var roomId = Guid.NewGuid();
+        SetupMockData(db, deskTypeId: deskTypeId, companyId: companyId, roomId: roomId);
+
+        db.SaveChanges();
+
+        //arrange
+        var noDeskName = "";
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(noDeskName, deskTypeId, roomId));
+
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDesk_WhenInvalidDeskType_ShouldThrowEntityNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var invalidDeskTypeId = Guid.NewGuid();
+        var roomId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, roomId: roomId);
+
+        db.SaveChanges();
+
+        //arrange
+        var deskName = "validDeskName";
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, invalidDeskTypeId, roomId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDesk_WhenInvalidRoomId_ShouldThrowEntityNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var companyId = Guid.NewGuid();
+        var deskTypeId = Guid.NewGuid();
+        var invalidRoomId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, deskTypeId: deskTypeId);
+
+        db.SaveChanges();
+
+        //arrange
+        var deskName = "validDeskName";
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, deskTypeId, invalidRoomId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDeskType_WhenInvalidCompanyIdIsProvided_ShouldThrowEntitiyNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+        SetupMockData(db);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var deskTypeName = "validDeskName";
+        var invalidCompanyId = Guid.NewGuid();
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateDeskType(deskTypeName, invalidCompanyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDeskType_WhenNoDeskTypeNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var noDeskTypeName = "";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDeskType(noDeskTypeName, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDeskType_WhenDeskTypeAlreadyExists_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var duplicateName = "Typ1";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDeskType(duplicateName, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateDeskType_WhenValidArgumentsProvided_ShouldCreateDeskType()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var deskTypeName = "ValidName";
+
+        //act+assert
+        Assert.DoesNotThrow(() => usecases.CreateDeskType(deskTypeName, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateRoom_WhenInvalidFloorIdIsProvided_ShouldThrowEntitiyNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+        SetupMockData(db);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var roomName = "validRoomName";
+        var invalidFloorId = Guid.NewGuid();
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateRoom(roomName, invalidFloorId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateRoom_WhenNoRoomNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var floorId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, floorId: floorId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var noRoomName = "";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateRoom(noRoomName, floorId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateRoom_WhenRoomNameAlreadyExists_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var floorId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, floorId: floorId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var duplicateName = "Raum1";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateRoom(duplicateName, floorId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateRoom_WhenValidArgumentsProvided_ShouldCreateRoom()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var floorId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, floorId: floorId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var roomName = "ValidName";
+
+        //act+assert
+        Assert.DoesNotThrow(() => usecases.CreateRoom(roomName, floorId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateFloor_WhenInvalidBuildingIdIsProvided_ShouldThrowEntitiyNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+        SetupMockData(db);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var floorName = "validName";
+        var invalidBuildingId = Guid.NewGuid();
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateFloor(floorName, invalidBuildingId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateFloor_WhenNoFloorNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var buildingId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, buildingId: buildingId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var noFloorName = "";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateFloor(noFloorName, buildingId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateFloor_WhenFloorNameAlreadyExists_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var buildingId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, buildingId: buildingId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var duplicateName = "Stockwerk1";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateFloor(duplicateName, buildingId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateFloor_WhenValidArgumentsProvided_ShouldCreateFloor()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        var buildingId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId, buildingId: buildingId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var floorName = "ValidName";
+
+        //act+assert
+        Assert.DoesNotThrow(() => usecases.CreateFloor(floorName, buildingId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateBuilding_WhenInvalidCompanyIdIsProvided_ShouldThrowEntitiyNotFoundException()
+    {
+        //setup 
+        using var db = new DataContext();
+        SetupMockData(db);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var buildingName = "validName";
+        var location = "validLocation";
+        var invalidCompanyId = Guid.NewGuid();
+
+        //act+assert
+        Assert.Throws<EntityNotFoundException>(() => usecases.CreateBuilding(buildingName, location, invalidCompanyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateBuilding_WhenNoLocationIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var buildingName = "validName";
+        var noLocation = "";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateBuilding(buildingName, noLocation, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateBuilding_WhenNoBuildingNameIsProvided_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var noBuildingName = "";
+        var location = "validLocation";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateBuilding(noBuildingName, location, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateBuilding_WhenBuildingNameAlreadyExists_ShouldThrowArgumentInvalidException()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var duplicateName = "Gebäude1";
+        var location = "validLocation";
+
+        //act+assert
+        Assert.Throws<ArgumentInvalidException>(() => usecases.CreateBuilding(duplicateName, location, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
+    public void CreateBuilding_WhenValidArgumentsProvided_ShouldCreateBuilding()
+    {
+        //setup 
+        using var db = new DataContext();
+        var companyId = Guid.NewGuid();
+        SetupMockData(db, companyId: companyId);
+
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<ResourceUsecases>>();
+        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+        var buildingName = "validName";
+        var location = "validLocation";
+
+        //act+assert
+        Assert.DoesNotThrow(() => usecases.CreateBuilding(buildingName, location, companyId));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    private UserUsecases SetupUserUsecases(DataContext db)
+    {
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        return userUsecases;
     }
 
     private void SetupMockData(DataContext moqDb, Guid companyId = new(), Guid userId = new(), Guid buildingId = new(),
