@@ -78,13 +78,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const start = new Date();
     start.setHours(0, 0, 0);
 
-    const bookings = await getBookings(session, {
+    const data = await getBookings(session, {
       n: 10,
       direction: "DESC",
       start: start.getTime(),
     });
 
-    const bookingsToday = bookings.filter((booking: IBooking) => {
+    const bookingsToday = data.bookings.filter((booking: IBooking) => {
       const today = new Date().toISOString();
       const startOfDay = new Date(today);
       startOfDay.setHours(0, 0, 0);
@@ -101,7 +101,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       );
     });
 
-    const bookingsTomorrow = bookings.filter((booking: IBooking) => {
+    const bookingsTomorrow = data.bookings.filter((booking: IBooking) => {
       const todayTimestamp = new Date().getTime();
 
       let tomorrowTimestamp = todayTimestamp + 86400000;
