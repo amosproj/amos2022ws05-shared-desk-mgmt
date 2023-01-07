@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
 import { Session } from "next-auth";
+import { getUserMe } from "../../../lib/api/UserService";
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.SECRET,
@@ -30,14 +31,22 @@ export const authOptions: NextAuthOptions = {
           throw Error(AuthResponse[err]);
         }
 
-        const user = {
-          id: "1",
-          company: "INTERFLEX",
-          name: "testuser",
-          email: "test@example.com",
-          isApproved: true,
-          isAdmin: true,
-          our_token: result as string,
+        let accessToken = result as string;
+
+        const userResponse = await getUserMe(accessToken);
+
+        if (!userResponse) {
+          return null;
+        }
+
+        const user: User = {
+          id: userResponse.userId,
+          company: userResponse.company,
+          name: userResponse.firstName + " " + userResponse.lastName,
+          email: userResponse.mailAddress,
+          isApproved: userResponse.isApproved,
+          isAdmin: userResponse.isCompanyAdmin,
+          our_token: accessToken,
         };
 
         if (user) {
@@ -50,6 +59,9 @@ export const authOptions: NextAuthOptions = {
     // ...add more providers here
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      return user.isApproved;
+    },
     async jwt({ token, user, account, isNewUser }) {
       if (user) {
         if (user.our_token) {
@@ -58,16 +70,23 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token, user }) {
       session.accessToken = token.accessToken;
 
+      // There is a cache definition in getUserMe to prevent overloading the backend
+      const userResponse = await getUserMe(token.accessToken);
+      if (!userResponse) {
+        return session;
+      }
+
       session.user = {
-        id: "1",
-        name: "testuser",
-        email: "text@example.com",
+        id: userResponse.userId,
+        company: userResponse.company,
+        name: userResponse.firstName + " " + userResponse.lastName,
+        email: userResponse.mailAddress,
+        isApproved: userResponse.isApproved,
+        isAdmin: userResponse.isCompanyAdmin,
         accessToken: token.accessToken,
-        isApproved: true,
-        isAdmin: true,
       };
 
       return session;

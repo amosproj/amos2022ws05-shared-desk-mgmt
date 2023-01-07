@@ -119,3 +119,32 @@ export async function createBooking(
     return "success";
   }
 }
+
+// create function for deleting booking. BookingId is passed as query parameter
+export async function deleteBooking(session: Session, bookingId: string) {
+  const response = await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  // check if response is 200. If not return error message
+  if ((await response.status) !== 200) {
+    let text = await response.text();
+    text = text.substring(1, text.length - 1);
+    console.log(text);
+    switch (text) {
+      case "User not found":
+        return "User not found";
+      case "Booking not found":
+        return "The booking you are trying to delete does not exist";
+      case "You are not allowed to delete this booking":
+        return "You are not allowed to delete this booking";
+      default:
+        return "An unknown error occurred";
+    }
+  } else {
+    return "success";
+  }
+}
