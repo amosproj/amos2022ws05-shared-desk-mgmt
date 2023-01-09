@@ -61,16 +61,18 @@ var dbUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_USER
 var dbPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_PASSWORD) ?? null;
 if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == null)
 {
-    Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null}), database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
+    Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null})," +
+    $"database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
     return;
 }
 var emailPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PASSWORD) ?? null;
-var emailHost= builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_HOST) ?? null;
-var emailPort = int.Parse(builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PORT) ?? string.Empty);
+var emailHost = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_HOST) ?? null;
+var emailPort = builder.Configuration.GetValue<int>(Constants.CONFIG_EMAIL_PORT);
 var emailUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_USERNAME) ?? null;
-if(emailPassword == null || emailHost == null || emailPort == 0 || emailUsername == null)
+if (emailPassword == null || emailHost == null || emailPort == 0 || emailUsername == null)
 {
-    Console.Error.WriteLine($"missing email configuration. email configuration has password({emailPassword != null}), host({emailHost != null}), port({emailPort != 0}), username({emailUsername != null})");
+    Console.Error.WriteLine($"missing email configuration. email configuration has password({emailPassword != null})," +
+                            $" host({emailHost != null}), port({emailPort != 0}), username({emailUsername != null})");
     return;
 }
 
