@@ -8,16 +8,17 @@ import { useState, useEffect } from "react";
 import { getUsers, deleteUser, editUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
-import  ConfirmModal from "../../components/ConfirmModal";
-import  EditUserModal  from "../../components/EditUserModal";
-
+import ConfirmModal from "../../components/ConfirmModal";
+import EditUserModal from "../../components/EditUserModal";
 
 export default function UsersOverview({ users }: { users: IUser[] }) {
   let { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
-  
+
   const [user, setUser] = useState<IUser>();
+
+  const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
 
   // page is only accessable as admin
   useEffect(() => {
@@ -47,18 +48,23 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     setUser(user);
   };
 
-  async function onDelete(user: IUser) {
-    //Show aller
+  async function doDelete() {
+    if (user) {
+      console.log(`Deleting user ${user.userId}...`);
+      if (session == null) return;
+      deleteUser(session, user.userId);
+    }
   }
-  const doDelete = async (user: IUser) => {
-    console.log(`Deleting user ${user.userId}...`);
-    if (session == null) return;
-    deleteUser(session, user.userId);
-  };
-  const saveEdit= async (user:IUser)=>{
+
+  async function onDelete(user: IUser) {
+    setUser(user);
+    setDeleteUserModalOpen(true);
+  }
+
+  const saveEdit = async (user: IUser) => {
     console.log(`Edit user ${user.userId}...`);
     //send edit
-  }
+  };
 
   return (
     <>
@@ -72,7 +78,16 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         onEdit={onEdit}
         onDelete={onDelete}
       />
-      <ConfirmModal title="Delete User"  description="This can&apos;t be undone!" text="" warn buttonText="DELETE" action={doDelete}></ConfirmModal>
+      <ConfirmModal
+        title="Delete User"
+        description="This can't be undone!"
+        text=""
+        warn
+        buttonText="DELETE"
+        action={doDelete}
+        isOpen={isDeleteUserModalOpen}
+        setIsOpen={setDeleteUserModalOpen}
+      ></ConfirmModal>
       {/*<EditUserModal user={user} action={saveEdit}/>*/}
     </>
   );
