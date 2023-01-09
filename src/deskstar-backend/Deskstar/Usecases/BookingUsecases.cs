@@ -10,7 +10,7 @@ public interface IBookingUsecases
     public List<ExtendedBooking> GetRecentBookings(Guid userId);
     public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
     public Booking DeleteBooking(Guid userId, Guid bookingId);
-    public Booking UpdateBooking(Guid userId, Guid bookingId, BookingRequest bookingRequest);
+    public Booking UpdateBooking(Guid userId, Guid bookingId, UpdateBookingRequest updateBookingRequest);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -130,7 +130,7 @@ public class BookingUsecases : IBookingUsecases
         return booking;
     }
 
-    public Booking UpdateBooking(Guid userId, Guid bookingId, BookingRequest bookingRequest)
+    public Booking UpdateBooking(Guid userId, Guid bookingId, UpdateBookingRequest updateBookingRequest)
     {
         var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
         if (user == null)
@@ -151,14 +151,14 @@ public class BookingUsecases : IBookingUsecases
 
         // check if desk available
         var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId);
-        var timeSlotAvailable = bookings.All(b => b.StartTime >= bookingRequest.EndTime || b.EndTime <= bookingRequest.StartTime);
+        var timeSlotAvailable = bookings.All(b => b.StartTime >= updateBookingRequest.EndTime || b.EndTime <= updateBookingRequest.StartTime);
         if (!timeSlotAvailable)
         {
             throw new ArgumentException("Time slot not available");
         }
 
-        booking.StartTime = bookingRequest.StartTime;
-        booking.EndTime = bookingRequest.EndTime;
+        booking.StartTime = updateBookingRequest.StartTime;
+        booking.EndTime = updateBookingRequest.EndTime;
         booking.Timestamp = DateTime.Now;
 
         _context.SaveChanges();

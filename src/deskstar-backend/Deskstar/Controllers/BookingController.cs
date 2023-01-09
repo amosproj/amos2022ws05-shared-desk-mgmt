@@ -254,9 +254,9 @@ public class BookingController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
-    public IActionResult UpdateBooking(string bookingId, [FromBody] BookingRequest bookingRequest)
+    public IActionResult UpdateBooking(string bookingId, [FromBody] UpdateBookingRequest updateBookingRequest)
     {
-        if (bookingRequest.StartTime.Equals(DateTime.MinValue) || bookingRequest.EndTime.Equals(DateTime.MinValue))
+        if (updateBookingRequest.StartTime.Equals(DateTime.MinValue) || updateBookingRequest.EndTime.Equals(DateTime.MinValue))
         {
             return BadRequest("Required fields are missing");
         }
@@ -265,7 +265,7 @@ public class BookingController : ControllerBase
 
         try
         {
-            var booking = _bookingUsecases.UpdateBooking(userId, new Guid(bookingId), bookingRequest);
+            var booking = _bookingUsecases.UpdateBooking(userId, new Guid(bookingId), updateBookingRequest);
             return Ok(booking);
         }
         catch (Exception e)
