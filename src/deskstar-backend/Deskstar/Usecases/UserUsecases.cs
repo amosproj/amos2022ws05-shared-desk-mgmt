@@ -102,7 +102,6 @@ public class UserUsecases : IUserUsecases
             throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
         return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
     }
-
     
     public Guid UpdateUser(string requestUserId, User user)
     {
