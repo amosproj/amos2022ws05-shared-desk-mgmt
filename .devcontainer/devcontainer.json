@@ -29,6 +29,7 @@
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "dotnet tool install --global dotnet-ef",
+  "postStartCommand": "git config core.autocrlf true",
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/vscode/.dotnet/tools"
   }
