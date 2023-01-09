@@ -54,6 +54,32 @@ export function declineUser(
   });
 }
 
+export function deleteUser(
+  session: Session,
+  userId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/users/delete/${userId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
+export function editUser(
+  session: Session,
+  user: IUser
+  ): Promise<Response> {
+  return fetch(BACKEND_URL + `/users/edit`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user)
+  });
+}
+
 type UserResponse = {
   userId: string;
   firstName: string;

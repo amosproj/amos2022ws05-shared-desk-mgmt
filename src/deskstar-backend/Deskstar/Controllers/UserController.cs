@@ -321,7 +321,7 @@ public class UserController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpPost("/delete/{userId}")]
+    [HttpDelete("/delete/{userId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
