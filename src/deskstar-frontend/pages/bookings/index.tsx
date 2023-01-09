@@ -4,14 +4,35 @@ import BookingsTable from "../../components/BookingsTable";
 import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import { getBookings } from "../../lib/api/BookingService";
+import { getBookings, deleteBooking } from "../../lib/api/BookingService";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
 
 export default function Bookings({ bookings }: { bookings: IBooking[] }) {
-  const onDelete = (booking: IBooking) => {
-    //TODO: implement
-    toast.success(`Pressed delete on ${booking.bookingId}`);
-  };
+  const { data: session } = useSession();
+
+  async function onDelete(booking: IBooking) {
+    if (session == null) return;
+
+    try {
+      let response = await deleteBooking(session, booking.bookingId);
+
+      if (response == "success") {
+        toast.success("Booking successfully deleted!");
+
+        let index = bookings.indexOf(booking);
+        if (index > -1) {
+          bookings.splice(index, 1);
+        }
+        return;
+      } else {
+        toast.error(response);
+      }
+    } catch (error) {
+      toast.error("Error calling Server:" + error);
+    }
+  }
+
   const onEdit = (booking: IBooking) => {
     //TODO: implement
     toast.success(`Pressed edit on ${booking.bookingId}`);
@@ -22,7 +43,6 @@ export default function Bookings({ bookings }: { bookings: IBooking[] }) {
       <Head>
         <title>Bookings</title>
       </Head>
-
       <h1 className="text-3xl font-bold text-center my-10">My Bookings</h1>
       <BookingsTable bookings={bookings} onEdit={onEdit} onDelete={onDelete} />
     </div>

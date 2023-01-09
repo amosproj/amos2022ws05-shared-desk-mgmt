@@ -30,7 +30,10 @@ export async function getUsers(session: Session): Promise<IUser[]> {
   });
 }
 
-export function approveUser(session: Session, userId: string): Promise<Response> {
+export function approveUser(
+  session: Session,
+  userId: string
+): Promise<Response> {
   return fetch(BACKEND_URL + `/users/${userId}/approve`, {
     method: "POST",
     headers: {
@@ -39,11 +42,45 @@ export function approveUser(session: Session, userId: string): Promise<Response>
   });
 }
 
-export function declineUser(session: Session, userId: string): Promise<Response> {
+export function declineUser(
+  session: Session,
+  userId: string
+): Promise<Response> {
   return fetch(BACKEND_URL + `/users/${userId}/decline`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+}
+
+type UserResponse = {
+  userId: string;
+  firstName: string;
+  lastName: string;
+  mailAddress: string;
+  companyId: string;
+  isCompanyAdmin: boolean;
+  isApproved: boolean;
+  company: {
+    companyId: string;
+    companyName: string;
+    logo: boolean;
+  };
+};
+
+export async function getUserMe(
+  accessToken: String
+): Promise<UserResponse | undefined> {
+  const response = await fetch(BACKEND_URL + `/users/me`, {
+    method: "GET",
+    next: {
+      revalidate: 10 * 60, // Only fetch the data after ten minute
+    },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return response.json();
 }

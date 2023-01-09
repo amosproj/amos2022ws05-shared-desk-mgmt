@@ -6,21 +6,29 @@ declare module "next-auth" {
    */
   interface Session {
     user: {
-      id: string;
-      accessToken: string;
+      id: String;
+      accessToken: String;
       isApproved: boolean;
       isAdmin: boolean;
+      company: {
+        companyName: String;
+        companyId: String;
+      };
     } & DefaultSession["user"];
-    accessToken: string;
+    accessToken: String;
   }
 
   interface User {
-    our_token?: string;
+    our_token?: String;
+    company: {
+      companyName: String;
+      companyId: String;
+    };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    accessToken: string;
+    accessToken: String;
   }
 }

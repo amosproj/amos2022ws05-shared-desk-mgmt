@@ -9,6 +9,7 @@ public interface IBookingUsecases
     public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
     public List<ExtendedBooking> GetRecentBookings(Guid userId);
     public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
+    public Booking DeleteBooking(Guid userId, Guid bookingId);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -101,6 +102,30 @@ public class BookingUsecases : IBookingUsecases
         _context.Bookings.Add(booking);
         _context.SaveChanges();
 
+        return booking;
+    }
+
+    public Booking DeleteBooking(Guid userId, Guid bookingId)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+
+        var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking == null)
+        {
+            throw new ArgumentException("Booking not found");
+        }
+
+        if (booking.UserId != userId)
+        {
+            throw new ArgumentException("You are not allowed to delete this booking");
+        }
+
+        _context.Bookings.Remove(booking);
+        _context.SaveChanges();
         return booking;
     }
 }

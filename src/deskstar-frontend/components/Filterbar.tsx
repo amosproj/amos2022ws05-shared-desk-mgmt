@@ -97,7 +97,7 @@ export default function Filterbar({
       return;
     }
 
-    const rooms = await getRooms(session, selectedFloor.floorID);
+    const rooms = await getRooms(session, selectedFloor.floorId);
 
     setRooms(rooms);
     setSelectedRoom(null);
@@ -123,11 +123,6 @@ export default function Filterbar({
 
     const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
 
-    let deskTypes = filteredDesks.map((desk) => ({
-      typeId: desk.deskTyp,
-      typeName: desk.deskTyp,
-    }));
-
     setDeskTypes(deskTypes);
     setSelectedDeskType(null); // Equals all there
 
@@ -143,7 +138,7 @@ export default function Filterbar({
     }
 
     const filteredDesks = desks.filter(
-      (desk) => desk.deskTyp === selectedDeskType.typeName
+      (desk) => desk.deskTyp === selectedDeskType.deskTypeName
     );
 
     setFilteredDesks(filteredDesks);
@@ -179,7 +174,7 @@ export default function Filterbar({
             selectedItem={selectedFloor}
             setSelectedItem={setSelectedFloor}
             getName={(floor) => floor?.floorName ?? "Kein Stockwerk ausgewählt"}
-            getKey={(floor) => floor?.floorID}
+            getKey={(floor) => floor?.floorId}
           />
         )}
 
@@ -199,9 +194,9 @@ export default function Filterbar({
             selectedItem={selectedDeskType}
             setSelectedItem={setSelectedDeskType}
             getName={(deskType) =>
-              deskType?.typeName ?? "Kein Schreibtischtyp ausgewählt"
+              deskType?.deskTypeName ?? "Kein Schreibtischtyp ausgewählt"
             }
-            getKey={(deskType) => deskType.typeId}
+            getKey={(deskType) => deskType.deskTypeId}
             allOption={true}
           />
         )}

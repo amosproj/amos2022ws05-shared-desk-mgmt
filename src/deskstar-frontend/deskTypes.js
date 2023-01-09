@@ -1,10 +1,10 @@
 export const deskTypes = [
     {
-        typeId: "1",
-        typeName: "Standard",
+        deskTypeId: "1",
+        deskTypeName: "Standard",
     },
     {
-        typeId: "2",
-        typeName: "Height Adjustable",
+        deskTypeId: "2",
+        deskTypeName: "Height Adjustable",
     }
 ]
