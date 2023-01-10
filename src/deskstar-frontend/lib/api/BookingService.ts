@@ -1,5 +1,5 @@
 import { Session } from "next-auth";
-import { IBooking } from "../../types/booking";
+import { IBooking, GetBookingsResponse } from "../../types/booking";
 import { BACKEND_URL } from "./constants";
 
 type QueryOptions = {
@@ -33,35 +33,45 @@ function getParams(queryOptions: QueryOptions) {
 export async function getBookings(
   session: Session,
   queryOptions: QueryOptions
-): Promise<IBooking[]> {
-  if (!session.user) return [];
+): Promise<GetBookingsResponse> {
+  if (!session.user)
+    return {
+      amountOfBookings: 0,
+      bookings: [],
+    };
 
   const params = getParams(queryOptions);
-  const response = await fetch(BACKEND_URL + `/bookings/range?${params}`, {
+  const response = await fetch(BACKEND_URL + `/bookings?${params}`, {
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
 
   if (response.status !== 200) {
-    return [];
+    return {
+      amountOfBookings: 0,
+      bookings: [],
+    };
   }
 
   const data = await response.json();
 
-  const bookings: IBooking[] = data.map((val: any) => {
-    return {
-      bookingId: val.timestamp,
-      userId: session.user.id,
-      room: val.roomName,
-      floor: val.floorName,
-      building: val.buildingName,
-      location: "N/A",
-      ...val,
-    };
-  });
+  const bookingsResponse: GetBookingsResponse = {
+    amountOfBookings: data.amountOfBookings,
+    bookings: data?.bookings.map((val: any) => {
+      return {
+        bookingId: val.timestamp,
+        userId: session.user.id,
+        room: val.roomName,
+        floor: val.floorName,
+        building: val.buildingName,
+        location: "N/A",
+        ...val,
+      };
+    }),
+  };
 
-  return bookings;
+  return bookingsResponse;
 }
 
 export async function createBooking(
