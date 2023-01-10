@@ -435,6 +435,241 @@ public class BookingUsecasesTest
     }
 
     [Test]
+    public void UpdateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var deskId = Guid.NewGuid();
+        SetupMockData(db, deskId: deskId);
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var updateBookingRequest = new UpdateBookingRequest
+        {
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        //act
+        try
+        {
+            var result = usecases.UpdateBooking(Guid.NewGuid(), Guid.NewGuid(), updateBookingRequest);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("User not found"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void UpdateBooking_WhenBookingNotExists_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        SetupMockData(db, userId: userId);
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var updateBookingRequest = new UpdateBookingRequest
+        {
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        //act
+        try
+        {
+            var result = usecases.UpdateBooking(userId, Guid.NewGuid(), updateBookingRequest);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("Booking not found"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void UpdateBooking_WhenBookingNotFromUser_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId1 = Guid.NewGuid();
+        var userId2 = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId1, deskId: deskId);
+        SetupMockData(db, userId: userId2);
+
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId1,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var updateBookingRequest = new UpdateBookingRequest
+        {
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+
+        //act
+        try
+        {
+            var result = usecases.UpdateBooking(userId2, bookingId, updateBookingRequest);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("You are not allowed to update this booking"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void UpdateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+        var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
+
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        var secondBooking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        db.Add(firstBooking);
+        db.Add(secondBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var updateBookingRequest = new UpdateBookingRequest
+        {
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        //act
+        try
+        {
+            var result = usecases.UpdateBooking(userId, bookingId, updateBookingRequest);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("Time slot not available"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void UpdateBooking_WhenAvailable_ShouldReturnABooking()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+        var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
+
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = fbStart,
+            EndTime = fbEnd
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        var updateBookingRequest = new UpdateBookingRequest
+        {
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        //act
+        var result = usecases.UpdateBooking(userId, bookingId, updateBookingRequest);
+
+        //assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.BookingId, Is.EqualTo(bookingId));
+        Assert.That(result.UserId, Is.EqualTo(userId));
+        Assert.That(result.DeskId, Is.EqualTo(deskId));
+        Assert.That(result.StartTime, Is.EqualTo(updateBookingRequest.StartTime));
+        Assert.That(result.EndTime, Is.EqualTo(updateBookingRequest.EndTime));
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
     public void DeleteBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
     {
         //setup 

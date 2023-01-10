@@ -4,7 +4,7 @@ import BookingsTable from "../../components/BookingsTable";
 import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import { getBookings, deleteBooking } from "../../lib/api/BookingService";
+import { getBookings, deleteBooking, updateBooking } from "../../lib/api/BookingService";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -24,10 +24,6 @@ export default function Bookings({
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
 
-  const [showAlertSuccess, setShowAlertSuccess] = useState(false);
-  const [showAlertError, setShowAlertError] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-
   const { data: session } = useSession();
 
   const refreshData = (newPageNumber: number) => {
@@ -38,7 +34,6 @@ export default function Bookings({
 
   const onDelete = async (booking: IBooking) => {
     if (session == null) return;
-    //TODO: implement
     console.log(`Pressed delete on ${booking.bookingId}`);
 
     try {
@@ -59,10 +54,30 @@ export default function Bookings({
       toast.error("Error calling Server:" + error);
     }
   };
-  
-  const onEdit = (booking: IBooking) => {
-    //TODO: implement
-    toast.success(`Pressed edit on ${booking.bookingId}`);
+
+  const onEdit = async (booking: IBooking, newStartTime: Date, newEndTime: Date) => {
+    if (session == null) return;
+    //toast.success(`Pressed edit on ${booking.bookingId}`);
+    const offset = newStartTime.getTimezoneOffset();
+
+    const update = {
+      startTime: new Date(
+        newStartTime.getTime() - offset * 60 * 1000
+      ).toISOString(),
+      endTime: new Date(
+        newEndTime.getTime() - offset * 60 * 1000
+      ).toISOString(),
+    };
+
+    try {
+      const response = await updateBooking(session, booking.bookingId, update.startTime, update.endTime)
+      console.log(response);
+      if(!response.ok)
+        return toast.error(`Error: ${response.status} ${response.statusText}`)
+      toast.success(`${booking.bookingId} updated.`)
+    } catch (error) {
+      toast.error("Error during update: " + error);
+    }
   };
 
   return (
