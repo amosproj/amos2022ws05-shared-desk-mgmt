@@ -33,18 +33,18 @@ public class BookingController : ControllerBase
 
 
     /// <summary>
-    /// Returns a list of paginated bookings ranging from a start to an end timestamp.
+    /// Returns a paginated bookings ranging from a start to an end timestamp.
     /// </summary>
-    /// <returns>A List of Bookings in JSON Format (can be empty) </returns>
+    /// <returns>A List of Bookings and the total amount of bookings for the user in JSON Format (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     Get /bookings/range?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
+    ///     Get /bookings?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
     /// </remarks>
     ///
-    /// <response code="200">Returns the booking list</response>
+    /// <response code="200">Returns the booking list and amounts of bookings of user</response>
     /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("range")]
+    [HttpGet]
     [Authorize]
     [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -97,11 +97,18 @@ public class BookingController : ControllerBase
         try
         {
             var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
+            var amountOfBookings = _bookingUsecases.CountValidBookings(userId, direction, startDateTime, endDateTime);
 
             var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
             var mapped = bookings.Select((b) => mapper.Map<Entities.Booking, ExtendedBooking>(b)).ToList();
 
-            return Ok(mapped);
+            var paginated = new PaginatedBookingsDto
+            {
+                AmountOfBookings = amountOfBookings,
+                Bookings = mapped,
+            };
+
+            return Ok(paginated);
         }
         catch (Exception e)
         {
