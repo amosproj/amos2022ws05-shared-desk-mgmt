@@ -1,4 +1,13 @@
-﻿using Deskstar.Core;
+﻿/**
+ * Program
+ *
+ * Version 1.0
+ *
+ * 2023-01-03
+ *
+ * MIT License
+ */
+using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;

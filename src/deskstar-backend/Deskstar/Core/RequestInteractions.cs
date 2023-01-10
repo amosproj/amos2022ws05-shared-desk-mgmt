@@ -1,3 +1,12 @@
+/**
+ * Program
+ *
+ * Version 1.0
+ *
+ * 2023-01-03
+ *
+ * MIT License
+ */
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Net.Http.Headers;
 
