@@ -521,10 +521,20 @@ public class BookingUsecasesTest
             DeskId = deskId,
             UserId = userId,
             Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        var secondBooking = new Booking
+        {
+            BookingId = Guid.NewGuid(),
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
             StartTime = fbStart,
             EndTime = fbEnd
         };
         db.Add(firstBooking);
+        db.Add(secondBooking);
         db.SaveChanges();
 
         //arrange

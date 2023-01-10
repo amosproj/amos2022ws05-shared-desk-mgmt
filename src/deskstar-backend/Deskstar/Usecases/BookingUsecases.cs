@@ -149,8 +149,7 @@ public class BookingUsecases : IBookingUsecases
             throw new ArgumentException("You are not allowed to update this booking");
         }
 
-        // check if desk available
-        var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId);
+        var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId && b.BookingId != bookingId);
         var timeSlotAvailable = bookings.All(b => b.StartTime >= updateBookingRequest.EndTime || b.EndTime <= updateBookingRequest.StartTime);
         if (!timeSlotAvailable)
         {
@@ -161,6 +160,7 @@ public class BookingUsecases : IBookingUsecases
         booking.EndTime = updateBookingRequest.EndTime;
         booking.Timestamp = DateTime.Now;
 
+        _context.Bookings.Update(booking);
         _context.SaveChanges();
         return booking;
     }
