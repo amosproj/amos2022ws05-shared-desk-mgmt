@@ -20,6 +20,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   const [user, setUser] = useState<IUser>();
 
   const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
+  const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
 
   // page is only accessable as admin
   useEffect(() => {
@@ -44,10 +45,14 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   };
 
   const onEdit = async (user: IUser): Promise<void> => {
-    //TODO: Implement
-    console.log(`Editing user ${user.userId}...`);
     setUser(user);
+    setEditUserModalOpen(true);
   };
+
+  async function onDelete(user: IUser): Promise<void> {
+    setUser(user);
+    setDeleteUserModalOpen(true);
+  }
 
   async function doDelete() {
     if (user) {
@@ -59,15 +64,13 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     router.reload();
   }
 
-  async function onDelete(user: IUser) {
-    setUser(user);
-    setDeleteUserModalOpen(true);
+  async function doEdit() {
+    if (user) {
+      console.log(`Edit user ${user.userId}...`);
+      if (session == null) return;
+      editUser(session, user);
+    }
   }
-
-  const saveEdit = async (user: IUser) => {
-    console.log(`Edit user ${user.userId}...`);
-    //send edit
-  };
 
   return (
     <>
@@ -82,7 +85,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         onDelete={onDelete}
       />
       <ConfirmModal
-        title="Delete User"
+        title={"Delete User" + user?.firstName + " " + user?.lastName + "?"}
         description="This can't be undone!"
         text=""
         warn
@@ -91,7 +94,12 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         isOpen={isDeleteUserModalOpen}
         setIsOpen={setDeleteUserModalOpen}
       ></ConfirmModal>
-      {/*<EditUserModal user={user} action={saveEdit}/>*/}
+      <EditUserModal
+        user={user}
+        action={doEdit}
+        isOpen={isEditUserModalOpen}
+        setIsOpen={setEditUserModalOpen}
+      />
     </>
   );
 }
