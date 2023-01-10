@@ -163,7 +163,7 @@ export async function updateBooking(
   startTime: string,
   endTime: string
 ){
-  return await fetch(`/bookings/${bookingId}`, {
+  return await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
