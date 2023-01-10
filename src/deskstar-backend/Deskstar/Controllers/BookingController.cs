@@ -279,6 +279,10 @@ public class BookingController : ControllerBase
 
         var userId = RequestInteractions.ExtractIdFromRequest(Request);
 
+        // ToDo: require Frontend to Use Universaltime
+        updateBookingRequest.StartTime = updateBookingRequest.StartTime.ToLocalTime();
+        updateBookingRequest.EndTime = updateBookingRequest.EndTime.ToLocalTime();
+
         try
         {
             var booking = _bookingUsecases.UpdateBooking(userId, new Guid(bookingId), updateBookingRequest);
