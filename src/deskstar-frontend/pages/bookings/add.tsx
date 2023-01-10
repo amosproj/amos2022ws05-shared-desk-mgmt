@@ -12,6 +12,7 @@ import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
 import Filterbar from "../../components/Filterbar";
 import DesksTable from "../../components/DesksTable";
+import { toast } from "react-toastify";
 
 export default function AddBooking({
   buildings: origBuildings,
@@ -64,15 +65,15 @@ export default function AddBooking({
         message = `You successfully booked the desk ${desk.deskName} from ${startDateTime} to ${endDateTime}`;
         event.target.setAttribute("class", "btn btn-disabled");
         setButtonText("Booked");
+        toast.success(message);
       } else {
         console.log(response);
         message = response;
         event.target.setAttribute("class", "btn btn-success");
+        toast.error(message);
       }
-
-      alert(message);
     } catch (error) {
-      console.error("Error calling createBooking:", error);
+      toast.error(`Error calling createBooking: ${error}`);
       event.target.setAttribute("class", "btn btn-success");
     }
   }

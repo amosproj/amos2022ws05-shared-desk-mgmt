@@ -5,6 +5,7 @@ import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { getBookings, deleteBooking } from "../../lib/api/BookingService";
+import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -44,8 +45,7 @@ export default function Bookings({
       let response = await deleteBooking(session, booking.bookingId);
 
       if (response == "success") {
-        setAlertMessage("Booking successfully deleted!");
-        setShowAlertSuccess(true);
+        toast.success("Booking successfully deleted!");
 
         let index = bookings.indexOf(booking);
         if (index > -1) {
@@ -53,25 +53,17 @@ export default function Bookings({
         }
         return;
       } else {
-        setAlertMessage(response);
-        setShowAlertError(true);
+        toast.error(response);
       }
     } catch (error) {
-      console.error("Error calling createBooking:", error);
-      setAlertMessage("Error calling Server:" + error);
-      setShowAlertError(true);
-      return;
+      toast.error("Error calling Server:" + error);
     }
   };
+  
   const onEdit = (booking: IBooking) => {
     //TODO: implement
-    console.log(`Pressed edit on ${booking.bookingId}`);
+    toast.success(`Pressed edit on ${booking.bookingId}`);
   };
-
-  function onClose() {
-    setShowAlertSuccess(false);
-    setShowAlertError(false);
-  }
 
   return (
     <div>
@@ -79,62 +71,6 @@ export default function Bookings({
         <title>Bookings</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">My Bookings</h1>
-      {showAlertSuccess && (
-        <div>
-          <div className="alert alert-success shadow-lg">
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current flex-shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{alertMessage}</span>
-            </div>
-            <div className="flex-none">
-              <button onClick={onClose} className="btn btn-sm">
-                Ok
-              </button>
-            </div>
-          </div>
-          <br />
-        </div>
-      )}
-      {showAlertError && (
-        <div>
-          <div className="alert alert-error shadow-lg">
-            <div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="stroke-current flex-shrink-0 h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>{alertMessage}</span>
-            </div>
-            <div className="flex-none">
-              <button onClick={onClose} className="btn btn-sm">
-                Ok
-              </button>
-            </div>
-          </div>
-          <br />
-        </div>
-      )}
       <BookingsTable bookings={bookings} onEdit={onEdit} onDelete={onDelete} />
       <div className="flex justify-center mt-10">
         <Paginator
