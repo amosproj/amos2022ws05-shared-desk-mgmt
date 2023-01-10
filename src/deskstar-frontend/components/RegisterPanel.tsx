@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
+import { toast } from "react-toastify";
 
 export default function RegisterPanel() {
   const [company, setCompany] = useState("");
@@ -13,7 +14,6 @@ export default function RegisterPanel() {
 
   // const [msg, setMsg] = useState("");
 
-  const [error, setError] = useState("");
   const [clicked, setClicked] = useState(false);
 
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function RegisterPanel() {
     setClicked(true);
 
     if (password !== repeatPassword) {
-      setError("Passwords must be equal!");
+      toast.error("Passwords must be equal!");
 
       setClicked(false);
       return;
@@ -42,11 +42,11 @@ export default function RegisterPanel() {
     if (response !== AuthResponse.Success) {
       switch (response) {
         case AuthResponse.ErrorCompanyNotFound:
-          setError("Company not Found");
+          toast.error("Company not Found");
         case AuthResponse.ErrorEmailaddressAlreadyExists:
-          setError("Email adress already registered");
+          toast.error("Email adress already registered");
         default:
-          setError("unknown error");
+          toast.error("Unknown error");
       }
       return;
     }
@@ -57,7 +57,6 @@ export default function RegisterPanel() {
   return (
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Register</h1>
-      <span className="text-red-400">{error}</span>
       <form className="flex flex-col" onSubmit={submitForm}>
         <Input
           name="company"

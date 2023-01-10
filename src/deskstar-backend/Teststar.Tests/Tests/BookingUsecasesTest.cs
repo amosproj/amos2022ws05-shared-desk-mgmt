@@ -11,6 +11,62 @@ namespace Teststar.Tests.Tests;
 public class BookingUsecasesTest
 {
     [Test]
+    public void CountValidBookings_WhenBookingsAvailable_ShouldReturnNumberOfBookings()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        SetupMockData(db, userId: userId);
+
+        //arrange
+        var direction = "DESC";
+        var start = DateTime.Now;
+        var end = DateTime.Now;
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        var numberOfBookings = usecases.CountValidBookings(userId, direction, start, end);
+
+        //assert
+        Assert.Zero(numberOfBookings);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void CountValidBookings_WhenNoBookingsAvailable_ShouldReturnZero()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        SetupMockData(db, userId: userId, deskId: deskId);
+
+        //arrange
+        var direction = "DESC";
+        var start = DateTime.Now;
+        var end = DateTime.Now.Add(TimeSpan.FromDays(3));
+        var fbId = Guid.NewGuid();
+        var sbId = Guid.NewGuid();
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+        SetupTwoBookings(db, userId, deskId, fbId, sbId);
+
+        //act
+        var numberOfBookings = usecases.CountValidBookings(userId, direction, start, end);
+
+        //assert
+        Assert.NotZero(numberOfBookings);
+        Assert.That(numberOfBookings == 2);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
     public void GetFilteredBookings_WhenDefaultConfigIsUsed_ShouldReturnASingleBooking()
     {
         //setup 
