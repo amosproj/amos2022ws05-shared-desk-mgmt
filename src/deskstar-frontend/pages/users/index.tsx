@@ -13,6 +13,7 @@ import EditUserModal from "../../components/EditUserModal";
 
 export default function UsersOverview({ users }: { users: IUser[] }) {
   let { data: session } = useSession();
+
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
 
@@ -54,6 +55,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
       if (session == null) return;
       deleteUser(session, user.userId);
     }
+    // reload page
+    router.reload();
   }
 
   async function onDelete(user: IUser) {
