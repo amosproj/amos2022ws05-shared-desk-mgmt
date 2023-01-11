@@ -1,28 +1,34 @@
-import Head from "next/head";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
-import { authOptions } from "../api/auth/[...nextauth]";
+import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
-import ResourceManagementTable from "../../components/ResourceManagementTable";
+import { useSession } from "next-auth/react";
+import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
-import { IDesk } from "../../types/desk";
-import { IRoom } from "../../types/room";
-import { IBuilding } from "../../types/building";
-import { ILocation } from "../../types/location";
-import { IFloor } from "../../types/floor";
+import ResourceManagementTable from "../../components/ResourceManagementTable";
 import {
   getBuildings,
   getDesks,
+  getDeskTypes,
   getFloors,
   getRooms,
 } from "../../lib/api/ResourceService";
-import { GetServerSideProps } from "next";
+import { toast } from "react-toastify";
+import { IBuilding } from "../../types/building";
+import { IDesk } from "../../types/desk";
+import { IDeskType } from "../../types/desktypes";
+import { IFloor } from "../../types/floor";
+import { ILocation } from "../../types/location";
+import { IRoom } from "../../types/room";
+import { authOptions } from "../api/auth/[...nextauth]";
 
 const ResourceOverview = ({
   buildings: origBuildings,
+  deskTypes: origDeskTypes,
 }: {
   buildings: IBuilding[];
+  deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
 
@@ -70,7 +76,7 @@ const ResourceOverview = ({
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorID);
+        const resRooms = await getRooms(session, floor.floorId);
         return resRooms;
       })
     );
@@ -113,12 +119,12 @@ const ResourceOverview = ({
 
   const onEdit = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Editing desk ${desk.deskId}...`);
+    toast.success(`Editing desk ${desk.deskId}...`);
   };
 
   const onDelete = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Deleting desk ${desk.deskId}...`);
+    toast.success(`Deleting desk ${desk.deskId}...`);
   };
 
   return (
@@ -131,13 +137,15 @@ const ResourceOverview = ({
         <h1 className="text-3xl font-bold text-left my-10">
           Resources Overview
         </h1>
-        <button
+        <a
+          href="#create-resource-modal"
           type="button"
           className="btn btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light"
           onClick={() => {}}
         >
           Add Resource
-        </button>
+        </a>
+        <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
       </div>
       <DropDownFilter
         title="Locations"
@@ -224,10 +232,11 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   if (session) {
     const buildings = await getBuildings(session);
-
+    const deskTypes = await getDeskTypes(session);
     return {
       props: {
         buildings,
+        deskTypes,
       },
     };
   }
@@ -235,6 +244,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props: {
       buildings: [],
+      deskTypes: [],
     },
   };
 };

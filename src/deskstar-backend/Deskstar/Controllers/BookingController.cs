@@ -1,4 +1,13 @@
-﻿using Deskstar.Core;
+﻿/**
+ * Program
+ *
+ * Version 1.0
+ *
+ * 2023-01-03
+ *
+ * MIT License
+ */
+using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -24,18 +33,18 @@ public class BookingController : ControllerBase
 
 
     /// <summary>
-    /// Returns a list of paginated bookings ranging from a start to an end timestamp.
+    /// Returns a paginated bookings ranging from a start to an end timestamp.
     /// </summary>
-    /// <returns>A List of Bookings in JSON Format (can be empty) </returns>
+    /// <returns>A List of Bookings and the total amount of bookings for the user in JSON Format (can be empty) </returns>
     /// <remarks>
     /// Sample request:
-    ///     Get /bookings/range?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
+    ///     Get /bookings?n=100&skip=50&direction=DESC&from=1669021730904&end=1669121730904 with JWT Token
     /// </remarks>
     ///
-    /// <response code="200">Returns the booking list</response>
+    /// <response code="200">Returns the booking list and amounts of bookings of user</response>
     /// <response code="400">Bad Request</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpGet("range")]
+    [HttpGet]
     [Authorize]
     [ProducesResponseType(typeof(List<ExtendedBooking>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -88,11 +97,18 @@ public class BookingController : ControllerBase
         try
         {
             var bookings = _bookingUsecases.GetFilteredBookings(userId, n, skip, direction, startDateTime, endDateTime);
+            var amountOfBookings = _bookingUsecases.CountValidBookings(userId, direction, startDateTime, endDateTime);
 
             var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
             var mapped = bookings.Select((b) => mapper.Map<Entities.Booking, ExtendedBooking>(b)).ToList();
 
-            return Ok(mapped);
+            var paginated = new PaginatedBookingsDto
+            {
+                AmountOfBookings = amountOfBookings,
+                Bookings = mapped,
+            };
+
+            return Ok(paginated);
         }
         catch (Exception e)
         {
@@ -183,6 +199,48 @@ public class BookingController : ControllerBase
                 "User not found" => NotFound(e.Message),
                 "Desk not found" => NotFound(e.Message),
                 "Time slot not available" => Conflict(e.Message),
+                _ => Problem(statusCode: 500)
+            };
+        }
+    }
+
+    /// <summary>
+    /// Deletes a Booking for Token-User
+    /// </summary>
+    /// <returns>Deleted Booking in JSON Format</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Delete /bookings/{bookingId} with JWT Token
+    /// </remarks>
+    ///
+    /// <response code="200">Returns the deleted booking</response>
+    /// <response code="404">User not found</response>
+    /// <response code="404">Booking not found</response>
+    /// <response code="403">User is not allowed to delete this booking</response>
+    /// <response code="400">Bad Request</response>
+    [HttpDelete("{bookingId}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+
+    public IActionResult DeleteBooking(string bookingId)
+    {
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
+        try
+        {
+            var booking = _bookingUsecases.DeleteBooking(userId, new Guid(bookingId));
+            return Ok(booking);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return e.Message switch
+            {
+                "User not found" => NotFound(e.Message),
+                "Booking not found" => NotFound(e.Message),
+                "You are not allowed to delete this booking" => BadRequest(e.Message),
                 _ => Problem(statusCode: 500)
             };
         }

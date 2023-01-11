@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { getUsers } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
+import { toast } from "react-toastify";
 
 export default function UsersOverview({ users }: { users: IUser[] }) {
   const { data: session } = useSession();
@@ -28,18 +29,18 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 
   const onPermissionUpdate = async (user: IUser): Promise<void> => {
     //TODO: Implement
-    if (user.isAdmin) console.log(`Demoting user ${user.userId}...`);
-    else console.log(`Promoting user ${user.userId}...`);
+    if (user.isAdmin) toast.success(`Demoting user ${user.userId}...`);
+    else toast.success(`Promoting user ${user.userId}...`);
   };
 
   const onEdit = async (user: IUser): Promise<void> => {
     //TODO: Implement
-    console.log(`Editing user ${user.userId}...`);
+    toast.success(`Editing user ${user.userId}...`);
   };
 
   const onDelete = async (user: IUser): Promise<void> => {
     //TODO: Implement
-    console.log(`Deleting user ${user.userId}...`);
+    toast.success(`Deleting user ${user.userId}...`);
   };
 
   if (!session?.user?.isAdmin) {

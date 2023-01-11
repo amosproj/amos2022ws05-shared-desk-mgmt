@@ -9,4 +9,9 @@ export interface IBooking {
   timestamp: string;
   startTime: string;
   endTime: string;
-};
+}
+
+export interface GetBookingsResponse {
+  amountOfBookings: Number;
+  bookings: IBooking[];
+}

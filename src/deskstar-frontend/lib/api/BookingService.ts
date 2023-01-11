@@ -1,5 +1,5 @@
 import { Session } from "next-auth";
-import { IBooking } from "../../types/booking";
+import { IBooking, GetBookingsResponse } from "../../types/booking";
 import { BACKEND_URL } from "./constants";
 
 type QueryOptions = {
@@ -33,35 +33,45 @@ function getParams(queryOptions: QueryOptions) {
 export async function getBookings(
   session: Session,
   queryOptions: QueryOptions
-): Promise<IBooking[]> {
-  if (!session.user) return [];
+): Promise<GetBookingsResponse> {
+  if (!session.user)
+    return {
+      amountOfBookings: 0,
+      bookings: [],
+    };
 
   const params = getParams(queryOptions);
-  const response = await fetch(BACKEND_URL + `/bookings/range?${params}`, {
+  const response = await fetch(BACKEND_URL + `/bookings?${params}`, {
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
 
   if (response.status !== 200) {
-    return [];
+    return {
+      amountOfBookings: 0,
+      bookings: [],
+    };
   }
 
   const data = await response.json();
 
-  const bookings: IBooking[] = data.map((val: any) => {
-    return {
-      bookingId: val.timestamp,
-      userId: session.user.id,
-      room: val.roomName,
-      floor: val.floorName,
-      building: val.buildingName,
-      location: "N/A",
-      ...val,
-    };
-  });
+  const bookingsResponse: GetBookingsResponse = {
+    amountOfBookings: data.amountOfBookings,
+    bookings: data?.bookings.map((val: any) => {
+      return {
+        bookingId: val.timestamp,
+        userId: session.user.id,
+        room: val.roomName,
+        floor: val.floorName,
+        building: val.buildingName,
+        location: "N/A",
+        ...val,
+      };
+    }),
+  };
 
-  return bookings;
+  return bookingsResponse;
 }
 
 export async function createBooking(
@@ -82,10 +92,13 @@ export async function createBooking(
       endTime,
     }),
   });
-  console.log(JSON.stringify({
-    deskId,
-    startTime,
-    endTime,}));
+  console.log(
+    JSON.stringify({
+      deskId,
+      startTime,
+      endTime,
+    })
+  );
   console.log(await response.status);
   if (response.status !== 200) {
     let text = await response.text();
@@ -99,6 +112,35 @@ export async function createBooking(
         return "The desk you are trying to book does not exist";
       case "Time slot not available":
         return "The time slot you are trying to book is not available";
+      default:
+        return "An unknown error occurred";
+    }
+  } else {
+    return "success";
+  }
+}
+
+// create function for deleting booking. BookingId is passed as query parameter
+export async function deleteBooking(session: Session, bookingId: string) {
+  const response = await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  // check if response is 200. If not return error message
+  if ((await response.status) !== 200) {
+    let text = await response.text();
+    text = text.substring(1, text.length - 1);
+    console.log(text);
+    switch (text) {
+      case "User not found":
+        return "User not found";
+      case "Booking not found":
+        return "The booking you are trying to delete does not exist";
+      case "You are not allowed to delete this booking":
+        return "You are not allowed to delete this booking";
       default:
         return "An unknown error occurred";
     }

@@ -5,7 +5,7 @@ namespace Deskstar.Models;
 public class CurrentFloor
 {
     [Required]
-    public string FloorID { get; set; } = null!;
+    public string FloorId { get; set; } = null!;
 
     [Required]
     public string FloorName { get; set; } = null!;

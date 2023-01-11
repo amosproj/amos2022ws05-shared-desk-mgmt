@@ -1,3 +1,4 @@
+using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
@@ -6,11 +7,18 @@ namespace Deskstar.Usecases;
 
 public interface IResourceUsecases
 {
+    public List<DeskType> GetDeskTypes(Guid companyId);
     public List<CurrentBuilding> GetBuildings(Guid userId);
     public List<CurrentFloor> GetFloors(Guid buildingId);
     public List<CurrentRoom> GetRooms(Guid floorId);
     public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end);
     public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
+
+    public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
+    public DeskType CreateDeskType(string deskTypeName, Guid companyId);
+    public Room CreateRoom(string roomName, Guid floorId);
+    public Floor CreateFloor(string floorName, Guid buildingId);
+    public Building CreateBuilding(string buildingName, string location, Guid companyId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -18,15 +26,18 @@ public class ResourceUsecases : IResourceUsecases
     private readonly DataContext _context;
     private readonly ILogger<ResourceUsecases> _logger;
 
-    public ResourceUsecases(ILogger<ResourceUsecases> logger, DataContext context)
+    private readonly IUserUsecases _userUsecases;
+
+    public ResourceUsecases(ILogger<ResourceUsecases> logger, DataContext context, IUserUsecases userUsecases)
     {
         _logger = logger;
         _context = context;
+        _userUsecases = userUsecases;
     }
 
     public List<CurrentBuilding> GetBuildings(Guid userId)
     {
-        
+
         IQueryable<Building> databaseBuildings;
         try
         {
@@ -64,7 +75,7 @@ public class ResourceUsecases : IResourceUsecases
             if (databaseFloors.ToList().Count == 0)
             {
                 var databaseBuilding = _context.Buildings.First(building => building.BuildingId == buildingId);
-                if( databaseBuilding== null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
+                if (databaseBuilding == null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
             }
         }
         catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
@@ -83,7 +94,7 @@ public class ResourceUsecases : IResourceUsecases
         {
             BuildingName = f.Building.BuildingName,
             FloorName = f.FloorName,
-            FloorID = f.FloorId.ToString()
+            FloorId = f.FloorId.ToString()
         });
 
         return mapFloorsToCurrentFloors.ToList();
@@ -126,7 +137,7 @@ public class ResourceUsecases : IResourceUsecases
             if (databaseDesks.ToList().Count == 0)
             {
                 var databaseRoom = _context.Rooms.First(room => room.RoomId == roomId);
-                if( databaseRoom== null) throw new ArgumentException($"There is no Room with id '{roomId}'");
+                if (databaseRoom == null) throw new ArgumentException($"There is no Room with id '{roomId}'");
             }
             mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
             {
@@ -204,5 +215,149 @@ public class ResourceUsecases : IResourceUsecases
         }
 
         return mapDeskToCurrentDesk;
+    }
+
+    public List<DeskType> GetDeskTypes(Guid companyId)
+    {
+        return _context.DeskTypes.Where(d => d.CompanyId == companyId).ToList();
+    }
+
+    public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
+    {
+        var desktype = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);
+        if (desktype == null)
+            throw new EntityNotFoundException($"There is no desk type with id '{deskTypeId}'");
+
+        var room = _context.Rooms.SingleOrDefault(r => r.RoomId == roomId);
+        if (room == null)
+            throw new EntityNotFoundException($"There is no room with id '{roomId}'");
+
+        if (deskName == "")
+            throw new ArgumentInvalidException($"'{deskName}' is not a valid name of a desk");
+        var deskNameExists = _context.Desks.SingleOrDefault(d => d.RoomId == roomId && d.DeskName == deskName) != null;
+        if (deskNameExists)
+            throw new ArgumentInvalidException($"In this room there is already a desk named '{deskName}'");
+
+        var deskId = Guid.NewGuid();
+        var desk = new Desk
+        {
+            DeskId = deskId,
+            DeskName = deskName,
+            DeskTypeId = deskTypeId,
+            RoomId = roomId
+        };
+
+        _context.Desks.Add(desk);
+        _context.SaveChanges();
+
+        return desk;
+    }
+
+    public DeskType CreateDeskType(string deskTypeName, Guid companyId)
+    {
+        var company = _context.Companies.SingleOrDefault(c => c.CompanyId == companyId);
+        if (company == null)
+            throw new EntityNotFoundException($"There is no company with id '{companyId}'");
+
+        if (deskTypeName == "")
+            throw new ArgumentInvalidException($"'{deskTypeName}' is not a valid name for a desk type'");
+        var deskTypeExists = _context.DeskTypes.SingleOrDefault(dt => dt.CompanyId == companyId && dt.DeskTypeName == deskTypeName) != null;
+        if (deskTypeExists)
+            throw new ArgumentInvalidException($"There is already a deskType called '{deskTypeName}'");
+
+        var deskTypeId = Guid.NewGuid();
+        var deskType = new DeskType
+        {
+            DeskTypeId = deskTypeId,
+            DeskTypeName = deskTypeName,
+            CompanyId = companyId
+        };
+
+        _context.DeskTypes.Add(deskType);
+        _context.SaveChanges();
+
+        return deskType;
+    }
+
+    public Room CreateRoom(string roomName, Guid floorId)
+    {
+        var floor = _context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+        if (floor == null)
+            throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
+
+        if (roomName == "")
+            throw new ArgumentInvalidException($"'{roomName}' is not a valid name for a room'");
+        var roomNameExists = _context.Rooms.SingleOrDefault(r => r.FloorId == floorId && r.RoomName == roomName) != null;
+        if (roomNameExists)
+            throw new ArgumentInvalidException($"There is already a room called '{roomName}'");
+
+        var roomId = Guid.NewGuid();
+        var room = new Room
+        {
+            RoomId = roomId,
+            RoomName = roomName,
+            FloorId = floorId
+        };
+
+        _context.Rooms.Add(room);
+        _context.SaveChanges();
+
+        return room;
+    }
+
+    public Floor CreateFloor(string floorName, Guid buildingId)
+    {
+        var building = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+        if (building == null)
+            throw new EntityNotFoundException($"There is no building with id 'buildingId'");
+
+        if (floorName == "")
+            throw new ArgumentInvalidException($"'{floorName}' is not a valid name for a floor");
+        var floorNameExists = _context.Floors.SingleOrDefault(f => f.BuildingId == buildingId && f.FloorName == floorName) != null;
+        if (floorNameExists)
+            throw new ArgumentInvalidException($"There is already a floor called '{floorName}'");
+
+        var floorId = Guid.NewGuid();
+        var floor = new Floor
+        {
+            FloorId = floorId,
+            FloorName = floorName,
+            BuildingId = buildingId
+        };
+
+        _context.Floors.Add(floor);
+        _context.SaveChanges();
+
+        return floor;
+    }
+
+    public Building CreateBuilding(string buildingName, string location, Guid companyId)
+    {
+        var company = _context.Companies.SingleOrDefault(c => c.CompanyId == companyId);
+        if (company == null)
+            throw new EntityNotFoundException($"There is no company with id '{companyId}'");
+
+        if (location == "")
+            throw new ArgumentInvalidException($"'{location}' is not a valid name for a building'");
+
+        if (buildingName == "")
+            throw new ArgumentInvalidException($"'{buildingName}' is not a valid name for a building'");
+        var buildingExists = _context.Buildings.SingleOrDefault(b => b.CompanyId == companyId && b.BuildingName == buildingName) != null;
+        if (buildingExists)
+            throw new ArgumentInvalidException($"There is already a building with the name '{buildingName}'");
+
+        var buildingId = Guid.NewGuid();
+        var building = new Building
+        {
+            BuildingId = buildingId,
+            BuildingName = buildingName,
+            Location = location,
+            CompanyId = companyId
+        };
+
+        _context.Buildings.Add(building);
+        _context.SaveChanges();
+
+        return building;
     }
 }

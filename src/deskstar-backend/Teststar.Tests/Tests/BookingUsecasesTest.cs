@@ -11,6 +11,62 @@ namespace Teststar.Tests.Tests;
 public class BookingUsecasesTest
 {
     [Test]
+    public void CountValidBookings_WhenBookingsAvailable_ShouldReturnNumberOfBookings()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        SetupMockData(db, userId: userId);
+
+        //arrange
+        var direction = "DESC";
+        var start = DateTime.Now;
+        var end = DateTime.Now;
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        var numberOfBookings = usecases.CountValidBookings(userId, direction, start, end);
+
+        //assert
+        Assert.Zero(numberOfBookings);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void CountValidBookings_WhenNoBookingsAvailable_ShouldReturnZero()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        SetupMockData(db, userId: userId, deskId: deskId);
+
+        //arrange
+        var direction = "DESC";
+        var start = DateTime.Now;
+        var end = DateTime.Now.Add(TimeSpan.FromDays(3));
+        var fbId = Guid.NewGuid();
+        var sbId = Guid.NewGuid();
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+        SetupTwoBookings(db, userId, deskId, fbId, sbId);
+
+        //act
+        var numberOfBookings = usecases.CountValidBookings(userId, direction, start, end);
+
+        //assert
+        Assert.NotZero(numberOfBookings);
+        Assert.That(numberOfBookings == 2);
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+    [Test]
     public void GetFilteredBookings_WhenDefaultConfigIsUsed_ShouldReturnASingleBooking()
     {
         //setup 
@@ -373,6 +429,170 @@ public class BookingUsecasesTest
         Assert.That(result.StartTime, Is.EqualTo(fbStart));
         Assert.That(result.EndTime, Is.EqualTo(fbEnd));
 
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void DeleteBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        try
+        {
+            var result = usecases.DeleteBooking(Guid.NewGuid(), bookingId);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("User not found"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void DeleteBooking_WhenBookingNotExists_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        try
+        {
+            var result = usecases.DeleteBooking(userId, bookingId);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("Booking not found"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void DeleteBooking_WhenBookingNotFromUser_ShouldThrowAnArgumentException()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId1 = Guid.NewGuid();
+        var userId2 = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId1, deskId: deskId);
+        SetupMockData(db, userId: userId2);
+
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId1,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        try
+        {
+            var result = usecases.DeleteBooking(userId2, bookingId);
+
+            //assert
+            Assert.Fail();
+        }
+        catch (ArgumentException e)
+        {
+            Assert.That(e.Message, Is.EqualTo("You are not allowed to delete this booking"));
+        }
+
+        //cleanup
+        db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void DeleteBooking_WhenBookingExists_ShouldReturnABooking()
+    {
+        //setup 
+        using var db = new DataContext();
+
+        var userId = Guid.NewGuid();
+        var deskId = Guid.NewGuid();
+        var bookingId = Guid.NewGuid();
+
+        SetupMockData(db, userId: userId, deskId: deskId);
+        var firstBooking = new Booking
+        {
+            BookingId = bookingId,
+            DeskId = deskId,
+            UserId = userId,
+            Timestamp = DateTime.Now,
+            StartTime = DateTime.Now,
+            EndTime = DateTime.Now
+        };
+        db.Add(firstBooking);
+        db.SaveChanges();
+
+        //arrange
+        var logger = new Mock<ILogger<BookingUsecases>>();
+        var usecases = new BookingUsecases(logger.Object, db);
+
+        //act
+        var result = usecases.DeleteBooking(userId, bookingId);
+
+        //assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.DeskId, Is.EqualTo(deskId));
+        Assert.That(result.StartTime, Is.EqualTo(firstBooking.StartTime));
+        Assert.That(result.EndTime, Is.EqualTo(firstBooking.EndTime));
 
         //cleanup
         db.Database.EnsureDeleted();
