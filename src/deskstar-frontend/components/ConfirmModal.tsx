@@ -32,7 +32,7 @@ export default function ConfirmModal({
           className={"card bg-white dark:bg-gray-300 dark:text-black w-96"}
         >
           <div className="card-body">
-            <Dialog.Title className="card-title flex justify-between">
+            <Dialog.Title as="div" className="card-title flex justify-between">
               <div>
                 <p>{title}</p>
                 {warn && (
@@ -52,7 +52,7 @@ export default function ConfirmModal({
                 )}
               </div>
             </Dialog.Title>
-            <Dialog.Description className={"py-4"}>
+            <Dialog.Description as="div" className={"py-4"}>
               <div>
                 <div>
                   <p>{description}</p>

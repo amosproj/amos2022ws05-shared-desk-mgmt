@@ -58,10 +58,10 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     if (user) {
       console.log(`Deleting user ${user.userId}...`);
       if (session == null) return;
-      deleteUser(session, user.userId);
+      await deleteUser(session, user.userId);
+      // reload page
+      router.reload();
     }
-    // reload page
-    router.reload();
   }
 
   async function doEdit() {
