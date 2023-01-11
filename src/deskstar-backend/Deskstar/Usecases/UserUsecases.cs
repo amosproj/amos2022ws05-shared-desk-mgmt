@@ -19,7 +19,7 @@ public interface IUserUsecases
 {
     public List<User> ReadAllUsers(Guid adminId);
     public User ReadSpecificUser(Guid userId);
-    
+
     public Guid UpdateUser(string requestUserId, User user);
     public Guid ApproveUser(Guid adminId, string userId);
     public Guid DeclineUser(Guid adminId, string userId);
@@ -129,7 +129,7 @@ public class UserUsecases : IUserUsecases
             throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
         return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
     }
-    
+
     public Guid UpdateUser(string requestUserId, User user)
     {
         Guid guid;
@@ -147,38 +147,37 @@ public class UserUsecases : IUserUsecases
         {
             throw new ArgumentInvalidException($"'{requestUserId}' is not equals with given userObject");
         }
-        
+
         return SaveUpdateUser(user);
     }
-    
+
     public Guid UpdateUser(Guid adminId, User user)
     {
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
-        CheckSameCompany(adminId,user.UserId);
+        CheckSameCompany(adminId, user.UserId);
         return SaveUpdateUser(user);
     }
-    private Guid SaveUpdateUser( User user)
+    private Guid SaveUpdateUser(User user)
     {
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
         _context.Users.Update(user);
         _context.SaveChanges();
-        //ToDo: uncomment
         var body = $"Hello {user.FirstName},</br> " +
                    "your account details have been updated.</br> " +
-                   "Please check if this was ok.</br>"+
+                   "Please check if this was ok.</br>" +
                    "If not get in touch with your company admin.</br>" +
                    "</br> " +
                    "Regards,</br> " +
                    "Deskstar Team";
-        //EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
+        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
         return user.UserId;
     }
-    
-    public Guid DeleteUser(Guid adminId,string userId)
+
+    public Guid DeleteUser(Guid adminId, string userId)
     {
         Guid guid;
         try
@@ -190,22 +189,21 @@ public class UserUsecases : IUserUsecases
             _logger.LogError(e, e.Message);
             throw new ArgumentInvalidException($"'{userId}' is not a valid UserId");
         }
-        
+
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == guid);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{userId}'");
-        CheckSameCompany(adminId,guid);
+        CheckSameCompany(adminId, guid);
         var body = $"Hello {userDbInstance.FirstName},</br> " +
                    "your account has been releted by your Company admin.</br> " +
                    "If you think this was an mistake, get in touch with your company admin.</br>" +
                    "</br> " +
                    "Regards,</br> " +
                    "Deskstar Team";
-        //ToDo: uncomment
-        //EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
+        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
         _context.Users.Remove(userDbInstance);
         _context.SaveChanges();
-        
+
         return guid;
     }
 }

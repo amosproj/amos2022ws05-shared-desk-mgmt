@@ -24,15 +24,16 @@ export default function EditUserModal({
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
       <div className="fixed inset-0 flex items-center justify-center p-4 ">
         <Dialog.Panel
+          as="div"
           className={"card bg-white dark:bg-gray-300 dark:text-black w-96"}
         >
           <div className="card-body">
-            <Dialog.Title className="card-title flex justify-between">
+            <Dialog.Title as="div" className="card-title flex justify-between">
               <div>
                 Edit {user?.firstName} {user?.lastName}{" "}
               </div>
             </Dialog.Title>
-            <Dialog.Description className={"py-4"}>
+            <Dialog.Description as="div" className={"py-4"}>
               <div>
                 <div>
                   <Input
