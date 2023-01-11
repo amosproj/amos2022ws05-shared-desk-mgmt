@@ -234,7 +234,7 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act
-        var result = userUsecases.UpdateUser(user);
+        var result = userUsecases.UpdateUser(user.UserId,user);
 
         //assert
         Assert.That(result == user.UserId);
@@ -255,9 +255,31 @@ public class UserUsecasesTests
         var userUsecases = new UserUsecases(logger.Object, db);
 
         //act + assert
-        Assert.Throws<EntityNotFoundException>(() => userUsecases.UpdateUser(new User()));
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.UpdateUser(new Guid(),new User()));
 
     }
+    [Test]
+    public void UpdateUser_AsAdmin_WhenValidUserIsProvided_ShouldUpdateUser()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act
+        var result = userUsecases.UpdateUser(admin.UserId,user);
+
+        //assert
+        Assert.That(result == user.UserId);
+
+    }
+    
     [Test]
     public void ReadAllUsers_WhenValidUserIdIsProvided_ShouldReturnListOfAllUsersInTheSameCompany()
     {
@@ -297,6 +319,46 @@ public class UserUsecasesTests
         //act + assert
         Assert.Throws<EntityNotFoundException>(() => userUsecases.ReadAllUsers(new Guid()));
 
+    }
+    
+    [Test]
+    public void DeleteUser_WhenValidUserIsProvided_ShouldUpdateUser()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        const bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+
+        //act
+        var result = userUsecases.DeleteUser(admin.UserId,user.UserId.ToString());
+
+        //assert
+        Assert.That(result, Is.EqualTo(user.UserId));
+        Assert.That(!db.Users.Any(u => u.UserId==user.UserId));
+
+    }
+    [Test]
+    public void DeleteUser_WhenNonValidUserIsProvided_ShouldUpdateUser()
+    {
+        //setup
+        using var db = new DataContext();
+        User user, admin;
+        const bool isUserApproved = true;
+
+        SetupSingleUser(db, isUserApproved, out user, out admin);
+
+        //arrange
+        var logger = new Mock<ILogger<UserUsecases>>();
+        var userUsecases = new UserUsecases(logger.Object, db);
+        
+        //assert
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.DeleteUser(admin.UserId,Guid.NewGuid().ToString()));
     }
 
     private void SetupSingleUser(DataContext db, bool userApproved, out User user, out User admin)

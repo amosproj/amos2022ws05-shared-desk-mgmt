@@ -5,7 +5,7 @@ type InputProps = {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
   className?: string;
-  placeholder: string;
+  placeholder?: string;
   type?: string;
 };
 
