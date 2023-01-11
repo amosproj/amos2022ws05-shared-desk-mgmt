@@ -20,6 +20,10 @@ services:
       DB__USERNAME: postgres
       DB__PASSWORD: postgres
       DB__DATABASE: postgres
+      EMAIL__HOST: smtp.strato.de
+      EMAIL__PORT: 587
+      EMAIL__ADDRESS: noreply@deskstar.de
+      EMAIL__PSW: 123456
       ASPNETCORE_ENVIRONMENT: Development
 
     # Uncomment the next line to use a non-root user for all processes.

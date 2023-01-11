@@ -1,6 +1,16 @@
+/**
+ * Program
+ *
+ * Version 1.0
+ *
+ * 2023-01-03
+ *
+ * MIT License
+ */
 using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
+using Deskstar.Helper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Deskstar.Usecases;
@@ -57,6 +67,15 @@ public class UserUsecases : IUserUsecases
         _context.Update(user);
         _context.SaveChanges();
 
+        var body = $"Hello {user.FirstName},</br> " +
+                  $"your account has been approved by {ReadSpecificUser(adminId).FirstName}.</br> " +
+                  "You can now log into the system.</br>" +
+                  "You can now book your first desk and get to work.</br>" +
+                  "</br> " +
+                  "Regards,</br> " +
+                  "Deskstar Team";
+        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been approved!", body);
+
         return guid;
 
     }
@@ -80,14 +99,22 @@ public class UserUsecases : IUserUsecases
             _logger.LogError(e, e.Message);
             throw new ArgumentInvalidException($"'{userId}' is not a valid UserId");
         }
-        
+
         var user = _context.Users.SingleOrDefault(u => u.UserId == guid);
         if (user == null)
             throw new EntityNotFoundException($"There is no user with id '{userId}'");
 
         CheckSameCompany(adminId, guid);
         if (user.IsApproved)
-            throw new ArgumentInvalidException($"You cannot decline an already approved user '{guid}'");
+            throw new ArgumentInvalidException($"You cannot rejected an already approved user '{guid}'");
+
+        var body = $"Hello {user.FirstName},</br> " +
+                  $"your account has been rejected.</br> " +
+                  "Please contact one of your company's admins if you think this was a mistake.</br>" +
+                  "</br> " +
+                  "Regards,</br> " +
+                  "Deskstar Team";
+        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been rejected!", body);
 
         _context.Users.Remove(user);
         _context.SaveChanges();

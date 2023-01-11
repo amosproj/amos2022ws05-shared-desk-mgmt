@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { getUsers, deleteUser, editUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
+import { toast } from "react-toastify";
 import ConfirmModal from "../../components/ConfirmModal";
 import EditUserModal from "../../components/EditUserModal";
 
@@ -40,8 +41,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 
   const onPermissionUpdate = async (user: IUser): Promise<void> => {
     //TODO: Implement
-    if (user.isAdmin) console.log(`Demoting user ${user.userId}...`);
-    else console.log(`Promoting user ${user.userId}...`);
+    if (user.isAdmin) toast.success(`Demoting user ${user.userId}...`);
+    else toast.success(`Promoting user ${user.userId}...`);
   };
 
   const onEdit = async (user: IUser): Promise<void> => {

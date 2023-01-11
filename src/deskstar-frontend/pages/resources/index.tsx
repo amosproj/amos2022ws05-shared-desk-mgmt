@@ -12,8 +12,9 @@ import {
   getDesks,
   getDeskTypes,
   getFloors,
-  getRooms
+  getRooms,
 } from "../../lib/api/ResourceService";
+import { toast } from "react-toastify";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
 import { IDeskType } from "../../types/desktypes";
@@ -118,12 +119,12 @@ const ResourceOverview = ({
 
   const onEdit = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Editing desk ${desk.deskId}...`);
+    toast.success(`Editing desk ${desk.deskId}...`);
   };
 
   const onDelete = async (desk: IDesk): Promise<void> => {
     //TODO: Implement
-    console.log(`Deleting desk ${desk.deskId}...`);
+    toast.success(`Deleting desk ${desk.deskId}...`);
   };
 
   return (
@@ -140,11 +141,11 @@ const ResourceOverview = ({
           href="#create-resource-modal"
           type="button"
           className="btn btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light"
-          onClick={() => { }}>
+          onClick={() => {}}
+        >
           Add Resource
         </a>
-        <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes}/>
-
+        <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
       </div>
       <DropDownFilter
         title="Locations"
@@ -235,7 +236,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         buildings,
-        deskTypes
+        deskTypes,
       },
     };
   }

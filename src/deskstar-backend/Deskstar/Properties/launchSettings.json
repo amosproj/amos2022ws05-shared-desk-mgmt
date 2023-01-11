@@ -20,7 +20,11 @@
         "DB__HOST": "localhost",
         "DB__DATABASE": "postgres",
         "DB__USERNAME": "postgres",
-        "DB__PASSWORD": "root"
+        "DB__PASSWORD": "root",
+        "EMAIL__HOST": "smtp.strato.de",
+        "EMAIL__PORT": "587",
+        "EMAIL__PSW": "123456",
+        "EMAIL__ADDRESS":"noreply@deskstar.de"
       }
     },
     "IIS Express": {
@@ -32,7 +36,11 @@
         "CONFIG_DB_HOST": "localhost",
         "DB__DATABASE": "postgres",
         "DB__USERNAME": "postgres",
-        "DB__PASSWORD": "root"
+        "DB__PASSWORD": "root",
+        "EMAIL__HOST": "smtp.strato.de",
+        "EMAIL__PORT": "587",
+        "EMAIL__PSW": "123456",
+        "EMAIL__ADDRESS":"noreply@deskstar.de"
       }
     }
   }
