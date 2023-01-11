@@ -66,7 +66,10 @@ export async function deleteUser(
   });
 }
 
-export function editUser(session: Session, user: IUser): Promise<Response> {
+export async function editUser(
+  session: Session,
+  user: IUser
+): Promise<Response> {
   return fetch(BACKEND_URL + `/users/edit`, {
     method: "POST",
     headers: {

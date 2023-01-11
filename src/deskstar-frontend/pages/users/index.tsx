@@ -69,7 +69,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     if (user) {
       console.log(`Edit user ${user.userId}...`);
       if (session == null) return;
-      editUser(session, user);
+      await editUser(session, user);
     }
   }
 
