@@ -57,7 +57,6 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 
   async function doDelete() {
     if (user) {
-      console.log(`Deleting user ${user.userId}...`);
       if (session == null) return;
       let result = await deleteUser(session, user.userId);
       if (result.ok) {
@@ -73,7 +72,6 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   }
   async function doUpdate() {
     if (user) {
-      console.log(`Make user ${user.userId} admin ...`);
       if (session == null) return;
       if (user.isAdmin) {
         user.isAdmin = false;
@@ -93,7 +91,6 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 
   async function doEdit() {
     if (user) {
-      console.log(`Edit user ${user.userId}...`);
       if (session == null) return;
       let result = await editUser(session, user);
       if (result.ok) {
