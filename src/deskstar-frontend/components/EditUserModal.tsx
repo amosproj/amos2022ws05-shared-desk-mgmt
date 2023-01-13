@@ -70,9 +70,9 @@ export default function EditUserModal({
                   onClick={() => {
                     setIsOpen(false);
                     if (user != null) {
-                      user.firstName = firstName;
-                      user.lastName = lastName;
-                      user.email = email;
+                      if (!(firstName == "")) user.firstName = firstName;
+                      if (!(lastName == "")) user.lastName = lastName;
+                      if (!(email == "")) user.email = email;
                       action(user);
                     }
                   }}
