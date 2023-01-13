@@ -6,6 +6,7 @@ import { IDeskType } from "../types/desktypes";
 import { IFloor } from "../types/floor";
 import { ILocation } from "../types/location";
 import { IRoom } from "../types/room";
+import { toast } from "react-toastify";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
 
@@ -28,7 +29,7 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
     const [floor, setFloor] = useState<IFloor | null>();
     const [building, setBuilding] = useState<IBuilding | null>();
     const [location, setLocation] = useState<ILocation | null>();
-    const uniqueLocation = (ogBuildings: IBuilding[])=>{
+    const uniqueLocation = (ogBuildings: IBuilding[]) => {
         const t = new Map<string, ILocation>();
         ogBuildings.forEach((element) => t.set(element.location, { locationName: element.location }));
         return Array.from(t.values())
@@ -77,8 +78,6 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
             return;
         }
 
-        console.log("floor: ")
-        console.log(selectedFloor);
         setFloor(selectedFloor);
         if (!session) {
             return [];
@@ -100,24 +99,27 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
         if (!session)
             return;
         if (!buildingName) {
-            alert("please enter a building name");
+            toast.warn("please enter a building name");
             return;
         }
         if ((!locationName || (locationName === "")) && !location) {
-            alert("please choose or enter a location");
+            toast.warn("please choose or enter a location");
             return;
         }
 
         setIsLoading(true);
-        console.log(locationName);
         let res = await createBuilding(session, { buildingName: buildingName, location: location ? location.locationName : locationName });
-        alert(res.message);
-        origBuildings.push(res.data as IBuilding);
-        setBuildings([...buildings, res.data as IBuilding]);
-        const tmp = new Map<string, ILocation>();
-        [...locations, { locationName: (res.data as IBuilding).location }].forEach((element) => tmp.set(element.locationName, { locationName: element.locationName }));
-        setLocations(Array.from(tmp.values()));
-        console.log("");
+        if (res.message.toLowerCase().includes("success")) {
+            origBuildings.push(res.data as IBuilding);
+            setBuildings([...buildings, res.data as IBuilding]);
+            const tmp = new Map<string, ILocation>();
+            [...locations, { locationName: (res.data as IBuilding).location }].forEach((element) => tmp.set(element.locationName, { locationName: element.locationName }));
+            setLocations(Array.from(tmp.values()));
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
+
         setIsLoading(false);
     }
 
@@ -125,22 +127,27 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
         if (!session)
             return;
         if (!floorName) {
-            alert("please enter a floor name");
+            toast.warn("please enter a floor name");
             return;
         }
         if (!location) {
-            alert("please choose a location");
+            toast.warn("please choose a location");
             return;
         }
         if (!building) {
-            alert("please choose a building");
+            toast.warn("please choose a building");
             return;
         }
 
         setIsLoading(true);
         let res = await createFloor(session, { buildingId: building.buildingId, floorName: floorName });
-        alert(res.message);
-        setFloors([...floors, res.data as IFloor])
+
+        if (res.message.toLowerCase().includes("success")) {
+            setFloors([...floors, res.data as IFloor])
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
         setIsLoading(false);
     }
 
@@ -148,26 +155,30 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
         if (!session)
             return;
         if (!roomName) {
-            alert("please enter a room name");
+            toast.warn("please enter a room name");
             return;
         }
         if (!location) {
-            alert("please choose a location");
+            toast.warn("please choose a location");
             return;
         }
         if (!building) {
-            alert("please choose a building");
+            toast.warn("please choose a building");
             return;
         }
         if (!floor) {
-            alert("please choose a floor");
+            toast.warn("please choose a floor");
             return;
         }
 
         setIsLoading(true);
         let res = await createRoom(session, { floorId: floor.floorId, roomName: roomName });
-        alert(res.message);
-        setRooms([...rooms, res.data as IRoom])
+        if (res.message.toLowerCase().includes("success")) {
+            setRooms([...rooms, res.data as IRoom])
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
         setIsLoading(false);
     }
 
@@ -175,14 +186,19 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
         if (!session)
             return;
         if (!deskTypeName) {
-            alert("please enter a desk type name");
+            toast.warn("please enter a desk type name");
             return;
         }
 
         setIsLoading(true);
         let res = await createDeskType(session, { deskTypeName: deskTypeName });
-        alert(res.message);
-        setDeskTypes([...deskTypes, res.data as IDeskType])
+
+        if (res.message.toLowerCase().includes("success")) {
+            setDeskTypes([...deskTypes, res.data as IDeskType])
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
         setIsLoading(false);
     }
 
@@ -190,33 +206,37 @@ const AddResourceModal = ({ buildings: origBuildings, deskTypes: origDeskTypes, 
         if (!session)
             return;
         if (deskName === "") {
-            alert("please enter a desk name");
+            toast.warn("please enter a desk name");
             return;
         }
         if (!deskType) {
-            alert("please choose a desk type");
+            toast.warn("please choose a desk type");
             return;
         }
         if (!location) {
-            alert("please choose a location");
+            toast.warn("please choose a location");
             return;
         }
         if (!building) {
-            alert("please choose a building");
+            toast.warn("please choose a building");
             return;
         }
         if (!floor) {
-            alert("please choose a floor");
+            toast.warn("please choose a floor");
             return;
         }
         if (!room) {
-            alert("please choose a room");
+            toast.warn("please choose a room");
             return;
         }
 
         setIsLoading(true);
         let res = await createDesk(session, { deskName: deskName, deskTypeId: deskType.deskTypeId, roomId: room?.roomId });
-        alert(res.message);
+        if (res.message.toLowerCase().includes("success")) {
+            toast.success(res.message);
+        } else {
+            toast.error(res.message);
+        }
         setIsLoading(false);
     }
 
