@@ -18,6 +18,12 @@ public class EmailHelper
     private static int  _emailPort;
     private static string? _emailUsername;
     private static SmtpClient? _smtpClient;
+
+    private const string Footer = "Note: this is an automatic email notification. Do not reply to this email. <br/> " +
+                                  "<br/> " +
+                                  "Regards, <br/> " +
+                                  "<br/>" +
+                                  "Deskstar Team";
     public static bool SendEmail(ILogger logger, string userEmail, string subject, string message)
     {
         if(_smtpClient==null)
@@ -40,7 +46,7 @@ public class EmailHelper
 
         mailMessage.Subject = subject;
         mailMessage.IsBodyHtml = true;
-        mailMessage.Body = message;
+        mailMessage.Body = message+Footer;
         
         try
         {

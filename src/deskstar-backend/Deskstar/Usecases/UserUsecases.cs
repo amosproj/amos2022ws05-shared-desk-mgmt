@@ -1,5 +1,5 @@
 /**
- * Program
+ * UserUsecases
  *
  * Version 1.0
  *
@@ -70,10 +70,7 @@ public class UserUsecases : IUserUsecases
         var body = $"Hello {user.FirstName},</br> " +
                   $"your account has been approved by {ReadSpecificUser(adminId).FirstName}.</br> " +
                   "You can now log into the system.</br>" +
-                  "You can now book your first desk and get to work.</br>" +
-                  "</br> " +
-                  "Regards,</br> " +
-                  "Deskstar Team";
+                  "You can now book your first desk and get to work.</br>";
         EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been approved!", body);
 
         return guid;
@@ -110,10 +107,7 @@ public class UserUsecases : IUserUsecases
 
         var body = $"Hello {user.FirstName},</br> " +
                   $"your account has been rejected.</br> " +
-                  "Please contact one of your company's admins if you think this was a mistake.</br>" +
-                  "</br> " +
-                  "Regards,</br> " +
-                  "Deskstar Team";
+                  "Please contact one of your company's admins if you think this was a mistake.</br>";
         EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been rejected!", body);
 
         _context.Users.Remove(user);
@@ -161,18 +155,26 @@ public class UserUsecases : IUserUsecases
     }
     private Guid SaveUpdateUser(User user)
     {
+        if(user.UserId == Guid.Empty)
+            throw new ArgumentInvalidException($"'{nameof(user.UserId)}' is empty");
+        if(user.FirstName == null|| user.FirstName.Length == 0)
+            throw new ArgumentInvalidException($"'{nameof(user.FirstName)}' is not set");
+        if(user.LastName == null|| user.LastName.Length == 0)
+            throw new ArgumentInvalidException($"'{nameof(user.LastName)}' is not set");
+        if(user.MailAddress == null|| user.MailAddress.Length == 0)
+            throw new ArgumentInvalidException($"'{nameof(user.MailAddress)}' is not set");
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
-        _context.Users.Update(user);
+        userDbInstance.FirstName = user.FirstName;
+        userDbInstance.LastName = user.LastName;
+        userDbInstance.MailAddress = user.MailAddress;
+        userDbInstance.IsCompanyAdmin = user.IsCompanyAdmin;
         _context.SaveChanges();
         var body = $"Hello {user.FirstName},</br> " +
                    "your account details have been updated.</br> " +
                    "Please check if this was ok.</br>" +
-                   "If not get in touch with your company admin.</br>" +
-                   "</br> " +
-                   "Regards,</br> " +
-                   "Deskstar Team";
+                   "If not get in touch with your company admin.</br>";
         EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
         return user.UserId;
     }
@@ -196,11 +198,8 @@ public class UserUsecases : IUserUsecases
         CheckSameCompany(adminId, guid);
         var body = $"Hello {userDbInstance.FirstName},</br> " +
                    "your account has been releted by your Company admin.</br> " +
-                   "If you think this was an mistake, get in touch with your company admin.</br>" +
-                   "</br> " +
-                   "Regards,</br> " +
-                   "Deskstar Team";
-        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
+                   "If you think this was an mistake, get in touch with your company admin.</br>";
+        EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details have been updated!", body);
         _context.Users.Remove(userDbInstance);
         _context.SaveChanges();
 

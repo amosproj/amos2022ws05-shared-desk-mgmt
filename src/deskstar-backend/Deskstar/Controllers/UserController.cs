@@ -1,3 +1,12 @@
+/**
+ * UserController
+ *
+ * Version 1.0
+ *
+ * 2023-01-13
+ *
+ * MIT License
+ */
 using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Entities;
