@@ -20,8 +20,9 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
 
   const [user, setUser] = useState<IUser>();
 
-  const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
+  const [isMakeAdminModalOpen, setMakeAdminModalOpen] = useState(false);
   const [isEditUserModalOpen, setEditUserModalOpen] = useState(false);
+  const [isDeleteUserModalOpen, setDeleteUserModalOpen] = useState(false);
 
   // page is only accessable as admin
   useEffect(() => {
@@ -39,16 +40,15 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     return;
   }
 
-  const onPermissionUpdate = async (user: IUser): Promise<void> => {
-    //TODO: Implement
-    if (user.isAdmin) toast.success(`Demoting user ${user.userId}...`);
-    else toast.success(`Promoting user ${user.userId}...`);
-  };
+  async function onPermissionUpdate(user: IUser): Promise<void> {
+    setUser(user);
+    setMakeAdminModalOpen(true);
+  }
 
-  const onEdit = async (user: IUser): Promise<void> => {
+  async function onEdit(user: IUser): Promise<void> {
     setUser(user);
     setEditUserModalOpen(true);
-  };
+  }
 
   async function onDelete(user: IUser): Promise<void> {
     setUser(user);
@@ -59,9 +59,35 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     if (user) {
       console.log(`Deleting user ${user.userId}...`);
       if (session == null) return;
-      await deleteUser(session, user.userId);
+      let result = await deleteUser(session, user.userId);
+      if (result.ok) {
+        toast.success(`User ${user.firstName} ${user.lastName} deleted!`);
+      } else {
+        toast.error(
+          `User ${user.firstName} ${user.lastName} could not be deleted!`
+        );
+      }
       // reload page
       router.reload();
+    }
+  }
+  async function doUpdate() {
+    if (user) {
+      console.log(`Make user ${user.userId} admin ...`);
+      if (session == null) return;
+      if (user.isAdmin) {
+        user.isAdmin = false;
+      } else {
+        user.isAdmin = true;
+      }
+      let result = await editUser(session, user);
+      if (result.ok) {
+        toast.success(`User ${user.firstName} ${user.lastName} updated!`);
+      } else {
+        toast.error(
+          `User ${user.firstName} ${user.lastName} could not be updated!`
+        );
+      }
     }
   }
 
@@ -69,7 +95,14 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     if (user) {
       console.log(`Edit user ${user.userId}...`);
       if (session == null) return;
-      await editUser(session, user);
+      let result = await editUser(session, user);
+      if (result.ok) {
+        toast.success(`User ${user.firstName} ${user.lastName} updated!`);
+      } else {
+        toast.error(
+          `User ${user.firstName} ${user.lastName} could not be updated!`
+        );
+      }
     }
   }
 
@@ -94,6 +127,22 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         action={doDelete}
         isOpen={isDeleteUserModalOpen}
         setIsOpen={setDeleteUserModalOpen}
+      ></ConfirmModal>
+      <ConfirmModal
+        title={
+          "Change admin rights for User " +
+          user?.firstName +
+          " " +
+          user?.lastName +
+          "?"
+        }
+        description="Please confirm that you want to update the privileges this user an admin."
+        text=""
+        warn
+        buttonText="UPDATE PRIVILEGES"
+        action={doUpdate}
+        isOpen={isMakeAdminModalOpen}
+        setIsOpen={setMakeAdminModalOpen}
       ></ConfirmModal>
       <EditUserModal
         user={user}
