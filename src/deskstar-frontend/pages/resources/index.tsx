@@ -10,7 +10,7 @@ import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
-import DeskTypeResourceTable from "../../components/resources/DesktypeResourceTable";
+import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
@@ -70,8 +70,12 @@ const ResourceOverview = ({
         }
 
         const resFloors = await getFloors(session, building.buildingId);
-
-        return resFloors;
+        const enrichedFloors = resFloors.map((floor) => {
+          floor.buildingName = building.buildingName;
+          floor.location = building.location;
+          return floor;
+        })
+        return enrichedFloors;
       })
     );
 
@@ -86,7 +90,13 @@ const ResourceOverview = ({
         }
 
         const resRooms = await getRooms(session, floor.floorId);
-        return resRooms;
+        const enrichedRooms = resRooms.map((room) => {
+          room.building = floor.buildingName;
+          room.location = floor.location;
+          room.floor = floor.floorName;
+          return room;
+        })
+        return enrichedRooms;
       })
     );
 
