@@ -22,6 +22,7 @@ import { IFloor } from "../../types/floor";
 import { ILocation } from "../../types/location";
 import { IRoom } from "../../types/room";
 import { authOptions } from "../api/auth/[...nextauth]";
+import FilterListbox from "../../components/FilterListbox";
 
 const ResourceOverview = ({
   buildings: origBuildings,
@@ -42,6 +43,9 @@ const ResourceOverview = ({
   const [floors, setFloors] = useState<IFloor[]>([]);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
+
+  const resourceOptions = ["Buildings", "Floors", "Rooms", "Desks", "Desk types"];
+  const [selectedResourceOption, setSelectedResourceOption] = useState<string | null>("Desks");
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     let buildings = origBuildings.filter((building) =>
@@ -137,15 +141,23 @@ const ResourceOverview = ({
         <h1 className="text-3xl font-bold text-left my-10">
           Resources Overview
         </h1>
-        <a
-          href="#create-resource-modal"
-          type="button"
-          className="btn btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light"
-          onClick={() => {}}
-        >
-          Add Resource
-        </a>
-        <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
+        <div className="flex">
+          <FilterListbox
+            items={resourceOptions}
+            selectedItem={selectedResourceOption}
+            setSelectedItem={setSelectedResourceOption}
+            getName={(resourceOption) =>
+              resourceOption ? `Resource: ${resourceOption}` : "Pick a resource type"
+            }
+            getKey={(resourceOption) => resourceOption}
+          />
+          <a
+            href="#create-resource-modal"
+            type="button"
+            className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
+            onClick={() => { }}>Add Resource</a>
+          <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
+        </div>
       </div>
       <DropDownFilter
         title="Locations"
