@@ -47,7 +47,7 @@ export default function DropDownFilter<A>({
 
   return (
     <div className="dropdown dropdown-hover">
-      <label tabIndex={0} className="btn m-1">
+      <label tabIndex={0} className="btn mr-1">
         {title}
       </label>
       <div className="form-control">

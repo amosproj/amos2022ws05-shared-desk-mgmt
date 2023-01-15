@@ -17,7 +17,9 @@ const FloorResourceTable = ({
         <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Name</th>
+            <th className="bg-deskstar-green-light text-left">Floor</th>
+            <th className="bg-deskstar-green-light text-left">Building</th>
+            <th className="bg-deskstar-green-light text-left">Location</th>
             <th className="bg-deskstar-green-light"></th>
           </tr>
         </thead>
@@ -48,6 +50,8 @@ const FloorResourceTableEntry = ({
   return (
     <tr className="hover">
       <td className="text-left font-bold">{floor.floorName}</td>
+      <td className="text-left font-bold"></td>
+      <td className="text-left font-bold"></td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
           {

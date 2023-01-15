@@ -17,7 +17,7 @@ const DeskTypeResourceTable = ({
         <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Type</th>
+            <th className="bg-deskstar-green-light text-left">Desk Type</th>
             <th className="bg-deskstar-green-light"></th>
           </tr>
         </thead>

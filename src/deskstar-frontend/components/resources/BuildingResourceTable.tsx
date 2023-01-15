@@ -18,7 +18,7 @@ const BuildingResourceTable = ({
         <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Name</th>
+            <th className="bg-deskstar-green-light text-left">Building</th>
             <th className="bg-deskstar-green-light text-left">Location</th>
             <th className="bg-deskstar-green-light"></th>
           </tr>

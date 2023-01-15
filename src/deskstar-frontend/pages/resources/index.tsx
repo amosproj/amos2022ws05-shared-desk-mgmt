@@ -10,7 +10,7 @@ import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
-import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
+import DeskTypeResourceTable from "../../components/resources/DesktypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
@@ -115,15 +115,7 @@ const ResourceOverview = ({
     const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
     setDesks(filteredDesks);
   }
-  async function onSelectedDeskChange(selectedDesks: IDesk[]) {
-    if (!session) {
-      return [];
-    }
-    const allDeskTypes = await getDeskTypes(session);
-    const selectedDeskTypes = selectedDesks.map(desk => desk.deskTyp);
-    const filteredDeskTypes = allDeskTypes.filter((dt) => selectedDeskTypes.includes(dt.deskTypeName));
-    setDeskTypes(filteredDeskTypes);
-  }
+
 
   // redirect if user is not admin as page is only accessible for admins
   useEffect(() => {
@@ -175,55 +167,11 @@ const ResourceOverview = ({
       </div>
       {selectedResourceOption === "Desk types" && (
         <>
-          <DropDownFilter
-            title="Locations"
-            getItemName={(location) => location.locationName}
-            options={locations}
-            setSelectedOptions={onSelectedLocationChange}
-          />
-
-          {buildings.length > 0 && (
-            <DropDownFilter
-              title="Buildings"
-              getItemName={(building) => building.buildingName}
-              options={buildings}
-              setSelectedOptions={onSelectedBuildingChange}
-            />
-          )}
-
-          {floors.length > 0 && (
-            <DropDownFilter
-              title="Floors"
-              getItemName={(floor) => floor.floorName}
-              options={floors}
-              setSelectedOptions={onSelectedFloorChange}
-            />
-          )}
-
-          {rooms.length > 0 && (
-            <DropDownFilter
-              title="Rooms"
-              getItemName={(room) => room.roomName}
-              options={rooms}
-              setSelectedOptions={onSelectedRoomChange}
-            />
-          )}
-          {desks.length > 0 && (
-            <DropDownFilter
-              title="Desks"
-              getItemName={(desk) => desk.deskName}
-              options={desks}
-              setSelectedOptions={onSelectedDeskChange}
-            />
-          )}
-
-          <div className="my-4"></div>
-
-          {desktypes.length > 0 && (
+          {origDeskTypes.length > 0 && (
             <DeskTypeResourceTable
               onEdit={onEdit}
               onDelete={onDelete}
-              deskTypes={desktypes}
+              deskTypes={origDeskTypes}
             />
           )}
         </>
@@ -362,6 +310,8 @@ const ResourceOverview = ({
             options={locations}
             setSelectedOptions={onSelectedLocationChange}
           />
+
+          <div className="my-4"></div>
 
           {buildings.length > 0 && (
             <BuildingResourceTable
