@@ -51,6 +51,7 @@ const ResourceOverview = ({
 
   const resourceOptions = ["Buildings", "Floors", "Rooms", "Desks", "Desk types"];
   const [selectedResourceOption, setSelectedResourceOption] = useState<string | null>("Desks");
+  const [isFetching, setIsFetching] = useState<boolean>(false);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
     let buildings = origBuildings.filter((building) =>
@@ -63,6 +64,7 @@ const ResourceOverview = ({
   }
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
+    setIsFetching(true);
     const promises = await Promise.all(
       selectedBuildings.map(async (building) => {
         if (!session) {
@@ -79,10 +81,12 @@ const ResourceOverview = ({
       })
     );
 
-    setFloors(promises.flat());
+    setFloors(promises.flat());setIsFetching(true);
+    setIsFetching(false);
   }
 
   async function onSelectedFloorChange(selectedFloors: IFloor[]) {
+    setIsFetching(true);
     const promises = await Promise.all(
       selectedFloors.map(async (floor) => {
         if (!session) {
@@ -101,9 +105,11 @@ const ResourceOverview = ({
     );
 
     setRooms(promises.flat());
+    setIsFetching(false);
   }
 
   async function onSelectedRoomChange(selectedRooms: IRoom[]) {
+    setIsFetching(true);
     const promises = await Promise.all(
       selectedRooms.map(async (room) => {
         if (!session) {
@@ -124,6 +130,7 @@ const ResourceOverview = ({
     const desks = promises.flat();
     const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
     setDesks(filteredDesks);
+    setIsFetching(false);
   }
 
 
@@ -149,12 +156,15 @@ const ResourceOverview = ({
 
   return (
     <>
+      {isFetching && <progress className="progress progress-info h-2"></progress>}
+      {!isFetching && <div className="h-6"></div>}
+      
       <Head>
         <title>Resources Overview</title>
       </Head>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-left my-10">
+        <h1 className="text-3xl font-bold text-left mb-10 mt-5">
           Resources Overview
         </h1>
         <div className="flex">
@@ -339,28 +349,28 @@ const ResourceOverview = ({
 
       {buildings.length == 0 && (
         <div className="toast">
-          <div className="alert alert-info">
+          <div className="alert bg-deskstar-green-dark text-black">
             <span>Please select a location</span>
           </div>
         </div>
       )}
       {!(buildings.length == 0) && floors.length == 0 && (
         <div className="toast">
-          <div className="alert alert-info">
+          <div className="alert bg-deskstar-green-dark text-black">
             <span>Please select a building</span>
           </div>
         </div>
       )}
       {!(floors.length == 0) && rooms.length == 0 && (
         <div className="toast">
-          <div className="alert alert-info">
+          <div className="alert bg-deskstar-green-dark text-black">
             <span>Please select a floor</span>
           </div>
         </div>
       )}
       {!(rooms.length == 0) && desks.length == 0 && (
         <div className="toast">
-          <div className="alert alert-info">
+          <div className="alert bg-deskstar-green-dark text-black">
             <span>Please select a room</span>
           </div>
         </div>
