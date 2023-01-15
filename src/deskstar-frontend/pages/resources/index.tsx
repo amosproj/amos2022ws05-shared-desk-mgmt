@@ -8,7 +8,11 @@ import { toast } from "react-toastify";
 import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
+import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
+import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
+import FloorResourceTable from "../../components/resources/FloorResourceTable";
+import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
   getBuildings,
   getDesks,
@@ -106,6 +110,10 @@ const ResourceOverview = ({
         return resDeskType;
       })
     );
+
+    const desks = promises.flat();
+    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    setDesks(filteredDesks);
   }
   async function onSelectedDeskChange(selectedDesks: IDesk[]) {
     if (!session) {
@@ -211,11 +219,11 @@ const ResourceOverview = ({
 
           <div className="my-4"></div>
 
-          {desks.length > 0 && (
-            <DeskResourceTable
+          {desktypes.length > 0 && (
+            <DeskTypeResourceTable
               onEdit={onEdit}
               onDelete={onDelete}
-              desks={desks}
+              deskTypes={desktypes}
             />
           )}
         </>
@@ -303,7 +311,13 @@ const ResourceOverview = ({
 
           <div className="my-4"></div>
 
-          SHOW_ALL_ROOMS_TABLE
+          {rooms.length > 0 && (
+            <RoomResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              rooms={rooms}
+            />
+          )}
         </>
       )
       }
@@ -329,7 +343,13 @@ const ResourceOverview = ({
 
           <div className="my-4"></div>
 
-          SHOW_ALL_Floors_TABLE
+          {floors.length > 0 && (
+            <FloorResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              floors={floors}
+            />
+          )}
         </>
       )
       }
@@ -343,7 +363,13 @@ const ResourceOverview = ({
             setSelectedOptions={onSelectedLocationChange}
           />
 
-          SHOW_ALL_BUILDINGS
+          {buildings.length > 0 && (
+            <BuildingResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              buildings={buildings}
+            />
+          )}
 
         </>
       )
