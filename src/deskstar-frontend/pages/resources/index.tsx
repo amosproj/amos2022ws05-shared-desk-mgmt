@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
-import ResourceManagementTable from "../../components/ResourceManagementTable";
+import DeskResourceTable from "../../components/resources/DeskResourceTable";
 import {
   getBuildings,
   getDesks,
@@ -196,7 +196,7 @@ const ResourceOverview = ({
       <div className="my-4"></div>
 
       {desks.length > 0 && (
-        <ResourceManagementTable
+        <DeskResourceTable
           onEdit={onEdit}
           onDelete={onDelete}
           desks={desks}
