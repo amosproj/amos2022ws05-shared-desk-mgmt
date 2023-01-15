@@ -43,6 +43,7 @@ const ResourceOverview = ({
   const [floors, setFloors] = useState<IFloor[]>([]);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
+  const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
 
   const resourceOptions = ["Buildings", "Floors", "Rooms", "Desks", "Desk types"];
   const [selectedResourceOption, setSelectedResourceOption] = useState<string | null>("Desks");
@@ -105,10 +106,15 @@ const ResourceOverview = ({
         return resDeskType;
       })
     );
-
-    const desks = promises.flat();
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
-    setDesks(filteredDesks);
+  }
+  async function onSelectedDeskChange(selectedDesks: IDesk[]) {
+    if (!session) {
+      return [];
+    }
+    const allDeskTypes = await getDeskTypes(session);
+    const selectedDeskTypes = selectedDesks.map(desk => desk.deskTyp);
+    const filteredDeskTypes = allDeskTypes.filter((dt) => selectedDeskTypes.includes(dt.deskTypeName));
+    setDeskTypes(filteredDeskTypes);
   }
 
   // redirect if user is not admin as page is only accessible for admins
@@ -159,49 +165,191 @@ const ResourceOverview = ({
           <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
         </div>
       </div>
-      <DropDownFilter
-        title="Locations"
-        getItemName={(location) => location.locationName}
-        options={locations}
-        setSelectedOptions={onSelectedLocationChange}
-      />
+      {selectedResourceOption === "Desk types" && (
+        <>
+          <DropDownFilter
+            title="Locations"
+            getItemName={(location) => location.locationName}
+            options={locations}
+            setSelectedOptions={onSelectedLocationChange}
+          />
 
-      {buildings.length > 0 && (
-        <DropDownFilter
-          title="Buildings"
-          getItemName={(building) => building.buildingName}
-          options={buildings}
-          setSelectedOptions={onSelectedBuildingChange}
-        />
-      )}
+          {buildings.length > 0 && (
+            <DropDownFilter
+              title="Buildings"
+              getItemName={(building) => building.buildingName}
+              options={buildings}
+              setSelectedOptions={onSelectedBuildingChange}
+            />
+          )}
 
-      {floors.length > 0 && (
-        <DropDownFilter
-          title="Floors"
-          getItemName={(floor) => floor.floorName}
-          options={floors}
-          setSelectedOptions={onSelectedFloorChange}
-        />
-      )}
+          {floors.length > 0 && (
+            <DropDownFilter
+              title="Floors"
+              getItemName={(floor) => floor.floorName}
+              options={floors}
+              setSelectedOptions={onSelectedFloorChange}
+            />
+          )}
 
-      {rooms.length > 0 && (
-        <DropDownFilter
-          title="Rooms"
-          getItemName={(room) => room.roomName}
-          options={rooms}
-          setSelectedOptions={onSelectedRoomChange}
-        />
-      )}
+          {rooms.length > 0 && (
+            <DropDownFilter
+              title="Rooms"
+              getItemName={(room) => room.roomName}
+              options={rooms}
+              setSelectedOptions={onSelectedRoomChange}
+            />
+          )}
+          {desks.length > 0 && (
+            <DropDownFilter
+              title="Desks"
+              getItemName={(desk) => desk.deskName}
+              options={desks}
+              setSelectedOptions={onSelectedDeskChange}
+            />
+          )}
 
-      <div className="my-4"></div>
+          <div className="my-4"></div>
 
-      {desks.length > 0 && (
-        <ResourceManagementTable
-          onEdit={onEdit}
-          onDelete={onDelete}
-          desks={desks}
-        />
-      )}
+          {desks.length > 0 && (
+            <ResourceManagementTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              desks={desks}
+            />
+          )}
+        </>
+      )
+
+      }
+      {selectedResourceOption === "Desks" && (
+        <>
+          <DropDownFilter
+            title="Locations"
+            getItemName={(location) => location.locationName}
+            options={locations}
+            setSelectedOptions={onSelectedLocationChange}
+          />
+
+          {buildings.length > 0 && (
+            <DropDownFilter
+              title="Buildings"
+              getItemName={(building) => building.buildingName}
+              options={buildings}
+              setSelectedOptions={onSelectedBuildingChange}
+            />
+          )}
+
+          {floors.length > 0 && (
+            <DropDownFilter
+              title="Floors"
+              getItemName={(floor) => floor.floorName}
+              options={floors}
+              setSelectedOptions={onSelectedFloorChange}
+            />
+          )}
+
+          {rooms.length > 0 && (
+            <DropDownFilter
+              title="Rooms"
+              getItemName={(room) => room.roomName}
+              options={rooms}
+              setSelectedOptions={onSelectedRoomChange}
+            />
+          )}
+
+          <div className="my-4"></div>
+
+          {desks.length > 0 && (
+            <ResourceManagementTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              desks={desks}
+            />
+          )}
+        </>
+      )
+
+      }
+
+      {selectedResourceOption === "Rooms" && (
+        <>
+          <DropDownFilter
+            title="Locations"
+            getItemName={(location) => location.locationName}
+            options={locations}
+            setSelectedOptions={onSelectedLocationChange}
+          />
+
+          {buildings.length > 0 && (
+            <DropDownFilter
+              title="Buildings"
+              getItemName={(building) => building.buildingName}
+              options={buildings}
+              setSelectedOptions={onSelectedBuildingChange}
+            />
+          )}
+
+          {floors.length > 0 && (
+            <DropDownFilter
+              title="Floors"
+              getItemName={(floor) => floor.floorName}
+              options={floors}
+              setSelectedOptions={onSelectedFloorChange}
+            />
+          )}
+
+
+
+          <div className="my-4"></div>
+
+          SHOW_ALL_ROOMS_TABLE
+        </>
+      )
+      }
+      {selectedResourceOption === "Floors" && (
+        <>
+          <DropDownFilter
+            title="Locations"
+            getItemName={(location) => location.locationName}
+            options={locations}
+            setSelectedOptions={onSelectedLocationChange}
+          />
+
+          {buildings.length > 0 && (
+            <DropDownFilter
+              title="Buildings"
+              getItemName={(building) => building.buildingName}
+              options={buildings}
+              setSelectedOptions={onSelectedBuildingChange}
+            />
+          )}
+
+
+
+          <div className="my-4"></div>
+
+          SHOW_ALL_Floors_TABLE
+        </>
+      )
+      }
+
+      {selectedResourceOption === "Buildings" && (
+        <>
+          <DropDownFilter
+            title="Locations"
+            getItemName={(location) => location.locationName}
+            options={locations}
+            setSelectedOptions={onSelectedLocationChange}
+          />
+
+          SHOW_ALL_BUILDINGS
+
+        </>
+      )
+
+      }
+
 
       {buildings.length == 0 && (
         <div className="toast">
