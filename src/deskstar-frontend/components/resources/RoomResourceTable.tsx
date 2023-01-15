@@ -50,7 +50,7 @@ const RoomResourceTableEntry = ({
 }) => {
   return (
     <tr className="hover">
-      <td className="text-left">{room.roomName}</td>
+      <td className="text-left font-bold">{room.roomName}</td>
       <td className="text-left">{room.floor}</td>
       <td className="text-left">{room.building}</td>
       <td className="text-left">{room.location}</td>

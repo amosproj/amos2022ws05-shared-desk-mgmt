@@ -10,7 +10,7 @@ import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
-import DeskTypeResourceTable from "../../components/resources/DesktypeResourceTable";
+import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
