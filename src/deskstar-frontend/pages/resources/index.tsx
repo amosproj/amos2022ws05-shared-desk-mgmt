@@ -10,7 +10,7 @@ import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
-import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
+import DeskTypeResourceTable from "../../components/resources/DesktypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
@@ -137,14 +137,14 @@ const ResourceOverview = ({
     }
   }, [router, session]);
 
-  const onEdit = async (desk: IDesk): Promise<void> => {
+  const onEdit = async (resource: object): Promise<void> => {
     //TODO: Implement
-    toast.success(`Editing desk ${desk.deskId}...`);
+    toast.success(`Editing resource...`);
   };
 
-  const onDelete = async (desk: IDesk): Promise<void> => {
+  const onDelete = async (resource: object): Promise<void> => {
     //TODO: Implement
-    toast.success(`Deleting desk ${desk.deskId}...`);
+    toast.success(`Deleting resource...`);
   };
 
   return (

@@ -50,8 +50,8 @@ const FloorResourceTableEntry = ({
   return (
     <tr className="hover">
       <td className="text-left font-bold">{floor.floorName}</td>
-      <td className="text-left font-bold"></td>
-      <td className="text-left font-bold"></td>
+      <td className="text-left font-bold">{floor.buildingName}</td>
+      <td className="text-left font-bold">{floor.location}</td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
           {
