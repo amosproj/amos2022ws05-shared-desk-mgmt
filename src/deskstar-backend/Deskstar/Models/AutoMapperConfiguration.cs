@@ -13,7 +13,7 @@ namespace Deskstar.Models
         {
             var config = new MapperConfiguration(cfg =>
             {
-                UserProfileDto.createMappings(cfg);
+                UserProfileDto.CreateMappings(cfg);
                 UserProfileCompanyDto.createMappings(cfg);
                 DeskTypeDto.createMappings(cfg);
                 ExtendedBooking.createMappings(cfg);

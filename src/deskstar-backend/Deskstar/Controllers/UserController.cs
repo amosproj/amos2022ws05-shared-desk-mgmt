@@ -1,3 +1,12 @@
+/**
+ * UserController
+ *
+ * Version 1.0
+ *
+ * 2023-01-13
+ *
+ * MIT License
+ */
 using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Entities;
@@ -13,17 +22,18 @@ namespace Deskstar.Controllers;
 [Produces("application/json")]
 public class UserController : ControllerBase
 {
-
     private readonly IUserUsecases _userUsecases;
     private readonly ILogger<UserController> _logger;
     private readonly IAutoMapperConfiguration _autoMapperConfiguration;
 
-    public UserController(ILogger<UserController> logger, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
+    public UserController(ILogger<UserController> logger, IUserUsecases userUsecases,
+        IAutoMapperConfiguration autoMapperConfiguration)
     {
         _logger = logger;
         _userUsecases = userUsecases;
         _autoMapperConfiguration = autoMapperConfiguration;
     }
+
     /// <summary>
     /// Returns all users for a specific company
     /// </summary>
@@ -65,6 +75,7 @@ public class UserController : ControllerBase
             return Problem(statusCode: 500);
         }
     }
+
     /// <summary>
     /// Returns user specific information
     /// </summary>
@@ -212,6 +223,7 @@ public class UserController : ControllerBase
             return Problem(statusCode: 500);
         }
     }
+
     /// <summary>
     /// Update user information
     /// </summary>
@@ -232,15 +244,116 @@ public class UserController : ControllerBase
     public IActionResult UpdateUser(UserProfileDto userDto)
     {
         var userId = RequestInteractions.ExtractIdFromRequest(Request);
-
         try
         {
             var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
             var user = mapper.Map<UserProfileDto, User>(userDto);
-
-            _userUsecases.UpdateUser(user);
+            
+            _userUsecases.UpdateUser(userId, user);
 
             return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+            _logger.LogError(e, e.Message);
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
+    }
+    
+    /// <summary>
+    /// Update given user information
+    /// </summary>
+    /// <returns> empty response </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /edit
+    /// </remarks>
+    ///
+    /// <response code="200">Empty Response</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="403">Forbid</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpPost("edit")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult UpdateGivenUser(UserProfileDto userDto)
+    {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+        try
+        {
+            var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
+            var user = mapper.Map<UserProfileDto, User>(userDto);
+            _userUsecases.UpdateUser(adminId,user);
+            return Ok();
+        }
+        catch (ArgumentInvalidException e)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (InsufficientPermissionException e)
+        {
+            _logger.LogError(e, e.Message);
+            return Forbid(e.Message);
+        }
+        catch (EntityNotFoundException e)
+        {
+            _logger.LogError(e, e.Message);
+            return NotFound(e.Message);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return Problem(statusCode: 500);
+        }
+    }
+    
+    /// <summary>
+    /// Delete given user
+    /// </summary>
+    /// <returns> empty response </returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Post /delete/{userId}
+    /// </remarks>
+    ///
+    /// <response code="200">Empty Response</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Internal Server Error</response>
+    [HttpDelete("delete/{userId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public IActionResult DeleteGivenUser(string userId)
+    {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+        try
+        {
+           _userUsecases.DeleteUser(adminId, userId);
+            return Ok();
+        }
+        catch (ArgumentInvalidException e)
+        {
+            _logger.LogError(e, e.Message);
+            return BadRequest(e.Message);
+        }
+        catch (InsufficientPermissionException e)
+        {
+            _logger.LogError(e, e.Message);
+            return Forbid(e.Message);
         }
         catch (EntityNotFoundException e)
         {
