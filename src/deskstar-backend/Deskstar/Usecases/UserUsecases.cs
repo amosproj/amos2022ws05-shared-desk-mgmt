@@ -122,7 +122,9 @@ public class UserUsecases : IUserUsecases
         var admin = _context.Users.SingleOrDefault(user => user.UserId == adminId);
         if (admin == null)
             throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
-        return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
+        return _context.Users.Where(user => user.CompanyId == admin.CompanyId)
+            .Where(user => !user.IsMarkedForDeletion)
+            .ToList();
     }
 
     public Guid UpdateUser(string requestUserId, User user)
@@ -158,13 +160,13 @@ public class UserUsecases : IUserUsecases
     {
         if (user.UserId == Guid.Empty)
             throw new ArgumentInvalidException($"'{nameof(user.UserId)}' is empty");
-        if (user.FirstName == null || user.FirstName.Length == 0)
+        if (string.IsNullOrEmpty(user.FirstName))
             throw new ArgumentInvalidException($"'{nameof(user.FirstName)}' is not set");
-        if (user.LastName == null || user.LastName.Length == 0)
+        if (string.IsNullOrEmpty(user.LastName))
             throw new ArgumentInvalidException($"'{nameof(user.LastName)}' is not set");
-        if (user.MailAddress == null || user.MailAddress.Length == 0)
+        if (string.IsNullOrEmpty(user.MailAddress))
             throw new ArgumentInvalidException($"'{nameof(user.MailAddress)}' is not set");
-        Regex rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
+        var rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
             RegexOptions.IgnoreCase);
         if (rx.Matches(user.MailAddress).Count != 1) 
             throw new ArgumentInvalidException("Mailaddress is not valid");
@@ -205,7 +207,8 @@ public class UserUsecases : IUserUsecases
                    "your account has been releted by your Company admin.</br> " +
                    "If you think this was an mistake, get in touch with your company admin.</br>";
         EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details have been updated!", body);
-        _context.Users.Remove(userDbInstance);
+        userDbInstance.IsMarkedForDeletion = true;
+        // _context.Users.Remove(userDbInstance);
         _context.SaveChanges();
 
         return guid;

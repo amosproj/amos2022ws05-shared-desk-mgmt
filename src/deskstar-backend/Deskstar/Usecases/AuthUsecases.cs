@@ -97,15 +97,15 @@ namespace Deskstar.Usecases
 
         public RegisterResponse RegisterUser(RegisterUser registerUser)
         {
-            if (registerUser.FirstName == null || registerUser.FirstName.Length == 0)
+            if (string.IsNullOrEmpty(registerUser.FirstName))
                 throw new ArgumentInvalidException($"'{nameof(registerUser.FirstName)}' is not set");
-            if (registerUser.LastName == null || registerUser.LastName.Length == 0)
+            if (string.IsNullOrEmpty(registerUser.LastName))
                 throw new ArgumentInvalidException($"'{nameof(registerUser.LastName)}' is not set");
-            if (registerUser.MailAddress == null || registerUser.MailAddress.Length == 0)
+            if (string.IsNullOrEmpty(registerUser.MailAddress))
                 throw new ArgumentInvalidException($"'{nameof(registerUser.MailAddress)}' is not set");
-            if (registerUser.Password == null || registerUser.Password.Length == 0)
+            if (string.IsNullOrEmpty(registerUser.Password))
                 throw new ArgumentInvalidException($"'{nameof(registerUser.Password)}' is not set");
-            Regex rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
+            var rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
             RegexOptions.IgnoreCase);
             if (rx.Matches(registerUser.MailAddress).Count != 1) 
                 throw new ArgumentInvalidException("Mailaddress is not valid");
