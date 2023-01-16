@@ -19,7 +19,8 @@
         "eamodio.gitlens",
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-typescript",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "github.copilot"
       ]
     }
   },
