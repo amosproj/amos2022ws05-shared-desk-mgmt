@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog } from "@headlessui/react";
 import { IUser } from "../types/users";
 import Input from "./forms/Input";
@@ -6,18 +6,25 @@ import React from "react";
 
 export default function EditUserModal({
   user,
-  action,
+  setUser,
   isOpen,
   setIsOpen,
 }: {
   user?: IUser;
-  action: Function;
+  setUser: (newUser: IUser) => Promise<void>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [firstName, setFirstName] = useState(user?.firstName);
+  const [lastName, setLastName] = useState(user?.lastName);
+  const [email, setEmail] = useState(user?.email);
+
+  useEffect(() => {
+    setFirstName(user?.firstName);
+    setLastName(user?.lastName);
+    setEmail(user?.email);
+  }, [user]);
 
   return (
     <Dialog open={isOpen} onClose={() => setIsOpen(false)}>
@@ -42,14 +49,14 @@ export default function EditUserModal({
                       setFirstName(e.target.value);
                     }}
                     placeholder={user?.firstName}
-                    value={firstName}
+                    value={firstName ?? ""}
                   />
                   <Input
                     name="last name"
                     onChange={(e) => {
                       setLastName(e.target.value);
                     }}
-                    value={lastName}
+                    value={lastName ?? ""}
                     placeholder={user?.lastName}
                   />
                 </div>
@@ -59,22 +66,28 @@ export default function EditUserModal({
                     onChange={(e) => {
                       setEmail(e.target.value);
                     }}
-                    value={email}
+                    value={email ?? ""}
                     placeholder={user?.email}
                   />
                 </div>
               </div>
               <div className="card-actions justify-end mt-4">
                 <button
+                  disabled={isLoading}
                   className="btn btn-success"
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (user != null) {
-                      if (!(firstName == "")) user.firstName = firstName;
-                      if (!(lastName == "")) user.lastName = lastName;
-                      if (!(email == "")) user.email = email;
-                      action(user);
+                  onClick={async () => {
+                    setIsLoading(true);
+                    if (user) {
+                      await setUser({
+                        ...user,
+                        firstName: firstName ?? user.firstName,
+                        lastName: lastName ?? user.lastName,
+                        email: email ?? user.email,
+                      });
+                      setIsOpen(false);
                     }
+
+                    setIsLoading(false);
                   }}
                 >
                   Save

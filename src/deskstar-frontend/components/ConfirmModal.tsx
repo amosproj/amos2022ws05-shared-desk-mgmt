@@ -1,5 +1,5 @@
 import { Dialog } from "@headlessui/react";
-import React from "react";
+import React, { useState } from "react";
 
 export default function ConfirmModal({
   title,
@@ -20,6 +20,8 @@ export default function ConfirmModal({
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
+  const [isLoading, setIsLoading] = useState(false);
+
   let buttonClass = "btn ";
   if (warn) buttonClass += "btn-warning";
 
@@ -59,10 +61,14 @@ export default function ConfirmModal({
                 </div>
                 <div className="card-actions justify-end mt-4">
                   <button
+                    disabled={isLoading}
                     className={buttonClass}
-                    onClick={() => {
+                    onClick={async () => {
+                      setIsLoading(true);
+                      await action();
+
                       setIsOpen(false);
-                      action();
+                      setIsLoading(false);
                     }}
                   >
                     {buttonText}

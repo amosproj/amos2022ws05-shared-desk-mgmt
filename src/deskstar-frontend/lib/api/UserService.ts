@@ -70,15 +70,20 @@ export async function editUser(
   session: Session,
   user: IUser
 ): Promise<Response> {
-  var body=JSON.stringify(user);
-  body=body.replace("email", "mailAddress").replace("isAdmin", "isCompanyAdmin").replace("company", "companyId");
-  return fetch(BACKEND_URL + `/users/edit`, {
+  return await fetch(BACKEND_URL + `/users/edit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
       "Content-Type": "application/json",
     },
-    body: body,
+    body: JSON.stringify({
+      UserId: user.userId,
+      LastName: user.lastName,
+      FirstName: user.firstName,
+      mailAddress: user.email,
+      isCompanyAdmin: user.isAdmin,
+      companyId: user.company,
+    }),
   });
 }
 

@@ -15,6 +15,8 @@ import EditUserModal from "../../components/EditUserModal";
 export default function UsersOverview({ users }: { users: IUser[] }) {
   let { data: session } = useSession();
 
+  const [userList, setUserList] = useState(users);
+
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
 
@@ -40,17 +42,17 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     return;
   }
 
-  async function onPermissionUpdate(user: IUser): Promise<void> {
+  async function onPermissionUpdate(user: IUser) {
     setUser(user);
     setMakeAdminModalOpen(true);
   }
 
-  async function onEdit(user: IUser): Promise<void> {
+  async function onEdit(user: IUser) {
     setUser(user);
     setEditUserModalOpen(true);
   }
 
-  async function onDelete(user: IUser): Promise<void> {
+  async function onDelete(user: IUser) {
     setUser(user);
     setDeleteUserModalOpen(true);
   }
@@ -59,28 +61,41 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     if (user) {
       if (session == null) return;
       let result = await deleteUser(session, user.userId);
+
       if (result.ok) {
         toast.success(`User ${user.firstName} ${user.lastName} deleted!`);
+
+        // Remove the user from userList
+        setUserList(userList.filter((u) => user.userId !== u.userId));
       } else {
         toast.error(
           `User ${user.firstName} ${user.lastName} could not be deleted!`
         );
       }
-      // reload page
-      router.reload();
     }
   }
-  async function doUpdate() {
+
+  async function doChangePermissions() {
     if (user) {
       if (session == null) return;
-      if (user.isAdmin) {
-        user.isAdmin = false;
-      } else {
-        user.isAdmin = true;
-      }
-      let result = await editUser(session, user);
+
+      // Toggle isAdmin
+      const newUser = {
+        ...user,
+        isAdmin: !user.isAdmin,
+      };
+
+      setUser(newUser);
+
+      let result = await editUser(session, newUser);
+
       if (result.ok) {
         toast.success(`User ${user.firstName} ${user.lastName} updated!`);
+
+        // Change the user in userList
+        setUserList(
+          userList.map((u) => (newUser.userId === u.userId ? newUser : u))
+        );
       } else {
         toast.error(
           `User ${user.firstName} ${user.lastName} could not be updated!`
@@ -89,17 +104,26 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     }
   }
 
-  async function doEdit() {
-    if (user) {
-      if (session == null) return;
-      let result = await editUser(session, user);
-      if (result.ok) {
-        toast.success(`User ${user.firstName} ${user.lastName} updated!`);
-      } else {
-        toast.error(
-          `User ${user.firstName} ${user.lastName} could not be updated!`
-        );
-      }
+  async function doEdit(newUser: IUser) {
+    if (session == null) return;
+
+    let result = await editUser(session, newUser);
+
+    if (result.ok) {
+      setUser(newUser);
+
+      toast.success(`User ${newUser.firstName} ${newUser.lastName} updated!`);
+
+      // Change the user in userList
+      setUserList(
+        userList.map((user) =>
+          user.userId === newUser.userId ? newUser : user
+        )
+      );
+    } else {
+      toast.error(
+        `User ${newUser.firstName} ${newUser.lastName} could not be updated!`
+      );
     }
   }
 
@@ -110,7 +134,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Users Overview</h1>
       <UsersTable
-        users={users}
+        users={userList}
         onPermissionUpdate={onPermissionUpdate}
         onEdit={onEdit}
         onDelete={onDelete}
@@ -137,13 +161,13 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         text=""
         warn
         buttonText="UPDATE PRIVILEGES"
-        action={doUpdate}
+        action={doChangePermissions}
         isOpen={isMakeAdminModalOpen}
         setIsOpen={setMakeAdminModalOpen}
       ></ConfirmModal>
       <EditUserModal
         user={user}
-        action={doEdit}
+        setUser={doEdit}
         isOpen={isEditUserModalOpen}
         setIsOpen={setEditUserModalOpen}
       />
