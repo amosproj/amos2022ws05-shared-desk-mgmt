@@ -1,7 +1,6 @@
 services:
   frontend:
     container_name: deskstar_frontend
-    # user: "${USER_ID}:${GROUP_ID}" # prevent root files in host system
     build:
       context: ./deskstar-frontend
     ports:
@@ -10,13 +9,11 @@ services:
       - BACKEND_URL
       - NEXTAUTH_SECRET
       - NEXTAUTH_URL
-      # - HOST=0.0.0.0
     networks:
       - external
       - internal
   backend:
     container_name: deskstar_backend
-    # user: "${USER_ID}:${GROUP_ID}"
     depends_on:
       - "postgres"
     build:
@@ -65,8 +62,6 @@ services:
       - POSTGRES_USER
       - POSTGRES_DB
       - POSTGRES_PASSWORD
-    # volumes:
-    #   - ./deskstar-db/dummy-data.sql:/docker-entrypoint-initdb.d/dummy-data.sql
     ports:
       - 5433:5432
     networks:
