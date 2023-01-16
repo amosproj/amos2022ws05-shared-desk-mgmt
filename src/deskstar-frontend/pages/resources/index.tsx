@@ -63,6 +63,10 @@ const ResourceOverview = ({
     setBuildings(buildings);
   }
 
+  function stopFetchingAnimation() {
+    setTimeout(()=>{setIsFetching(false);}, 1500);
+  }
+
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
     setIsFetching(true);
     const promises = await Promise.all(
@@ -82,7 +86,7 @@ const ResourceOverview = ({
     );
 
     setFloors(promises.flat());setIsFetching(true);
-    setIsFetching(false);
+    stopFetchingAnimation();
   }
 
   async function onSelectedFloorChange(selectedFloors: IFloor[]) {
@@ -105,7 +109,7 @@ const ResourceOverview = ({
     );
 
     setRooms(promises.flat());
-    setIsFetching(false);
+    stopFetchingAnimation();
   }
 
   async function onSelectedRoomChange(selectedRooms: IRoom[]) {
@@ -130,7 +134,7 @@ const ResourceOverview = ({
     const desks = promises.flat();
     const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
     setDesks(filteredDesks);
-    setIsFetching(false);
+    stopFetchingAnimation();
   }
 
 
