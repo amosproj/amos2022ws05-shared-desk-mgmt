@@ -1,0 +1,78 @@
+services:
+  frontend:
+    container_name: deskstar_frontend
+    # user: "${USER_ID}:${GROUP_ID}" # prevent root files in host system
+    build:
+      context: ./deskstar-frontend
+    ports:
+      - 3000:3000
+    environment:
+      - BACKEND_URL
+      - NEXTAUTH_SECRET
+      - NEXTAUTH_URL
+      # - HOST=0.0.0.0
+    networks:
+      - external
+      - internal
+  backend:
+    container_name: deskstar_backend
+    # user: "${USER_ID}:${GROUP_ID}"
+    depends_on:
+      - "postgres"
+    build:
+      context: ./deskstar-backend/Deskstar
+    ports:
+      - 3001:80
+    environment:
+      - ASPNETCORE_ENVIRONMENT
+      - DB__HOST
+      - DB__DATABASE
+      - DB__USERNAME
+      - DB__PASSWORD
+      # defined in .env.local (will no be pushed to git)
+      - EMAIL__HOST
+      - EMAIL__PORT
+      - EMAIL__ADDRESS
+      - EMAIL__PSW
+    networks:
+      - internal
+  dbpreparation:
+    container_name: deskstar_db_prep
+    build:
+      context: ./deskstar-backend/Deskstar
+      dockerfile: Dockerfile_dev
+    depends_on:
+      - "postgres"
+    environment:
+      # - ASPNETCORE_ENVIRONMENT
+      - DB__HOST
+      - DB__DATABASE
+      - DB__USERNAME
+      - DB__PASSWORD
+      # defined in .env.local (will no be pushed to git)
+      - EMAIL__HOST
+      - EMAIL__PORT
+      - EMAIL__ADDRESS
+      - EMAIL__PSW
+    networks:
+      - internal
+    command: dotnet ef database update
+  postgres:
+    container_name: deskstar_postgres
+    image: postgres
+    user: "postgres"
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
+    # volumes:
+    #   - ./deskstar-db/dummy-data.sql:/docker-entrypoint-initdb.d/dummy-data.sql
+    ports:
+      - 5433:5432
+    networks:
+      - internal
+volumes:
+  exclude:
+networks:
+  internal:
+  external:
