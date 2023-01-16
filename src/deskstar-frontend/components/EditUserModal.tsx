@@ -63,6 +63,7 @@ export default function EditUserModal({
                 <div>
                   <Input
                     name="E-Mail"
+                    type="email"
                     onChange={(e) => {
                       setEmail(e.target.value);
                     }}

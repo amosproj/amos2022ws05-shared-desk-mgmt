@@ -12,6 +12,7 @@ using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Helper;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Deskstar.Usecases;
 
@@ -155,14 +156,18 @@ public class UserUsecases : IUserUsecases
     }
     private Guid SaveUpdateUser(User user)
     {
-        if(user.UserId == Guid.Empty)
+        if (user.UserId == Guid.Empty)
             throw new ArgumentInvalidException($"'{nameof(user.UserId)}' is empty");
-        if(user.FirstName == null|| user.FirstName.Length == 0)
+        if (user.FirstName == null || user.FirstName.Length == 0)
             throw new ArgumentInvalidException($"'{nameof(user.FirstName)}' is not set");
-        if(user.LastName == null|| user.LastName.Length == 0)
+        if (user.LastName == null || user.LastName.Length == 0)
             throw new ArgumentInvalidException($"'{nameof(user.LastName)}' is not set");
-        if(user.MailAddress == null|| user.MailAddress.Length == 0)
+        if (user.MailAddress == null || user.MailAddress.Length == 0)
             throw new ArgumentInvalidException($"'{nameof(user.MailAddress)}' is not set");
+        Regex rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
+            RegexOptions.IgnoreCase);
+        if (rx.Matches(user.MailAddress).Count != 1) 
+            throw new ArgumentInvalidException("Mailaddress is not valid");
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
