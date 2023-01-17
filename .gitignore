@@ -22,7 +22,6 @@ pids
 __pycache__/
 
 # vscode
-.vscode/
 web-build/
 dist/
 
@@ -36,6 +35,8 @@ bin/
 
 # MacOS
 .DS_Store
+
+
 src/deskstar-backend/DeskstarSolution.sln.DotSettings.user
 *.cs~
 src/deskstar-backend/Deskstar/out/
