@@ -21,7 +21,6 @@ export function UpdateBookingModal({
   let today = new Date();
   today.setHours(8, 0, 0, 0);
 
-
   return (
     <>
       <input type="checkbox" id={id} className="modal-toggle" />

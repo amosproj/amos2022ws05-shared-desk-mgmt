@@ -1,4 +1,4 @@
 export interface IDeskType {
-    deskTypeId: string;
-    deskTypeName: string
-};
+  deskTypeId: string;
+  deskTypeName: string;
+}

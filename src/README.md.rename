@@ -3,6 +3,7 @@
 ## Local production run
 
 1. Copy the `.env.template` file to `.env.local`:
+
 ```bash
 cp .env.template .env.local
 ```
@@ -18,9 +19,11 @@ cp .env.template .env.local
 4. The frontend should now be reachable on `http://localhost:3000`. After that you should be able to register, login and use the software.
 
 5. OPTIONAL: If you want to fill the database with our dummy-data you can use the following command:
+
 ```bash
 docker exec -i deskstar_postgres psql -U postgres deskstar < ./deskstar-db/dummy-data.sql
 ```
+
 The dummy data already contain some companies you can use and also some test users. You can find the login data at the bottom of this README.
 
 ## Local Dev Setup

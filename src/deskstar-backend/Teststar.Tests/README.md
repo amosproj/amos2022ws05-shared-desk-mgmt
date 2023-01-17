@@ -7,7 +7,9 @@ dotnet test
 This repo contains only unit tests for business logic of usecase classes
 
 # test structure
-All tests for a usecase and its dependant test data is saved in a file called 
+
+All tests for a usecase and its dependant test data is saved in a file called
+
 ```
 <Usecase>Tests.cs
 
@@ -27,9 +29,11 @@ public void <MethodNameYouWannaTest>_When<Scenario>_Should<ExpectedResult>(){
 ```
 
 changes of existing setup functions MUST only be commited if all existing tests still work.
+
 # test coverage
 
 show test coverage
+
 ```
 rm -rf ../Deskstar/Migrations && rm -rf ../Deskstar/Controllers
 dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory coverage

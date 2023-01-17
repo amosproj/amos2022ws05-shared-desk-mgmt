@@ -18,7 +18,7 @@ import {
   getDesks,
   getDeskTypes,
   getFloors,
-  getRooms
+  getRooms,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
@@ -49,8 +49,16 @@ const ResourceOverview = ({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
 
-  const resourceOptions = ["Buildings", "Floors", "Rooms", "Desks", "Desk types"];
-  const [selectedResourceOption, setSelectedResourceOption] = useState<string | null>("Desks");
+  const resourceOptions = [
+    "Buildings",
+    "Floors",
+    "Rooms",
+    "Desks",
+    "Desk types",
+  ];
+  const [selectedResourceOption, setSelectedResourceOption] = useState<
+    string | null
+  >("Desks");
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
@@ -64,7 +72,9 @@ const ResourceOverview = ({
   }
 
   function stopFetchingAnimation() {
-    setTimeout(()=>{setIsFetching(false);}, 1500);
+    setTimeout(() => {
+      setIsFetching(false);
+    }, 1500);
   }
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
@@ -80,12 +90,13 @@ const ResourceOverview = ({
           floor.buildingName = building.buildingName;
           floor.location = building.location;
           return floor;
-        })
+        });
         return enrichedFloors;
       })
     );
 
-    setFloors(promises.flat());setIsFetching(true);
+    setFloors(promises.flat());
+    setIsFetching(true);
     stopFetchingAnimation();
   }
 
@@ -103,7 +114,7 @@ const ResourceOverview = ({
           room.location = floor.location;
           room.floor = floor.floorName;
           return room;
-        })
+        });
         return enrichedRooms;
       })
     );
@@ -137,7 +148,6 @@ const ResourceOverview = ({
     stopFetchingAnimation();
   }
 
-
   // redirect if user is not admin as page is only accessible for admins
   useEffect(() => {
     if (session && !session?.user.isAdmin) {
@@ -159,16 +169,17 @@ const ResourceOverview = ({
   };
 
   const getIndex = (resourceName: string | null): number => {
-    if (resourceName == null)
-      return -1;
+    if (resourceName == null) return -1;
     return resourceOptions.findIndex((v, i, obj) => resourceName === v);
-  }
+  };
 
   return (
     <>
-      {isFetching && <progress className="progress progress-info h-2"></progress>}
+      {isFetching && (
+        <progress className="progress progress-info h-2"></progress>
+      )}
       {!isFetching && <div className="h-6"></div>}
-      
+
       <Head>
         <title>Resources Overview</title>
       </Head>
@@ -183,7 +194,9 @@ const ResourceOverview = ({
             selectedItem={selectedResourceOption}
             setSelectedItem={setSelectedResourceOption}
             getName={(resourceOption) =>
-              resourceOption ? `Resource: ${resourceOption}` : "Pick a resource type"
+              resourceOption
+                ? `Resource: ${resourceOption}`
+                : "Pick a resource type"
             }
             getKey={(resourceOption) => resourceOption}
           />
@@ -191,11 +204,16 @@ const ResourceOverview = ({
             href="#create-resource-modal"
             type="button"
             className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
-            onClick={() => { }}>Add Resource</a>
-          <AddResourceModal buildings={origBuildings} deskTypes={origDeskTypes} />
+            onClick={() => {}}
+          >
+            Add Resource
+          </a>
+          <AddResourceModal
+            buildings={origBuildings}
+            deskTypes={origDeskTypes}
+          />
         </div>
       </div>
-
 
       {selectedResourceOption !== "Desk types" && (
         <>
@@ -233,15 +251,13 @@ const ResourceOverview = ({
             />
           )}
         </>
-      )
-      }
+      )}
 
       {selectedResourceOption !== "Desk types" && (
         <>
           <div className="my-4"></div>
         </>
-      )
-      }
+      )}
       {selectedResourceOption === "Desk types" && (
         <>
           {origDeskTypes.length > 0 && (
@@ -252,47 +268,52 @@ const ResourceOverview = ({
             />
           )}
         </>
-      )
-      }
-      {selectedResourceOption === "Desks" && (<>
-        {desks.length > 0 && (
-          <DeskResourceTable
-            onEdit={onEdit}
-            onDelete={onDelete}
-            desks={desks}
-          />
-        )}
-      </>)}
-      {selectedResourceOption === "Rooms" && (<>
-        {rooms.length > 0 && (
-          <RoomResourceTable
-            onEdit={onEdit}
-            onDelete={onDelete}
-            rooms={rooms}
-          />
-        )}
-      </>)}
-      {selectedResourceOption === "Floors" && (<>
-        {floors.length > 0 && (
-          <FloorResourceTable
-            onEdit={onEdit}
-            onDelete={onDelete}
-            floors={floors}
-          />
-        )}
-      </>)}
+      )}
+      {selectedResourceOption === "Desks" && (
+        <>
+          {desks.length > 0 && (
+            <DeskResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              desks={desks}
+            />
+          )}
+        </>
+      )}
+      {selectedResourceOption === "Rooms" && (
+        <>
+          {rooms.length > 0 && (
+            <RoomResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              rooms={rooms}
+            />
+          )}
+        </>
+      )}
+      {selectedResourceOption === "Floors" && (
+        <>
+          {floors.length > 0 && (
+            <FloorResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              floors={floors}
+            />
+          )}
+        </>
+      )}
 
-
-      {selectedResourceOption === "Buildings" && (<>
-        {buildings.length > 0 && (
-          <BuildingResourceTable
-            onEdit={onEdit}
-            onDelete={onDelete}
-            buildings={buildings}
-          />
-        )}
-      </>)}
-
+      {selectedResourceOption === "Buildings" && (
+        <>
+          {buildings.length > 0 && (
+            <BuildingResourceTable
+              onEdit={onEdit}
+              onDelete={onDelete}
+              buildings={buildings}
+            />
+          )}
+        </>
+      )}
 
       {buildings.length == 0 && (
         <div className="toast">
