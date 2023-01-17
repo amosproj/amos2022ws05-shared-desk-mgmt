@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0
+
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && apt-get -y install --no-install-recommends \
+    postgresql
+
+RUN dotnet tool install --global dotnet-ef
+
+
+WORKDIR /Deskstar
+# Copy everything
+COPY . ./
+# Restore as distinct layers
+RUN dotnet restore
+# Build and publish a release
+RUN dotnet publish -c Dev -o out
+
+ENV PATH="${PATH}:~/.dotnet/tools/"
+
+CMD ["dotnet", "bin/Dev/net6.0/Deskstar.dll"]

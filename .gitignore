@@ -1,3 +1,5 @@
+.devcontainer/.env
+
 # Node
 logs
 npm-debug.log*
