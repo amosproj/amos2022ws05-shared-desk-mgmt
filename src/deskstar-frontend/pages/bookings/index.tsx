@@ -45,12 +45,7 @@ export default function Bookings({
 
       if (response == "success") {
         toast.success("Booking successfully deleted!");
-
-        let index = bookings.indexOf(booking);
-        if (index > -1) {
-          bookings.splice(index, 1);
-        }
-        return;
+        refreshData(currentPage);
       } else {
         toast.error(response);
       }
