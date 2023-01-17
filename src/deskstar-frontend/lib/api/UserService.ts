@@ -54,6 +54,39 @@ export function declineUser(
   });
 }
 
+export async function deleteUser(
+  session: Session,
+  userId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/users/delete/${userId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
+export async function editUser(
+  session: Session,
+  user: IUser
+): Promise<Response> {
+  return await fetch(BACKEND_URL + `/users/edit`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      UserId: user.userId,
+      LastName: user.lastName,
+      FirstName: user.firstName,
+      mailAddress: user.email,
+      isCompanyAdmin: user.isAdmin,
+      companyId: user.company,
+    }),
+  });
+}
+
 type UserResponse = {
   userId: string;
   firstName: string;

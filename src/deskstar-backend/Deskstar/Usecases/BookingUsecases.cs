@@ -11,6 +11,7 @@ public interface IBookingUsecases
     public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
     int CountValidBookings(Guid userId, string direction, DateTime start, DateTime end);
     public Booking DeleteBooking(Guid userId, Guid bookingId);
+    public Booking UpdateBooking(Guid userId, Guid bookingId, UpdateBookingRequest updateBookingRequest);
 }
 
 public class BookingUsecases : IBookingUsecases
@@ -135,6 +136,41 @@ public class BookingUsecases : IBookingUsecases
         }
 
         _context.Bookings.Remove(booking);
+        _context.SaveChanges();
+        return booking;
+    }
+
+    public Booking UpdateBooking(Guid userId, Guid bookingId, UpdateBookingRequest updateBookingRequest)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+
+        var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+        if (booking == null)
+        {
+            throw new ArgumentException("Booking not found");
+        }
+
+        if (booking.UserId != userId)
+        {
+            throw new ArgumentException("You are not allowed to update this booking");
+        }
+
+        var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId && b.BookingId != bookingId);
+        var timeSlotAvailable = bookings.All(b => b.StartTime >= updateBookingRequest.EndTime || b.EndTime <= updateBookingRequest.StartTime);
+        if (!timeSlotAvailable)
+        {
+            throw new ArgumentException("Time slot not available");
+        }
+
+        booking.StartTime = updateBookingRequest.StartTime;
+        booking.EndTime = updateBookingRequest.EndTime;
+        booking.Timestamp = DateTime.Now;
+
+        _context.Bookings.Update(booking);
         _context.SaveChanges();
         return booking;
     }

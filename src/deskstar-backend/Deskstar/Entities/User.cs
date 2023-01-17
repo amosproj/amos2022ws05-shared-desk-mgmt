@@ -19,6 +19,8 @@
         public bool IsApproved { get; set; }
         
         public bool IsCompanyAdmin { get; set; }
+        
+        public bool IsMarkedForDeletion { get; set; }
 
         public virtual Company Company { get; set; } = null!;
         public virtual ICollection<Booking> Bookings { get; set; }
