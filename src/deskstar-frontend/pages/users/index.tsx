@@ -104,8 +104,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     }
   }
 
-  async function doEdit(newUser: IUser) {
-    if (session == null) return;
+  async function doEdit(newUser: IUser): Promise<boolean> {
+    if (session == null) return false;
 
     let result = await editUser(session, newUser);
 
