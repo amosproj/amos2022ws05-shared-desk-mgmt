@@ -120,10 +120,12 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
           user.userId === newUser.userId ? newUser : user
         )
       );
+      return true;
     } else {
       toast.error(
         `User ${newUser.firstName} ${newUser.lastName} could not be updated!`
       );
+      return false;
     }
   }
 
