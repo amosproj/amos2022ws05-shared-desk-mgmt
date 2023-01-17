@@ -104,8 +104,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
     }
   }
 
-  async function doEdit(newUser: IUser) {
-    if (session == null) return;
+  async function doEdit(newUser: IUser): Promise<boolean> {
+    if (session == null) return false;
 
     let result = await editUser(session, newUser);
 
@@ -120,11 +120,13 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
           user.userId === newUser.userId ? newUser : user
         )
       );
+      return true;
     } else {
       toast.error(
         `User ${newUser.firstName} ${newUser.lastName} could not be updated!`
       );
     }
+    return false;
   }
 
   return (

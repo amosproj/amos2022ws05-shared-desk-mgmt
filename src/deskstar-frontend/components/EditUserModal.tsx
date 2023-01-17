@@ -11,7 +11,7 @@ export default function EditUserModal({
   setIsOpen,
 }: {
   user?: IUser;
-  setUser: (newUser: IUser) => Promise<void>;
+  setUser: (newUser: IUser) => Promise<boolean>;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }) {
@@ -44,7 +44,7 @@ export default function EditUserModal({
               <div>
                 <div>
                   <Input
-                    name="first name"
+                    name="First name"
                     onChange={(e) => {
                       setFirstName(e.target.value);
                     }}
@@ -52,7 +52,7 @@ export default function EditUserModal({
                     value={firstName ?? ""}
                   />
                   <Input
-                    name="last name"
+                    name="Last name"
                     onChange={(e) => {
                       setLastName(e.target.value);
                     }}
@@ -79,12 +79,17 @@ export default function EditUserModal({
                   onClick={async () => {
                     setIsLoading(true);
                     if (user) {
-                      await setUser({
+                      var result = await setUser({
                         ...user,
                         firstName: firstName ?? user.firstName,
                         lastName: lastName ?? user.lastName,
                         email: email ?? user.email,
                       });
+                      if (result == false) {
+                        setFirstName(user.firstName);
+                        setEmail(user.email);
+                        setLastName(user.lastName);
+                      }
                       setIsOpen(false);
                     }
 
