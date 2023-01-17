@@ -53,17 +53,20 @@ const BuildingResourceTableEntry = ({
       <td className="text-left">{building.location}</td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
-          {
-            onDelete && <button className="btn btn-ghost" onClick={() => onDelete(building)}>
+          {onDelete && (
+            <button
+              className="btn btn-ghost"
+              onClick={() => onDelete(building)}
+            >
               <FaTrashAlt color="red" />
-            </button>}
-          {
-            onEdit && <button className="btn btn-ghost" onClick={() => onEdit(building)}>
+            </button>
+          )}
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(building)}>
               <FaEdit />
             </button>
-          }
+          )}
         </td>
-
       )}
     </tr>
   );

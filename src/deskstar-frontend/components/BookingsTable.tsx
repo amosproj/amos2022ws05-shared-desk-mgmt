@@ -73,10 +73,17 @@ const BookingTableEntry = ({
       <td className="text-center">{endTime}</td>
       {onEdit && (
         <td className="p-0">
-          <label htmlFor={`my-update-booking-${booking.bookingId}-modal`} className="btn btn-ghost">
+          <label
+            htmlFor={`my-update-booking-${booking.bookingId}-modal`}
+            className="btn btn-ghost"
+          >
             <FaEdit />
           </label>
-          <UpdateBookingModal id={`my-update-booking-${booking.bookingId}-modal`} booking={booking} onUpdate={onEdit} />
+          <UpdateBookingModal
+            id={`my-update-booking-${booking.bookingId}-modal`}
+            booking={booking}
+            onUpdate={onEdit}
+          />
         </td>
       )}
       {onDelete && (

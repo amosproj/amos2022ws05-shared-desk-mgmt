@@ -54,17 +54,17 @@ const FloorResourceTableEntry = ({
       <td className="text-left">{floor.location}</td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
-          {
-            onDelete && <button className="btn btn-ghost" onClick={() => onDelete(floor)}>
+          {onDelete && (
+            <button className="btn btn-ghost" onClick={() => onDelete(floor)}>
               <FaTrashAlt color="red" />
-            </button>}
-          {
-            onEdit && <button className="btn btn-ghost" onClick={() => onEdit(floor)}>
+            </button>
+          )}
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(floor)}>
               <FaEdit />
             </button>
-          }
+          )}
         </td>
-
       )}
     </tr>
   );

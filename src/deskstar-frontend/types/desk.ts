@@ -7,7 +7,7 @@ export interface IDesk {
   floorId: string;
   floorName: string;
   buildingId: string;
-  buildingName: string; 
+  buildingName: string;
   location: string;
   bookings: IDeskBooking[];
 }

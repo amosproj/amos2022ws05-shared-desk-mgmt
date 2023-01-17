@@ -24,7 +24,7 @@
         "EMAIL__HOST": "smtp.strato.de",
         "EMAIL__PORT": "587",
         "EMAIL__PSW": "123456",
-        "EMAIL__ADDRESS":"noreply@deskstar.de"
+        "EMAIL__ADDRESS": "noreply@deskstar.de"
       }
     },
     "IIS Express": {
@@ -40,7 +40,7 @@
         "EMAIL__HOST": "smtp.strato.de",
         "EMAIL__PORT": "587",
         "EMAIL__PSW": "123456",
-        "EMAIL__ADDRESS":"noreply@deskstar.de"
+        "EMAIL__ADDRESS": "noreply@deskstar.de"
       }
     }
   }

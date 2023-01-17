@@ -1,4 +1,4 @@
 export type CreateBuildingDto = {
-    buildingName: string;
-    location: string;
+  buildingName: string;
+  location: string;
 };

@@ -50,17 +50,20 @@ const DeksTypeTableEntry = ({
       <td className="text-left font-bold">{deskType.deskTypeName}</td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
-          {
-            onDelete && <button className="btn btn-ghost" onClick={() => onDelete(deskType)}>
+          {onDelete && (
+            <button
+              className="btn btn-ghost"
+              onClick={() => onDelete(deskType)}
+            >
               <FaTrashAlt color="red" />
-            </button>}
-          {
-            onEdit && <button className="btn btn-ghost" onClick={() => onEdit(deskType)}>
+            </button>
+          )}
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(deskType)}>
               <FaEdit />
             </button>
-          }
+          )}
         </td>
-
       )}
     </tr>
   );

@@ -16,11 +16,13 @@
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-typescript",
         "ms-playwright.playwright",
-        "github.copilot"
+        "github.copilot",
+        "EditorConfig.EditorConfig"
       ]
     }
   },

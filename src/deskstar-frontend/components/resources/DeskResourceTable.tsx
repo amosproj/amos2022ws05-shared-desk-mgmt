@@ -58,17 +58,17 @@ const DeskResourceTableEntry = ({
       <td className="text-left">{desk.location}</td>
       {(onDelete || onEdit) && (
         <td className="p-0 text-right">
-          {
-            onDelete && <button className="btn btn-ghost" onClick={() => onDelete(desk)}>
+          {onDelete && (
+            <button className="btn btn-ghost" onClick={() => onDelete(desk)}>
               <FaTrashAlt color="red" />
-            </button>}
-          {
-            onEdit && <button className="btn btn-ghost" onClick={() => onEdit(desk)}>
+            </button>
+          )}
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(desk)}>
               <FaEdit />
             </button>
-          }
+          )}
         </td>
-
       )}
     </tr>
   );
