@@ -125,8 +125,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
       toast.error(
         `User ${newUser.firstName} ${newUser.lastName} could not be updated!`
       );
-      return false;
     }
+    return false;
   }
 
   return (
