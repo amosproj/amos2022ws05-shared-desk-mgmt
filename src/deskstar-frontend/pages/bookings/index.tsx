@@ -4,7 +4,11 @@ import BookingsTable from "../../components/BookingsTable";
 import { IBooking } from "../../types/booking";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "../api/auth/[...nextauth]";
-import { getBookings, deleteBooking, updateBooking } from "../../lib/api/BookingService";
+import {
+  getBookings,
+  deleteBooking,
+  updateBooking,
+} from "../../lib/api/BookingService";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -55,9 +59,12 @@ export default function Bookings({
     }
   };
 
-  const onEdit = async (booking: IBooking, newStartTime: Date, newEndTime: Date) => {
+  const onEdit = async (
+    booking: IBooking,
+    newStartTime: Date,
+    newEndTime: Date
+  ) => {
     if (session == null) return;
-    //toast.success(`Pressed edit on ${booking.bookingId}`);
     const offset = newStartTime.getTimezoneOffset();
 
     const update = {
@@ -70,11 +77,22 @@ export default function Bookings({
     };
 
     try {
-      const response = await updateBooking(session, booking.bookingId, update.startTime, update.endTime)
+      const response = await updateBooking(
+        session,
+        booking.bookingId,
+        update.startTime,
+        update.endTime
+      );
       console.log(response);
-      if(!response.ok)
-        return toast.error(`Error: ${response.status} ${response.statusText}`)
-      toast.success(`${booking.bookingId} updated.`)
+      if (!response.ok)
+        return toast.error(`Error: ${response.status} ${response.statusText}`);
+
+      toast.success(`Booking successfully updated.`);
+
+      let index = bookings.indexOf(booking);
+      bookings[index].startTime = update.startTime.slice(0, -5);
+      bookings[index].endTime = update.endTime.slice(0, -5);
+      refreshData(currentPage);
     } catch (error) {
       toast.error("Error during update: " + error);
     }

@@ -286,7 +286,7 @@ public class BookingController : ControllerBase
         try
         {
             var booking = _bookingUsecases.UpdateBooking(userId, new Guid(bookingId), updateBookingRequest);
-            return Ok(booking);
+            return Ok();
         }
         catch (Exception e)
         {
