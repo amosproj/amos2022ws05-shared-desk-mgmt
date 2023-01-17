@@ -16,6 +16,7 @@
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-typescript",
