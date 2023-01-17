@@ -89,9 +89,6 @@ export default function Bookings({
 
       toast.success(`Booking successfully updated.`);
 
-      let index = bookings.indexOf(booking);
-      bookings[index].startTime = update.startTime.slice(0, -5);
-      bookings[index].endTime = update.endTime.slice(0, -5);
       refreshData(currentPage);
     } catch (error) {
       toast.error("Error during update: " + error);
