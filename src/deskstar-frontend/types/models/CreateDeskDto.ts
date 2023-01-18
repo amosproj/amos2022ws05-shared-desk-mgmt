@@ -1,5 +1,5 @@
 export type CreateDeskDto = {
-    roomId: string;
-    deskName: string;
-    deskTypeId: string;
+  roomId: string;
+  deskName: string;
+  deskTypeId: string;
 };

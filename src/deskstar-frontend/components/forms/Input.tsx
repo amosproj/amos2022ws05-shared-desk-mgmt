@@ -5,7 +5,7 @@ type InputProps = {
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   value: string;
   className?: string;
-  placeholder: string;
+  placeholder?: string;
   type?: string;
 };
 
@@ -19,7 +19,7 @@ export default function Input({
 }: InputProps) {
   return (
     <div className="py-2">
-      <label htmlFor={name}>{placeholder}</label>
+      <label htmlFor={name}>{name}</label>
       <input
         name={name}
         value={value}

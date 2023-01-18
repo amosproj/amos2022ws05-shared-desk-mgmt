@@ -1,5 +1,5 @@
 /**
- * Program
+ * UserUsecases
  *
  * Version 1.0
  *
@@ -12,16 +12,20 @@ using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Helper;
 using Microsoft.EntityFrameworkCore;
+using System.Text.RegularExpressions;
 
 namespace Deskstar.Usecases;
 
 public interface IUserUsecases
 {
     public List<User> ReadAllUsers(Guid adminId);
-    public Guid UpdateUser(User user);
     public User ReadSpecificUser(Guid userId);
+
+    public Guid UpdateUser(string requestUserId, User user);
     public Guid ApproveUser(Guid adminId, string userId);
     public Guid DeclineUser(Guid adminId, string userId);
+    public Guid UpdateUser(Guid adminId, User user);
+    public Guid DeleteUser(Guid adminId, string userId);
 }
 
 public class UserUsecases : IUserUsecases
@@ -67,10 +71,7 @@ public class UserUsecases : IUserUsecases
         var body = $"Hello {user.FirstName},</br> " +
                   $"your account has been approved by {ReadSpecificUser(adminId).FirstName}.</br> " +
                   "You can now log into the system.</br>" +
-                  "You can now book your first desk and get to work.</br>" +
-                  "</br> " +
-                  "Regards,</br> " +
-                  "Deskstar Team";
+                  "You can now book your first desk and get to work.</br>";
         EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been approved!", body);
 
         return guid;
@@ -107,10 +108,7 @@ public class UserUsecases : IUserUsecases
 
         var body = $"Hello {user.FirstName},</br> " +
                   $"your account has been rejected.</br> " +
-                  "Please contact one of your company's admins if you think this was a mistake.</br>" +
-                  "</br> " +
-                  "Regards,</br> " +
-                  "Deskstar Team";
+                  "Please contact one of your company's admins if you think this was a mistake.</br>";
         EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been rejected!", body);
 
         _context.Users.Remove(user);
@@ -124,16 +122,95 @@ public class UserUsecases : IUserUsecases
         var admin = _context.Users.SingleOrDefault(user => user.UserId == adminId);
         if (admin == null)
             throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
-        return _context.Users.Where(user => user.CompanyId == admin.CompanyId).ToList();
+        return _context.Users.Where(user => user.CompanyId == admin.CompanyId)
+            .Where(user => !user.IsMarkedForDeletion)
+            .ToList();
     }
 
-    public Guid UpdateUser(User user)
+    public Guid UpdateUser(string requestUserId, User user)
+    {
+        Guid guid;
+        try
+        {
+            guid = new Guid(requestUserId);
+        }
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            throw new ArgumentInvalidException($"'{requestUserId}' is not a valid UserId");
+        }
+
+        if (!guid.Equals(user.UserId))
+        {
+            throw new ArgumentInvalidException($"'{requestUserId}' is not equals with given userObject");
+        }
+
+        return SaveUpdateUser(user);
+    }
+
+    public Guid UpdateUser(Guid adminId, User user)
     {
         var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
         if (userDbInstance == null)
             throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
-        _context.Users.Update(user);
+        CheckSameCompany(adminId, user.UserId);
+        return SaveUpdateUser(user);
+    }
+    private Guid SaveUpdateUser(User user)
+    {
+        if (user.UserId == Guid.Empty)
+            throw new ArgumentInvalidException($"'{nameof(user.UserId)}' is empty");
+        if (string.IsNullOrEmpty(user.FirstName))
+            throw new ArgumentInvalidException($"'{nameof(user.FirstName)}' is not set");
+        if (string.IsNullOrEmpty(user.LastName))
+            throw new ArgumentInvalidException($"'{nameof(user.LastName)}' is not set");
+        if (string.IsNullOrEmpty(user.MailAddress))
+            throw new ArgumentInvalidException($"'{nameof(user.MailAddress)}' is not set");
+        var rx = new Regex("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
+            RegexOptions.IgnoreCase);
+        if (rx.Matches(user.MailAddress).Count != 1) 
+            throw new ArgumentInvalidException("Mailaddress is not valid");
+        var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == user.UserId);
+        if (userDbInstance == null)
+            throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
+        userDbInstance.FirstName = user.FirstName;
+        userDbInstance.LastName = user.LastName;
+        userDbInstance.MailAddress = user.MailAddress;
+        userDbInstance.IsCompanyAdmin = user.IsCompanyAdmin;
         _context.SaveChanges();
+        var body = $"Hello {user.FirstName},</br> " +
+                   "your account details have been updated.</br> " +
+                   "Please check if this was ok.</br>" +
+                   "If not get in touch with your company admin.</br>";
+        EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
         return user.UserId;
+    }
+
+    public Guid DeleteUser(Guid adminId, string userId)
+    {
+        Guid guid;
+        try
+        {
+            guid = new Guid(userId);
+        }
+        catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+        {
+            _logger.LogError(e, e.Message);
+            throw new ArgumentInvalidException($"'{userId}' is not a valid UserId");
+        }
+
+        var userDbInstance = _context.Users.SingleOrDefault(u => u.UserId == guid);
+        if (userDbInstance == null)
+            throw new EntityNotFoundException($"There is no user with id '{userId}'");
+        CheckSameCompany(adminId, guid);
+        var body = $"Hello {userDbInstance.FirstName},</br> " +
+                   "your account has been releted by your Company admin.</br> " +
+                   "If you think this was an mistake, get in touch with your company admin.</br>";
+        EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details have been updated!", body);
+        userDbInstance.IsMarkedForDeletion = true;
+        // _context.Users.Remove(userDbInstance);
+        _context.SaveChanges();
+
+        return guid;
     }
 }

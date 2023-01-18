@@ -16,10 +16,13 @@
         "ms-dotnettools.csharp",
         "ms-vsliveshare.vsliveshare",
         "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
         "eamodio.gitlens",
         "bradlc.vscode-tailwindcss",
         "ms-vscode.vscode-typescript",
-        "ms-playwright.playwright"
+        "ms-playwright.playwright",
+        "github.copilot",
+        "EditorConfig.EditorConfig"
       ]
     }
   },
@@ -29,6 +32,7 @@
 
   // Use 'postCreateCommand' to run commands after the container is created.
   "postCreateCommand": "dotnet tool install --global dotnet-ef",
+  "postStartCommand": "git config core.autocrlf true && git config core.filemode false",
   "remoteEnv": {
     "PATH": "${containerEnv:PATH}:/home/vscode/.dotnet/tools"
   }

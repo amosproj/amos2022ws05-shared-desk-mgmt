@@ -221,6 +221,7 @@ public class BookingController : ControllerBase
     [HttpDelete("{bookingId}")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [Produces("application/json")]
@@ -240,7 +241,62 @@ public class BookingController : ControllerBase
             {
                 "User not found" => NotFound(e.Message),
                 "Booking not found" => NotFound(e.Message),
-                "You are not allowed to delete this booking" => BadRequest(e.Message),
+                "You are not allowed to delete this booking" => Forbid(e.Message),
+                _ => Problem(statusCode: 500)
+            };
+        }
+    }
+
+    /// <summary>
+    /// Updates a Booking for Token-User
+    /// </summary>
+    /// <returns>Updated Booking in JSON Format</returns>
+    /// <remarks>
+    /// Sample request:
+    ///     Put /bookings/{bookingId} with JWT Token
+    /// </remarks>
+    ///
+    /// <response code="200">Returns the updated booking</response>
+    /// <response code="404">User not found</response>
+    /// <response code="404">Booking not found</response>
+    /// <response code="403">User is not allowed to update this booking</response>
+    /// <response code="409">Desk is not available at that time</response>
+    /// <response code="400">Bad Request</response>
+    [HttpPut("{bookingId}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Produces("application/json")]
+    public IActionResult UpdateBooking(string bookingId, [FromBody] UpdateBookingRequest updateBookingRequest)
+    {
+        if (updateBookingRequest.StartTime.Equals(DateTime.MinValue) || updateBookingRequest.EndTime.Equals(DateTime.MinValue))
+        {
+            return BadRequest("Required fields are missing");
+        }
+
+        var userId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        // ToDo: require Frontend to Use Universaltime
+        updateBookingRequest.StartTime = updateBookingRequest.StartTime.ToLocalTime();
+        updateBookingRequest.EndTime = updateBookingRequest.EndTime.ToLocalTime();
+
+        try
+        {
+            var booking = _bookingUsecases.UpdateBooking(userId, new Guid(bookingId), updateBookingRequest);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return e.Message switch
+            {
+                "User not found" => NotFound(e.Message),
+                "Booking not found" => NotFound(e.Message),
+                "You are not allowed to update this booking" => Forbid(e.Message),
+                "Time slot not available" => Conflict(e.Message),
                 _ => Problem(statusCode: 500)
             };
         }

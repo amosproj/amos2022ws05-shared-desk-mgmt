@@ -252,6 +252,9 @@ namespace Deskstar.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValueSql("false");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("character varying");

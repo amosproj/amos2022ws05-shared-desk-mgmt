@@ -1,5 +1,6 @@
 import { IBooking } from "../types/booking";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { UpdateBookingModal } from "./UpdateBookingModal";
 
 const BookingsTable = ({
   bookings,
@@ -8,7 +9,7 @@ const BookingsTable = ({
   onCheckIn,
 }: {
   bookings: IBooking[];
-  onEdit?: (booking: IBooking) => void;
+  onEdit?: (booking: IBooking, startTime: Date, endTime: Date) => void;
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {
@@ -72,9 +73,17 @@ const BookingTableEntry = ({
       <td className="text-center">{endTime}</td>
       {onEdit && (
         <td className="p-0">
-          <button className="btn btn-ghost" onClick={() => onEdit(booking)}>
+          <label
+            htmlFor={`my-update-booking-${booking.bookingId}-modal`}
+            className="btn btn-ghost"
+          >
             <FaEdit />
-          </button>
+          </label>
+          <UpdateBookingModal
+            id={`my-update-booking-${booking.bookingId}-modal`}
+            booking={booking}
+            onUpdate={onEdit}
+          />
         </td>
       )}
       {onDelete && (

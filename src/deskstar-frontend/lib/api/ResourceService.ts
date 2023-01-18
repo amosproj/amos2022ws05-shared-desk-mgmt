@@ -95,7 +95,8 @@ export async function getDesks(
   endTime: number
 ): Promise<IDesk[]> {
   const response = await fetch(
-    BACKEND_URL + `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
+    BACKEND_URL +
+      `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -114,17 +115,12 @@ export async function getDesks(
   return data;
 }
 
-export async function getDeskTypes(
-  session: Session,
-): Promise<IDeskType[]> {
-  const response = await fetch(
-    BACKEND_URL + `/resources/desktypes`,
-    {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-    }
-  );
+export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
+  const response = await fetch(BACKEND_URL + `/resources/desktypes`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 
   if (response.status !== 200) {
     console.log(response.status);
@@ -132,13 +128,12 @@ export async function getDeskTypes(
     return [];
   }
 
-
   const data = await response.json();
   const resDeskTypes = data.map((e: any) => {
     return {
       deskTypeId: e["deskTypeId"],
-      deskTypeName: e["deskTypeName"]
-    }
+      deskTypeName: e["deskTypeName"],
+    };
   });
 
   return resDeskTypes;
@@ -146,7 +141,7 @@ export async function getDeskTypes(
 
 export async function createBuilding(
   session: Session,
-  createBuildingDto: CreateBuildingDto,
+  createBuildingDto: CreateBuildingDto
 ): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createBuildingDto);
   const response = await fetch(BACKEND_URL + "/resources/buildings", {
@@ -170,8 +165,8 @@ export async function createBuilding(
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IBuilding,
-      message: `Success! Created building '${createBuildingDto.buildingName}'`
-    }
+      message: `Success! Created building '${createBuildingDto.buildingName}'`,
+    };
   }
 
   return result;
@@ -179,7 +174,7 @@ export async function createBuilding(
 
 export async function createFloor(
   session: Session,
-  createFloorDto: CreateFloorDto,
+  createFloorDto: CreateFloorDto
 ): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createFloorDto);
   const response = await fetch(BACKEND_URL + "/resources/floors", {
@@ -203,8 +198,8 @@ export async function createFloor(
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IFloor,
-      message: `Success! Created floor '${createFloorDto.floorName}'`
-    }
+      message: `Success! Created floor '${createFloorDto.floorName}'`,
+    };
   }
 
   return result;
@@ -212,7 +207,7 @@ export async function createFloor(
 
 export async function createRoom(
   session: Session,
-  createRoomDto: CreateRoomDto,
+  createRoomDto: CreateRoomDto
 ): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createRoomDto);
   const response = await fetch(BACKEND_URL + "/resources/rooms", {
@@ -236,8 +231,8 @@ export async function createRoom(
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IRoom,
-      message: `Success! Created room '${createRoomDto.roomName}'`
-    }
+      message: `Success! Created room '${createRoomDto.roomName}'`,
+    };
   }
 
   return result;
@@ -245,7 +240,7 @@ export async function createRoom(
 
 export async function createDeskType(
   session: Session,
-  createDeskTypeDto: CreateDeskTypeDto,
+  createDeskTypeDto: CreateDeskTypeDto
 ): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createDeskTypeDto);
   const response = await fetch(BACKEND_URL + "/resources/desktypes", {
@@ -269,8 +264,8 @@ export async function createDeskType(
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDeskType,
-      message: `Success! Created type '${createDeskTypeDto.deskTypeName}'`
-    }
+      message: `Success! Created type '${createDeskTypeDto.deskTypeName}'`,
+    };
   }
 
   return result;
@@ -278,7 +273,7 @@ export async function createDeskType(
 
 export async function createDesk(
   session: Session,
-  createDeskDto: CreateDeskDto,
+  createDeskDto: CreateDeskDto
 ): Promise<ICreateResourceResult> {
   const b = JSON.stringify(createDeskDto);
   const response = await fetch(BACKEND_URL + "/resources/desks", {
@@ -302,8 +297,8 @@ export async function createDesk(
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDesk,
-      message: `Success! Created desk '${createDeskDto.deskName}'`
-    }
+      message: `Success! Created desk '${createDeskDto.deskName}'`,
+    };
   }
 
   return result;

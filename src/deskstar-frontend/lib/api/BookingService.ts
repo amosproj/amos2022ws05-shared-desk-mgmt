@@ -148,3 +148,30 @@ export async function deleteBooking(session: Session, bookingId: string) {
     return "success";
   }
 }
+
+/**
+ * Update start and end time for a given booking
+ * @param session the user session
+ * @param bookingId
+ * @param startTime new start time for given booking
+ * @param endTime new end time for given booking
+ * @returns
+ */
+export async function updateBooking(
+  session: Session,
+  bookingId: string,
+  startTime: string,
+  endTime: string
+) {
+  return await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+    body: JSON.stringify({
+      startTime,
+      endTime,
+    }),
+  });
+}
