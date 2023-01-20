@@ -1,5 +1,7 @@
 import Head from "next/head";
 
+import dayjs from "dayjs";
+
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import { unstable_getServerSession } from "next-auth";
@@ -7,12 +9,13 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { getBuildings } from "../../lib/api/ResourceService";
 import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
 import Filterbar from "../../components/Filterbar";
 import DesksTable from "../../components/DesksTable";
 import { toast } from "react-toastify";
+import { classes } from "../../lib/helpers";
 
 export default function AddBooking({
   buildings: origBuildings,
@@ -24,16 +27,17 @@ export default function AddBooking({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
-  let today = new Date();
-  today.setHours(8, 0, 0, 0);
-  let nextBusinessDay = getNextBusinessDay(today);
+  const endDateTimeRef = useRef<HTMLInputElement>(null);
 
   const [startDateTime, setStartDateTime] = useState<Date>(
-    new Date(nextBusinessDay.setHours(8, 0, 0, 0))
+    dayjs().set("minutes", 0).add(1, "hour").toDate()
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
-    new Date(nextBusinessDay.setHours(17, 0, 0, 0))
+    dayjs().set("minutes", 0).add(2, "hour").toDate()
   );
+  const minimumEndDateTime = useMemo(() => {
+    return dayjs(startDateTime).add(1, "hour").toDate();
+  }, [startDateTime]);
 
   async function onBook(
     event: {
@@ -49,6 +53,14 @@ export default function AddBooking({
       session == null
     )
       return;
+
+    if (endDateTime < minimumEndDateTime) {
+      toast.error(
+        "The End Time needs to be at minimum 1 hour after the start time."
+      );
+      return;
+    }
+
     event.target.setAttribute("class", "btn loading");
 
     try {
@@ -62,7 +74,9 @@ export default function AddBooking({
       );
 
       if (response == "success") {
-        message = `You successfully booked the desk ${desk.deskName} from ${startDateTime} to ${endDateTime}`;
+        message = `You successfully booked the desk ${
+          desk.deskName
+        } from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
         event.target.setAttribute("class", "btn btn-disabled");
         setButtonText("Booked");
         toast.success(message);
@@ -96,8 +110,30 @@ export default function AddBooking({
             id="start-date-time"
             name="Start"
             defaultValue={formatDateForInputField(startDateTime)}
-            min={formatDateForInputField(today)}
-            onChange={(event) => setStartDateTime(new Date(event.target.value))}
+            min={formatDateForInputField(
+              dayjs().set("hours", 0).set("minutes", 0).toDate()
+            )}
+            onChange={(event) => {
+              setStartDateTime(dayjs(event.target.value).toDate());
+
+              let newMinimumEndTime = dayjs(event.target.value)
+                .add(1, "hour")
+                .toDate();
+
+              if (
+                endDateTimeRef.current != null &&
+                endDateTime < newMinimumEndTime
+              ) {
+                const newEndTime = dayjs(event.target.value)
+                  .add(1, "hour")
+                  .toDate();
+
+                endDateTimeRef.current.value =
+                  formatDateForInputField(newEndTime);
+
+                setEndDateTime(newEndTime);
+              }
+            }}
           />
         </div>
 
@@ -106,16 +142,27 @@ export default function AddBooking({
             <b>End: </b>
           </label>
           <input
-            className="input input-bordered"
+            className={classes(
+              "input input-bordered",
+              endDateTime < minimumEndDateTime ? "border-red-600" : ""
+            )}
             type="datetime-local"
             id="end-date-time"
-            // Bind the value of the input to enddatetime
-            min={formatDateForInputField(
-              new Date(startDateTime.setHours(startDateTime.getHours() + 1))
-            )}
+            ref={endDateTimeRef}
+            min={formatDateForInputField(minimumEndDateTime)}
             defaultValue={formatDateForInputField(endDateTime)}
-            onChange={(event) => setEndDateTime(new Date(event.target.value))}
+            onChange={(event) => {
+              console.log("endDateTime: " + event.target.value);
+
+              setEndDateTime(new Date(event.target.value));
+            }}
           />
+
+          {endDateTime < minimumEndDateTime && (
+            <span className="text-red-600 ml-2">
+              The End Time needs to be at minimum 1 hour after the start time.
+            </span>
+          )}
         </div>
       </div>
 
@@ -130,7 +177,7 @@ export default function AddBooking({
         endDateTime={endDateTime}
       />
 
-      {filteredDesks.length > 0 && (
+      {endDateTime >= minimumEndDateTime && filteredDesks.length > 0 && (
         <DesksTable desks={filteredDesks} onBook={onBook} />
         // <DeskSearchResults results={filteredDesks} onBook={onBook} />
       )}
