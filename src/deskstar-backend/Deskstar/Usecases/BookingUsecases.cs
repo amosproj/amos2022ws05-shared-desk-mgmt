@@ -30,7 +30,7 @@ public class BookingUsecases : IBookingUsecases
         var allBookingsFromUser = _context.Bookings.Where(booking => booking.UserId == userId);
         var filteredEnd = allBookingsFromUser.Where(b => b.StartTime < end);
         var filteredStart = filteredEnd.Where(b => b.StartTime >= start);
-        var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
+        var sortedBookings = direction.ToUpper() == "DESC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
         var skipped = sortedBookings.Skip(skip);
         var takeN = skipped.Take(n);
         var withReferences = takeN.Include(b => b.Desk)
