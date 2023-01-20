@@ -59,27 +59,27 @@ export default function RegisterPanel() {
       <h1 className="text-3xl font-bold">Register</h1>
       <form className="flex flex-col" onSubmit={submitForm}>
         <Input
-          name="company"
+          name="Company"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           placeholder="Company"
         />
         <div className="columns-2">
           <Input
-            name="firstname"
+            name="Firstname"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Firstname"
           />
           <Input
-            name="lastname"
+            name="Lastname"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Lastname"
           />
         </div>
         <Input
-          name="email"
+          name="Email"
           value={email}
           type="email"
           onChange={(e) => setEmail(e.target.value)}
@@ -87,14 +87,14 @@ export default function RegisterPanel() {
         />
         <div className="columns-2">
           <Input
-            name="password"
+            name="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
           />
           <Input
-            name="repeat_password"
+            name="Repeat Password"
             value={repeatPassword}
             onChange={(e) => setRepeatPassword(e.target.value)}
             type="password"
