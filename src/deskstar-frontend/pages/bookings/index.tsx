@@ -41,16 +41,12 @@ export default function Bookings({
     console.log(`Pressed delete on ${booking.bookingId}`);
 
     try {
-      let response = await deleteBooking(session, booking.bookingId);
+      await deleteBooking(session, booking.bookingId);
 
-      if (response == "success") {
-        toast.success("Booking successfully deleted!");
-        refreshData(currentPage);
-      } else {
-        toast.error(response);
-      }
+      toast.success("Booking successfully deleted!");
+      refreshData(currentPage);
     } catch (error) {
-      toast.error("Error calling Server:" + error);
+      toast.error(`${error}`);
     }
   };
 
@@ -72,21 +68,17 @@ export default function Bookings({
     };
 
     try {
-      const response = await updateBooking(
+      await updateBooking(
         session,
         booking.bookingId,
         update.startTime,
         update.endTime
       );
-      console.log(response);
-      if (!response.ok)
-        return toast.error(`Error: ${response.status} ${response.statusText}`);
 
       toast.success(`Booking successfully updated.`);
-
       refreshData(currentPage);
     } catch (error) {
-      toast.error("Error during update: " + error);
+      toast.error(`${error}`);
     }
   };
 
@@ -116,13 +108,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
-    const { page } = context.query as {
-      page: string | undefined;
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
     };
 
-    const direction = "ASC";
+  const { page } = context.query as {
+    page: string | undefined;
+  };
 
+  const direction = "ASC";
+
+  try {
     const data = await getBookings(session, {
       n: DEFAULT_N,
       skip: parseInt(page ?? "0") * DEFAULT_N,
@@ -136,11 +136,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         amountOfBookings: data.amountOfBookings,
       },
     };
-  } else {
+  } catch (error) {
+    console.error(error);
     return {
-      props: {
-        bookings: [],
-        amountOfBookings: 0,
+      redirect: {
+        destination: "/500",
+        permanent: false,
       },
     };
   }
