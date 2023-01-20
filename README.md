@@ -1,6 +1,6 @@
 # Deskstar (AMOS WS 2022/23)
 
-Jump directly to the [Local Dev Setup](src/README.md).
+Jump directly to the [Local Setup](src/README.md).
 
 ![team-logo (Benutzerdefiniert) (1)](https://user-images.githubusercontent.com/115994315/196995975-d1c19859-03c3-4ae4-be0a-c109f10d0356.png)
 
