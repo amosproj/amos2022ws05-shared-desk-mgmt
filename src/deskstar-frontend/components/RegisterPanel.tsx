@@ -43,10 +43,13 @@ export default function RegisterPanel() {
       switch (response) {
         case AuthResponse.ErrorCompanyNotFound:
           toast.error("Company not Found");
+          break;
         case AuthResponse.ErrorEmailaddressAlreadyExists:
           toast.error("Email adress already registered");
+          break;
         default:
           toast.error("Unknown error");
+          break;
       }
       return;
     }
