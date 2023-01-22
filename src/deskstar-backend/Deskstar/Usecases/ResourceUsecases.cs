@@ -383,7 +383,29 @@ public class ResourceUsecases : IResourceUsecases
 
   public void DeleteRoom(Guid adminId, string roomId)
   {
-    throw new NotImplementedException();
+    Guid roomGuid;
+    try
+    {
+      roomGuid = new Guid(roomId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{roomId}' is not a valid RoomId");
+    }
+
+    var roomDbInstance= _context.Rooms.SingleOrDefault(r => r.RoomId == roomGuid);
+    if (roomDbInstance == null)
+      throw new EntityNotFoundException($"There is no room with id '{roomId}'");
+    //Check if the floor is from the same company as the admin
+
+    var companyId = _context.Companies.Single(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId).CompanyId;
+
+    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+      throw new ArgumentInvalidException($"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
+
+    roomDbInstance.IsMarkedForDeletion = true;
+    _context.SaveChanges();
   }
 
   public void DeleteFloor(Guid adminId, string floorId)
