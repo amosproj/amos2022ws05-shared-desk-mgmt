@@ -84,6 +84,8 @@ namespace Deskstar.DataAccess
 
                 entity.Property(e => e.Location).HasColumnType("character varying");
 
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
+
                 entity.HasOne(d => d.Company)
                     .WithMany(p => p.Buildings)
                     .HasForeignKey(d => d.CompanyId)
@@ -127,6 +129,8 @@ namespace Deskstar.DataAccess
                     .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("Desk_Room_null_fk");
+
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
             });
 
             modelBuilder.Entity<DeskType>(entity =>
@@ -146,6 +150,8 @@ namespace Deskstar.DataAccess
                     .HasForeignKey(d => d.CompanyId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("DeskType_Company_null_fk");
+
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
             });
 
             modelBuilder.Entity<Floor>(entity =>
@@ -165,6 +171,8 @@ namespace Deskstar.DataAccess
                     .HasForeignKey(d => d.BuildingId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("Floor_Building_null_fk");
+
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -220,6 +228,8 @@ namespace Deskstar.DataAccess
                     .HasForeignKey(d => d.FloorId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("Room_Floor_null_fk");
+
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -251,6 +261,8 @@ namespace Deskstar.DataAccess
                     .HasForeignKey(d => d.CompanyId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("CompanyID_fk");
+
+                entity.Property(e => e.IsMarkedForDeletion).HasDefaultValue(false);
             });
 
             OnModelCreatingPartial(modelBuilder);
