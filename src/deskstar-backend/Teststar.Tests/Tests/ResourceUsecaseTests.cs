@@ -1105,6 +1105,7 @@ public class ResourceUsecaseTests
 
       //assert
       Assert.That(db.Buildings.First(b => b.BuildingId == buildingId).IsMarkedForDeletion);
+      db.Floors.Where(f => f.BuildingId == buildingId).ToList().ForEach(f => Assert.That(f.IsMarkedForDeletion));
     }
 
     [Test]
@@ -1144,6 +1145,7 @@ public class ResourceUsecaseTests
 
       //assert
       Assert.That(db.Floors.First(f => f.FloorId == floorId).IsMarkedForDeletion);
+      db.Rooms.Where(r => r.FloorId == floorId).ToList().ForEach(r => Assert.That(r.IsMarkedForDeletion));
     }
 
     [Test]
@@ -1183,6 +1185,7 @@ public class ResourceUsecaseTests
 
       //assert
       Assert.That(db.Rooms.First(r=> r.RoomId == roomId).IsMarkedForDeletion);
+      db.Desks.Where(d => d.RoomId == roomId).ToList().ForEach(d => Assert.That(d.IsMarkedForDeletion));
     }
 
     [Test]

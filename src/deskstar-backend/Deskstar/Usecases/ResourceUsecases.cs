@@ -450,6 +450,8 @@ public class ResourceUsecases : IResourceUsecases
 
     roomDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
+
+    _context.Desks.Where(d => d.RoomId == roomGuid).ToList().ForEach(d => DeleteDesk(adminId, d.DeskId.ToString()));
   }
 
   public void DeleteFloor(Guid adminId, string floorId)
@@ -477,6 +479,8 @@ public class ResourceUsecases : IResourceUsecases
 
     floorDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
+
+    _context.Rooms.Where(r => r.FloorId == floorGuid).ToList().ForEach(r => DeleteRoom(adminId, r.RoomId.ToString()));
   }
 
   public void DeleteBuilding(Guid adminId, string buildingId)
@@ -504,5 +508,7 @@ public class ResourceUsecases : IResourceUsecases
 
     buildingDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
+
+    _context.Floors.Where(f => f.BuildingId == buildingGuid).ToList().ForEach(f => DeleteFloor(adminId, f.FloorId.ToString()));
   }
 }
