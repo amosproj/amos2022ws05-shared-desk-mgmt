@@ -13,7 +13,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetBuildings_WhenNoBuildingFound_ShouldReturnAEmptyList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -56,7 +56,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetBuildings_WhenOneBuildingFound_ShouldReturnAException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -89,7 +89,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetFloors_WhenNoFloorFound_ShouldReturnAEmptyList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -133,7 +133,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetFloors_WhenBuildingNotExsits_ShouldReturnAException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var buildingId = Guid.NewGuid();
@@ -166,7 +166,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesks_WhenNoDeskFound_ShouldReturnAEmptyList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -235,7 +235,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesks_WhenOneDeskFound_ShouldReturnAException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var roomId = Guid.NewGuid();
@@ -270,7 +270,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesks_WhenDeskIsFound_StartBevoreEndIn_ShouldReturnACurrentsDeskList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var roomId = Guid.NewGuid();
@@ -330,7 +330,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesks_WhenDeskIsFound_StartInEndBevore_ShouldReturnACurrentsDeskList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var roomId = Guid.NewGuid();
@@ -390,7 +390,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesks_WhenDeskIsFound_SameStartAndEndTime_ShouldReturnACurrentsDeskList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var roomId = Guid.NewGuid();
@@ -450,7 +450,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesk_WhenDeskNotFound_ShouldThrowAnException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var deskId = Guid.NewGuid();
@@ -486,7 +486,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDesk_WhenDeskIsFound_ShouldReturnCurrentDeskObject()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var deskId = Guid.NewGuid();
@@ -540,7 +540,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDeskTypes_WhenDeskTypeIsFound_ShouldReturnDeskTypes()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -568,7 +568,7 @@ public class ResourceUsecaseTests
     [Test]
     public void GetDeskTypes_WhenCompanyHasNoDeskTypes_ShouldReturnEmptyList()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -594,7 +594,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDesk_WhenValidDeskTypeAndRoomId_ShouldAddDeskAndReturnItsGuid()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -622,7 +622,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDesk_WhenDuplicatedNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -647,7 +647,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDesk_WhenNoNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -672,7 +672,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDesk_WhenInvalidDeskType_ShouldThrowEntityNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -696,7 +696,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDesk_WhenInvalidRoomId_ShouldThrowEntityNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var companyId = Guid.NewGuid();
@@ -720,7 +720,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDeskType_WhenInvalidCompanyIdIsProvided_ShouldThrowEntitiyNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         SetupMockData(db);
 
@@ -741,7 +741,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDeskType_WhenNoDeskTypeNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -762,7 +762,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDeskType_WhenDeskTypeAlreadyExists_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -783,7 +783,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateDeskType_WhenValidArgumentsProvided_ShouldCreateDeskType()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -804,7 +804,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateRoom_WhenInvalidFloorIdIsProvided_ShouldThrowEntitiyNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         SetupMockData(db);
 
@@ -825,7 +825,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateRoom_WhenNoRoomNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var floorId = Guid.NewGuid();
@@ -847,7 +847,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateRoom_WhenRoomNameAlreadyExists_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var floorId = Guid.NewGuid();
@@ -869,7 +869,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateRoom_WhenValidArgumentsProvided_ShouldCreateRoom()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var floorId = Guid.NewGuid();
@@ -891,7 +891,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateFloor_WhenInvalidBuildingIdIsProvided_ShouldThrowEntitiyNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         SetupMockData(db);
 
@@ -912,7 +912,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateFloor_WhenNoFloorNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var buildingId = Guid.NewGuid();
@@ -934,7 +934,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateFloor_WhenFloorNameAlreadyExists_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var buildingId = Guid.NewGuid();
@@ -956,7 +956,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateFloor_WhenValidArgumentsProvided_ShouldCreateFloor()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         var buildingId = Guid.NewGuid();
@@ -978,7 +978,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateBuilding_WhenInvalidCompanyIdIsProvided_ShouldThrowEntitiyNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         SetupMockData(db);
 
@@ -1000,7 +1000,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateBuilding_WhenNoLocationIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -1022,7 +1022,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateBuilding_WhenNoBuildingNameIsProvided_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -1044,7 +1044,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateBuilding_WhenBuildingNameAlreadyExists_ShouldThrowArgumentInvalidException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -1066,7 +1066,7 @@ public class ResourceUsecaseTests
     [Test]
     public void CreateBuilding_WhenValidArgumentsProvided_ShouldCreateBuilding()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
         var companyId = Guid.NewGuid();
         SetupMockData(db, companyId: companyId);
@@ -1084,6 +1084,45 @@ public class ResourceUsecaseTests
 
         //cleanup
         db.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void DeleteBuilding_WhenValidBuildingIsProvided_ShouldUpdateBuilding()
+    {
+      //setup
+      using var db = new DataContext();
+      var buildingId = Guid.NewGuid();
+      var adminId = Guid.NewGuid();
+
+      SetupMockData(db, buildingId: buildingId, userId: adminId);
+
+      //arrange
+      var logger = new Mock<ILogger<ResourceUsecases>>();
+      var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+      //act
+      resourceUsecases.DeleteBuilding(adminId, buildingId.ToString());
+
+      //assert
+      Assert.That(db.Buildings.First(b => b.BuildingId == buildingId).IsMarkedForDeletion);
+    }
+
+    [Test]
+    public void DeleteBuilding_WhenNonValidBuildingIsProvided_ShouldThrowEntityNotFoundException()
+    {
+      //setup
+      using var db = new DataContext();
+      var adminId = Guid.NewGuid();
+
+      SetupMockData(db, userId: adminId);
+
+      //arrange
+      var logger = new Mock<ILogger<ResourceUsecases>>();
+      var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+      //act & assert
+      Assert.Throws<EntityNotFoundException>(() => resourceUsecases.DeleteBuilding(adminId, new Guid().ToString()));
     }
 
     private UserUsecases SetupUserUsecases(DataContext db)
