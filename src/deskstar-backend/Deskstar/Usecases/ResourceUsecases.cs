@@ -373,7 +373,30 @@ public class ResourceUsecases : IResourceUsecases
 
   public void DeleteDesk(Guid adminId, string deskId)
   {
-    throw new NotImplementedException();
+    Guid deskGuid;
+    try
+    {
+      deskGuid = new Guid(deskId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{deskId}' is not a valid DeskId");
+    }
+
+    var deskDbInstance = _context.Desks.SingleOrDefault(d => d.DeskId == deskGuid);
+    if (deskDbInstance == null)
+      throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
+    //Check if the floor is from the same company as the admin
+
+    var companyId = _context.Companies.Single(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId).CompanyId;
+
+    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
+
+    deskDbInstance.IsMarkedForDeletion = true;
+    _context.SaveChanges();
   }
 
   public void DeleteDeskType(Guid adminId, string typeId)
@@ -394,7 +417,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new ArgumentInvalidException($"'{roomId}' is not a valid RoomId");
     }
 
-    var roomDbInstance= _context.Rooms.SingleOrDefault(r => r.RoomId == roomGuid);
+    var roomDbInstance = _context.Rooms.SingleOrDefault(r => r.RoomId == roomGuid);
     if (roomDbInstance == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
     //Check if the floor is from the same company as the admin
@@ -402,7 +425,8 @@ public class ResourceUsecases : IResourceUsecases
     var companyId = _context.Companies.Single(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId).CompanyId;
 
     if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
-      throw new ArgumentInvalidException($"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
+      throw new ArgumentInvalidException(
+        $"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
 
     roomDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
@@ -421,7 +445,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new ArgumentInvalidException($"'{floorId}' is not a valid FloorId");
     }
 
-    var floorDbInstance= _context.Floors.SingleOrDefault(f => f.FloorId == floorGuid);
+    var floorDbInstance = _context.Floors.SingleOrDefault(f => f.FloorId == floorGuid);
     if (floorDbInstance == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
     //Check if the floor is from the same company as the admin
@@ -429,7 +453,8 @@ public class ResourceUsecases : IResourceUsecases
     var companyId = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId).CompanyId;
 
     if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
-      throw new ArgumentInvalidException($"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
+      throw new ArgumentInvalidException(
+        $"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
 
     floorDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
@@ -456,7 +481,8 @@ public class ResourceUsecases : IResourceUsecases
     var companyId = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId).CompanyId;
 
     if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
-      throw new ArgumentInvalidException($"The building with id '{buildingId}' is not from the same company as the admin with id '{adminId}'");
+      throw new ArgumentInvalidException(
+        $"The building with id '{buildingId}' is not from the same company as the admin with id '{adminId}'");
 
     buildingDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
