@@ -1,3 +1,4 @@
+using Castle.Components.DictionaryAdapter;
 using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
@@ -13,7 +14,7 @@ public class UserUsecasesTests
     [Test]
     public void ReadSpecificUser_WhenInvalidUserIdIsGiven_ShouldThrowEntityNotFoundException()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -34,7 +35,7 @@ public class UserUsecasesTests
     [Test]
     public void ReadSpecificUser_WhenValidUserIdIsGiven_ShouldReturnUser()
     {
-        //setup 
+        //setup
         using var db = new DataContext();
 
         var userId = Guid.NewGuid();
@@ -301,7 +302,7 @@ public class UserUsecasesTests
         var logger = new Mock<ILogger<UserUsecases>>();
         var userUsecases = new UserUsecases(logger.Object, db);
 
-        //act 
+        //act
         var result = userUsecases.ReadAllUsers(admin.UserId);
 
         //assert
@@ -350,7 +351,7 @@ public class UserUsecasesTests
     }
 
     [Test]
-    public void DeleteUser_WhenNonValidUserIsProvided_ShouldUpdateUser()
+    public void DeleteUser_WhenNonValidUserIsProvided_ShouldThrowEntityNotFoundException()
     {
         //setup
         using var db = new DataContext();
@@ -362,13 +363,10 @@ public class UserUsecasesTests
         //arrange
         var logger = new Mock<ILogger<UserUsecases>>();
         var userUsecases = new UserUsecases(logger.Object, db);
-        
-        
-        //act
-        userUsecases.DeleteUser(admin.UserId, user.UserId.ToString());
 
-        //assert
-        Assert.That(db.Users.First(u => u.UserId == user.UserId).IsMarkedForDeletion);
+
+        //act & assert
+        Assert.Throws<EntityNotFoundException>(() => userUsecases.DeleteUser(admin.UserId, new Guid().ToString()));
     }
 
     private void SetupSingleUser(DataContext db, bool userApproved, out User user, out User admin)
