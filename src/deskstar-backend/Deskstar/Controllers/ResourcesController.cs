@@ -239,16 +239,38 @@ public class ResourcesController : ControllerBase
   ///     DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
+  /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
-  /// <response code="501">Not Impelemented</response>
+  /// <response code="500">Internal Server Error</response>
   [HttpDelete("floors/{floorId}")]
   [Authorize(Policy = "Admin")]
-  [ProducesResponseType(StatusCodes.Status205ResetContent)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult DeleteFloor(string floorId)
   {
-    return Problem(statusCode: 501);
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteFloor(adminId, floorId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
   }
 
   /// <summary>

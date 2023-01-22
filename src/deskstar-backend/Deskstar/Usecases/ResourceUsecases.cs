@@ -21,10 +21,10 @@ public interface IResourceUsecases
   public Floor CreateFloor(string floorName, Guid buildingId);
   public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
-  public void DeleteDesk(Guid deskId);
-  public void DeleteDeskType(Guid deskTypeId);
-  public void DeleteRoom(Guid roomId);
-  public void DeleteFloor(Guid floorId);
+  public void DeleteDesk(Guid adminId, string deskId);
+  public void DeleteDeskType(Guid adminId, string typeId);
+  public void DeleteRoom(Guid adminId, string roomId);
+  public void DeleteFloor(Guid adminId, string floorId);
   public void DeleteBuilding(Guid adminId, string buildingId);
 }
 
@@ -371,24 +371,46 @@ public class ResourceUsecases : IResourceUsecases
     return building;
   }
 
-  public void DeleteDesk(Guid deskId)
+  public void DeleteDesk(Guid adminId, string deskId)
   {
     throw new NotImplementedException();
   }
 
-  public void DeleteDeskType(Guid deskTypeId)
+  public void DeleteDeskType(Guid adminId, string typeId)
   {
     throw new NotImplementedException();
   }
 
-  public void DeleteRoom(Guid roomId)
+  public void DeleteRoom(Guid adminId, string roomId)
   {
     throw new NotImplementedException();
   }
 
-  public void DeleteFloor(Guid floorId)
+  public void DeleteFloor(Guid adminId, string floorId)
   {
-    throw new NotImplementedException();
+    Guid floorGuid;
+    try
+    {
+      floorGuid = new Guid(floorId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{floorId}' is not a valid FloorId");
+    }
+
+    var floorDbInstance= _context.Floors.SingleOrDefault(f => f.FloorId == floorGuid);
+    if (floorDbInstance == null)
+      throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
+    //Check if the floor is from the same company as the admin
+
+    var companyId = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId).CompanyId;
+
+    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+      throw new ArgumentInvalidException($"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
+
+    floorDbInstance.IsMarkedForDeletion = true;
+    _context.SaveChanges();
   }
 
   public void DeleteBuilding(Guid adminId, string buildingId)
@@ -401,12 +423,12 @@ public class ResourceUsecases : IResourceUsecases
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
-      throw new ArgumentInvalidException($"'{buildingId}' is not a valid UserId");
+      throw new ArgumentInvalidException($"'{buildingId}' is not a valid BuildingId");
     }
 
     var buildingDbInstance = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingGuid);
     if (buildingDbInstance == null)
-      throw new EntityNotFoundException($"There is no user with id '{buildingId}'");
+      throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
     //Check if the building is from the same company as the admin
 
     var companyId = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId).CompanyId;
