@@ -1242,6 +1242,45 @@ public class ResourceUsecaseTests
       Assert.Throws<EntityNotFoundException>(() => resourceUsecases.DeleteDesk(adminId, new Guid().ToString()));
     }
 
+    [Test]
+    public void DeleteDeskType_WhenValidDeskTypeIsProvided_ShouldUpdateDeskType()
+    {
+      //setup
+      using var db = new DataContext();
+      var deskTypeId = Guid.NewGuid();
+      var adminId = Guid.NewGuid();
+
+      SetupMockData(db, deskTypeId: deskTypeId, userId: adminId);
+
+      //arrange
+      var logger = new Mock<ILogger<ResourceUsecases>>();
+      var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+      //act
+      resourceUsecases.DeleteDeskType(adminId, deskTypeId.ToString());
+
+      //assert
+      Assert.That(db.DeskTypes.First(d=> d.DeskTypeId == deskTypeId).IsMarkedForDeletion);
+    }
+
+    [Test]
+    public void DeleteDeskType_WhenNonValidDeskTypeIsProvided_ShouldThrowEntityNotFoundException()
+    {
+      //setup
+      using var db = new DataContext();
+      var adminId = Guid.NewGuid();
+
+      SetupMockData(db, userId: adminId);
+
+      //arrange
+      var logger = new Mock<ILogger<ResourceUsecases>>();
+      var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+      //act & assert
+      Assert.Throws<EntityNotFoundException>(() => resourceUsecases.DeleteDeskType(adminId, new Guid().ToString()));
+    }
+
     private UserUsecases SetupUserUsecases(DataContext db)
     {
         var logger = new Mock<ILogger<UserUsecases>>();

@@ -387,7 +387,6 @@ public class ResourceUsecases : IResourceUsecases
     var deskDbInstance = _context.Desks.SingleOrDefault(d => d.DeskId == deskGuid);
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
-    //Check if the floor is from the same company as the admin
 
     var companyId = _context.Companies.Single(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId).CompanyId;
 
@@ -401,7 +400,29 @@ public class ResourceUsecases : IResourceUsecases
 
   public void DeleteDeskType(Guid adminId, string typeId)
   {
-    throw new NotImplementedException();
+    Guid deskTypeGuid;
+    try
+    {
+      deskTypeGuid = new Guid(typeId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{typeId}' is not a valid DeskTypeId");
+    }
+
+    var deskTypeDbInstance = _context.DeskTypes.SingleOrDefault(d => d.DeskTypeId == deskTypeGuid);
+    if (deskTypeDbInstance == null)
+      throw new EntityNotFoundException($"There is no desk type with id '{typeId}'");
+
+    var companyId = _context.Companies.Single(c => c.CompanyId == deskTypeDbInstance.CompanyId).CompanyId;
+
+    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The desk type with id '{typeId}' is not from the same company as the admin with id '{adminId}'");
+
+    deskTypeDbInstance.IsMarkedForDeletion = true;
+    _context.SaveChanges();
   }
 
   public void DeleteRoom(Guid adminId, string roomId)
@@ -420,7 +441,6 @@ public class ResourceUsecases : IResourceUsecases
     var roomDbInstance = _context.Rooms.SingleOrDefault(r => r.RoomId == roomGuid);
     if (roomDbInstance == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
-    //Check if the floor is from the same company as the admin
 
     var companyId = _context.Companies.Single(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId).CompanyId;
 
@@ -448,7 +468,6 @@ public class ResourceUsecases : IResourceUsecases
     var floorDbInstance = _context.Floors.SingleOrDefault(f => f.FloorId == floorGuid);
     if (floorDbInstance == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
-    //Check if the floor is from the same company as the admin
 
     var companyId = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId).CompanyId;
 
@@ -476,7 +495,6 @@ public class ResourceUsecases : IResourceUsecases
     var buildingDbInstance = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingGuid);
     if (buildingDbInstance == null)
       throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
-    //Check if the building is from the same company as the admin
 
     var companyId = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId).CompanyId;
 
