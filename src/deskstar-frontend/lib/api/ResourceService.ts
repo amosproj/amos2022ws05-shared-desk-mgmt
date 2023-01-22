@@ -172,6 +172,18 @@ export async function createBuilding(
   return result;
 }
 
+export async function deleteBuilding(
+  session: Session,
+  buildingId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/buildings/${buildingId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
 export async function createFloor(
   session: Session,
   createFloorDto: CreateFloorDto
@@ -203,6 +215,18 @@ export async function createFloor(
   }
 
   return result;
+}
+
+export async function deleteFloor(
+  session: Session,
+  floorId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/floors/${floorId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 }
 
 export async function createRoom(
@@ -238,6 +262,18 @@ export async function createRoom(
   return result;
 }
 
+export async function deleteRoom(
+  session: Session,
+  roomId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/rooms/${roomId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
 export async function createDeskType(
   session: Session,
   createDeskTypeDto: CreateDeskTypeDto
@@ -271,6 +307,18 @@ export async function createDeskType(
   return result;
 }
 
+export async function deleteDeskType(
+  session: Session,
+  deskTypeId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/desktypes/${deskTypeId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
 export async function createDesk(
   session: Session,
   createDeskDto: CreateDeskDto
@@ -302,4 +350,16 @@ export async function createDesk(
   }
 
   return result;
+}
+
+export async function deleteDesk(
+  session: Session,
+  deskId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/desks/${deskId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 }

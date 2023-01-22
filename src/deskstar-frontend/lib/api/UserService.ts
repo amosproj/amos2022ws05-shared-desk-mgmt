@@ -58,7 +58,7 @@ export async function deleteUser(
   session: Session,
   userId: string
 ): Promise<Response> {
-  return fetch(BACKEND_URL + `/users/delete/${userId}`, {
+  return fetch(BACKEND_URL + `/users/${userId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,

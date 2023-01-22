@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AddResourceModal from "../../components/AddResourceModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
@@ -48,6 +49,9 @@ const ResourceOverview = ({
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
+
+  const [ressource, setRessource] = useState<object>();
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const resourceOptions = [
     "Buildings",
@@ -164,9 +168,14 @@ const ResourceOverview = ({
   };
 
   const onDelete = async (resource: object): Promise<void> => {
-    //TODO: Implement
-    toast.success(`Deleting resource...`);
+    setRessource(resource);
+    setDeleteModalOpen(true);
   };
+
+  async function doDelete() {
+    setDeleteModalOpen(false);
+    console.log("delete"+ressource);
+    }
 
   const getIndex = (resourceName: string | null): number => {
     if (resourceName == null) return -1;
@@ -312,6 +321,17 @@ const ResourceOverview = ({
               buildings={buildings}
             />
           )}
+
+<ConfirmModal
+        title={"Delete Ressource " + ressource +" ?"}
+        description="This can't be undone!"
+        text=""
+        warn
+        buttonText="DELETE"
+        action={doDelete}
+        isOpen={isDeleteModalOpen}
+        setIsOpen={setDeleteModalOpen}
+      />
         </>
       )}
 
