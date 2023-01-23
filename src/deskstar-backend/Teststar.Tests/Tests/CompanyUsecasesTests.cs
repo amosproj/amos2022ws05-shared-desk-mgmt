@@ -39,7 +39,7 @@ public class CompanyUsecasesTests
 
     // assert
     Assert.That(1 == companies.Count());
-    Assert.That(companyID == companies.First().CompanyId);
+    Assert.That(companyID.ToString() == companies.First().CompanyId);
     Assert.That(companyName == companies.First().CompanyName);
 
     // cleanup
