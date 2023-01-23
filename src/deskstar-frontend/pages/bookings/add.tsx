@@ -27,13 +27,18 @@ export default function AddBooking({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
+  const today = dayjs()
+    .set("minutes", 0)
+    .set("seconds", 0)
+    .set("milliseconds", 0);
+
   const endDateTimeRef = useRef<HTMLInputElement>(null);
 
   const [startDateTime, setStartDateTime] = useState<Date>(
-    dayjs().set("minutes", 0).add(1, "hour").toDate()
+    today.add(1, "hour").toDate()
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
-    dayjs().set("minutes", 0).add(2, "hour").toDate()
+    today.add(2, "hour").toDate()
   );
   const minimumEndDateTime = useMemo(() => {
     return dayjs(startDateTime).add(1, "hour").toDate();
@@ -144,7 +149,9 @@ export default function AddBooking({
           <input
             className={classes(
               "input input-bordered",
-              endDateTime < minimumEndDateTime ? "border-red-600" : ""
+              dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime))
+                ? "border-red-600"
+                : ""
             )}
             type="datetime-local"
             id="end-date-time"
@@ -153,12 +160,12 @@ export default function AddBooking({
             defaultValue={formatDateForInputField(endDateTime)}
             onChange={(event) => {
               console.log("endDateTime: " + event.target.value);
+              console.log("endDateTime: " + event.target.value);
 
-              setEndDateTime(new Date(event.target.value));
+              setEndDateTime(dayjs(event.target.value).toDate());
             }}
           />
-
-          {endDateTime < minimumEndDateTime && (
+          {dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime)) && (
             <span className="text-red-600 ml-2">
               The End Time needs to be at minimum 1 hour after the start time.
             </span>
