@@ -388,12 +388,20 @@ public class ResourceUsecases : IResourceUsecases
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
-    var companyId = _context.Companies.Single(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId).CompanyId;
-
-    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
-      throw new ArgumentInvalidException(
+    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This desk with id '{deskId}' doesn't belong to any company. How?");
+    }
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+    if (userDbObject.CompanyId != companyId)
+      throw new InsufficientPermissionException(
         $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
-
     deskDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
   }
@@ -415,12 +423,20 @@ public class ResourceUsecases : IResourceUsecases
     if (deskTypeDbInstance == null)
       throw new EntityNotFoundException($"There is no desk type with id '{typeId}'");
 
-    var companyId = _context.Companies.Single(c => c.CompanyId == deskTypeDbInstance.CompanyId).CompanyId;
-
-    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+    var companyDBObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskTypeDbInstance.CompanyId);
+    if (companyDBObject == null)
+    {
+      throw new EntityNotFoundException($"This desk type with id '{typeId}' doesn't belong to any company. How?");
+    }
+    var companyId = companyDBObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+    if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The desk type with id '{typeId}' is not from the same company as the admin with id '{adminId}'");
-
     deskTypeDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
   }
@@ -442,9 +458,18 @@ public class ResourceUsecases : IResourceUsecases
     if (roomDbInstance == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
-    var companyId = _context.Companies.Single(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId).CompanyId;
-
-    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+    var companyDBObject = _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
+    if (companyDBObject == null)
+    {
+      throw new EntityNotFoundException($"This romm with id '{roomId}' doesn't belong to any company. How?");
+    }
+    var companyId = companyDBObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+    if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
 
@@ -471,9 +496,18 @@ public class ResourceUsecases : IResourceUsecases
     if (floorDbInstance == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
 
-    var companyId = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId).CompanyId;
-
-    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+    var companyDbObject = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This floor with id '{floorId}' doesn't belong to any company. How?");
+    }
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+    if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
 
@@ -500,9 +534,18 @@ public class ResourceUsecases : IResourceUsecases
     if (buildingDbInstance == null)
       throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
 
-    var companyId = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId).CompanyId;
-
-    if (_context.Users.Single(u => u.UserId == adminId).CompanyId != companyId)
+    var companyDbObject = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This building with id '{buildingId}' doesn't belong to any company. How?");
+    }
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+    if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The building with id '{buildingId}' is not from the same company as the admin with id '{adminId}'");
 
