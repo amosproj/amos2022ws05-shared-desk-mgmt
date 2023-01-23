@@ -28,6 +28,57 @@ public class ResourcesController : ControllerBase
     }
 
     /// <summary>
+    /// Updates a Room.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     PUT /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Internal Server Error</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("rooms/{roomId}")]
+    [Authorize(Policy = "Admin")]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [Produces("application/json")]
+    public IActionResult UpdateRoom(string roomId, UpdateRoomDto dto)
+    {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+        var roomGuid = new Guid(roomId);
+        var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+        Guid? floorId = dto.FloorId==null?null: new Guid(dto.FloorId);
+        
+        _resourceUsecases.UpdateRoom(companyId, roomGuid, dto.RoomName, floorId);
+
+        return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+        _logger.LogError(e, e.Message);
+        return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+        _logger.LogError(e, e.Message);
+        return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+        _logger.LogError(e, e.Message);
+        return Problem(statusCode: 500);
+        }
+    }
+
+    /// <summary>
     /// Returns a list of Buildings.
     /// </summary>
     /// <returns>A List of Buildings in JSON Format (can be empty) </returns>
