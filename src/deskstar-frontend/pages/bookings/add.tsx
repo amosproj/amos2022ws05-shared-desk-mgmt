@@ -207,19 +207,6 @@ function formatDateForInputField(date: Date) {
     .substring(0, "YYYY-MM-DDTHH:MM".length);
 }
 
-function getNextBusinessDay(date: Date) {
-  var returnDate = new Date(date);
-  returnDate.setDate(returnDate.getDate() + 1);
-
-  if (returnDate.getDay() == 0) {
-    returnDate.setDate(returnDate.getDate() + 1);
-  } else if (returnDate.getDay() == 6) {
-    returnDate.setDate(returnDate.getDate() + 2);
-  }
-
-  return returnDate;
-}
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
