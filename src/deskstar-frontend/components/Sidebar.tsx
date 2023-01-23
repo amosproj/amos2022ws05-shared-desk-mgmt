@@ -34,6 +34,10 @@ const adminNavItems = [
         name: "Requests",
         href: "/users/requests",
       },
+      {
+        name: "Archived Users",
+        href: "/users/restoration",
+      },
     ],
   },
   {
