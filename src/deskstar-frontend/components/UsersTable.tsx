@@ -152,12 +152,7 @@ export function UsersTable({
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
             className="btn bg-green-900 mb-5 lg:mr-5"
-            onClick={() =>
-              onRestoreUpdate(
-                users.filter((u) => u.selected),
-                true
-              )
-            }
+            onClick={() => onRestoreUpdate(users.filter((u) => u.selected))}
           >
             Restore selection
           </button>
