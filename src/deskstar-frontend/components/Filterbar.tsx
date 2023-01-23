@@ -204,37 +204,6 @@ export default function Filterbar({
           />
         )}
       </div>
-
-      <div className="my-4"></div>
-
-      {buildings.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a location</span>
-          </div>
-        </div>
-      )}
-      {!(buildings.length == 0) && floors.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a building</span>
-          </div>
-        </div>
-      )}
-      {!(floors.length == 0) && rooms.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a floor</span>
-          </div>
-        </div>
-      )}
-      {!(rooms.length == 0) && deskTypes.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a room</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
