@@ -76,6 +76,55 @@ public class ResourcesController : ControllerBase
   }
 
     /// <summary>
+    /// Updates a Building.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     PUT /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Internal Server Error</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("buildings/{buildingId}")]
+    [Authorize(Policy = "Admin")]
+    [Produces("application/json")]
+    public IActionResult UpdateBuilding(string buildingId, UpdateBuildingDto dto)
+    {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+        var buildingGuid = new Guid(buildingId);
+        var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+
+        _resourceUsecases.UpdateBuilding(companyId, buildingGuid, dto.BuildingName, dto.Location);
+
+        return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+        _logger.LogError(e, e.Message);
+        return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+        _logger.LogError(e, e.Message);
+        return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+        _logger.LogError(e, e.Message);
+        return Problem(statusCode: 500);
+        }
+    }
+
+    /// <summary>
     /// Updates a Floor.
     /// </summary>
     /// <remarks>

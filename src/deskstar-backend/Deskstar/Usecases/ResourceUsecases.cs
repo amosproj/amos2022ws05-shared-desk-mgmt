@@ -20,6 +20,7 @@ public interface IResourceUsecases
     public Floor CreateFloor(string floorName, Guid buildingId);
     public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
+    public Guid UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
     public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
     public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
     public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
@@ -37,6 +38,45 @@ public class ResourceUsecases : IResourceUsecases
     _logger = logger;
     _context = context;
     _userUsecases = userUsecases;
+  }
+
+  public Guid UpdateBuilding(Guid companyId, Guid buildingId, string? buildingName, string? location)
+  {
+    //check if buildingId matches building
+    var buildingExists = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    if (buildingExists == null)
+      throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
+
+    //check if buildingId matches company
+    if (buildingExists.CompanyId != companyId)
+      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate building '{buildingId}'");
+
+    //change location
+    if (location != null)
+    {
+      if (location == "")
+        throw new ArgumentInvalidException($"Location must not be empty");
+      buildingExists.Location = location;
+    }
+
+    //change building name
+    if (buildingName != null)
+    {
+      //check if buildingName is not empty
+      if (buildingName == "")
+        throw new ArgumentInvalidException($"Building name must not be empty");
+      var buildingNameIsUnique = buildingExists.Company.Buildings.Select(b => b.BuildingName).All(name => name != buildingName);
+      if (!buildingNameIsUnique)
+        throw new ArgumentInvalidException($"There is already a building named '{buildingName}' in company '{buildingExists.CompanyId}'");
+
+      buildingExists.BuildingName = buildingName;
+    }
+
+    //save changes
+    _context.Buildings.Update(buildingExists);
+    _context.SaveChanges();
+
+    return buildingId;
   }
 
   public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
