@@ -153,13 +153,13 @@ export default function Filterbar({
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 my-4">
         <FilterListbox
           items={locations}
           selectedItem={selectedLocation}
           setSelectedItem={setSelectedLocation}
           getName={(location) =>
-            location ? location.locationName : "Kein Ort ausgewählt"
+            location ? location.locationName : "Select location"
           }
         />
 
@@ -168,9 +168,7 @@ export default function Filterbar({
             items={buildings}
             selectedItem={selectedBuilding}
             setSelectedItem={setSelectedBuilding}
-            getName={(building) =>
-              building?.buildingName ?? "Kein Gebäude ausgewählt"
-            }
+            getName={(building) => building?.buildingName ?? "Select building"}
             getKey={(building) => building?.buildingId}
           />
         )}
@@ -180,7 +178,7 @@ export default function Filterbar({
             items={floors}
             selectedItem={selectedFloor}
             setSelectedItem={setSelectedFloor}
-            getName={(floor) => floor?.floorName ?? "Kein Stockwerk ausgewählt"}
+            getName={(floor) => floor?.floorName ?? "Select floor"}
             getKey={(floor) => floor?.floorId}
           />
         )}
@@ -190,7 +188,7 @@ export default function Filterbar({
             items={rooms}
             selectedItem={selectedRoom}
             setSelectedItem={setSelectedRoom}
-            getName={(room) => room?.roomName ?? "Kein Raum ausgewählt"}
+            getName={(room) => room?.roomName ?? "Select room"}
             getKey={(room) => room?.roomId}
           />
         )}
@@ -200,9 +198,7 @@ export default function Filterbar({
             items={deskTypes}
             selectedItem={selectedDeskType}
             setSelectedItem={setSelectedDeskType}
-            getName={(deskType) =>
-              deskType?.deskTypeName ?? "Kein Schreibtischtyp ausgewählt"
-            }
+            getName={(deskType) => deskType?.deskTypeName ?? "Select desktype"}
             getKey={(deskType) => deskType.deskTypeId}
             allOption={true}
           />
