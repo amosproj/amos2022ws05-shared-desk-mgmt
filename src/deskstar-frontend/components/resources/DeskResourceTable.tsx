@@ -1,6 +1,7 @@
 import { IDesk } from "../../types/desk";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import React from "react";
+import DeskResourceEditModal from "./DeskResourceEditModal";
 
 const DeskResourceTable = ({
   desks,
@@ -64,10 +65,14 @@ const DeskResourceTableEntry = ({
             </button>
           )}
           {onEdit && (
-            <button className="btn btn-ghost" onClick={() => onEdit(desk)}>
+            <a href={`#edit-desk-modal-${desk.deskId}`}>
+
+            <button  className="btn btn-ghost" onClick={() => onEdit(desk)}>
               <FaEdit />
             </button>
+            </a>
           )}
+          
         </td>
       )}
     </tr>

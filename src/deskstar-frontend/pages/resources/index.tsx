@@ -9,6 +9,7 @@ import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
+import DeskResourceEditModal from "../../components/resources/DeskResourceEditModal";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
 import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
@@ -48,6 +49,7 @@ const ResourceOverview = ({
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
+  const [editDesk, setEditDesk] = useState<IDesk>();
 
   const resourceOptions = [
     "Buildings",
@@ -162,6 +164,10 @@ const ResourceOverview = ({
     //TODO: Implement
     toast.success(`Editing resource...`);
   };
+  const onEditDesk = async (desk: IDesk): Promise<void> => {
+    //success
+    console.log(desk);
+  };
 
   const onDelete = async (resource: object): Promise<void> => {
     //TODO: Implement
@@ -211,7 +217,9 @@ const ResourceOverview = ({
           <AddResourceModal
             buildings={origBuildings}
             deskTypes={origDeskTypes}
-          />
+            />
+          
+          {/* <DeskResourceEditModal desk={} rooms={[]}/> */}
         </div>
       </div>
 
@@ -273,7 +281,7 @@ const ResourceOverview = ({
         <>
           {desks.length > 0 && (
             <DeskResourceTable
-              onEdit={onEdit}
+              onEdit={onEditDesk}
               onDelete={onDelete}
               desks={desks}
             />
