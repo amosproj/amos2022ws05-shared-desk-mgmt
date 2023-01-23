@@ -10,6 +10,7 @@
 using Deskstar.Core;
 using Deskstar.Models;
 using Deskstar.Usecases;
+using Deskstar.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,17 +43,17 @@ public class CompanyController : ControllerBase
   /// <response code="200">Returns a list of companies</response>
   /// <response code="500">Internal Server Error</response>
   [HttpGet]
-  [ProducesResponseType(StatusCodes.Status200OK)]
+  [AllowAnonymous]
+  [ProducesResponseType(typeof(List<CompanyDto>), StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult GetCompanies()
   {
+    List<CompanyDto> companies;
     try
     {
-      var companies = _companyUsecases.GetCompanies();
-      var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
-      var companiesDto = mapper.Map<List<Entities.Company>>(companies);
-      return Ok(companiesDto);
+      companies = _companyUsecases.GetCompanies();
+      return Ok(companies);
     }
     catch (Exception ex)
     {

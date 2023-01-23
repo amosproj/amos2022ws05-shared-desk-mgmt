@@ -6,7 +6,7 @@ namespace Deskstar.Usecases;
 
 public interface ICompanyUsecases
 {
-  public List<Company> GetCompanies();
+  public List<CompanyDto> GetCompanies();
 }
 
 public class CompanyUsecases : ICompanyUsecases
@@ -21,8 +21,18 @@ public class CompanyUsecases : ICompanyUsecases
     _logger = logger;
   }
 
-  public List<Company> GetCompanies()
+  public List<CompanyDto> GetCompanies()
   {
-    return _context.Companies.ToList();
+    var dbCompanies = _context.Companies.ToList();
+
+    if (dbCompanies.ToList().Count == 0) return new List<CompanyDto>();
+
+    var mapCompaniesToCompaniesDto = dbCompanies.Select((c) => new CompanyDto
+    {
+      CompanyId = c.CompanyId.ToString(),
+      CompanyName = c.CompanyName,
+    }).ToList();
+
+    return mapCompaniesToCompaniesDto;
   }
 }
