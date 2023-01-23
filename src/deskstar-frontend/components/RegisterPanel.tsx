@@ -5,25 +5,22 @@ import Input from "./forms/Input";
 import { toast } from "react-toastify";
 import OwnCombobox from "./forms/Combobox";
 
-export default function RegisterPanel() {
+export default function RegisterPanel({
+  companies,
+}: {
+  companies: {
+    id: string;
+    name: string;
+  }[];
+}) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
-  // const [msg, setMsg] = useState("");
-
   const [clicked, setClicked] = useState(false);
-
-  const companies = [
-    { id: "1", name: "Company 1" },
-    { id: "2", name: "Company 2" },
-  ];
-
   const [company, setCompany] = useState(companies[0]);
-
-  const router = useRouter();
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
