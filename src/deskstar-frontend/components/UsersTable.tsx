@@ -5,6 +5,7 @@ import {
   FaEdit,
   FaCheckCircle,
   FaTimesCircle,
+  FaTrashRestore,
 } from "react-icons/fa";
 
 export function UsersTable({
@@ -13,6 +14,7 @@ export function UsersTable({
   onDelete,
   onPermissionUpdate,
   onApprovalUpdate,
+  onRestoreUpdate,
   onUsersSelection,
 }: {
   users: IUser[];
@@ -21,6 +23,7 @@ export function UsersTable({
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
   onApprovalUpdate?: (user: IUser[], decision: boolean) => Promise<void>;
+  onRestoreUpdate?: (user: IUser[]) => Promise<void>;
   onUsersSelection?: React.Dispatch<React.SetStateAction<IUser[]>>;
 }) {
   const [allUsersButtonState, setAllUsersButtonState] = useState(false);
@@ -97,6 +100,9 @@ export function UsersTable({
                 Approve/Reject
               </th>
             )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-center">Restore</th>
+            )}
             {onEdit && <th className="bg-deskstar-green-light"></th>}
             {onDelete && <th className="bg-deskstar-green-light"></th>}
           </tr>
@@ -110,6 +116,7 @@ export function UsersTable({
               onDelete={onDelete}
               onPermissionUpdate={onPermissionUpdate}
               onApprovalUpdate={onApprovalUpdate}
+              onRestoreUpdate={onRestoreUpdate}
               onUserSelection={toggleUserSelection}
             />
           ))}
@@ -141,6 +148,21 @@ export function UsersTable({
           </button>
         </div>
       )}
+      {onRestoreUpdate && onUsersSelection && selectedUsersCount > 0 && (
+        <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
+          <button
+            className="btn bg-green-900 mb-5 lg:mr-5"
+            onClick={() =>
+              onRestoreUpdate(
+                users.filter((u) => u.selected),
+                true
+              )
+            }
+          >
+            Restore selection
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -151,6 +173,7 @@ const UsersTableEntry = ({
   onDelete,
   onPermissionUpdate,
   onApprovalUpdate,
+  onRestoreUpdate,
   onUserSelection,
 }: {
   user: IUser;
@@ -158,6 +181,7 @@ const UsersTableEntry = ({
   onDelete?: (user: IUser) => Promise<void>;
   onPermissionUpdate?: (user: IUser) => Promise<void>;
   onApprovalUpdate?: (user: IUser[], decision: boolean) => Promise<void>;
+  onRestoreUpdate?: (user: IUser[]) => Promise<void>;
   onUserSelection?: (user: IUser) => void;
 }) => {
   return (
@@ -200,6 +224,16 @@ const UsersTableEntry = ({
             onClick={() => onApprovalUpdate([user], false)}
           >
             <FaTimesCircle color="red" />
+          </button>
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-center">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate([user])}
+          >
+            <FaTrashRestore color="green" />
           </button>
         </td>
       )}
