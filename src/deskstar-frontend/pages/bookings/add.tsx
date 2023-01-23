@@ -27,10 +27,17 @@ export default function AddBooking({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
-  const today = dayjs()
+  let today = dayjs()
     .set("minutes", 0)
     .set("seconds", 0)
     .set("milliseconds", 0);
+
+  // Change today to the next business day
+  if (today.day() === 0) {
+    today = today.add(1, "day");
+  } else if (today.day() === 6) {
+    today = today.add(2, "day");
+  }
 
   const endDateTimeRef = useRef<HTMLInputElement>(null);
 
