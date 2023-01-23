@@ -30,23 +30,21 @@ export default function Register({
 }
 
 export async function getServerSideProps() {
-  return {
-    props: {
-      companies: [
-        {
-          id: "1",
-          name: "Company 1",
-        },
-        {
-          id: "2",
-          name: "Company 2",
-        },
-      ],
-    },
-  };
-
   try {
-    const companies = await getCompanies();
+    let companies = await getCompanies();
+
+    companies = companies.map(
+      ({
+        companyId,
+        companyName,
+      }: {
+        companyId: string;
+        companyName: string;
+      }) => ({
+        id: companyId,
+        name: companyName,
+      })
+    );
 
     return {
       props: {
