@@ -3,6 +3,7 @@ using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Helper;
 using Deskstar.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Deskstar.Usecases;
 
@@ -272,7 +273,6 @@ public class ResourceUsecases : IResourceUsecases
       _context.DeskTypes.SingleOrDefault(dt => dt.CompanyId == companyId && dt.DeskTypeName == deskTypeName) != null;
     if (deskTypeExists)
       throw new ArgumentInvalidException($"There is already a deskType called '{deskTypeName}'");
-
     var deskTypeId = Guid.NewGuid();
     var deskType = new DeskType
     {
@@ -384,7 +384,9 @@ public class ResourceUsecases : IResourceUsecases
       throw new ArgumentInvalidException($"'{deskId}' is not a valid DeskId");
     }
 
-    var deskDbInstance = _context.Desks.SingleOrDefault(d => d.DeskId == deskGuid);
+    var deskDbInstance = _context.Desks.Include(d => d.Room)
+                                             .ThenInclude(r => r.Floor)
+                                             .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
@@ -423,12 +425,12 @@ public class ResourceUsecases : IResourceUsecases
     if (deskTypeDbInstance == null)
       throw new EntityNotFoundException($"There is no desk type with id '{typeId}'");
 
-    var companyDBObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskTypeDbInstance.CompanyId);
-    if (companyDBObject == null)
+    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskTypeDbInstance.CompanyId);
+    if (companyDbObject == null)
     {
       throw new EntityNotFoundException($"This desk type with id '{typeId}' doesn't belong to any company. How?");
     }
-    var companyId = companyDBObject.CompanyId;
+    var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
@@ -437,6 +439,10 @@ public class ResourceUsecases : IResourceUsecases
     if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The desk type with id '{typeId}' is not from the same company as the admin with id '{adminId}'");
+    if (_context.Desks.Where(d => d.DeskTypeId == deskTypeGuid).Where(d => !d.IsMarkedForDeletion).ToList().Any())
+    {
+      throw new ArgumentInvalidException($"There are still desks with given type with id '{typeId}'");
+    }
     deskTypeDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
   }
@@ -454,16 +460,17 @@ public class ResourceUsecases : IResourceUsecases
       throw new ArgumentInvalidException($"'{roomId}' is not a valid RoomId");
     }
 
-    var roomDbInstance = _context.Rooms.SingleOrDefault(r => r.RoomId == roomGuid);
+    var roomDbInstance = _context.Rooms.Include(r => r.Floor)
+                                             .ThenInclude(b => b.Building).SingleOrDefault(r => r.RoomId == roomGuid);
     if (roomDbInstance == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
-    var companyDBObject = _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
-    if (companyDBObject == null)
+    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
+    if (companyDbObject == null)
     {
       throw new EntityNotFoundException($"This romm with id '{roomId}' doesn't belong to any company. How?");
     }
-    var companyId = companyDBObject.CompanyId;
+    var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
@@ -492,7 +499,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new ArgumentInvalidException($"'{floorId}' is not a valid FloorId");
     }
 
-    var floorDbInstance = _context.Floors.SingleOrDefault(f => f.FloorId == floorGuid);
+    var floorDbInstance = _context.Floors.Include(b => b.Building).SingleOrDefault(f => f.FloorId == floorGuid);
     if (floorDbInstance == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
 

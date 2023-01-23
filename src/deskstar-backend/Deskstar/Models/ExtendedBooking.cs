@@ -12,7 +12,7 @@ public class ExtendedBooking
     .ForMember(dest => dest.FloorName, act => act.MapFrom(src => src.Desk.Room.Floor.FloorName))
     .ForMember(dest => dest.RoomName, act => act.MapFrom(src => src.Desk.Room.RoomName))
     .ForMember(dest => dest.DeskName, act => act.MapFrom(src => src.Desk.DeskName))
-    .ForMember(dest => dest.IsMarkedForDeletion, act => act.MapFrom(src => src.Desk.IsMarkedForDeletion));
+    .ForMember(dest => dest.usesDeletedDesk, act => act.MapFrom(src => src.Desk.IsMarkedForDeletion));
   }
   public ExtendedBooking()
   {
@@ -42,6 +42,6 @@ public class ExtendedBooking
   public string RoomName { get; set; } = null!;
 
   [Required]
-  public bool IsMarkedForDeletion { get; set; }
+  public bool usesDeletedDesk { get; set; }
 
 }
