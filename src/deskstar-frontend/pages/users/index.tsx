@@ -184,7 +184,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     return {
       props: {
-        users: users.filter((user: IUser) => user.isApproved),
+        users: users.filter(
+          (user: IUser) => user.isApproved && !user.isMarkedForDeletion
+        ),
       },
     };
   } catch (error) {

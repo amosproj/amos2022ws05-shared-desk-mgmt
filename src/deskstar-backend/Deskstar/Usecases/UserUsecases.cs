@@ -123,7 +123,6 @@ public class UserUsecases : IUserUsecases
     if (admin == null)
       throw new EntityNotFoundException($"There is no admin with id '{adminId}'");
     return _context.Users.Where(user => user.CompanyId == admin.CompanyId)
-        .Where(user => !user.IsMarkedForDeletion)
         .ToList();
   }
 
