@@ -20,6 +20,7 @@ public interface IResourceUsecases
     public Floor CreateFloor(string floorName, Guid buildingId);
     public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
+    public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
     public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
     public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
 }
@@ -37,6 +38,56 @@ public class ResourceUsecases : IResourceUsecases
     _context = context;
     _userUsecases = userUsecases;
   }
+
+  public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
+    {
+      var floorExists = _context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+      if (floorExists == null)
+        throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
+
+      //check if floorId matches company
+      if (floorExists.Building.CompanyId != companyId)
+        throw new InsufficientPermissionException($"'{companyId}' has no access to administrate floor '{floorId}'");
+
+      //change building
+      if (buildingId != null)
+      {
+        //check if building exists
+        var buildingExists = _context.Buildings.SingleOrDefault(b => b.BuildingId == (Guid)buildingId);
+        if (buildingExists == null)
+          throw new EntityNotFoundException($"Building does not exist with id '{(Guid)buildingId}'");
+        if (buildingExists.CompanyId != companyId)
+          throw new InsufficientPermissionException($"'{companyId}' has no access to move a floor to building '{(Guid)buildingId}'");
+        var floorNameToBeChecked = floorName != null ? floorName : floorExists.FloorName;
+        var floorNameExists = _context.Floors.SingleOrDefault(f => f.BuildingId == buildingId && f.FloorName == floorNameToBeChecked);
+        if (floorNameExists != null)
+          throw new ArgumentInvalidException($"You cant move floor '{floorId}' to building '{buildingId}'. In building '{buildingId}' already exists a floor called '{floorNameToBeChecked}'");
+
+        floorExists.BuildingId = (Guid)buildingId;
+      }
+
+      //change floorName
+      if (floorName != null)
+      {
+        //check if floorName is not empty
+        if (floorName == "")
+          throw new ArgumentInvalidException($"Floor name must not be empty");
+        if (buildingId == null)
+        {
+          var floorNameIsUnique = floorExists.Building.Floors.Select(f => f.FloorName).All(name => name != floorName);
+          if (!floorNameIsUnique)
+            throw new ArgumentInvalidException($"There is already a floor named '{floorName}' in building '{floorExists.BuildingId}'");
+        }
+
+        floorExists.FloorName = floorName;
+      }
+
+      //save changes
+      _context.Floors.Update(floorExists);
+      _context.SaveChanges();
+
+      return floorId;
+    }
 
     public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId)
     {

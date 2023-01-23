@@ -76,6 +76,56 @@ public class ResourcesController : ControllerBase
   }
 
     /// <summary>
+    /// Updates a Floor.
+    /// </summary>
+    /// <remarks>
+    /// Sample request:
+    ///     PUT /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+    /// </remarks>
+    ///
+    /// <response code="200">Ok</response>
+    /// <response code="400">Bad Request</response>
+    /// <response code="404">Not Found</response>
+    /// <response code="500">Internal Server Error</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [HttpPut("floors/{floorId}")]
+    [Authorize(Policy = "Admin")]
+    [Produces("application/json")]
+    public IActionResult UpdateFloor(string floorId, UpdateFloorDto dto)
+    {
+        var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+        try
+        {
+        var floorGuid = new Guid(floorId);
+        var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+        Guid? buildingGuid = dto.BuildingId==null?null: new Guid(dto.BuildingId);
+        
+        _resourceUsecases.UpdateFloor(companyId, floorGuid, dto.FloorName, buildingGuid);
+
+        return Ok();
+        }
+        catch (EntityNotFoundException e)
+        {
+        _logger.LogError(e, e.Message);
+        return NotFound(e.Message);
+        }
+        catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+        {
+        _logger.LogError(e, e.Message);
+        return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+        _logger.LogError(e, e.Message);
+        return Problem(statusCode: 500);
+        }
+    }
+
+    /// <summary>
     /// Updates a Room.
     /// </summary>
     /// <remarks>
@@ -93,7 +143,6 @@ public class ResourcesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [HttpPut("rooms/{roomId}")]
     [Authorize(Policy = "Admin")]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [Produces("application/json")]
     public IActionResult UpdateRoom(string roomId, UpdateRoomDto dto)
     {
