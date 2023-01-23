@@ -32,6 +32,8 @@ export default function AddBooking({
     .set("seconds", 0)
     .set("milliseconds", 0);
 
+  today = today.add(1, "day");
+
   // Change today to the next business day
   if (today.day() === 0) {
     today = today.add(1, "day");
@@ -42,10 +44,10 @@ export default function AddBooking({
   const endDateTimeRef = useRef<HTMLInputElement>(null);
 
   const [startDateTime, setStartDateTime] = useState<Date>(
-    today.add(1, "hour").toDate()
+    today.set("hour", 8).toDate()
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
-    today.add(2, "hour").toDate()
+    today.set("hour", 17).toDate()
   );
   const minimumEndDateTime = useMemo(() => {
     return dayjs(startDateTime).add(1, "hour").toDate();
@@ -123,7 +125,12 @@ export default function AddBooking({
             name="Start"
             defaultValue={formatDateForInputField(startDateTime)}
             min={formatDateForInputField(
-              dayjs().set("hours", 0).set("minutes", 0).toDate()
+              dayjs()
+                .set("hours", 0)
+                .set("minutes", 0)
+                .set("seconds", 0)
+                .set("milliseconds", 0)
+                .toDate()
             )}
             onChange={(event) => {
               setStartDateTime(dayjs(event.target.value).toDate());
