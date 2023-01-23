@@ -1,18 +1,15 @@
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 import { toast } from "react-toastify";
 import OwnCombobox from "./forms/Combobox";
 
-export default function RegisterPanel({
-  companies,
-}: {
-  companies: {
-    id: string;
-    name: string;
-  }[];
-}) {
+type Company = {
+  id: string;
+  name: string;
+};
+
+export default function RegisterPanel({ companies }: { companies: Company[] }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -20,7 +17,7 @@ export default function RegisterPanel({
   const [repeatPassword, setRepeatPassword] = useState("");
 
   const [clicked, setClicked] = useState(false);
-  const [company, setCompany] = useState(companies[0]);
+  const [company, setCompany] = useState<Company | null>(null);
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -28,6 +25,13 @@ export default function RegisterPanel({
 
     if (password !== repeatPassword) {
       toast.error("Passwords must be equal!");
+
+      setClicked(false);
+      return;
+    }
+
+    if (!company) {
+      toast.error("Please select a company");
 
       setClicked(false);
       return;
