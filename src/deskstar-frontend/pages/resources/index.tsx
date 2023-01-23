@@ -14,12 +14,18 @@ import DeskResourceTable from "../../components/resources/DeskResourceTable";
 import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
+import { deleteBooking } from "../../lib/api/BookingService";
 import {
   getBuildings,
   getDesks,
   getDeskTypes,
   getFloors,
   getRooms,
+  deleteBuilding,
+  deleteFloor,
+  deleteRoom,
+  deleteDesk,
+  deleteDeskType,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
@@ -50,7 +56,12 @@ const ResourceOverview = ({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
 
-  const [ressource, setRessource] = useState<object>();
+  const [building, setBuilding] = useState<IBuilding>();
+  const [floor, setFloor] = useState<IFloor>();
+  const [room, setRoom] = useState<IRoom>();
+  const [desk, setDesk] = useState<IDesk>();
+  const [deskType, setDeskType] = useState<IDeskType>();
+
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const resourceOptions = [
@@ -162,20 +173,117 @@ const ResourceOverview = ({
     }
   }, [router, session]);
 
-  const onEdit = async (resource: object): Promise<void> => {
+  const onEdit = async (resource: IDesk): Promise<void> => {
     //TODO: Implement
     toast.success(`Editing resource...`);
   };
 
-  const onDelete = async (resource: object): Promise<void> => {
-    setRessource(resource);
+  const onDelete = async (resource: Object): Promise<void> => {
+    if (isInstanceOfIBuilding(resource)) setBuilding(resource);
+    if (isInstanceOfIFloor(resource)) setFloor(resource);
+    if (isInstanceOfIRoom(resource)) setRoom(resource);
+    if (isInstanceOfIDesk(resource)) setDesk(resource);
+    if (isInstanceOfIDeskType(resource)) setDeskType(resource);
     setDeleteModalOpen(true);
   };
 
-  async function doDelete() {
-    setDeleteModalOpen(false);
-    console.log("delete"+ressource);
+  function isInstanceOfIBuilding(object: Object): object is IBuilding {
+    return true;
+  }
+
+  function isInstanceOfIFloor(object: Object): object is IFloor {
+    return true;
+  }
+
+  function isInstanceOfIRoom(object: Object): object is IRoom {
+    return true;
+  }
+
+  function isInstanceOfIDesk(object: Object): object is IDesk {
+    return true;
+  }
+
+  function isInstanceOfIDeskType(object: Object): object is IDeskType {
+    return true;
+  }
+
+  const doDeleteBuilding = async (): Promise<void> => {
+    if (building) {
+      if (session == null) return;
+      let result = await deleteBuilding(session, building.buildingId);
+
+      if (result.ok) {
+        toast.success(`Building ${building.buildingName} deleted!`);
+
+        // Remove the building from buildingList
+        setBuildings(
+          buildings.filter((b) => b.buildingId !== building.buildingId)
+        );
+      } else {
+        toast.error(`Building ${building.buildingName} could not be deleted!`);
+      }
     }
+  };
+  const doDeleteFloor = async (): Promise<void> => {
+    if (floor) {
+      if (session == null) return;
+      let result = await deleteFloor(session, floor.floorId);
+
+      if (result.ok) {
+        toast.success(`Floor ${floor.floorName} deleted!`);
+
+        // Remove the floor from floorList
+        setFloors(floors.filter((b) => b.floorId !== floor.floorId));
+      } else {
+        toast.error(`Floor ${floor.floorName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteRoom = async (): Promise<void> => {
+    if (room) {
+      if (session == null) return;
+      let result = await deleteRoom(session, room.roomName);
+
+      if (result.ok) {
+        toast.success(`Room ${room.roomName} deleted!`);
+
+        // Remove the room from roomList
+        setRooms(rooms.filter((b) => b.roomId !== room.roomId));
+      } else {
+        toast.error(`Room ${room.roomName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDesk = async (): Promise<void> => {
+    if (desk) {
+      if (session == null) return;
+      let result = await deleteDesk(session, desk.deskId);
+
+      if (result.ok) {
+        toast.success(`Desk ${desk.deskName} deleted!`);
+
+        // Remove the desk from deskList
+        setDesks(desks.filter((b) => b.deskId !== desk.deskId));
+      } else {
+        toast.error(`Desk ${desk.deskName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDeskType = async (): Promise<void> => {
+    if (deskType) {
+      if (session == null) return;
+      let result = await deleteDeskType(session, deskType.deskTypeId);
+
+      if (result.ok) {
+        toast.success(`Desktype ${deskType.deskTypeName} deleted!`);
+
+        // Remove the deskType from deskTypeList
+        setDesks(desks.filter((b) => b.deskId !== deskType.deskTypeId));
+      } else {
+        toast.error(`Desktype ${deskType.deskTypeName} could not be deleted!`);
+      }
+    }
+  };
 
   const getIndex = (resourceName: string | null): number => {
     if (resourceName == null) return -1;
@@ -276,6 +384,16 @@ const ResourceOverview = ({
               deskTypes={origDeskTypes}
             />
           )}
+          <ConfirmModal
+            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDeskType}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Desks" && (
@@ -287,6 +405,16 @@ const ResourceOverview = ({
               desks={desks}
             />
           )}
+          <ConfirmModal
+            title={"Delete Desk " + desk?.deskName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDesk}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Rooms" && (
@@ -298,6 +426,16 @@ const ResourceOverview = ({
               rooms={rooms}
             />
           )}
+          <ConfirmModal
+            title={"Delete Room " + room?.roomName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteRoom}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Floors" && (
@@ -309,6 +447,16 @@ const ResourceOverview = ({
               floors={floors}
             />
           )}
+          <ConfirmModal
+            title={"Delete Floor " + floor?.floorName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteFloor}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
 
@@ -321,20 +469,18 @@ const ResourceOverview = ({
               buildings={buildings}
             />
           )}
-
-<ConfirmModal
-        title={"Delete Ressource " + ressource +" ?"}
-        description="This can't be undone!"
-        text=""
-        warn
-        buttonText="DELETE"
-        action={doDelete}
-        isOpen={isDeleteModalOpen}
-        setIsOpen={setDeleteModalOpen}
-      />
+          <ConfirmModal
+            title={"Delete Building " + building?.buildingName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteBuilding}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
-
       {buildings.length == 0 && (
         <div className="toast">
           <div className="alert bg-deskstar-green-dark text-black">

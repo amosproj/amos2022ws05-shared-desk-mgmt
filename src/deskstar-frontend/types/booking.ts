@@ -9,6 +9,7 @@ export interface IBooking {
   timestamp: string;
   startTime: string;
   endTime: string;
+  usesDeletedDesk: boolean;
 }
 
 export interface GetBookingsResponse {
