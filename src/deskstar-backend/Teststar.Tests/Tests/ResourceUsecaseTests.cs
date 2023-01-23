@@ -10,752 +10,752 @@ namespace Teststar.Tests.Tests;
 
 public class ResourceUsecaseTests
 {
-    [Test]
-    public void UpdateBuilding_WhenBuildingIdDoesNotExist_ShouldThrowEntityNotFoundException()
+  [Test]
+  public void UpdateBuilding_WhenBuildingIdDoesNotExist_ShouldThrowEntityNotFoundException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = Guid.NewGuid(), CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
+    Assert.NotNull(ex);
+    Assert.That($"There is no building with id '{buildingId}'" == ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenBuildingNameDoesAlreadyExist_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+
+    var buildingName = "testbuilding";
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
+
+    context.Companies.Add(company);
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, buildingName, null));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"There is already a building named '{buildingName}' in company '{companyId}'", ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenCompanyIdDoesNotMatchBuilding_ShouldThrowInsufficientPermissionException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
+    Assert.NotNull(ex);
+    Assert.That($"'{companyId}' has no access to administrate building '{buildingId}'" == ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenAllInputIsValid_ShouldUpdateBuilding()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+
+    var buildingName = "testbuilding";
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
+
+    context.Companies.Add(company);
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var updatedBuildingName = "New Building Name";
+    var updatedLocation = "New York";
+    // act
+    var result = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, updatedLocation);
+
+    // assert
+    Assert.IsNotNull(result);
+    Assert.AreEqual(buildingId, result);
+
+    var updatedBuilding = context.Buildings.Find(buildingId);
+    Assert.IsNotNull(updatedBuilding);
+    Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
+    Assert.AreEqual(updatedLocation, updatedBuilding.Location);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenOnlyLocationIsProvided_ShouldUpdateBuildingLocation()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var newLocation = "newlocation";
+
+    // act
+    var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, newLocation);
+
+    // assert
+    var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    Assert.NotNull(updatedBuilding);
+    Assert.That(updatedBuilding.Location == newLocation);
+    Assert.That(buildingIdReturned == buildingId);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenOnlyBuildingNameIsProvided_ShouldUpdateBuildingName()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var location = "testlocation";
+    var buildingName = "testbuilding";
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = location };
+
+    context.Companies.Add(company);
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var updatedBuildingName = "updatedBuildingName";
+
+    // act
+    var returnedBuildingId = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, null);
+
+    // assert
+    Assert.AreEqual(buildingId, returnedBuildingId);
+    var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    Assert.NotNull(updatedBuilding);
+    Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
+    Assert.AreEqual(location, updatedBuilding.Location);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenNeitherLocationNorBuildingNameIsProvided_ShouldReturnBuildingId()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act
+    var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
+
+    // assert
+    Assert.AreEqual(buildingId, buildingIdReturned);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenLocationIsEmpty_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", ""));
+    Assert.NotNull(ex);
+    Assert.That($"Location must not be empty" == ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateBuilding_WhenBuildingNameIsEmpty_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "", "New York"));
+    Assert.NotNull(ex);
+    Assert.That($"Building name must not be empty" == ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void GetBuildings_WhenNoBuildingFound_ShouldReturnAEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
+    var hasher = new PasswordHasher<User>();
+    var company = new Company
     {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = Guid.NewGuid(), CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
+      CompanyId = companyId,
+      CompanyName = "gehmalbierholn"
+    };
+    var user = new User
+    {
+      UserId = userId,
+      MailAddress = "test@example.de",
+      FirstName = "testF",
+      LastName = "testL",
+      CompanyId = company.CompanyId,
+      IsApproved = true
+    };
+    user.Password = hasher.HashPassword(user, "testpw");
+    db.Add(company);
+    db.Add(user);
+    db.SaveChanges();
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
-        // act+assert
-        var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
-        Assert.NotNull(ex);
-        Assert.That($"There is no building with id '{buildingId}'" == ex.Message);
 
-        // cleanup
-        context.Database.EnsureDeleted();
+    //act
+    var result = usecases.GetBuildings(userId);
+
+    //assert
+    Assert.That(result, Is.Empty);
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetBuildings_WhenOneBuildingFound_ShouldReturnAException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var callId = Guid.NewGuid();
+
+    //act
+    try
+    {
+      usecases.GetBuildings(callId);
+
+      //assert
+      Assert.Fail("No exception thrown");
     }
-    [Test]
-    public void UpdateBuilding_WhenBuildingNameDoesAlreadyExist_ShouldThrowArgumentInvalidException()
+    catch (Exception e)
     {
-        // setup
-        var context = new DataContext();
-
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-
-        var buildingName = "testbuilding";
-        var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
-
-        context.Companies.Add(company);
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, buildingName, null));
-        Assert.NotNull(ex);
-        Assert.AreEqual($"There is already a building named '{buildingName}' in company '{companyId}'", ex.Message);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenCompanyIdDoesNotMatchBuilding_ShouldThrowInsufficientPermissionException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-
-        // act+assert
-        var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
-        Assert.NotNull(ex);
-        Assert.That($"'{companyId}' has no access to administrate building '{buildingId}'" == ex.Message);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenAllInputIsValid_ShouldUpdateBuilding()
-    {
-        // setup
-        var context = new DataContext();
-
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-
-        var buildingName = "testbuilding";
-        var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
-
-        context.Companies.Add(company);
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-        var updatedBuildingName = "New Building Name";
-        var updatedLocation = "New York";
-        // act
-        var result = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, updatedLocation);
-
-        // assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(buildingId, result);
-
-        var updatedBuilding = context.Buildings.Find(buildingId);
-        Assert.IsNotNull(updatedBuilding);
-        Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
-        Assert.AreEqual(updatedLocation, updatedBuilding.Location);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenOnlyLocationIsProvided_ShouldUpdateBuildingLocation()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-        var newLocation = "newlocation";
-
-        // act
-        var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, newLocation);
-
-        // assert
-        var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
-        Assert.NotNull(updatedBuilding);
-        Assert.That(updatedBuilding.Location == newLocation);
-        Assert.That(buildingIdReturned == buildingId);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenOnlyBuildingNameIsProvided_ShouldUpdateBuildingName()
-    {
-        // setup
-        var context = new DataContext();
-
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var location = "testlocation";
-        var buildingName = "testbuilding";
-        var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = location };
-
-        context.Companies.Add(company);
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-        var updatedBuildingName = "updatedBuildingName";
-
-        // act
-        var returnedBuildingId = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, null);
-
-        // assert
-        Assert.AreEqual(buildingId, returnedBuildingId);
-        var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
-        Assert.NotNull(updatedBuilding);
-        Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
-        Assert.AreEqual(location, updatedBuilding.Location);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenNeitherLocationNorBuildingNameIsProvided_ShouldReturnBuildingId()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-
-        // act
-        var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
-
-        // assert
-        Assert.AreEqual(buildingId, buildingIdReturned);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenLocationIsEmpty_ShouldThrowArgumentInvalidException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", ""));
-        Assert.NotNull(ex);
-        Assert.That($"Location must not be empty" == ex.Message);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void UpdateBuilding_WhenBuildingNameIsEmpty_ShouldThrowArgumentInvalidException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
-
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "", "New York"));
-        Assert.NotNull(ex);
-        Assert.That($"Building name must not be empty" == ex.Message);
-
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
-    [Test]
-    public void GetBuildings_WhenNoBuildingFound_ShouldReturnAEmptyList()
-    {
-        //setup
-        using var db = new DataContext();
-
-        var userId = Guid.NewGuid();
-        var companyId = Guid.NewGuid();
-        var hasher = new PasswordHasher<User>();
-        var company = new Company
-        {
-        CompanyId = companyId,
-        CompanyName = "gehmalbierholn"
-        };
-        var user = new User
-        {
-        UserId = userId,
-        MailAddress = "test@example.de",
-        FirstName = "testF",
-        LastName = "testL",
-        CompanyId = company.CompanyId,
-        IsApproved = true
-        };
-        user.Password = hasher.HashPassword(user, "testpw");
-        db.Add(company);
-        db.Add(user);
-        db.SaveChanges();
-
-        //arrange
-        var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
-
-
-        //act
-        var result = usecases.GetBuildings(userId);
-
-        //assert
-        Assert.That(result, Is.Empty);
-
-        //cleanup
-        db.Database.EnsureDeleted();
-    }
-
-    [Test]
-    public void GetBuildings_WhenOneBuildingFound_ShouldReturnAException()
-    {
-        //setup
-        using var db = new DataContext();
-
-        var userId = Guid.NewGuid();
-        SetupMockData(db, userId: userId);
-
-        db.SaveChanges();
-
-        //arrange
-        var logger = new Mock<ILogger<ResourceUsecases>>();
-        var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
-        var callId = Guid.NewGuid();
-
-        //act
-        try
-        {
-        usecases.GetBuildings(callId);
-
-        //assert
-        Assert.Fail("No exception thrown");
-        }
-        catch (Exception e)
-        {
-        Assert.That(e.Message, Is.EqualTo($"There is no User with id '{callId}'"));
-        }
-
-        //cleanup
-        db.Database.EnsureDeleted();
+      Assert.That(e.Message, Is.EqualTo($"There is no User with id '{callId}'"));
     }
 
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
 
-    [Test]
-    public void UpdateFloor_WhenFloorDoesNotExist_ShouldThrowEntitiesNotFoundException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        context.SaveChanges();
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+  [Test]
+  public void UpdateFloor_WhenFloorDoesNotExist_ShouldThrowEntitiesNotFoundException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", buildingId));
-        Assert.NotNull(ex);
-        Assert.That($"There is no floor with id '{floorId}'" == ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", buildingId));
+    Assert.NotNull(ex);
+    Assert.That($"There is no floor with id '{floorId}'" == ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenCompanyIdDoesNotMatchFloor_ShouldThrowInsufficientPermissionException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+  [Test]
+  public void UpdateFloor_WhenCompanyIdDoesNotMatchFloor_ShouldThrowInsufficientPermissionException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", null));
-        Assert.NotNull(ex);
-        Assert.That($"'{companyId}' has no access to administrate floor '{floorId}'" == ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", null));
+    Assert.NotNull(ex);
+    Assert.That($"'{companyId}' has no access to administrate floor '{floorId}'" == ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenFloorNameIsEmpty_ShouldThrowArgumentInvalidException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+  [Test]
+  public void UpdateFloor_WhenFloorNameIsEmpty_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "", null));
-        Assert.NotNull(ex);
-        Assert.That($"Floor name must not be empty" == ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "", null));
+    Assert.NotNull(ex);
+    Assert.That($"Floor name must not be empty" == ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenBuildingIdDoesNotExist_ShouldThrowEntityNotFoundException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // arrange
-        var buildingIdNotExisting = Guid.NewGuid();
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+  [Test]
+  public void UpdateFloor_WhenBuildingIdDoesNotExist_ShouldThrowEntityNotFoundException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "testname", buildingIdNotExisting));
-        Assert.NotNull(ex);
-        Assert.That($"Building does not exist with id '{buildingIdNotExisting}'" == ex.Message);
+    // arrange
+    var buildingIdNotExisting = Guid.NewGuid();
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "testname", buildingIdNotExisting));
+    Assert.NotNull(ex);
+    Assert.That($"Building does not exist with id '{buildingIdNotExisting}'" == ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenCompanyIdDoesNotMatchBuilding_ShouldThrowInsufficientPermissionException()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
-        var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testname" };
-        context.Buildings.Add(building);
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+  [Test]
+  public void UpdateFloor_WhenCompanyIdDoesNotMatchBuilding_ShouldThrowInsufficientPermissionException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testname" };
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "new name", null));
-        Assert.NotNull(ex);
-        Assert.That($"'{companyId}' has no access to administrate floor '{floorId}'" == ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "new name", null));
+    Assert.NotNull(ex);
+    Assert.That($"'{companyId}' has no access to administrate floor '{floorId}'" == ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenUpdatedBuildingBelongsToDifferentCompany_ShouldThrowInsufficientPermissionException()
-    {
-        // setup
-        var context = new DataContext();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
+  [Test]
+  public void UpdateFloor_WhenUpdatedBuildingBelongsToDifferentCompany_ShouldThrowInsufficientPermissionException()
+  {
+    // setup
+    var context = new DataContext();
 
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
-        context.Buildings.Add(building);
-        context.Floors.Add(floor);
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
 
-        var anotherCompanyId = Guid.NewGuid();
-        var building2Id = Guid.NewGuid();
-        var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation" };
-        context.Buildings.Add(building2);
-        context.SaveChanges();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var anotherCompanyId = Guid.NewGuid();
+    var building2Id = Guid.NewGuid();
+    var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    context.Buildings.Add(building2);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id));
-        Assert.NotNull(ex);
-        Assert.AreEqual($"'{companyId}' has no access to move a floor to building '{building2Id}'", ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"'{companyId}' has no access to move a floor to building '{building2Id}'", ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenUpdatedBuildingNameAlreadyExists_ShouldThrowArgumentInvalidException()
-    {
-        // setup
-        var context = new DataContext();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var floorName = "testfloor";
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
-        context.Buildings.Add(building);
-        context.Floors.Add(floor);
+  [Test]
+  public void UpdateFloor_WhenUpdatedBuildingNameAlreadyExists_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var context = new DataContext();
 
-        var anotherCompanyId = Guid.NewGuid();
-        var building2Id = Guid.NewGuid();
-        var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation" };
-        context.Buildings.Add(building2);
-        context.SaveChanges();
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorName = "testfloor";
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var anotherCompanyId = Guid.NewGuid();
+    var building2Id = Guid.NewGuid();
+    var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    context.Buildings.Add(building2);
+    context.SaveChanges();
 
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, null));
-        Assert.NotNull(ex);
-        Assert.AreEqual($"There is already a floor named '{floorName}' in building '{buildingId}'", ex.Message);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, null));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"There is already a floor named '{floorName}' in building '{buildingId}'", ex.Message);
 
-    [Test]
-    public void UpdateFloor_WhenAllInputIsValid_ShouldUpdateFloorAndReturnFloorId()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var building2Id = Guid.NewGuid();
-        var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
-        context.Buildings.Add(building2);
-        var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-        var newFloorName = "new name";
+  [Test]
+  public void UpdateFloor_WhenAllInputIsValid_ShouldUpdateFloorAndReturnFloorId()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var building2Id = Guid.NewGuid();
+    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    context.Buildings.Add(building2);
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // act
-        var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, building2Id);
-        var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var newFloorName = "new name";
 
-        // assert
-        Assert.That(floorId == returnedFloorId);
-        Assert.NotNull(updatedFloor);
-        Assert.That(newFloorName == updatedFloor.FloorName);
-        Assert.That(building2Id == updatedFloor.BuildingId);
+    // act
+    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, building2Id);
+    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // assert
+    Assert.That(floorId == returnedFloorId);
+    Assert.NotNull(updatedFloor);
+    Assert.That(newFloorName == updatedFloor.FloorName);
+    Assert.That(building2Id == updatedFloor.BuildingId);
 
-    [Test]
-    public void UpdateFloor_WhenFloorNameAlreadyExistsInUpdatedBuilding_ShouldThrowArgumentInvalidException()
-    {
-        // setup
-        var context = new DataContext();
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        var companyId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var floorName = "testfloor";
+  [Test]
+  public void UpdateFloor_WhenFloorNameAlreadyExistsInUpdatedBuilding_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var context = new DataContext();
 
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId };
-        
-        context.Buildings.Add(building);
-        context.Floors.Add(floor);
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var floorName = "testfloor";
 
-        var company2Id = Guid.NewGuid();
-        var building2Id = Guid.NewGuid();
-        var floor2Id = Guid.NewGuid();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId };
 
-        var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
-        var floor2 = new Floor { FloorId = floor2Id, FloorName = floorName, BuildingId = building2Id };
-        
-        context.Buildings.Add(building2);
-        context.Floors.Add(floor2);
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
 
-        context.SaveChanges();
+    var company2Id = Guid.NewGuid();
+    var building2Id = Guid.NewGuid();
+    var floor2Id = Guid.NewGuid();
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    var floor2 = new Floor { FloorId = floor2Id, FloorName = floorName, BuildingId = building2Id };
 
-        // act+assert
-        var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, building2Id));
-        Assert.NotNull(ex);
-        Assert.AreEqual($"You cant move floor '{floorId}' to building '{building2Id}'. In building '{building2Id}' already exists a floor called '{floorName}'", ex.Message);
+    context.Buildings.Add(building2);
+    context.Floors.Add(floor2);
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    context.SaveChanges();
 
-    [Test]
-    public void UpdateFloor_WhenOnlyFloorNameIsProvided_ShouldUpdateFloorNameAndReturnFloorId()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var floorName = "testfloor";
-        var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
-        var newFloorName = "newFloorName";
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, building2Id));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"You cant move floor '{floorId}' to building '{building2Id}'. In building '{building2Id}' already exists a floor called '{floorName}'", ex.Message);
 
-        // act
-        var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, null);
-        var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // assert
-        Assert.That(floorId == returnedFloorId);
-        Assert.NotNull(updatedFloor);
-        Assert.That(buildingId == updatedFloor.BuildingId);
-        Assert.That(newFloorName == updatedFloor.FloorName);
+  [Test]
+  public void UpdateFloor_WhenOnlyFloorNameIsProvided_ShouldUpdateFloorNameAndReturnFloorId()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var floorName = "testfloor";
+    var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var newFloorName = "newFloorName";
 
-    [Test]
-    public void UpdateFloor_WhenOnlyBuildingIdIsProvided_ShouldUpdateFloorBuildingAndReturnFloorId()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var building2Id = Guid.NewGuid();
-        var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
-        context.Buildings.Add(building2);
-        var floorName = "testfloor";
-        var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // act
+    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, null);
+    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    // assert
+    Assert.That(floorId == returnedFloorId);
+    Assert.NotNull(updatedFloor);
+    Assert.That(buildingId == updatedFloor.BuildingId);
+    Assert.That(newFloorName == updatedFloor.FloorName);
 
-        // act
-        var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id);
-        var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // assert
-        Assert.That(floorId == returnedFloorId);
-        Assert.NotNull(updatedFloor);
-        Assert.That(building2Id == updatedFloor.BuildingId);
-        Assert.That(floorName == updatedFloor.FloorName);
+  [Test]
+  public void UpdateFloor_WhenOnlyBuildingIdIsProvided_ShouldUpdateFloorBuildingAndReturnFloorId()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var building2Id = Guid.NewGuid();
+    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    context.Buildings.Add(building2);
+    var floorName = "testfloor";
+    var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-    [Test]
-    public void UpdateFloor_WhenNeitherFloorNameNorBuildingIdIsProvided_ShouldReturnFloorId()
-    {
-        // setup
-        var companyId = Guid.NewGuid();
-        var floorId = Guid.NewGuid();
-        var buildingId = Guid.NewGuid();
-        var context = new DataContext();
-        var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-        context.Buildings.Add(building);
-        var floorName = "testfloor";
-        var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
-        context.Floors.Add(floor);
-        context.SaveChanges();
+    // act
+    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id);
+    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
 
-        // arrange
-        var userLogger = new Mock<ILogger<UserUsecases>>();
-        var userUsecases = new UserUsecases(userLogger.Object, context);
-        var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-        var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    // assert
+    Assert.That(floorId == returnedFloorId);
+    Assert.NotNull(updatedFloor);
+    Assert.That(building2Id == updatedFloor.BuildingId);
+    Assert.That(floorName == updatedFloor.FloorName);
 
-        // act
-        var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
-        var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
-        // assert
-        Assert.That(floorId == returnedFloorId);
-        Assert.NotNull(updatedFloor);
-        Assert.That(buildingId == updatedFloor.BuildingId);
-        Assert.That(floorName == updatedFloor.FloorName);
+  [Test]
+  public void UpdateFloor_WhenNeitherFloorNameNorBuildingIdIsProvided_ShouldReturnFloorId()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var context = new DataContext();
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Buildings.Add(building);
+    var floorName = "testfloor";
+    var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
+    context.Floors.Add(floor);
+    context.SaveChanges();
 
-        // cleanup
-        context.Database.EnsureDeleted();
-    }
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act
+    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
+    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+
+    // assert
+    Assert.That(floorId == returnedFloorId);
+    Assert.NotNull(updatedFloor);
+    Assert.That(buildingId == updatedFloor.BuildingId);
+    Assert.That(floorName == updatedFloor.FloorName);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
 
   [Test]
   public void UpdateRoom_WhenRoomDoesNotExist_ShouldThrowEntityNotFoundException()
@@ -799,7 +799,7 @@ public class ResourceUsecaseTests
     // cleanup
     context.Database.EnsureDeleted();
   }
-  
+
   [Test]
   public void UpdateRoom_WhenCompanyHasInsufficientPermission_ShouldThrowInsufficientPermissionException()
   {
