@@ -799,9 +799,4 @@ public class ResourcesController : ControllerBase
             return Problem(statusCode: 500);
         }
     }
-    catch (Exception e)
-    {
-      _logger.LogError(e, e.Message);
-      return Problem(statusCode: 500);
-    }
 }
