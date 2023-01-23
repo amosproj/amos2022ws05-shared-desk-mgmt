@@ -26,6 +26,54 @@ public class ResourcesController : ControllerBase
         _userUsecases = userUsecases;
         _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
     }
+    /// <summary>
+  /// Updates a Desk Type.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     PUT /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="404">Not Found</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPut("desktypes/{desktypeId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult UpdateDeskType(string deskTypeId, UpdateDeskTypeDto dto)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+    try
+    {
+      var deskTypeGuid = new Guid(deskTypeId);
+      var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+      
+      _resourceUsecases.UpdateDeskType(companyId, deskTypeGuid, dto.DeskTypeName);
+
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      _logger.LogError(e, e.Message);
+      return NotFound(e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
 
     /// <summary>
     /// Returns a list of Buildings.
