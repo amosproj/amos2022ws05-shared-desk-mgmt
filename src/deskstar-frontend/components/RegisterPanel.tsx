@@ -3,6 +3,44 @@ import React, { useState } from "react";
 import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 import { toast } from "react-toastify";
+import { Combobox } from "@headlessui/react";
+
+function CompanyCombobox({
+  companies,
+  selectedId,
+  setSelectedId,
+}: {
+  companies: { id: string; name: string }[];
+  selectedId: string;
+  setSelectedId: (id: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+
+  const filteredCompanies = companies.filter((company) =>
+    company.name.toLowerCase().includes(query.toLowerCase())
+  );
+
+  return (
+    <div className="dropdown my-2">
+      <Combobox value={selectedId} onChange={setSelectedId}>
+        <Combobox.Input
+          className="input w-full border-2 border-gray-300 p-2 rounded-lg"
+          placeholder="Company"
+          onChange={(event) => setQuery(event.target.value)}
+        />
+        <Combobox.Options className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52">
+          {filteredCompanies.map((company) => (
+            <Combobox.Option key={company.id} value={company.id}>
+              {({ active }) => (
+                <a className={active ? "active" : ""}>{company.name}</a>
+              )}
+            </Combobox.Option>
+          ))}
+        </Combobox.Options>
+      </Combobox>
+    </div>
+  );
+}
 
 export default function RegisterPanel() {
   const [company, setCompany] = useState("");
@@ -15,6 +53,11 @@ export default function RegisterPanel() {
   // const [msg, setMsg] = useState("");
 
   const [clicked, setClicked] = useState(false);
+
+  const companies = [
+    { id: "1", name: "Company 1" },
+    { id: "2", name: "Company 2" },
+  ];
 
   const router = useRouter();
 
@@ -61,11 +104,17 @@ export default function RegisterPanel() {
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Register</h1>
       <form className="flex flex-col" onSubmit={submitForm}>
-        <Input
+        {/* <Input
           name="Company"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
           placeholder="Company"
+        /> */}
+        {company}
+        <CompanyCombobox
+          selectedId={company}
+          setSelectedId={setCompany}
+          companies={companies}
         />
         <div className="columns-2">
           <Input
