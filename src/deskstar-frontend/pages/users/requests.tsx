@@ -46,11 +46,6 @@ export default function UserRequests({
         const response: Response = decision
           ? await approveUser(session, user.userId)
           : await declineUser(session, user.userId);
-
-        if (!response.ok) {
-          const error = await response.json();
-          toast.error(error.detail);
-        }
       }
 
       // success
@@ -65,9 +60,7 @@ export default function UserRequests({
         )
       );
     } catch (error) {
-      toast.error(
-        `There has been a problem with your fetch operation: ${error}`
-      );
+      toast.error(`${error}`);
     }
   };
 
@@ -99,19 +92,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  try {
     const users = await getUsers(session);
-
     return {
       props: {
         initialUsers: users.filter((user: IUser) => !user.isApproved),
       },
     };
+  } catch (error) {
+    console.error(error);
+    return {
+      redirect: {
+        destination: "/500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      users: [],
-    },
-  };
 };

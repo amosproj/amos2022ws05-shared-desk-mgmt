@@ -1,8 +1,6 @@
 import NextAuth, { Awaitable, NextAuthOptions, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { userAgent } from "next/server";
 import { AuthResponse, authorize } from "../../../lib/api/AuthService";
-import { Session } from "next-auth";
 import { getUserMe } from "../../../lib/api/UserService";
 
 export const authOptions: NextAuthOptions = {
@@ -33,11 +31,15 @@ export const authOptions: NextAuthOptions = {
 
         let accessToken = result as string;
 
-        const userResponse = await getUserMe(accessToken);
-
-        if (!userResponse) {
+        let userResponse;
+        try {
+          userResponse = await getUserMe(accessToken);
+        } catch (error) {
+          console.error(error);
           return null;
         }
+
+        if (!userResponse) return null;
 
         const user: User = {
           id: userResponse.userId,
@@ -49,11 +51,8 @@ export const authOptions: NextAuthOptions = {
           our_token: accessToken,
         };
 
-        if (user) {
-          return user;
-        } else {
-          return null;
-        }
+        if (!user) return null;
+        return user;
       },
     }),
     // ...add more providers here
@@ -74,10 +73,14 @@ export const authOptions: NextAuthOptions = {
       session.accessToken = token.accessToken;
 
       // There is a cache definition in getUserMe to prevent overloading the backend
-      const userResponse = await getUserMe(token.accessToken);
-      if (!userResponse) {
+      let userResponse;
+      try {
+        userResponse = await getUserMe(token.accessToken);
+      } catch (error) {
         return session;
       }
+
+      if (!userResponse) return session;
 
       session.user = {
         id: userResponse.userId,
