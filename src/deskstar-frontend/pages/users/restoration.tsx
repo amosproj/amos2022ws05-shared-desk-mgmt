@@ -40,7 +40,7 @@ export default function DeletedUserOverview({
     if (!session) return;
     try {
       for (const user of selectedUsers) {
-        const response: Response = await restoreUser(user);
+        await restoreUser(user);
       }
 
       // success
