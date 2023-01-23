@@ -121,7 +121,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       page: string | undefined;
     };
 
-    const direction = "ASC";
+    const direction = "DESC";
 
     const data = await getBookings(session, {
       n: DEFAULT_N,
