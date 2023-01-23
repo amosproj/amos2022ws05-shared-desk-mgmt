@@ -123,7 +123,7 @@ public class ResourceUsecases : IResourceUsecases
       var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
       databaseBuildings = _context.Buildings.Where(building => building.CompanyId == companyId);
     }
-
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
       throw new ArgumentException($"'{userId}' is not a valid UserId");
