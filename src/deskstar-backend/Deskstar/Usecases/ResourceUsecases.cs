@@ -23,6 +23,7 @@ public interface IResourceUsecases
     public Guid UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
     public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
     public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
+    public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId);
     public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
 }
 
@@ -178,7 +179,65 @@ public class ResourceUsecases : IResourceUsecases
         return roomId;
     }
 
+ public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId)
+  {
+    var deskExists = _context.Desks.SingleOrDefault(d => d.DeskId == deskId);
+    if (deskExists == null)
+      throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
+    if (deskExists.Room.Floor.Building.CompanyId != companyId)
+      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate desk '{deskId}'");
+
+    //change room
+    if (roomId != null)
+    {
+      var roomExists = _context.Rooms.SingleOrDefault(r => r.RoomId == (Guid)roomId);
+      if (roomExists == null)
+        throw new EntityNotFoundException($"Room does not exist with id '{(Guid)roomId}'");
+      if (roomExists.Floor.Building.CompanyId != companyId)
+        throw new InsufficientPermissionException($"'{companyId}' has no access to add a desk to room '{(Guid)roomId}'");
+      var deskNameToBeChecked = deskName != null ? deskName : deskExists.DeskName;
+      var deskNameExists = _context.Desks.SingleOrDefault(d => d.RoomId == roomId && d.DeskName == deskNameToBeChecked);
+      if (deskNameExists != null)
+        throw new ArgumentInvalidException($"You cant move desk '{deskId}' to room '{roomId}'. In room '{roomId}' already exists a desk called '{deskNameToBeChecked}'");
+
+      deskExists.RoomId = (Guid)roomId;
+    }
+
+    //change deskName
+    if (deskName != null)
+    {
+      //check if deskName is not empty
+      if (deskName == "")
+        throw new ArgumentInvalidException($"Desk name must not be empty");
+      if (roomId == null)
+      {
+        var deskNameIsUnique = deskExists.Room.Desks.Select(d => d.DeskName).All(name => name != deskName);
+        if (!deskNameIsUnique)
+          throw new ArgumentInvalidException($"There is already a desk named '{deskName}' in room '{deskExists.RoomId}'");
+      }
+
+      deskExists.DeskName = deskName;
+    }
+
+    //change desk type
+    if (deskTypeId != null)
+    {
+      var deskTypeExists = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == (Guid)deskTypeId);
+      if (deskTypeExists == null)
+        throw new EntityNotFoundException($"DeskType does not exist with id '{(Guid)deskTypeId}'");
+      if (deskTypeExists.CompanyId != companyId)
+        throw new InsufficientPermissionException($"'{companyId}' has no access to desk type '{(Guid)deskTypeId}'");
+
+      deskExists.DeskTypeId = (Guid)deskTypeId;
+    }
+
+    //save changes
+    _context.Desks.Update(deskExists);
+    _context.SaveChanges();
+
+    return deskId;
+  }
   public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName)
   {
     var deskTypeExists = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);

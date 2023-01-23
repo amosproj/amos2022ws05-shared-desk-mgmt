@@ -13,20 +13,72 @@ namespace Deskstar.Controllers;
 [Produces("application/json")]
 public class ResourcesController : ControllerBase
 {
-    private readonly IResourceUsecases _resourceUsecases;
-    private readonly IUserUsecases _userUsecases;
-    private readonly ILogger<ResourcesController> _logger;
+  private readonly IResourceUsecases _resourceUsecases;
+  private readonly IUserUsecases _userUsecases;
+  private readonly ILogger<ResourcesController> _logger;
 
-    private readonly AutoMapper.IMapper _mapper;
+  private readonly AutoMapper.IMapper _mapper;
 
-    public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
+  public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
+  {
+    _logger = logger;
+    _resourceUsecases = resourceUsecases;
+    _userUsecases = userUsecases;
+    _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
+  }
+
+  /// <summary>
+  /// Updates a Desk.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     PUT /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="404">Not Found</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPut("desks/{deskId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status404NotFound)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult UpdateDesk(string deskId, UpdateDeskDto dto)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+
+    try
     {
-        _logger = logger;
-        _resourceUsecases = resourceUsecases;
-        _userUsecases = userUsecases;
-        _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
+      var deskGuid = new Guid(deskId);
+      var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
+      Guid? roomId = dto.RoomId == null ? null : new Guid(dto.RoomId);
+      Guid? deskTypeId = dto.DeskTypeId == null ? null : new Guid(dto.DeskTypeId);
+
+      _resourceUsecases.UpdateDesk(companyId, deskGuid, dto.DeskName, roomId, deskTypeId);
+
+      return Ok();
     }
-    /// <summary>
+    catch (EntityNotFoundException e)
+    {
+      _logger.LogError(e, e.Message);
+      return NotFound(e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+
+  /// <summary>
   /// Updates a Desk Type.
   /// </summary>
   /// <remarks>
@@ -53,7 +105,7 @@ public class ResourcesController : ControllerBase
     {
       var deskTypeGuid = new Guid(deskTypeId);
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
-      
+
       _resourceUsecases.UpdateDeskType(companyId, deskTypeGuid, dto.DeskTypeName);
 
       return Ok();
@@ -746,5 +798,10 @@ public class ResourcesController : ControllerBase
             _logger.LogError(e, e.Message);
             return Problem(statusCode: 500);
         }
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
     }
 }
