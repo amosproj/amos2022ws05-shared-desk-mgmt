@@ -29,6 +29,7 @@ export async function getUsers(session: Session): Promise<IUser[]> {
       company: userData?.companyId,
       isAdmin: userData?.isCompanyAdmin,
       isApproved: userData?.isApproved,
+      isMarkedForDeletion: userData?.isMarkedForDeletion,
     };
   });
 }
@@ -124,6 +125,7 @@ export async function editUser(
       FirstName: user.firstName,
       mailAddress: user.email,
       isCompanyAdmin: user.isAdmin,
+      isMarkedForDeletion: user.isMarkedForDeletion,
       companyId: user.company,
     }),
   });

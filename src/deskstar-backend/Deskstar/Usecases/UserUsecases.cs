@@ -176,6 +176,7 @@ public class UserUsecases : IUserUsecases
     userDbInstance.LastName = user.LastName;
     userDbInstance.MailAddress = user.MailAddress;
     userDbInstance.IsCompanyAdmin = user.IsCompanyAdmin;
+    userDbInstance.IsMarkedForDeletion = user.IsMarkedForDeletion;
     _context.SaveChanges();
     var body = $"Hello {user.FirstName},</br> " +
                "your account details have been updated.</br> " +
