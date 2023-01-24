@@ -1252,13 +1252,14 @@ public class ResourceUsecaseTests
       using var db = new DataContext();
       var deskTypeId = Guid.NewGuid();
       var adminId = Guid.NewGuid();
+      var deskId = Guid.NewGuid();
 
-      SetupMockData(db, deskTypeId: deskTypeId, userId: adminId);
+      SetupMockData(db, deskTypeId: deskTypeId, userId: adminId, deskId:deskId);
 
       //arrange
       var logger = new Mock<ILogger<ResourceUsecases>>();
       var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
-
+      resourceUsecases.DeleteDesk(adminId,deskId.ToString());
       //act
       resourceUsecases.DeleteDeskType(adminId, deskTypeId.ToString());
 
