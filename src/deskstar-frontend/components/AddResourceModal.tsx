@@ -6,7 +6,6 @@ import {
   createDeskType,
   createFloor,
   createRoom,
-  getDeskTypes,
   getFloors,
   getRooms,
 } from "../lib/api/ResourceService";
@@ -87,16 +86,18 @@ const AddResourceModal = ({
   async function onSelectedBuildingChange(
     selectedBuilding: IBuilding | null | undefined
   ) {
-    if (!selectedBuilding) {
-      return;
-    }
+    if (!selectedBuilding) return;
 
     setBuilding(selectedBuilding);
-    if (!session) {
-      return [];
+
+    if (!session) return [];
+
+    try {
+      const resFloors = await getFloors(session, selectedBuilding.buildingId);
+      setFloors(resFloors);
+    } catch (error) {
+      toast.error(`${error}`);
     }
-    const resFloors = await getFloors(session, selectedBuilding.buildingId);
-    setFloors(resFloors);
 
     setFloor(null);
     setRoom(null);
@@ -105,26 +106,25 @@ const AddResourceModal = ({
   async function onSelectedFloorChange(
     selectedFloor: IFloor | null | undefined
   ) {
-    if (!selectedFloor) {
-      return;
-    }
+    if (!selectedFloor) return;
 
     setFloor(selectedFloor);
-    if (!session) {
-      return [];
+    if (!session) return [];
+
+    try {
+      const resRooms = await getRooms(session, selectedFloor.floorId);
+      setRooms(resRooms);
+    } catch (error) {
+      toast.error(`${error}`);
     }
 
-    const resRooms = await getRooms(session, selectedFloor.floorId);
-    setRooms(resRooms);
     setRoom(null);
   }
 
   async function onSelectedDeskTypeChange(
     onSelectedDeskType: IDeskType | null | undefined
   ) {
-    if (!onSelectedDeskType) {
-      return;
-    }
+    if (!onSelectedDeskType) return;
     setDeskType(onSelectedDeskType);
   }
 

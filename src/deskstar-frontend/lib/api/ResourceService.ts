@@ -22,6 +22,12 @@ export enum ResourceResponse {
   Success,
 }
 
+/**
+ * Lists buildings associated to company of given usersession
+ * @param session The user session
+ * @returns The list of company buildings
+ * @throws Error containing status code and/or error message
+ */
 export async function getBuildings(session: Session): Promise<IBuilding[]> {
   const response = await fetch(BACKEND_URL + "/resources/buildings", {
     headers: {
@@ -29,17 +35,19 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
     },
   });
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching buildings");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all floors of a building
+ * @param session The user session
+ * @param buildingId The building id
+ * @returns All floors of `buildingId`
+ * @throws Error containing status code and/or error message
+ */
 export async function getFloors(
   session: Session,
   buildingId: string
@@ -53,17 +61,19 @@ export async function getFloors(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching floors");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all rooms of a floor
+ * @param session The user session
+ * @param floorId The floor id
+ * @returns All rooms of `floorId`
+ * @throws Error containing status code and/or error message
+ */
 export async function getRooms(
   session: Session,
   floorId: string
@@ -77,17 +87,21 @@ export async function getRooms(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching rooms");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all available desks of a room
+ * @param session The user session
+ * @param roomId The room id
+ * @param startTime
+ * @param endTime
+ * @returns All available desks
+ * @throws Error containing status code and/or error message
+ */
 export async function getDesks(
   session: Session,
   roomId: string,
@@ -104,17 +118,18 @@ export async function getDesks(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching desks");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all defined desk types associated to usersessions company
+ * @param session The user session
+ * @returns All defined desk types associated to usersessions company
+ * @throws Error containing status code and/or error message
+ */
 export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
   const response = await fetch(BACKEND_URL + `/resources/desktypes`, {
     headers: {
@@ -122,11 +137,7 @@ export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
     },
   });
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching desks");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
   const resDeskTypes = data.map((e: any) => {
@@ -139,6 +150,12 @@ export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
   return resDeskTypes;
 }
 
+/**
+ * Creates a building
+ * @param session The user session
+ * @param createBuildingDto the building data for the post request
+ * @returns
+ */
 export async function createBuilding(
   session: Session,
   createBuildingDto: CreateBuildingDto
@@ -184,6 +201,12 @@ export async function deleteBuilding(
   });
 }
 
+/**
+ * Creates a floor
+ * @param session The user session
+ * @param createFloorDto The floor data for the post request
+ * @returns
+ */
 export async function createFloor(
   session: Session,
   createFloorDto: CreateFloorDto
@@ -229,6 +252,12 @@ export async function deleteFloor(
   });
 }
 
+/**
+ * Creates a room
+ * @param session The user session
+ * @param createRoomDto The room data for the post request
+ * @returns
+ */
 export async function createRoom(
   session: Session,
   createRoomDto: CreateRoomDto
@@ -274,6 +303,12 @@ export async function deleteRoom(
   });
 }
 
+/**
+ * Creates a new desk type
+ * @param session The user session
+ * @param createDeskTypeDto The desktype data for the post request
+ * @returns
+ */
 export async function createDeskType(
   session: Session,
   createDeskTypeDto: CreateDeskTypeDto
@@ -319,6 +354,26 @@ export async function deleteDeskType(
   });
 }
 
+export async function deleteDeskType(
+  session: Session,
+  deskTypeId: string
+): Promise<Response> {
+  return fetch(BACKEND_URL + `/resources/desktypes/${deskTypeId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+}
+
+
+
+/**
+ * Creates a desk
+ * @param session The user session
+ * @param createDeskDto The desk data for the post request
+ * @returns
+ */
 export async function createDesk(
   session: Session,
   createDeskDto: CreateDeskDto

@@ -96,11 +96,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedBuildings.map(async (building) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resFloors;
+        try {
+          resFloors = await getFloors(session, building.buildingId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resFloors = await getFloors(session, building.buildingId);
         const enrichedFloors = resFloors.map((floor) => {
           floor.buildingName = building.buildingName;
           floor.location = building.location;
@@ -119,11 +124,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedFloors.map(async (floor) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resRooms;
+        try {
+          resRooms = await getRooms(session, floor.floorId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorId);
         const enrichedRooms = resRooms.map((room) => {
           room.building = floor.buildingName;
           room.location = floor.location;
@@ -146,19 +156,27 @@ const ResourceOverview = ({
           return [];
         }
 
-        const resDeskType = await getDesks(
-          session,
-          room.roomId,
-          new Date().getTime(),
-          new Date().getTime()
-        );
+        let resDeskType;
+        try {
+          resDeskType = await getDesks(
+            session,
+            room.roomId,
+            new Date().getTime(),
+            new Date().getTime()
+          );
+        } catch (error) {
+          toast.error(`${error}`);
+          return [];
+        }
 
         return resDeskType;
       })
     );
 
     const desks = promises.flat();
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => desk.bookings.length === 0
+    );
     setDesks(filteredDesks);
     stopFetchingAnimation();
   }
@@ -520,7 +538,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  try {
     const buildings = await getBuildings(session);
     const deskTypes = await getDeskTypes(session);
     return {
@@ -529,14 +555,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         deskTypes,
       },
     };
+  } catch (error) {
+    console.error(error);
+    return {
+      redirect: {
+        destination: "/500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      buildings: [],
-      deskTypes: [],
-    },
-  };
 };
 
 export default ResourceOverview;

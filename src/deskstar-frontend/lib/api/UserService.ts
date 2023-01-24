@@ -2,6 +2,12 @@ import { Session } from "next-auth";
 import { IUser } from "../../types/users";
 import { BACKEND_URL } from "./constants";
 
+/**
+ * Lists all users associated with users company
+ * @param session The associated user session
+ * @returns All users associated with the given usersessions company
+ * @throws Error containing status code and/or error message
+ */
 export async function getUsers(session: Session): Promise<IUser[]> {
   //   const response = await fetch(BACKEND_URL + "/resources/locations");
   const response = await fetch(BACKEND_URL + "/users", {
@@ -10,10 +16,7 @@ export async function getUsers(session: Session): Promise<IUser[]> {
     },
   });
 
-  if (response.status !== 200) {
-    console.log("Error fetching ");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
 
@@ -26,51 +29,91 @@ export async function getUsers(session: Session): Promise<IUser[]> {
       company: userData?.companyId,
       isAdmin: userData?.isCompanyAdmin,
       isApproved: userData?.isApproved,
+      isMarkedForDeletion: userData?.isMarkedForDeletion,
     };
   });
 }
 
-export function approveUser(
+/**
+ * Approves an user by `userId`
+ * @param session The associated user session
+ * @param userId The user id
+ * @returns The fetch response object
+ * @throws Error containing status code and/or error message
+ */
+export async function approveUser(
   session: Session,
   userId: string
 ): Promise<Response> {
-  return fetch(BACKEND_URL + `/users/${userId}/approve`, {
+  const response = await fetch(BACKEND_URL + `/users/${userId}/approve`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  return response;
 }
 
-export function declineUser(
+/**
+ * Declines an user by `userId`
+ * @param session The associated user session
+ * @param userId The user id
+ * @returns The fetch response
+ * @throws Error containing status code and/or error message
+ */
+export async function declineUser(
   session: Session,
   userId: string
 ): Promise<Response> {
-  return fetch(BACKEND_URL + `/users/${userId}/decline`, {
+  const response = await fetch(BACKEND_URL + `/users/${userId}/decline`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  return response;
 }
 
+/**
+ * Deletes an user by `userId`
+ * @param session The associated user session
+ * @param userId The user id
+ * @returns The fetch response
+ * @throws Error containing status code and/or error message
+ */
 export async function deleteUser(
   session: Session,
   userId: string
 ): Promise<Response> {
-  return fetch(BACKEND_URL + `/users/${userId}`, {
+  const response = await fetch(BACKEND_URL + `/users/delete/${userId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  return response;
 }
 
+/**
+ * Updates an user
+ * @param session The associated user session
+ * @param user The updated user data
+ * @returns The fetch response
+ * @throws Error containing status code and/or error message
+ */
 export async function editUser(
   session: Session,
   user: IUser
 ): Promise<Response> {
-  return await fetch(BACKEND_URL + `/users/edit`, {
+  const response = await fetch(BACKEND_URL + `/users/edit`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
@@ -82,9 +125,14 @@ export async function editUser(
       FirstName: user.firstName,
       mailAddress: user.email,
       isCompanyAdmin: user.isAdmin,
+      isMarkedForDeletion: user.isMarkedForDeletion,
       companyId: user.company,
     }),
   });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  return response;
 }
 
 type UserResponse = {
@@ -102,6 +150,12 @@ type UserResponse = {
   };
 };
 
+/**
+ * Get user from accessToken
+ * @param accessToken The jwt token received by the backend
+ * @returns The user associated with `accessToken`
+ * @throws Error containing status code and/or error message
+ */
 export async function getUserMe(
   accessToken: String
 ): Promise<UserResponse | undefined> {
@@ -114,6 +168,8 @@ export async function getUserMe(
       Authorization: `Bearer ${accessToken}`,
     },
   });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   return response.json();
 }

@@ -5,21 +5,21 @@ import { IUser } from "../../types/users";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { getUsers, approveUser, declineUser } from "../../lib/api/UserService";
+import { getUsers, editUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 import { toast } from "react-toastify";
 
-export default function UserRequests({
-  initialUsers,
+export default function DeletedUserOverview({
+  deletedUsers,
 }: {
-  initialUsers: IUser[];
+  deletedUsers: IUser[];
 }) {
   const { data: session } = useSession();
   const [calledRouter, setCalledRouter] = useState(false);
   const router = useRouter();
   const [users, setUsers] = useState(
-    initialUsers.map((user: IUser): IUser => {
+    deletedUsers.map((user: IUser): IUser => {
       return { selected: false, ...user };
     })
   );
@@ -36,23 +36,16 @@ export default function UserRequests({
     }
   }, [router, session, calledRouter]);
 
-  const onApprovalUpdate = async (
-    selectedUsers: IUser[],
-    decision: boolean
-  ): Promise<void> => {
+  const onRestoreUpdate = async (selectedUsers: IUser[]): Promise<void> => {
     if (!session) return;
     try {
       for (const user of selectedUsers) {
-        const response: Response = decision
-          ? await approveUser(session, user.userId)
-          : await declineUser(session, user.userId);
+        await restoreUser(user);
       }
 
       // success
       toast.success(
-        `${selectedUsers.length > 1 ? "Users" : "User"} successfully ${
-          decision ? "approved" : "rejected"
-        }!`
+        `${selectedUsers.length > 1 ? "Users" : "User"} successfully restored!`
       );
       setUsers(
         users.filter(
@@ -64,6 +57,16 @@ export default function UserRequests({
     }
   };
 
+  const restoreUser = async (user: IUser): Promise<void> => {
+    if (!session) return;
+    user.isMarkedForDeletion = false;
+    try {
+      const response: Response = await editUser(session, user);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   if (!session?.user?.isAdmin) {
     //TODO: Add loading animation
     return <div>Loading...</div>;
@@ -72,12 +75,12 @@ export default function UserRequests({
   return (
     <>
       <Head>
-        <title>User Requests</title>
+        <title>Archived Users</title>
       </Head>
-      <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
+      <h1 className="text-3xl font-bold text-center my-10">Archived Users</h1>
       <UsersTable
         users={users}
-        onApprovalUpdate={onApprovalUpdate}
+        onRestoreUpdate={onRestoreUpdate}
         onUsersSelection={setUsers}
       />
     </>
@@ -103,7 +106,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     const users = await getUsers(session);
     return {
       props: {
-        initialUsers: users.filter((user: IUser) => !user.isApproved),
+        deletedUsers: users.filter((user: IUser) => user.isMarkedForDeletion),
       },
     };
   } catch (error) {

@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useState, Fragment } from "react";
+import { toast } from "react-toastify";
 import { getDesks, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -78,9 +79,12 @@ export default function Filterbar({
       return;
     }
 
-    const floors = await getFloors(session, selectedBuilding.buildingId);
-
-    setFloors(floors);
+    try {
+      const floors = await getFloors(session, selectedBuilding.buildingId);
+      setFloors(floors);
+    } catch (error) {
+      toast.error(`${error}`);
+    }
     setSelectedFloor(null);
   }
 
@@ -97,37 +101,40 @@ export default function Filterbar({
       return;
     }
 
-    const rooms = await getRooms(session, selectedFloor.floorId);
+    try {
+      const rooms = await getRooms(session, selectedFloor.floorId);
+      setRooms(rooms);
+    } catch (error) {
+      toast.error(`${error}`);
+    }
 
-    setRooms(rooms);
     setSelectedRoom(null);
   }
 
   async function setSelectedRoom(selectedRoom: IRoom | null) {
     _setSelectedRoom(selectedRoom);
-    if (!selectedRoom) {
-      return;
+    if (!selectedRoom) return;
+
+    if (!session) return setRooms([]);
+
+    try {
+      const desks = await getDesks(
+        session,
+        selectedRoom.roomId,
+        startDateTime.getTime(),
+        endDateTime.getTime()
+      );
+
+      const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+
+      setDeskTypes(deskTypes);
+      setSelectedDeskType(null); // Equals all there
+
+      setDesks(filteredDesks);
+      setFilteredDesks(filteredDesks);
+    } catch (error) {
+      toast.error(`${error}`);
     }
-
-    if (!session) {
-      setRooms([]);
-      return;
-    }
-
-    const desks = await getDesks(
-      session,
-      selectedRoom.roomId,
-      startDateTime.getTime(),
-      endDateTime.getTime()
-    );
-
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
-
-    setDeskTypes(deskTypes);
-    setSelectedDeskType(null); // Equals all there
-
-    setDesks(filteredDesks);
-    setFilteredDesks(filteredDesks);
   }
 
   function setSelectedDeskType(selectedDeskType: IDeskType | null) {
