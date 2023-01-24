@@ -4,7 +4,7 @@ services:
     build:
       context: ./deskstar-frontend
     ports:
-      - 3000:3000
+      - ${FRONTEND_EXTERN_PORT:-3000}:3000
     environment:
       - NEXT_PUBLIC_BACKEND_URL
       - NEXTAUTH_SECRET
@@ -19,7 +19,7 @@ services:
     build:
       context: ./deskstar-backend/Deskstar
     ports:
-      - 3001:80
+      - ${BACKEND_EXTERN_PORT:-3001}:80
     environment:
       - ASPNETCORE_ENVIRONMENT
       - DB__HOST
