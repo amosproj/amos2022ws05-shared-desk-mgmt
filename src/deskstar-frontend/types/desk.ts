@@ -9,6 +9,7 @@ export interface IDesk {
   buildingId: string;
   buildingName: string;
   location: string;
+  isMarkedForDeletion: boolean;
   bookings: IDeskBooking[];
 }
 

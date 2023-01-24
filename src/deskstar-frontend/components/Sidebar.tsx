@@ -43,6 +43,16 @@ const adminNavItems = [
   {
     name: "Resource Management",
     href: "/resources",
+    subNavItems: [
+      {
+        name: "Overview",
+        href: "/resources",
+      },
+      {
+        name: "Archived Resources",
+        href: "/resources/restoration",
+      },
+    ],
   },
 ];
 

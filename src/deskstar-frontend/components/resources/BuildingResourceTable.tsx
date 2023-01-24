@@ -7,10 +7,12 @@ const BuildingResourceTable = ({
   buildings,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   buildings: IBuilding[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (building: IBuilding) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -30,6 +32,7 @@ const BuildingResourceTable = ({
               building={building}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -42,10 +45,12 @@ const BuildingResourceTableEntry = ({
   building,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   building: IBuilding;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (building: IBuilding) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -65,6 +70,9 @@ const BuildingResourceTableEntry = ({
             <button className="btn btn-ghost" onClick={() => onEdit(building)}>
               <FaEdit />
             </button>
+          )}
+          {onRestoreUpdate && (
+            <th className="bg-deskstar-green-light text-center">Restore</th>
           )}
         </td>
       )}

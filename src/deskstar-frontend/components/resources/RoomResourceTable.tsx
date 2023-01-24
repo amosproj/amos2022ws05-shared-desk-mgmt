@@ -6,10 +6,12 @@ const RoomResourceTable = ({
   rooms,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   rooms: IRoom[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (room: IRoom) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -31,6 +33,7 @@ const RoomResourceTable = ({
               room={room}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -43,10 +46,12 @@ const RoomResourceTableEntry = ({
   room,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   room: IRoom;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (room: IRoom) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -65,6 +70,9 @@ const RoomResourceTableEntry = ({
             <button className="btn btn-ghost" onClick={() => onEdit(room)}>
               <FaEdit />
             </button>
+          )}
+          {onRestoreUpdate && (
+            <th className="bg-deskstar-green-light text-center">Restore</th>
           )}
         </td>
       )}

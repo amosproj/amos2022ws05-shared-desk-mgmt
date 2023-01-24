@@ -14,7 +14,6 @@ import DeskResourceTable from "../../components/resources/DeskResourceTable";
 import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
-import { deleteBooking } from "../../lib/api/BookingService";
 import {
   getBuildings,
   getDesks,

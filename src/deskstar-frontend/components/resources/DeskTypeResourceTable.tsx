@@ -6,10 +6,12 @@ const DeskTypeResourceTable = ({
   deskTypes: deskTypes,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   deskTypes: IDeskType[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (desktype: IDeskType) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -28,6 +30,7 @@ const DeskTypeResourceTable = ({
               deskType={deskType}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -40,10 +43,12 @@ const DeksTypeTableEntry = ({
   deskType,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   deskType: IDeskType;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (desktype: IDeskType) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -62,6 +67,9 @@ const DeksTypeTableEntry = ({
             <button className="btn btn-ghost" onClick={() => onEdit(deskType)}>
               <FaEdit />
             </button>
+          )}
+          {onRestoreUpdate && (
+            <th className="bg-deskstar-green-light text-center">Restore</th>
           )}
         </td>
       )}
