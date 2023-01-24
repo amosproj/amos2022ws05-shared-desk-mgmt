@@ -80,11 +80,12 @@ export default function AddBooking({
     try {
       await createBooking(session, desk.deskId, startDateTime, endDateTime);
 
-      const message = `You successfully booked the desk ${desk.deskName} from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
+      const message = `You successfully booked the desk ${
+        desk.deskName
+      } from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
       event.target.setAttribute("class", "btn btn-disabled");
       setButtonText("Booked");
       toast.success(message);
-
     } catch (error) {
       console.error(error);
       toast.error(`${error}`);
