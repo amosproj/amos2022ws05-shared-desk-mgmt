@@ -5,12 +5,13 @@ namespace Deskstar.Models;
 
 public enum LoginReturn{
     NotYetApproved,
-    CreditialsWrong,
+    CredentialsWrong,
+    Deleted,
     Ok
 }
 public class LoginResponse
 {
-    
+
     [Required]
     public LoginReturn Message{ get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using Deskstar.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Deskstar.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230122113352_deleteRessources")]
+    partial class deleteRessources
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,9 +77,7 @@ namespace Deskstar.Migrations
                         .HasColumnName("CompanyID");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Location")
                         .IsRequired()
@@ -127,9 +127,7 @@ namespace Deskstar.Migrations
                         .HasColumnName("DeskTypeID");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uuid")
@@ -161,9 +159,7 @@ namespace Deskstar.Migrations
                         .HasColumnType("character varying");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.HasKey("DeskTypeId");
 
@@ -189,9 +185,7 @@ namespace Deskstar.Migrations
                         .HasColumnType("character varying");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.HasKey("FloorId");
 
@@ -236,9 +230,7 @@ namespace Deskstar.Migrations
                         .HasColumnName("FloorID");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
+                        .HasColumnType("boolean");
 
                     b.Property<string>("RoomName")
                         .IsRequired()
@@ -278,9 +270,7 @@ namespace Deskstar.Migrations
                         .HasDefaultValueSql("false");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValueSql("false");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .IsRequired()

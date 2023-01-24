@@ -96,7 +96,7 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result.Message, Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.CredentialsWrong));
 
         //cleanup
         mogDB.Database.EnsureDeleted();
@@ -121,10 +121,37 @@ public class AuthUseCasesTests
 
 
         //assert
-        Assert.That(result.Message, Is.EqualTo(LoginReturn.CreditialsWrong));
+        Assert.That(result.Message, Is.EqualTo(LoginReturn.CredentialsWrong));
 
         //cleanup
         mogDB.Database.EnsureDeleted();
+    }
+
+    [Test]
+    public void CheckCredentials_DeletedUser()
+    {
+      //setup
+      using var mogDB = new DataContext();
+      AddOneCompany_AddOneUser(mogDB, new PasswordHasher<User>());
+
+      //arrange
+      var logger = new Mock<ILogger<AuthUsecases>>();
+      var subject = new AuthUsecases(logger.Object, mogDB);
+
+      const string mail = "test@mail.de";
+      const string pw = "testpw";
+
+      mogDB.Users.Single(u => u.MailAddress.Equals(mail)).IsMarkedForDeletion = true;
+
+      //act
+      var result = subject.CheckCredentials(mail, pw);
+
+
+      //assert
+      Assert.That(result.Message, Is.EqualTo(LoginReturn.Deleted));
+
+      //cleanup
+      mogDB.Database.EnsureDeleted();
     }
 
     [Test]
