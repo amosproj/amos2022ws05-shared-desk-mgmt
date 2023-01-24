@@ -354,20 +354,6 @@ export async function deleteDeskType(
   });
 }
 
-export async function deleteDeskType(
-  session: Session,
-  deskTypeId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/desktypes/${deskTypeId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-  });
-}
-
-
-
 /**
  * Creates a desk
  * @param session The user session
