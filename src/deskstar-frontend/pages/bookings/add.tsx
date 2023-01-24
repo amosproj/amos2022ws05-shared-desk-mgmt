@@ -78,30 +78,16 @@ export default function AddBooking({
     event.target.setAttribute("class", "btn loading");
 
     try {
-      let message;
+      await createBooking(session, desk.deskId, startDateTime, endDateTime);
 
-      let response = await createBooking(
-        session,
-        desk.deskId,
-        startDateTime,
-        endDateTime
-      );
+      const message = `You successfully booked the desk ${desk.deskName} from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
+      event.target.setAttribute("class", "btn btn-disabled");
+      setButtonText("Booked");
+      toast.success(message);
 
-      if (response == "success") {
-        message = `You successfully booked the desk ${
-          desk.deskName
-        } from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
-        event.target.setAttribute("class", "btn btn-disabled");
-        setButtonText("Booked");
-        toast.success(message);
-      } else {
-        console.log(response);
-        message = response;
-        event.target.setAttribute("class", "btn btn-success");
-        toast.error(message);
-      }
     } catch (error) {
-      toast.error(`Error calling createBooking: ${error}`);
+      console.error(error);
+      toast.error(`${error}`);
       event.target.setAttribute("class", "btn btn-success");
     }
   }
@@ -221,19 +207,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
-    const buildings = await getBuildings(session);
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
 
+  try {
+    const buildings = await getBuildings(session);
     return {
       props: {
         buildings,
       },
     };
+  } catch (error) {
+    return {
+      redirect: {
+        destination: "500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      buildings: [],
-    },
-  };
 };

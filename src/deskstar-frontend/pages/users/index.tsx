@@ -58,58 +58,47 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   }
 
   async function doDelete() {
-    if (user) {
-      if (session == null) return;
-      let result = await deleteUser(session, user.userId);
+    if (!user || !session) return toast.error("Error: Couldn't delete user!");
 
-      if (result.ok) {
-        toast.success(`User ${user.firstName} ${user.lastName} deleted!`);
-
-        // Remove the user from userList
-        setUserList(userList.filter((u) => user.userId !== u.userId));
-      } else {
-        toast.error(
-          `User ${user.firstName} ${user.lastName} could not be deleted!`
-        );
-      }
+    try {
+      await deleteUser(session, user.userId);
+      toast.success(`User ${user.firstName} ${user.lastName} deleted!`);
+      // Remove the user from userList
+      setUserList(userList.filter((u) => user.userId !== u.userId));
+    } catch (error) {
+      toast.error(`${error}`);
     }
   }
 
   async function doChangePermissions() {
-    if (user) {
-      if (session == null) return;
+    if (!user || !session) return;
 
-      // Toggle isAdmin
-      const newUser = {
-        ...user,
-        isAdmin: !user.isAdmin,
-      };
+    // Toggle isAdmin
+    const newUser = {
+      ...user,
+      isAdmin: !user.isAdmin,
+    };
 
-      setUser(newUser);
+    setUser(newUser);
 
-      let result = await editUser(session, newUser);
+    try {
+      await editUser(session, newUser);
+      toast.success(`User ${user.firstName} ${user.lastName} updated!`);
 
-      if (result.ok) {
-        toast.success(`User ${user.firstName} ${user.lastName} updated!`);
-
-        // Change the user in userList
-        setUserList(
-          userList.map((u) => (newUser.userId === u.userId ? newUser : u))
-        );
-      } else {
-        toast.error(
-          `User ${user.firstName} ${user.lastName} could not be updated!`
-        );
-      }
+      // Change the user in userList
+      setUserList(
+        userList.map((u) => (newUser.userId === u.userId ? newUser : u))
+      );
+    } catch (error) {
+      toast.error(`${error}`);
     }
   }
 
   async function doEdit(newUser: IUser): Promise<boolean> {
     if (session == null) return false;
 
-    let result = await editUser(session, newUser);
-
-    if (result.ok) {
+    try {
+      await editUser(session, newUser);
       setUser(newUser);
 
       toast.success(`User ${newUser.firstName} ${newUser.lastName} updated!`);
@@ -121,12 +110,10 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         )
       );
       return true;
-    } else {
-      toast.error(
-        `User ${newUser.firstName} ${newUser.lastName} could not be updated!`
-      );
+    } catch (error) {
+      toast.error(`${error}`);
+      return false;
     }
-    return false;
   }
 
   return (
@@ -177,7 +164,6 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   );
 }
 
-//TODO: delete this when using backend data instead of mockup
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
@@ -185,19 +171,31 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  try {
     const users = await getUsers(session);
 
     return {
       props: {
-        users: users.filter((user: IUser) => user.isApproved),
+        users: users.filter(
+          (user: IUser) => user.isApproved && !user.isMarkedForDeletion
+        ),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      redirect: {
+        destination: "/500",
+        permanent: false,
       },
     };
   }
-
-  return {
-    props: {
-      users: [],
-    },
-  };
 };
