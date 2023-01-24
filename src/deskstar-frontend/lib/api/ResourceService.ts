@@ -189,16 +189,42 @@ export async function createBuilding(
   return result;
 }
 
+/**
+ * Delete a building
+ * @param session The user session
+ * @param deskTypeId The id of the building to delete
+ * @returns
+ */
 export async function deleteBuilding(
   session: Session,
   buildingId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/buildings/${buildingId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-  });
+): Promise<ICreateResourceResult> {
+  const response = await fetch(
+    BACKEND_URL + `/resources/buildings/${buildingId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted floor with id '${buildingId}'`,
+    };
+  }
+
+  return result;
 }
 
 /**
@@ -240,16 +266,39 @@ export async function createFloor(
   return result;
 }
 
+/**
+ * Delete a floor
+ * @param session The user session
+ * @param deskTypeId The id of the floor to delete
+ * @returns
+ */
 export async function deleteFloor(
   session: Session,
   floorId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/floors/${floorId}`, {
+): Promise<ICreateResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/floors/${floorId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted floor with id '${floorId}'`,
+    };
+  }
+
+  return result;
 }
 
 /**
@@ -291,16 +340,39 @@ export async function createRoom(
   return result;
 }
 
+/**
+ * Delete a room
+ * @param session The user session
+ * @param deskTypeId The id of the room to delete
+ * @returns
+ */
 export async function deleteRoom(
   session: Session,
   roomId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/rooms/${roomId}`, {
+): Promise<ICreateResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/rooms/${roomId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted room with id '${roomId}'`,
+    };
+  }
+
+  return result;
 }
 
 /**
@@ -342,16 +414,42 @@ export async function createDeskType(
   return result;
 }
 
+/**
+ * Delete a deskType
+ * @param session The user session
+ * @param deskTypeId The id of the deskType to delete
+ * @returns
+ */
 export async function deleteDeskType(
   session: Session,
   deskTypeId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/desktypes/${deskTypeId}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-  });
+): Promise<ICreateResourceResult> {
+  const response = await fetch(
+    BACKEND_URL + `/resources/desktypes/${deskTypeId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted desktype with id '${deskTypeId}'`,
+    };
+  }
+
+  return result;
 }
 
 /**
@@ -393,14 +491,37 @@ export async function createDesk(
   return result;
 }
 
+/**
+ * Delete a desk
+ * @param session The user session
+ * @param deskTypeId The id of the desk to delete
+ * @returns
+ */
 export async function deleteDesk(
   session: Session,
   deskId: string
-): Promise<Response> {
-  return fetch(BACKEND_URL + `/resources/desks/${deskId}`, {
+): Promise<ICreateResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/desks/${deskId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
   });
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted desk with id '${deskId}'`,
+    };
+  }
+
+  return result;
 }

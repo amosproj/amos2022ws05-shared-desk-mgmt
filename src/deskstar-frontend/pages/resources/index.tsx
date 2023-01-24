@@ -26,6 +26,7 @@ import {
   deleteRoom,
   deleteDesk,
   deleteDeskType,
+  ResourceResponse,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
@@ -230,14 +231,15 @@ const ResourceOverview = ({
       if (session == null) return;
       let result = await deleteBuilding(session, building.buildingId);
 
-      if (result.ok) {
-        toast.success(`Building ${building.buildingName} deleted!`);
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
 
         // Remove the building from buildingList
         setBuildings(
           buildings.filter((b) => b.buildingId !== building.buildingId)
         );
       } else {
+        console.error(result.message);
         toast.error(`Building ${building.buildingName} could not be deleted!`);
       }
     }
@@ -247,12 +249,13 @@ const ResourceOverview = ({
       if (session == null) return;
       let result = await deleteFloor(session, floor.floorId);
 
-      if (result.ok) {
-        toast.success(`Floor ${floor.floorName} deleted!`);
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
 
         // Remove the floor from floorList
         setFloors(floors.filter((b) => b.floorId !== floor.floorId));
       } else {
+        console.error(result.message);
         toast.error(`Floor ${floor.floorName} could not be deleted!`);
       }
     }
@@ -262,12 +265,13 @@ const ResourceOverview = ({
       if (session == null) return;
       let result = await deleteRoom(session, room.roomName);
 
-      if (result.ok) {
-        toast.success(`Room ${room.roomName} deleted!`);
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
 
         // Remove the room from roomList
         setRooms(rooms.filter((b) => b.roomId !== room.roomId));
       } else {
+        console.error(result.message);
         toast.error(`Room ${room.roomName} could not be deleted!`);
       }
     }
@@ -277,12 +281,13 @@ const ResourceOverview = ({
       if (session == null) return;
       let result = await deleteDesk(session, desk.deskId);
 
-      if (result.ok) {
-        toast.success(`Desk ${desk.deskName} deleted!`);
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
 
         // Remove the desk from deskList
         setDesks(desks.filter((b) => b.deskId !== desk.deskId));
       } else {
+        console.error(result.message);
         toast.error(`Desk ${desk.deskName} could not be deleted!`);
       }
     }
@@ -292,12 +297,13 @@ const ResourceOverview = ({
       if (session == null) return;
       let result = await deleteDeskType(session, deskType.deskTypeId);
 
-      if (result.ok) {
-        toast.success(`Desktype ${deskType.deskTypeName} deleted!`);
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
 
         // Remove the deskType from deskTypeList
         setDesks(desks.filter((b) => b.deskId !== deskType.deskTypeId));
       } else {
+        console.error(result.message);
         toast.error(`Desktype ${deskType.deskTypeName} could not be deleted!`);
       }
     }
