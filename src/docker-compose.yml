@@ -3,6 +3,8 @@ services:
     container_name: deskstar_frontend
     build:
       context: ./deskstar-frontend
+      args:
+        - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
     ports:
       - ${FRONTEND_EXTERN_PORT:-3000}:3000
     environment:
