@@ -74,6 +74,11 @@ namespace Deskstar.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("CompanyID");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("character varying");
@@ -121,6 +126,11 @@ namespace Deskstar.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("DeskTypeID");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<Guid>("RoomId")
                         .HasColumnType("uuid")
                         .HasColumnName("RoomID");
@@ -150,6 +160,11 @@ namespace Deskstar.Migrations
                         .IsRequired()
                         .HasColumnType("character varying");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.HasKey("DeskTypeId");
 
                     b.HasIndex("CompanyId");
@@ -172,6 +187,11 @@ namespace Deskstar.Migrations
                     b.Property<string>("FloorName")
                         .IsRequired()
                         .HasColumnType("character varying");
+
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.HasKey("FloorId");
 
@@ -215,6 +235,11 @@ namespace Deskstar.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("FloorID");
 
+                    b.Property<bool>("IsMarkedForDeletion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("RoomName")
                         .IsRequired()
                         .HasColumnType("character varying");
@@ -253,7 +278,9 @@ namespace Deskstar.Migrations
                         .HasDefaultValueSql("false");
 
                     b.Property<bool>("IsMarkedForDeletion")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValueSql("false");
 
                     b.Property<string>("LastName")
                         .IsRequired()

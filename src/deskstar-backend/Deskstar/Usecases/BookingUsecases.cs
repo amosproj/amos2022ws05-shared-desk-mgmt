@@ -76,6 +76,10 @@ public class BookingUsecases : IBookingUsecases
             // throw an exception that deks was not found with error code 404
             throw new ArgumentException("Desk not found");
         }
+        if(desk.IsMarkedForDeletion)
+        {
+            throw new ArgumentException("Desk is marked for deletion");
+        }
 
         // check if user exists
         var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
@@ -84,7 +88,7 @@ public class BookingUsecases : IBookingUsecases
             throw new ArgumentException("User not found");
         }
 
-        // check if desk available
+        // check if desk availabe
         var bookings = _context.Bookings.Where(b => b.DeskId == bookingRequest.DeskId);
         var timeSlotAvailable = bookings.All(b => b.StartTime >= bookingRequest.EndTime || b.EndTime <= bookingRequest.StartTime);
         if (!timeSlotAvailable)

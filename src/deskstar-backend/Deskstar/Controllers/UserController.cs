@@ -42,7 +42,7 @@ public class UserController : ControllerBase
     /// Sample request:
     ///     Get /users with JWT Token
     /// </remarks>
-    /// 
+    ///
     /// <response code="200">List of user information in JSON Format</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -84,7 +84,7 @@ public class UserController : ControllerBase
     /// Sample request:
     ///     Get /users/me with JWT Token
     /// </remarks>
-    /// 
+    ///
     /// <response code="200">Returns information about the logged in user</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
@@ -248,7 +248,7 @@ public class UserController : ControllerBase
         {
             var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
             var user = mapper.Map<UserProfileDto, User>(userDto);
-            
+
             _userUsecases.UpdateUser(userId, user);
 
             return Ok();
@@ -264,7 +264,7 @@ public class UserController : ControllerBase
             return Problem(statusCode: 500);
         }
     }
-    
+
     /// <summary>
     /// Update given user information
     /// </summary>
@@ -317,7 +317,7 @@ public class UserController : ControllerBase
             return Problem(statusCode: 500);
         }
     }
-    
+
     /// <summary>
     /// Delete given user
     /// </summary>
@@ -330,7 +330,7 @@ public class UserController : ControllerBase
     /// <response code="200">Empty Response</response>
     /// <response code="404">Not Found</response>
     /// <response code="500">Internal Server Error</response>
-    [HttpDelete("delete/{userId}")]
+    [HttpDelete("{userId}")]
     [Authorize(Policy = "Admin")]
     [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

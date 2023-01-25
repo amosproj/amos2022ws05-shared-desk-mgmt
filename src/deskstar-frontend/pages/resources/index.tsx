@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AddResourceModal from "../../components/AddResourceModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
@@ -13,12 +14,19 @@ import DeskResourceTable from "../../components/resources/DeskResourceTable";
 import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
+import { deleteBooking } from "../../lib/api/BookingService";
 import {
   getBuildings,
   getDesks,
   getDeskTypes,
   getFloors,
   getRooms,
+  deleteBuilding,
+  deleteFloor,
+  deleteRoom,
+  deleteDesk,
+  deleteDeskType,
+  ResourceResponse,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
@@ -48,6 +56,14 @@ const ResourceOverview = ({
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
+
+  const [building, setBuilding] = useState<IBuilding>();
+  const [floor, setFloor] = useState<IFloor>();
+  const [room, setRoom] = useState<IRoom>();
+  const [desk, setDesk] = useState<IDesk>();
+  const [deskType, setDeskType] = useState<IDeskType>();
+
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const resourceOptions = [
     "Buildings",
@@ -81,11 +97,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedBuildings.map(async (building) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resFloors;
+        try {
+          resFloors = await getFloors(session, building.buildingId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resFloors = await getFloors(session, building.buildingId);
         const enrichedFloors = resFloors.map((floor) => {
           floor.buildingName = building.buildingName;
           floor.location = building.location;
@@ -104,11 +125,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedFloors.map(async (floor) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resRooms;
+        try {
+          resRooms = await getRooms(session, floor.floorId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorId);
         const enrichedRooms = resRooms.map((room) => {
           room.building = floor.buildingName;
           room.location = floor.location;
@@ -131,19 +157,27 @@ const ResourceOverview = ({
           return [];
         }
 
-        const resDeskType = await getDesks(
-          session,
-          room.roomId,
-          new Date().getTime(),
-          new Date().getTime()
-        );
+        let resDeskType;
+        try {
+          resDeskType = await getDesks(
+            session,
+            room.roomId,
+            new Date().getTime(),
+            new Date().getTime()
+          );
+        } catch (error) {
+          toast.error(`${error}`);
+          return [];
+        }
 
         return resDeskType;
       })
     );
 
     const desks = promises.flat();
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => desk.bookings.length === 0
+    );
     setDesks(filteredDesks);
     stopFetchingAnimation();
   }
@@ -158,14 +192,121 @@ const ResourceOverview = ({
     }
   }, [router, session]);
 
-  const onEdit = async (resource: object): Promise<void> => {
+  const onEdit = async (resource: IDesk): Promise<void> => {
     //TODO: Implement
     toast.success(`Editing resource...`);
   };
 
-  const onDelete = async (resource: object): Promise<void> => {
-    //TODO: Implement
-    toast.success(`Deleting resource...`);
+  const onDelete = async (resource: Object): Promise<void> => {
+    if (isInstanceOfIBuilding(resource)) setBuilding(resource);
+    if (isInstanceOfIFloor(resource)) setFloor(resource);
+    if (isInstanceOfIRoom(resource)) setRoom(resource);
+    if (isInstanceOfIDesk(resource)) setDesk(resource);
+    if (isInstanceOfIDeskType(resource)) setDeskType(resource);
+    setDeleteModalOpen(true);
+  };
+
+  function isInstanceOfIBuilding(object: Object): object is IBuilding {
+    return true;
+  }
+
+  function isInstanceOfIFloor(object: Object): object is IFloor {
+    return true;
+  }
+
+  function isInstanceOfIRoom(object: Object): object is IRoom {
+    return true;
+  }
+
+  function isInstanceOfIDesk(object: Object): object is IDesk {
+    return true;
+  }
+
+  function isInstanceOfIDeskType(object: Object): object is IDeskType {
+    return true;
+  }
+
+  const doDeleteBuilding = async (): Promise<void> => {
+    if (building) {
+      if (session == null) return;
+      let result = await deleteBuilding(session, building.buildingId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the building from buildingList
+        setBuildings(
+          buildings.filter((b) => b.buildingId !== building.buildingId)
+        );
+      } else {
+        console.error(result.message);
+        toast.error(`Building ${building.buildingName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteFloor = async (): Promise<void> => {
+    if (floor) {
+      if (session == null) return;
+      let result = await deleteFloor(session, floor.floorId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the floor from floorList
+        setFloors(floors.filter((b) => b.floorId !== floor.floorId));
+      } else {
+        console.error(result.message);
+        toast.error(`Floor ${floor.floorName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteRoom = async (): Promise<void> => {
+    if (room) {
+      if (session == null) return;
+      let result = await deleteRoom(session, room.roomName);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the room from roomList
+        setRooms(rooms.filter((b) => b.roomId !== room.roomId));
+      } else {
+        console.error(result.message);
+        toast.error(`Room ${room.roomName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDesk = async (): Promise<void> => {
+    if (desk) {
+      if (session == null) return;
+      let result = await deleteDesk(session, desk.deskId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the desk from deskList
+        setDesks(desks.filter((b) => b.deskId !== desk.deskId));
+      } else {
+        console.error(result.message);
+        toast.error(`Desk ${desk.deskName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDeskType = async (): Promise<void> => {
+    if (deskType) {
+      if (session == null) return;
+      let result = await deleteDeskType(session, deskType.deskTypeId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the deskType from deskTypeList
+        setDesks(desks.filter((b) => b.deskId !== deskType.deskTypeId));
+      } else {
+        console.error(result.message);
+        toast.error(`Desktype ${deskType.deskTypeName} could not be deleted!`);
+      }
+    }
   };
 
   const getIndex = (resourceName: string | null): number => {
@@ -267,6 +408,16 @@ const ResourceOverview = ({
               deskTypes={origDeskTypes}
             />
           )}
+          <ConfirmModal
+            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDeskType}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Desks" && (
@@ -278,6 +429,16 @@ const ResourceOverview = ({
               desks={desks}
             />
           )}
+          <ConfirmModal
+            title={"Delete Desk " + desk?.deskName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDesk}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Rooms" && (
@@ -289,6 +450,16 @@ const ResourceOverview = ({
               rooms={rooms}
             />
           )}
+          <ConfirmModal
+            title={"Delete Room " + room?.roomName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteRoom}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Floors" && (
@@ -300,6 +471,16 @@ const ResourceOverview = ({
               floors={floors}
             />
           )}
+          <ConfirmModal
+            title={"Delete Floor " + floor?.floorName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteFloor}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
 
@@ -312,9 +493,18 @@ const ResourceOverview = ({
               buildings={buildings}
             />
           )}
+          <ConfirmModal
+            title={"Delete Building " + building?.buildingName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteBuilding}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
-
       {buildings.length == 0 && (
         <div className="toast">
           <div className="alert bg-deskstar-green-dark text-black">
@@ -354,7 +544,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  try {
     const buildings = await getBuildings(session);
     const deskTypes = await getDeskTypes(session);
     return {
@@ -363,14 +561,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         deskTypes,
       },
     };
+  } catch (error) {
+    console.error(error);
+    return {
+      redirect: {
+        destination: "/500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      buildings: [],
-      deskTypes: [],
-    },
-  };
 };
 
 export default ResourceOverview;

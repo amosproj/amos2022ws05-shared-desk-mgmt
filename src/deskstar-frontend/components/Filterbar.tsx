@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import { useState, Fragment } from "react";
+import { toast } from "react-toastify";
 import { getDesks, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -27,8 +28,10 @@ export default function Filterbar({
   setFilteredDesks,
 }: FilterbarProps) {
   const { data: session } = useSession();
-
-  const locations: ILocation[] = origBuildings.map((building) => ({
+  let initBuildings = origBuildings.filter(
+    (building) => !building.isMarkedForDeletion
+  );
+  const locations: ILocation[] = initBuildings.map((building) => ({
     locationName: building.location,
   }));
   const [selectedLocation, _setSelectedLocation] = useState<ILocation | null>(
@@ -57,7 +60,7 @@ export default function Filterbar({
     }
     _setSelectedLocation(selectedLocation);
 
-    let buildings = origBuildings.filter(
+    let buildings = initBuildings.filter(
       (building) => selectedLocation.locationName === building.location
     );
 
@@ -78,9 +81,13 @@ export default function Filterbar({
       return;
     }
 
-    const floors = await getFloors(session, selectedBuilding.buildingId);
-
-    setFloors(floors);
+    try {
+      let floors = await getFloors(session, selectedBuilding.buildingId);
+      floors = floors.filter((floor) => !floor.isMarkedForDeletion);
+      setFloors(floors);
+    } catch (error) {
+      toast.error(`${error}`);
+    }
     setSelectedFloor(null);
   }
 
@@ -97,37 +104,43 @@ export default function Filterbar({
       return;
     }
 
-    const rooms = await getRooms(session, selectedFloor.floorId);
+    try {
+      let rooms = await getRooms(session, selectedFloor.floorId);
+      rooms = rooms.filter((room) => !room.isMarkedForDeletion);
+      setRooms(rooms);
+    } catch (error) {
+      toast.error(`${error}`);
+    }
 
-    setRooms(rooms);
     setSelectedRoom(null);
   }
 
   async function setSelectedRoom(selectedRoom: IRoom | null) {
     _setSelectedRoom(selectedRoom);
-    if (!selectedRoom) {
-      return;
+    if (!selectedRoom) return;
+
+    if (!session) return setRooms([]);
+
+    try {
+      const desks = await getDesks(
+        session,
+        selectedRoom.roomId,
+        startDateTime.getTime(),
+        endDateTime.getTime()
+      );
+
+      const filteredDesks = desks.filter(
+        (desk) => desk.bookings.length === 0 && !desk.isMarkedForDeletion
+      );
+
+      setDeskTypes(deskTypes);
+      setSelectedDeskType(null); // Equals all there
+
+      setDesks(filteredDesks);
+      setFilteredDesks(filteredDesks);
+    } catch (error) {
+      toast.error(`${error}`);
     }
-
-    if (!session) {
-      setRooms([]);
-      return;
-    }
-
-    const desks = await getDesks(
-      session,
-      selectedRoom.roomId,
-      startDateTime.getTime(),
-      endDateTime.getTime()
-    );
-
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
-
-    setDeskTypes(deskTypes);
-    setSelectedDeskType(null); // Equals all there
-
-    setDesks(filteredDesks);
-    setFilteredDesks(filteredDesks);
   }
 
   function setSelectedDeskType(selectedDeskType: IDeskType | null) {
@@ -137,22 +150,24 @@ export default function Filterbar({
       return;
     }
 
-    const filteredDesks = desks.filter(
+    let filteredDesks = desks.filter(
       (desk) => desk.deskTyp === selectedDeskType.deskTypeName
     );
-
+    filteredDesks = filteredDesks.filter(
+      (deskType) => !deskType.isMarkedForDeletion
+    );
     setFilteredDesks(filteredDesks);
   }
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 my-4">
         <FilterListbox
           items={locations}
           selectedItem={selectedLocation}
           setSelectedItem={setSelectedLocation}
           getName={(location) =>
-            location ? location.locationName : "Kein Ort ausgewählt"
+            location ? location.locationName : "Select location"
           }
         />
 
@@ -161,9 +176,7 @@ export default function Filterbar({
             items={buildings}
             selectedItem={selectedBuilding}
             setSelectedItem={setSelectedBuilding}
-            getName={(building) =>
-              building?.buildingName ?? "Kein Gebäude ausgewählt"
-            }
+            getName={(building) => building?.buildingName ?? "Select building"}
             getKey={(building) => building?.buildingId}
           />
         )}
@@ -173,7 +186,7 @@ export default function Filterbar({
             items={floors}
             selectedItem={selectedFloor}
             setSelectedItem={setSelectedFloor}
-            getName={(floor) => floor?.floorName ?? "Kein Stockwerk ausgewählt"}
+            getName={(floor) => floor?.floorName ?? "Select floor"}
             getKey={(floor) => floor?.floorId}
           />
         )}
@@ -183,7 +196,7 @@ export default function Filterbar({
             items={rooms}
             selectedItem={selectedRoom}
             setSelectedItem={setSelectedRoom}
-            getName={(room) => room?.roomName ?? "Kein Raum ausgewählt"}
+            getName={(room) => room?.roomName ?? "Select room"}
             getKey={(room) => room?.roomId}
           />
         )}
@@ -193,45 +206,12 @@ export default function Filterbar({
             items={deskTypes}
             selectedItem={selectedDeskType}
             setSelectedItem={setSelectedDeskType}
-            getName={(deskType) =>
-              deskType?.deskTypeName ?? "Kein Schreibtischtyp ausgewählt"
-            }
+            getName={(deskType) => deskType?.deskTypeName ?? "Select desktype"}
             getKey={(deskType) => deskType.deskTypeId}
             allOption={true}
           />
         )}
       </div>
-
-      <div className="my-4"></div>
-
-      {buildings.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a location</span>
-          </div>
-        </div>
-      )}
-      {!(buildings.length == 0) && floors.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a building</span>
-          </div>
-        </div>
-      )}
-      {!(floors.length == 0) && rooms.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a floor</span>
-          </div>
-        </div>
-      )}
-      {!(rooms.length == 0) && deskTypes.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a room</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

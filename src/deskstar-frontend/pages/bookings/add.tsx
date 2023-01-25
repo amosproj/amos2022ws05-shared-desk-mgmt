@@ -1,5 +1,7 @@
 import Head from "next/head";
 
+import dayjs from "dayjs";
+
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import { unstable_getServerSession } from "next-auth";
@@ -7,12 +9,13 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { getBuildings } from "../../lib/api/ResourceService";
 import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
 import Filterbar from "../../components/Filterbar";
 import DesksTable from "../../components/DesksTable";
 import { toast } from "react-toastify";
+import { classes } from "../../lib/helpers";
 
 export default function AddBooking({
   buildings: origBuildings,
@@ -24,16 +27,31 @@ export default function AddBooking({
   const [desks, setDesks] = useState<IDesk[]>([]);
   const [filteredDesks, setFilteredDesks] = useState<IDesk[]>([]);
 
-  let today = new Date();
-  today.setHours(8, 0, 0, 0);
-  let nextBusinessDay = getNextBusinessDay(today);
+  let today = dayjs()
+    .set("minutes", 0)
+    .set("seconds", 0)
+    .set("milliseconds", 0);
+
+  today = today.add(1, "day");
+
+  // Change today to the next business day
+  if (today.day() === 0) {
+    today = today.add(1, "day");
+  } else if (today.day() === 6) {
+    today = today.add(2, "day");
+  }
+
+  const endDateTimeRef = useRef<HTMLInputElement>(null);
 
   const [startDateTime, setStartDateTime] = useState<Date>(
-    new Date(nextBusinessDay.setHours(8, 0, 0, 0))
+    today.set("hour", 8).toDate()
   );
   const [endDateTime, setEndDateTime] = useState<Date>(
-    new Date(nextBusinessDay.setHours(17, 0, 0, 0))
+    today.set("hour", 17).toDate()
   );
+  const minimumEndDateTime = useMemo(() => {
+    return dayjs(startDateTime).add(1, "hour").toDate();
+  }, [startDateTime]);
 
   async function onBook(
     event: {
@@ -49,31 +67,28 @@ export default function AddBooking({
       session == null
     )
       return;
+
+    if (endDateTime < minimumEndDateTime) {
+      toast.error(
+        "The End Time needs to be at minimum 1 hour after the start time."
+      );
+      return;
+    }
+
     event.target.setAttribute("class", "btn loading");
 
     try {
-      let message;
+      await createBooking(session, desk.deskId, startDateTime, endDateTime);
 
-      let response = await createBooking(
-        session,
-        desk.deskId,
-        startDateTime,
-        endDateTime
-      );
-
-      if (response == "success") {
-        message = `You successfully booked the desk ${desk.deskName} from ${startDateTime} to ${endDateTime}`;
-        event.target.setAttribute("class", "btn btn-disabled");
-        setButtonText("Booked");
-        toast.success(message);
-      } else {
-        console.log(response);
-        message = response;
-        event.target.setAttribute("class", "btn btn-success");
-        toast.error(message);
-      }
+      const message = `You successfully booked the desk ${
+        desk.deskName
+      } from ${startDateTime.toLocaleDateString()} ${startDateTime.toLocaleTimeString()} to ${endDateTime.toLocaleDateString()} ${endDateTime.toLocaleTimeString()}`;
+      event.target.setAttribute("class", "btn btn-disabled");
+      setButtonText("Booked");
+      toast.success(message);
     } catch (error) {
-      toast.error(`Error calling createBooking: ${error}`);
+      console.error(error);
+      toast.error(`${error}`);
       event.target.setAttribute("class", "btn btn-success");
     }
   }
@@ -96,8 +111,35 @@ export default function AddBooking({
             id="start-date-time"
             name="Start"
             defaultValue={formatDateForInputField(startDateTime)}
-            min={formatDateForInputField(today)}
-            onChange={(event) => setStartDateTime(new Date(event.target.value))}
+            min={formatDateForInputField(
+              dayjs()
+                .set("hours", 0)
+                .set("minutes", 0)
+                .set("seconds", 0)
+                .set("milliseconds", 0)
+                .toDate()
+            )}
+            onChange={(event) => {
+              setStartDateTime(dayjs(event.target.value).toDate());
+
+              let newMinimumEndTime = dayjs(event.target.value)
+                .add(1, "hour")
+                .toDate();
+
+              if (
+                endDateTimeRef.current != null &&
+                endDateTime < newMinimumEndTime
+              ) {
+                const newEndTime = dayjs(event.target.value)
+                  .add(1, "hour")
+                  .toDate();
+
+                endDateTimeRef.current.value =
+                  formatDateForInputField(newEndTime);
+
+                setEndDateTime(newEndTime);
+              }
+            }}
           />
         </div>
 
@@ -106,16 +148,29 @@ export default function AddBooking({
             <b>End: </b>
           </label>
           <input
-            className="input input-bordered"
+            className={classes(
+              "input input-bordered",
+              dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime))
+                ? "border-red-600"
+                : ""
+            )}
             type="datetime-local"
             id="end-date-time"
-            // Bind the value of the input to enddatetime
-            min={formatDateForInputField(
-              new Date(startDateTime.setHours(startDateTime.getHours() + 1))
-            )}
+            ref={endDateTimeRef}
+            min={formatDateForInputField(minimumEndDateTime)}
             defaultValue={formatDateForInputField(endDateTime)}
-            onChange={(event) => setEndDateTime(new Date(event.target.value))}
+            onChange={(event) => {
+              console.log("endDateTime: " + event.target.value);
+              console.log("endDateTime: " + event.target.value);
+
+              setEndDateTime(dayjs(event.target.value).toDate());
+            }}
           />
+          {dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime)) && (
+            <span className="text-red-600 ml-2">
+              The End Time needs to be at minimum 1 hour after the start time.
+            </span>
+          )}
         </div>
       </div>
 
@@ -130,7 +185,7 @@ export default function AddBooking({
         endDateTime={endDateTime}
       />
 
-      {filteredDesks.length > 0 && (
+      {endDateTime >= minimumEndDateTime && filteredDesks.length > 0 && (
         <DesksTable desks={filteredDesks} onBook={onBook} />
         // <DeskSearchResults results={filteredDesks} onBook={onBook} />
       )}
@@ -146,19 +201,6 @@ function formatDateForInputField(date: Date) {
     .substring(0, "YYYY-MM-DDTHH:MM".length);
 }
 
-function getNextBusinessDay(date: Date) {
-  var returnDate = new Date(date);
-  returnDate.setDate(returnDate.getDate() + 1);
-
-  if (returnDate.getDay() == 0) {
-    returnDate.setDate(returnDate.getDate() + 1);
-  } else if (returnDate.getDay() == 6) {
-    returnDate.setDate(returnDate.getDate() + 2);
-  }
-
-  return returnDate;
-}
-
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,
@@ -166,19 +208,27 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
-    const buildings = await getBuildings(session);
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
 
+  try {
+    const buildings = await getBuildings(session);
     return {
       props: {
         buildings,
       },
     };
+  } catch (error) {
+    return {
+      redirect: {
+        destination: "500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      buildings: [],
-    },
-  };
 };

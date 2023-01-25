@@ -1,22 +1,23 @@
-import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { AuthResponse, register } from "../lib/api/AuthService";
 import Input from "./forms/Input";
 import { toast } from "react-toastify";
+import OwnCombobox from "./forms/Combobox";
 
-export default function RegisterPanel() {
-  const [company, setCompany] = useState("");
+type Company = {
+  id: string;
+  name: string;
+};
+
+export default function RegisterPanel({ companies }: { companies: Company[] }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
-  // const [msg, setMsg] = useState("");
-
   const [clicked, setClicked] = useState(false);
-
-  const router = useRouter();
+  const [company, setCompany] = useState<Company | null>(null);
 
   async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -29,8 +30,15 @@ export default function RegisterPanel() {
       return;
     }
 
+    if (!company) {
+      toast.error("Please select a company");
+
+      setClicked(false);
+      return;
+    }
+
     const response = await register({
-      companyId: company,
+      companyId: company.id,
       firstName,
       lastName,
       mailAddress: email,
@@ -43,10 +51,13 @@ export default function RegisterPanel() {
       switch (response) {
         case AuthResponse.ErrorCompanyNotFound:
           toast.error("Company not Found");
+          break;
         case AuthResponse.ErrorEmailaddressAlreadyExists:
           toast.error("Email adress already registered");
+          break;
         default:
           toast.error("Unknown error");
+          break;
       }
       return;
     }
@@ -58,28 +69,28 @@ export default function RegisterPanel() {
     <div className="flex flex-col">
       <h1 className="text-3xl font-bold">Register</h1>
       <form className="flex flex-col" onSubmit={submitForm}>
-        <Input
-          name="company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          placeholder="Company"
+        <OwnCombobox
+          selected={company}
+          setSelected={setCompany}
+          entities={companies}
+          getName={(entity) => entity?.name ?? ""}
         />
         <div className="columns-2">
           <Input
-            name="firstname"
+            name="Firstname"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             placeholder="Firstname"
           />
           <Input
-            name="lastname"
+            name="Lastname"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             placeholder="Lastname"
           />
         </div>
         <Input
-          name="email"
+          name="Email"
           value={email}
           type="email"
           onChange={(e) => setEmail(e.target.value)}
@@ -87,14 +98,14 @@ export default function RegisterPanel() {
         />
         <div className="columns-2">
           <Input
-            name="password"
+            name="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             placeholder="Password"
           />
           <Input
-            name="repeat_password"
+            name="Repeat Password"
             value={repeatPassword}
             onChange={(e) => setRepeatPassword(e.target.value)}
             type="password"

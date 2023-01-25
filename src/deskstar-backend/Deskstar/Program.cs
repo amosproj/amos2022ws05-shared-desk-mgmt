@@ -26,26 +26,26 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+  options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+  options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+  options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(o =>
 {
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-        (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = false,
-        ValidateIssuerSigningKey = true
-    };
+  o.TokenValidationParameters = new TokenValidationParameters
+  {
+    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+    ValidAudience = builder.Configuration["Jwt:Audience"],
+    IssuerSigningKey = new SymmetricSecurityKey
+      (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+    ValidateIssuer = true,
+    ValidateAudience = true,
+    ValidateLifetime = false,
+    ValidateIssuerSigningKey = true
+  };
 });
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireClaim("IsCompanyAdmin"));
+  options.AddPolicy("Admin", policy => policy.RequireClaim("IsCompanyAdmin"));
 });
 
 builder.Services.AddControllers();
@@ -61,9 +61,9 @@ var dbUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_USER
 var dbPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_PASSWORD) ?? null;
 if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == null)
 {
-    Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null})," +
-    $"database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
-    return;
+  Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null})," +
+  $"database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
+  return;
 }
 var emailPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PASSWORD) ?? null;
 var emailHost = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_HOST) ?? null;
@@ -71,9 +71,9 @@ var emailPort = builder.Configuration.GetValue<int>(Constants.CONFIG_EMAIL_PORT)
 var emailUsername = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_USERNAME) ?? null;
 if (emailPassword == null || emailHost == null || emailPort == 0 || emailUsername == null)
 {
-    Console.Error.WriteLine($"missing email configuration. email configuration has password({emailPassword != null})," +
-                            $" host({emailHost != null}), port({emailPort != 0}), username({emailUsername != null})");
-    return;
+  Console.Error.WriteLine($"missing email configuration. email configuration has password({emailPassword != null})," +
+                          $" host({emailHost != null}), port({emailPort != 0}), username({emailUsername != null})");
+  return;
 }
 
 builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
@@ -84,6 +84,7 @@ EmailHelper.SetMailPassword(emailPassword);
 
 builder.Services.AddScoped<IAuthUsecases, AuthUsecases>();
 builder.Services.AddScoped<IBookingUsecases, BookingUsecases>();
+builder.Services.AddScoped<ICompanyUsecases, CompanyUsecases>();
 builder.Services.AddScoped<IUserUsecases, UserUsecases>();
 builder.Services.AddScoped<IAutoMapperConfiguration, AutoMapperConfiguration>();
 builder.Services.AddScoped<IResourceUsecases, ResourceUsecases>();
@@ -98,8 +99,8 @@ app.UseCors(x => x
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

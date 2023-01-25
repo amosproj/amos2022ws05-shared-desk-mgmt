@@ -30,14 +30,14 @@ export default function LoginPanel() {
       <h1 className="text-3xl font-bold">Login</h1>
       <form className="flex flex-col" onSubmit={onSubmit}>
         <Input
-          name="email"
+          name="Email"
           value={email}
           type="email"
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
         />
         <Input
-          name="password"
+          name="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
