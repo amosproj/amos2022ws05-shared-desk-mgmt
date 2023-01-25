@@ -3,7 +3,7 @@ import Head from "next/head";
 import { GetServerSideProps } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 import { toast } from "react-toastify";
@@ -150,6 +150,40 @@ export default function DeletedRessourceOverview({
       );
     }
   };
+  const onSelectedTypeChange = (option: string | null): void => {
+    if (option != null) loadData(option);
+    setSelectedResourceOption(option);
+  };
+  const loadData = async (option: string): Promise<void> => {
+    if (!session || !selectedResourceOption) return;
+    let deletedResource;
+    if (option === selectedResourceOption[0]) {
+      deletedResource = await getBuildings(session);
+      deletedResource = deletedResource.filter(
+        (resource: IBuilding) => resource.isMarkedForDeletion
+      );
+    } else if (option === selectedResourceOption[1]) {
+      deletedResource = await getFloors(session, "");
+      deletedResource = deletedResource.filter(
+        (resource: IFloor) => resource.isMarkedForDeletion
+      );
+    } else if (option === selectedResourceOption[2]) {
+      deletedResource = await getRooms(session, "");
+      deletedResource = deletedResource.filter(
+        (resource: IRoom) => resource.isMarkedForDeletion
+      );
+    } else if (option === selectedResourceOption[3]) {
+      deletedResource = await getDesks(session, "", 0, 0);
+      deletedResource = deletedResource.filter(
+        (resource: IDesk) => resource.isMarkedForDeletion
+      );
+    } else {
+      deletedResource = await getDeskTypes(session);
+      deletedResource = deletedResource.filter(
+        (resource: IDeskType) => resource.isMarkedForDeletion
+      );
+    }
+  };
 
   if (!session?.user?.isAdmin) {
     //TODO: Add loading animation
@@ -170,7 +204,7 @@ export default function DeletedRessourceOverview({
           <FilterListbox
             items={resourceOptions}
             selectedItem={selectedResourceOption}
-            setSelectedItem={setSelectedResourceOption}
+            setSelectedItem={onSelectedTypeChange}
             getName={(resourceOption) =>
               resourceOption
                 ? `Resource: ${resourceOption}`
