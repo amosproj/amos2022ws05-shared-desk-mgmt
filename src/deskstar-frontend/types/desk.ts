@@ -11,7 +11,6 @@ export interface IDesk {
   location: string;
   isMarkedForDeletion: boolean;
   bookings: IDeskBooking[];
-  isMarkedForDeletion: boolean;
 }
 
 export interface IDeskBooking {

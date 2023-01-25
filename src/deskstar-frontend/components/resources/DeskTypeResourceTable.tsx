@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IDeskType } from "../../types/desktypes";
 
@@ -20,7 +20,12 @@ const DeskTypeResourceTable = ({
           <tr>
             {/* set size of Desk column */}
             <th className="bg-deskstar-green-light text-left">Desk Type</th>
-            <th className="bg-deskstar-green-light"></th>
+            {(onDelete || onEdit) && (
+              <th className="bg-deskstar-green-light"></th>
+            )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-left">Restore</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -68,9 +73,16 @@ const DeksTypeTableEntry = ({
               <FaEdit />
             </button>
           )}
-          {onRestoreUpdate && (
-            <th className="bg-deskstar-green-light text-center">Restore</th>
-          )}
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-left">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate(deskType)}
+          >
+            <FaTrashRestore color="green" />
+          </button>
         </td>
       )}
     </tr>

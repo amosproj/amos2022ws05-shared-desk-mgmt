@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IFloor } from "../../types/floor";
 
@@ -22,7 +22,12 @@ const FloorResourceTable = ({
             <th className="bg-deskstar-green-light text-left">Floor</th>
             <th className="bg-deskstar-green-light text-left">Building</th>
             <th className="bg-deskstar-green-light text-left">Location</th>
-            <th className="bg-deskstar-green-light"></th>
+            {(onDelete || onEdit) && (
+              <th className="bg-deskstar-green-light"></th>
+            )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-left">Restore</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -69,9 +74,16 @@ const FloorResourceTableEntry = ({
               <FaEdit />
             </button>
           )}
-          {onRestoreUpdate && (
-            <th className="bg-deskstar-green-light text-center">Restore</th>
-          )}
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-left">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate(floor)}
+          >
+            <FaTrashRestore color="green" />
+          </button>
         </td>
       )}
     </tr>

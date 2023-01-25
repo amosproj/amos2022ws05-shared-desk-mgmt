@@ -1,11 +1,9 @@
 import React from "react";
 import Head from "next/head";
 import { GetServerSideProps } from "next";
-import { IUser } from "../../types/users";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
-import { getUsers, editUser } from "../../lib/api/UserService";
 import { authOptions } from "../api/auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
 import { toast } from "react-toastify";
@@ -21,6 +19,11 @@ import {
   getDeskTypes,
   getFloors,
   getRooms,
+  editBuilding,
+  editDesk,
+  editDeskType,
+  editFloor,
+  editRoom,
   ResourceResponse,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
@@ -50,38 +53,102 @@ export default function DeletedRessourceOverview({
   ];
   const [selectedResourceOption, setSelectedResourceOption] = useState<
     string | null
-  >("Desks");
+  >("Buildings");
 
-  const [buildings, setBuilding] = useState<IBuilding[]>(deletedBuildings);
-  const [floors, setFloor] = useState<IFloor[]>([]);
-  const [rooms, setRoom] = useState<IRoom[]>([]);
-  const [desks, setDesk] = useState<IDesk[]>([]);
-  const [deskTypes, setDeskType] = useState<IDeskType[]>(deletedDeskTypes);
+  const [buildings, setBuildings] = useState<IBuilding[]>(deletedBuildings);
+  const [floors, setFloors] = useState<IFloor[]>([]);
+  const [rooms, setRooms] = useState<IRoom[]>([]);
+  const [desks, setDesks] = useState<IDesk[]>([]);
+  const [deskTypes, setDeskTypes] = useState<IDeskType[]>(deletedDeskTypes);
 
   const onRestoreBuildingsUpdate = async (
     selectedBuilding: IBuilding
   ): Promise<void> => {
-    //
+    if (!session) return;
+
+    selectedBuilding.isMarkedForDeletion = false;
+    const result = await editBuilding(session, selectedBuilding);
+    if (result.response == ResourceResponse.Success) {
+      toast.success(result.message);
+      setBuildings(
+        buildings.filter(
+          (building) => building.buildingId != selectedBuilding.buildingId
+        )
+      );
+    } else {
+      console.error(result.message);
+      toast.error(
+        `Building ${selectedBuilding.buildingName} could not be restored!`
+      );
+    }
   };
 
   const onRestoreFloorsUpdate = async (
     selectedFloor: IFloor
   ): Promise<void> => {
-    //
+    if (!session) return;
+
+    selectedFloor.isMarkedForDeletion = false;
+    const result = await editFloor(session, selectedFloor);
+    if (result.response == ResourceResponse.Success) {
+      toast.success(result.message);
+      setFloors(
+        floors.filter((floor) => floor.floorId != selectedFloor.floorId)
+      );
+    } else {
+      console.error(result.message);
+      toast.error(`Floor ${selectedFloor.floorName} could not be restored!`);
+    }
   };
 
   const onRestoreRoomsUpdate = async (selectedRoom: IRoom): Promise<void> => {
-    //
+    if (!session) return;
+
+    selectedRoom.isMarkedForDeletion = false;
+    const result = await editRoom(session, selectedRoom);
+    if (result.response == ResourceResponse.Success) {
+      toast.success(result.message);
+      setRooms(rooms.filter((room) => room.roomId != selectedRoom.roomId));
+    } else {
+      console.error(result.message);
+      toast.error(`Room ${selectedRoom.roomName} could not be restored!`);
+    }
   };
 
   const onRestoreDesksUpdate = async (selectedDesk: IDesk): Promise<void> => {
-    //
+    if (!session) return;
+
+    selectedDesk.isMarkedForDeletion = false;
+    const result = await editDesk(session, selectedDesk);
+    if (result.response == ResourceResponse.Success) {
+      toast.success(result.message);
+      setDesks(desks.filter((desk) => desk.deskName != selectedDesk.deskName));
+    } else {
+      console.error(result.message);
+      toast.error(`Desk ${selectedDesk.deskName} could not be restored!`);
+    }
   };
 
   const onRestoreDeskTypesUpdate = async (
     selectedDeskType: IDeskType
   ): Promise<void> => {
-    //
+    if (!session) return;
+
+    selectedDeskType.isMarkedForDeletion = false;
+    const result = await editDeskType(session, selectedDeskType);
+    if (result.response == ResourceResponse.Success) {
+      toast.success(result.message);
+      setDeskTypes(
+        deskTypes.filter(
+          (deskType) => deskType.deskTypeName != selectedDeskType.deskTypeName
+        )
+      );
+    } else {
+      console.error(result.message);
+      toast.error(
+        `Desktype ${selectedDeskType.deskTypeName} could not be restored!`
+      );
+    }
   };
 
   if (!session?.user?.isAdmin) {
