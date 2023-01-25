@@ -3,4 +3,5 @@ export interface IFloor {
   floorName: string;
   buildingName: string;
   location: string;
+  isMarkedForDeletion: boolean;
 }
