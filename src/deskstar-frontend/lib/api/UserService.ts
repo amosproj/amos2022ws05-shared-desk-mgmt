@@ -90,7 +90,7 @@ export async function deleteUser(
   session: Session,
   userId: string
 ): Promise<Response> {
-  const response = await fetch(BACKEND_URL + `/users/delete/${userId}`, {
+  const response = await fetch(BACKEND_URL + `/users/${userId}`, {
     method: "DELETE",
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
