@@ -182,7 +182,7 @@ public class UserUsecases : IUserUsecases
                "your account details have been updated.</br> " +
                "Please check if this was ok.</br>" +
                "If not get in touch with your company admin.</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account details have been updated!", body);
+    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been deleted!", body);
     return user.UserId;
   }
 

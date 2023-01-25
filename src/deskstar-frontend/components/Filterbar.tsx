@@ -28,8 +28,10 @@ export default function Filterbar({
   setFilteredDesks,
 }: FilterbarProps) {
   const { data: session } = useSession();
-
-  const locations: ILocation[] = origBuildings.map((building) => ({
+  let initBuildings = origBuildings.filter(
+    (building) => !building.isMarkedForDeletion
+  );
+  const locations: ILocation[] = initBuildings.map((building) => ({
     locationName: building.location,
   }));
   const [selectedLocation, _setSelectedLocation] = useState<ILocation | null>(
@@ -58,7 +60,7 @@ export default function Filterbar({
     }
     _setSelectedLocation(selectedLocation);
 
-    let buildings = origBuildings.filter(
+    let buildings = initBuildings.filter(
       (building) => selectedLocation.locationName === building.location
     );
 
@@ -80,7 +82,8 @@ export default function Filterbar({
     }
 
     try {
-      const floors = await getFloors(session, selectedBuilding.buildingId);
+      let floors = await getFloors(session, selectedBuilding.buildingId);
+      floors = floors.filter((floor) => !floor.isMarkedForDeletion);
       setFloors(floors);
     } catch (error) {
       toast.error(`${error}`);
@@ -102,7 +105,8 @@ export default function Filterbar({
     }
 
     try {
-      const rooms = await getRooms(session, selectedFloor.floorId);
+      let rooms = await getRooms(session, selectedFloor.floorId);
+      rooms = rooms.filter((room) => !room.isMarkedForDeletion);
       setRooms(rooms);
     } catch (error) {
       toast.error(`${error}`);
@@ -125,7 +129,9 @@ export default function Filterbar({
         endDateTime.getTime()
       );
 
-      const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+      const filteredDesks = desks.filter(
+        (desk) => desk.bookings.length === 0 && !desk.isMarkedForDeletion
+      );
 
       setDeskTypes(deskTypes);
       setSelectedDeskType(null); // Equals all there
@@ -144,10 +150,12 @@ export default function Filterbar({
       return;
     }
 
-    const filteredDesks = desks.filter(
+    let filteredDesks = desks.filter(
       (desk) => desk.deskTyp === selectedDeskType.deskTypeName
     );
-
+    filteredDesks = filteredDesks.filter(
+      (deskType) => !deskType.isMarkedForDeletion
+    );
     setFilteredDesks(filteredDesks);
   }
 
