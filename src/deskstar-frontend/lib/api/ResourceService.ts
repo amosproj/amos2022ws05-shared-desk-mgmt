@@ -519,7 +519,7 @@ export async function deleteDesk(
   } else {
     result = {
       response: ResourceResponse.Success,
-      message: `Success! Deleted desk with id '${deskId}'`,
+      message: `Success! Deleted desk with id'${deskId}'`,
     };
   }
 

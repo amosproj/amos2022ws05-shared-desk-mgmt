@@ -67,7 +67,8 @@ public class ResourceUsecases : IResourceUsecases
     {
       Location = b.Location,
       BuildingId = b.BuildingId.ToString(),
-      BuildingName = b.BuildingName
+      BuildingName = b.BuildingName,
+      IsMarkedForDeletion = b.IsMarkedForDeletion
     });
 
     return mapBuildingsToCurrentBuildings.ToList();
@@ -101,7 +102,8 @@ public class ResourceUsecases : IResourceUsecases
     {
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
-      FloorId = f.FloorId.ToString()
+      FloorId = f.FloorId.ToString(),
+      IsMarkedForDeletion = f.IsMarkedForDeletion
     });
 
     return mapFloorsToCurrentFloors.ToList();
@@ -129,7 +131,8 @@ public class ResourceUsecases : IResourceUsecases
     var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom
     {
       RoomId = r.RoomId.ToString(),
-      RoomName = r.RoomName
+      RoomName = r.RoomName,
+      IsMarkedForDeletion = r.IsMarkedForDeletion
     });
 
     return mapRoomsToCurrentRooms.ToList();
@@ -166,7 +169,8 @@ public class ResourceUsecases : IResourceUsecases
         RoomName = desk.Room.RoomName,
         BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
         BuildingName = desk.Room.Floor.Building.BuildingName,
-        Location = desk.Room.Floor.Building.Location
+        Location = desk.Room.Floor.Building.Location,
+        IsMarkedForDeletion = desk.IsMarkedForDeletion
       });
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
@@ -209,7 +213,8 @@ public class ResourceUsecases : IResourceUsecases
         RoomName = desk.Room.RoomName,
         BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
         BuildingName = desk.Room.Floor.Building.BuildingName,
-        Location = desk.Room.Floor.Building.Location
+        Location = desk.Room.Floor.Building.Location,
+        IsMarkedForDeletion = desk.IsMarkedForDeletion
       }).First();
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
