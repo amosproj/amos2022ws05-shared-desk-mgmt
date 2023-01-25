@@ -190,6 +190,23 @@ export async function createBuilding(
 }
 
 /**
+ * Edit a building
+ * @param session The user session
+ * @param editBuilding The building Object to edit
+ * @returns
+ */
+export async function editBuilding(
+  session: Session,
+  editBuilding: IBuilding
+): Promise<ICreateResourceResult> {
+  let result: ICreateResourceResult = {
+    response: ResourceResponse.Error,
+    message: "Not implemented",
+  };
+  return result;
+}
+
+/**
  * Delete a building
  * @param session The user session
  * @param deskTypeId The id of the building to delete
@@ -263,6 +280,23 @@ export async function createFloor(
     };
   }
 
+  return result;
+}
+
+/**
+ * Edit a floor
+ * @param session The user session
+ * @param editFloor The floor Object to edit
+ * @returns
+ */
+export async function editFloor(
+  session: Session,
+  editFloor: IFloor
+): Promise<ICreateResourceResult> {
+  let result: ICreateResourceResult = {
+    response: ResourceResponse.Error,
+    message: "Not implemented",
+  };
   return result;
 }
 
@@ -341,6 +375,23 @@ export async function createRoom(
 }
 
 /**
+ * Edit a room
+ * @param session The user session
+ * @param editRoom The room Object to edit
+ * @returns
+ */
+export async function editRoom(
+  session: Session,
+  editRoom: IRoom
+): Promise<ICreateResourceResult> {
+  let result: ICreateResourceResult = {
+    response: ResourceResponse.Error,
+    message: "Not implemented",
+  };
+  return result;
+}
+
+/**
  * Delete a room
  * @param session The user session
  * @param deskTypeId The id of the room to delete
@@ -411,6 +462,23 @@ export async function createDeskType(
     };
   }
 
+  return result;
+}
+
+/**
+ * Edit a deskType
+ * @param session The user session
+ * @param editDeskType The deskType Object to edit
+ * @returns
+ */
+export async function editDeskType(
+  session: Session,
+  editDeskType: IDeskType
+): Promise<ICreateResourceResult> {
+  let result: ICreateResourceResult = {
+    response: ResourceResponse.Error,
+    message: "Not implemented",
+  };
   return result;
 }
 
@@ -488,6 +556,23 @@ export async function createDesk(
     };
   }
 
+  return result;
+}
+
+/**
+ * Edit a desk
+ * @param session The user session
+ * @param editDesk The desk Object to edit
+ * @returns
+ */
+export async function editDesk(
+  session: Session,
+  editDesk: IDesk
+): Promise<ICreateResourceResult> {
+  let result: ICreateResourceResult = {
+    response: ResourceResponse.Error,
+    message: "Not implemented",
+  };
   return result;
 }
 
