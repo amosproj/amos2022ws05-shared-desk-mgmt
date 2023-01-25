@@ -4,4 +4,5 @@ export interface IRoom {
   building: string;
   floor: string;
   location: string;
+  isMarkedForDeletion: boolean;
 }
