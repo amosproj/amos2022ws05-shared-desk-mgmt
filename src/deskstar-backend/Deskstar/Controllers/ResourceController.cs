@@ -114,13 +114,13 @@ public class ResourceController : ControllerBase
   /// </summary>
   /// <remarks>
   /// Sample request:
-  ///     POST /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///     POST /resources/buildings/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
-  [HttpPost("buildings/{buildingId}")]
+  [HttpPost("buildings/restore/{buildingId}")]
   [Authorize(Policy = "Admin")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -320,13 +320,13 @@ public class ResourceController : ControllerBase
   /// </summary>
   /// <remarks>
   /// Sample request:
-  ///     POST /resources/floor/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///     POST /resources/floors/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
-  [HttpPost("floors/{floorID}")]
+  [HttpPost("floors/restore/{floorID}")]
   [Authorize(Policy = "Admin")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -484,13 +484,13 @@ public class ResourceController : ControllerBase
   /// </summary>
   /// <remarks>
   /// Sample request:
-  ///     POST /resources/room/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///     POST /resources/rooms/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
-  [HttpPost("rooms/{roomId}")]
+  [HttpPost("rooms/restore/{roomId}")]
   [Authorize(Policy = "Admin")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -708,13 +708,13 @@ public class ResourceController : ControllerBase
   /// </summary>
   /// <remarks>
   /// Sample request:
-  ///     POST /resources/desk/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///     POST /resources/desks/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
-  [HttpPost("desks/{deskId}")]
+  [HttpPost("desks/restore/{deskId}")]
   [Authorize(Policy = "Admin")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -860,13 +860,13 @@ public class ResourceController : ControllerBase
   /// </summary>
   /// <remarks>
   /// Sample request:
-  ///     POST /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///     POST /resources/desktypes/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
-  [HttpPost("buildings/{deskTypeId}")]
+  [HttpPost("desktypes/restore/{deskTypeId}")]
   [Authorize(Policy = "Admin")]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(StatusCodes.Status400BadRequest)]
