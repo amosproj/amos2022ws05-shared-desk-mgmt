@@ -11,15 +11,15 @@ namespace Deskstar.Controllers;
 [ApiController]
 [Route("/resources")]
 [Produces("application/json")]
-public class ResourcesController : ControllerBase
+public class ResourceController : ControllerBase
 {
   private readonly IResourceUsecases _resourceUsecases;
   private readonly IUserUsecases _userUsecases;
-  private readonly ILogger<ResourcesController> _logger;
+  private readonly ILogger<ResourceController> _logger;
 
   private readonly AutoMapper.IMapper _mapper;
 
-  public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases,
+  public ResourceController(ILogger<ResourceController> logger, IResourceUsecases resourceUsecases,
     IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
   {
     _logger = logger;
@@ -95,6 +95,48 @@ public class ResourcesController : ControllerBase
     {
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+
+  /// <summary>
+  /// Restores a Building.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     POST /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPost("buildings/{buildingId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult RestoreBuilding(string buildingId)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.RestoreBuilding(adminId, buildingId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
     }
     catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
                                 or OverflowException)
@@ -274,6 +316,48 @@ public class ResourcesController : ControllerBase
   }
 
   /// <summary>
+  /// Restores a floor.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     POST /resources/floor/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPost("floors/{floorID}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult RestoreFloor(string floorID)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.RestoreFloor(adminId, floorID);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+
+  /// <summary>
   /// Returns a list of Rooms.
   /// </summary>
   /// <returns>A List of Rooms in JSON Format by FloorId (can be empty) </returns>
@@ -376,6 +460,48 @@ public class ResourcesController : ControllerBase
     try
     {
       _resourceUsecases.DeleteRoom(adminId, roomId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+
+  /// <summary>
+  /// Restores a room.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     POST /resources/room/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPost("rooms/{roomId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult RestoreRoom(string roomId)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.RestoreRoom(adminId, roomId);
       return Ok();
     }
     catch (EntityNotFoundException e)
@@ -578,6 +704,47 @@ public class ResourcesController : ControllerBase
   }
 
   /// <summary>
+  /// Restores a Desk.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     POST /resources/desk/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPost("desks/{deskId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult RestoreDesk(string deskId)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.RestoreDesk(adminId, deskId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+  /// <summary>
   /// Creates a new DeskType.
   /// </summary>
   /// <remarks>
@@ -669,6 +836,48 @@ public class ResourcesController : ControllerBase
     try
     {
       _resourceUsecases.DeleteDeskType(adminId, deskTypeId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+
+  /// <summary>
+  /// Restores a deskType.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     POST /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpPost("buildings/{deskTypeId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult RestoreDeskType(string deskTypeId)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.RestoreDeskType(adminId, deskTypeId);
       return Ok();
     }
     catch (EntityNotFoundException e)
