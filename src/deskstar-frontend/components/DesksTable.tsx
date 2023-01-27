@@ -1,5 +1,7 @@
 import { IDesk } from "../types/desk";
 import React, { useState } from "react";
+import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 
 const DesksTable = ({
   desks,
@@ -36,17 +38,40 @@ const DeskTableEntry = ({
   onBook: Function;
 }) => {
   const [buttonText, setButtonText] = useState("Book");
+
+  const { data: session } = useSession();
+
+  const isBooked = desk.bookings.length > 0;
+
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
       <td className="text-left">{desk.deskTyp}</td>
       <td className="text-right">
-        <button
-          className="btn btn-success"
-          onClick={(event) => onBook(event, desk, setButtonText)}
-        >
-          {buttonText}
-        </button>
+        {isBooked && (
+          <button className="btn btn-success" disabled>
+            Booked by{" "}
+            {desk.bookings[0].userId == session?.user.id
+              ? "you"
+              : desk.bookings[0].userName}
+            <br />
+            {dayjs(desk.bookings[0].startTime, {
+              utc: true,
+            }).format("HH:mm")}{" "}
+            -{" "}
+            {dayjs(desk.bookings[0].endTime, {
+              utc: true,
+            }).format("HH:mm")}
+          </button>
+        )}
+        {!isBooked && (
+          <button
+            className="btn btn-success"
+            onClick={(event) => onBook(event, desk, setButtonText)}
+          >
+            {buttonText}
+          </button>
+        )}
       </td>
     </tr>
   );

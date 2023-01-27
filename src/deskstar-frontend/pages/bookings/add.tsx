@@ -85,7 +85,12 @@ export default function AddBooking() {
     event.target.setAttribute("class", "btn loading");
 
     try {
-      await createBooking(session, desk.deskId, startDateTime, endDateTime);
+      await createBooking(
+        session,
+        desk.deskId,
+        dayjs(startDateTime),
+        dayjs(endDateTime)
+      );
 
       const message = `You successfully booked the desk ${
         desk.deskName

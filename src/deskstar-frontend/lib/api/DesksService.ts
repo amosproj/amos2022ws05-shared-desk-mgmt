@@ -17,8 +17,8 @@ export async function getAggregatedDesks(
   room?: string
 ): Promise<IDesk[]> {
   const params = new URLSearchParams({
-    starttime: starttime.unix().toString(),
-    endtime: endtime.unix().toString(),
+    starttime: starttime.toISOString(),
+    endtime: endtime.toISOString(),
   });
 
   if (building) params.append("building", building);

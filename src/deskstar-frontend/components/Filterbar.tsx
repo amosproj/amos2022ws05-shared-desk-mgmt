@@ -13,20 +13,11 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 
 type FilterbarProps = {
-  startDateTime: Date;
-  endDateTime: Date;
   desks: IDesk[];
   setFilteredDesks: (desks: IDesk[]) => void;
 };
 
-export default function Filterbar({
-  startDateTime,
-  endDateTime,
-  desks,
-  setFilteredDesks,
-}: FilterbarProps) {
-  const { data: session } = useSession();
-
+export default function Filterbar({ desks, setFilteredDesks }: FilterbarProps) {
   const initBuildings: IBuilding[] = desks
     .map((desk) => ({
       buildingName: desk.buildingName,

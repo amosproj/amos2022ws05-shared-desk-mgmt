@@ -7,6 +7,10 @@ import {
   getFloors,
   getRooms,
 } from "../../lib/api/ResourceService";
+import dayjs from "dayjs";
+import isBetween from "dayjs/plugin/isBetween";
+
+dayjs.extend(isBetween);
 
 export default async function desks(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== "GET") {
@@ -23,16 +27,8 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
 
   const { starttime, endtime, building, floor, room } = req.query;
 
-  // Check if starttime and endtime are timestamps
-  let starttimeNumber: number;
-  let endtimeNumber: number;
-  try {
-    starttimeNumber = parseInt(starttime as string);
-    endtimeNumber = parseInt(endtime as string);
-  } catch (e) {
-    res.status(400).json({ message: "Invalid starttime or endtime" });
-    return;
-  }
+  const start = dayjs(starttime as string);
+  const end = dayjs(endtime as string);
 
   // First get all buildings
   const buildings = await getBuildings(session);
@@ -103,7 +99,7 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
       filteredRooms.map(async (r) =>
         //  Get all desks for each room
         (
-          await getDesks(session, r.roomId, starttimeNumber, endtimeNumber)
+          await getDesks(session, r.roomId)
         ).map((d) => ({
           ...d,
           buildingId: r.buildingId,
@@ -113,6 +109,20 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
       )
     )
   ).flat();
+
+  // Filter the bookings in the desks for the specified time range
+  desks.forEach((d) => {
+    d.bookings = d.bookings.filter((b) => {
+      const bStart = dayjs(b.startTime);
+      const bEnd = dayjs(b.endTime);
+
+      return (
+        bStart.isBetween(start, end, "minute", "[]") ||
+        bEnd.isBetween(start, end, "minute", "[]") ||
+        (bStart.isBefore(start) && bEnd.isAfter(end))
+      );
+    });
+  });
 
   res.status(200).json(desks);
 }
