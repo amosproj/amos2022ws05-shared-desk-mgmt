@@ -79,7 +79,7 @@ const BuildingResourceTableEntry = ({
         </td>
       )}
       {onRestoreUpdate && (
-        <td className="text-left">
+        <td className="text-right">
           <button
             className="btn btn-ghost"
             onClick={() => onRestoreUpdate(building)}

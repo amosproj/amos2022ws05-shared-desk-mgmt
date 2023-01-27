@@ -190,14 +190,14 @@ export async function createBuilding(
 }
 
 /**
- * Edit a building
+ * Restore a building
  * @param session The user session
- * @param editBuilding The building Object to edit
+ * @param restoreBuilding The building Object to restore
  * @returns
  */
-export async function editBuilding(
+export async function restoreBuilding(
   session: Session,
-  editBuilding: IBuilding
+  restoreBuilding: IBuilding
 ): Promise<ICreateResourceResult> {
   let result: ICreateResourceResult = {
     response: ResourceResponse.Error,
@@ -284,14 +284,14 @@ export async function createFloor(
 }
 
 /**
- * Edit a floor
+ * Restore a floor
  * @param session The user session
- * @param editFloor The floor Object to edit
+ * @param restoreFloor The floor Object to restore
  * @returns
  */
-export async function editFloor(
+export async function restoreFloor(
   session: Session,
-  editFloor: IFloor
+  restoreFloor: IFloor
 ): Promise<ICreateResourceResult> {
   let result: ICreateResourceResult = {
     response: ResourceResponse.Error,
@@ -375,14 +375,14 @@ export async function createRoom(
 }
 
 /**
- * Edit a room
+ * Restore a room
  * @param session The user session
- * @param editRoom The room Object to edit
+ * @param restoreRoom The room Object to restore
  * @returns
  */
 export async function editRoom(
   session: Session,
-  editRoom: IRoom
+  restoreRoom: IRoom
 ): Promise<ICreateResourceResult> {
   let result: ICreateResourceResult = {
     response: ResourceResponse.Error,
@@ -466,14 +466,14 @@ export async function createDeskType(
 }
 
 /**
- * Edit a deskType
+ * Restore a deskType
  * @param session The user session
- * @param editDeskType The deskType Object to edit
+ * @param restoreDeskType The deskType Object to restore
  * @returns
  */
 export async function editDeskType(
   session: Session,
-  editDeskType: IDeskType
+  restoreDeskType: IDeskType
 ): Promise<ICreateResourceResult> {
   let result: ICreateResourceResult = {
     response: ResourceResponse.Error,
@@ -560,14 +560,14 @@ export async function createDesk(
 }
 
 /**
- * Edit a desk
+ * Restore a desk
  * @param session The user session
- * @param editDesk The desk Object to edit
+ * @param restoreDesk The desk Object to restore
  * @returns
  */
-export async function editDesk(
+export async function restoreDesk(
   session: Session,
-  editDesk: IDesk
+  restoreDesk: IDesk
 ): Promise<ICreateResourceResult> {
   let result: ICreateResourceResult = {
     response: ResourceResponse.Error,

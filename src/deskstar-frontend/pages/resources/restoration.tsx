@@ -19,11 +19,11 @@ import {
   getDeskTypes,
   getFloors,
   getRooms,
-  editBuilding,
-  editDesk,
-  editDeskType,
-  editFloor,
-  editRoom,
+  restoreBuilding,
+  restoreDesk,
+  restoreDeskType,
+  restoreFloor,
+  restoreRoom,
   ResourceResponse,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
@@ -67,7 +67,7 @@ export default function DeletedRessourceOverview({
     if (!session) return;
 
     selectedBuilding.isMarkedForDeletion = false;
-    const result = await editBuilding(session, selectedBuilding);
+    const result = await restoreBuilding(session, selectedBuilding);
     if (result.response == ResourceResponse.Success) {
       toast.success(result.message);
       setBuildings(
@@ -89,7 +89,7 @@ export default function DeletedRessourceOverview({
     if (!session) return;
 
     selectedFloor.isMarkedForDeletion = false;
-    const result = await editFloor(session, selectedFloor);
+    const result = await restoreFloor(session, selectedFloor);
     if (result.response == ResourceResponse.Success) {
       toast.success(result.message);
       setFloors(
@@ -97,7 +97,9 @@ export default function DeletedRessourceOverview({
       );
     } else {
       console.error(result.message);
-      toast.error(`Floor ${selectedFloor.floorName} could not be restored!`);
+      toast.error(
+        `Floor ${selectedFloor.floorName} could not be restored! Make sure you have restored the corresponding resources (Building, ...) before restoring this resource.`
+      );
     }
   };
 
@@ -105,13 +107,15 @@ export default function DeletedRessourceOverview({
     if (!session) return;
 
     selectedRoom.isMarkedForDeletion = false;
-    const result = await editRoom(session, selectedRoom);
+    const result = await restoreRoom(session, selectedRoom);
     if (result.response == ResourceResponse.Success) {
       toast.success(result.message);
       setRooms(rooms.filter((room) => room.roomId != selectedRoom.roomId));
     } else {
       console.error(result.message);
-      toast.error(`Room ${selectedRoom.roomName} could not be restored!`);
+      toast.error(
+        `Room ${selectedRoom.roomName} could not be restored! Make sure you have restored the corresponding resources (Building, ...) before restoring this resource.`
+      );
     }
   };
 
@@ -119,13 +123,15 @@ export default function DeletedRessourceOverview({
     if (!session) return;
 
     selectedDesk.isMarkedForDeletion = false;
-    const result = await editDesk(session, selectedDesk);
+    const result = await restoreDesk(session, selectedDesk);
     if (result.response == ResourceResponse.Success) {
       toast.success(result.message);
       setDesks(desks.filter((desk) => desk.deskName != selectedDesk.deskName));
     } else {
       console.error(result.message);
-      toast.error(`Desk ${selectedDesk.deskName} could not be restored!`);
+      toast.error(
+        `Desk ${selectedDesk.deskName} could not be restored! Make sure you have restored the corresponding resources (Building, ...) before restoring this resource.`
+      );
     }
   };
 
@@ -135,7 +141,7 @@ export default function DeletedRessourceOverview({
     if (!session) return;
 
     selectedDeskType.isMarkedForDeletion = false;
-    const result = await editDeskType(session, selectedDeskType);
+    const result = await restoreDeskType(session, selectedDeskType);
     if (result.response == ResourceResponse.Success) {
       toast.success(result.message);
       setDeskTypes(
@@ -163,17 +169,28 @@ export default function DeletedRessourceOverview({
         (resource: IBuilding) => resource.isMarkedForDeletion
       );
     } else if (option === selectedResourceOption[1]) {
-      deletedResource = await getFloors(session, "");
+      deletedResource = await getFloors(
+        session,
+        "5fcde910-ca65-4636-84dd-54bb250252cd"
+      );
       deletedResource = deletedResource.filter(
         (resource: IFloor) => resource.isMarkedForDeletion
       );
     } else if (option === selectedResourceOption[2]) {
-      deletedResource = await getRooms(session, "");
+      deletedResource = await getRooms(
+        session,
+        "7b5944f3-98ab-49e1-82cf-3238166f7b9d"
+      );
       deletedResource = deletedResource.filter(
         (resource: IRoom) => resource.isMarkedForDeletion
       );
     } else if (option === selectedResourceOption[3]) {
-      deletedResource = await getDesks(session, "", 0, 0);
+      deletedResource = await getDesks(
+        session,
+        "8b3320e1-a1cb-48a0-84ca-ce58f813b584",
+        0,
+        1
+      );
       deletedResource = deletedResource.filter(
         (resource: IDesk) => resource.isMarkedForDeletion
       );
