@@ -36,6 +36,13 @@ export function UpdateBookingModal({
       );
       return;
     }
+    if (
+      !startDateTime ||
+      !endDateTime ||
+      !dayjs(startDateTime).isValid() ||
+      !dayjs(endDateTime).isValid()
+    )
+      return toast.error("Please select a start and end time");
 
     await onUpdate(booking, startDateTime.toDate(), endDateTime.toDate());
   }
