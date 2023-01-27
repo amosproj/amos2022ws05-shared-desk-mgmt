@@ -39,6 +39,10 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
 
   //   If buildings are specified, filter them out
   const filteredBuildings = buildings.filter((b) => {
+    if (b.isMarkedForDeletion) {
+      return false;
+    }
+
     if (building) {
       return b.buildingId === building;
     }
@@ -59,6 +63,10 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
 
   //  If floors are specified, filter them out
   const filteredFloors = floors.filter((f) => {
+    if (f.isMarkedForDeletion) {
+      return false;
+    }
+
     if (floor) {
       return f.floorId === floor;
     }
@@ -78,6 +86,10 @@ export default async function desks(req: NextApiRequest, res: NextApiResponse) {
   ).flat();
 
   const filteredRooms = rooms.filter((r) => {
+    if (r.isMarkedForDeletion) {
+      return false;
+    }
+
     if (room) {
       return r.roomId === room;
     }
