@@ -188,12 +188,7 @@ export default function AddBooking() {
 
       <div className="my-4"></div>
 
-      <Filterbar
-        desks={desks}
-        setFilteredDesks={setFilteredDesks}
-        startDateTime={startDateTime}
-        endDateTime={endDateTime}
-      />
+      <Filterbar desks={desks} setFilteredDesks={setFilteredDesks} />
 
       {endDateTime >= minimumEndDateTime && filteredDesks.length > 0 && (
         // <DesksTable desks={filteredDesks} onBook={onBook} />
