@@ -1,3 +1,4 @@
+import dayjs, { Dayjs } from "dayjs";
 import { useState } from "react";
 import { start } from "repl";
 import { IBooking } from "../types/booking";
@@ -14,12 +15,22 @@ export function UpdateBookingModal({
   onUpdate,
 }: UpdateBookingModalProps) {
   const [startDateTime, setStartDateTime] = useState(
-    new Date(booking.startTime)
+    dayjs(booking.startTime, {
+      utc: true,
+    })
   );
-  const [endDateTime, setEndDateTime] = useState(new Date(booking.endTime));
+  const [endDateTime, setEndDateTime] = useState(
+    dayjs(booking.endTime, {
+      utc: true,
+    })
+  );
 
-  let today = new Date();
-  today.setHours(8, 0, 0, 0);
+  let today = dayjs();
+  today = today
+    .set("hour", 8)
+    .set("minute", 0)
+    .set("second", 0)
+    .set("millisecond", 0);
 
   return (
     <>
@@ -53,7 +64,7 @@ export function UpdateBookingModal({
                 value={formatDateForInputField(startDateTime)}
                 min={formatDateForInputField(today)}
                 onChange={(event) =>
-                  setStartDateTime(new Date(event.target.value))
+                  setStartDateTime(dayjs(event.target.value))
                 }
               />
             </div>
@@ -67,9 +78,9 @@ export function UpdateBookingModal({
                 type="datetime-local"
                 // Bind the value of the input to enddatetime
                 value={formatDateForInputField(endDateTime)}
-                min={formatDateForInputField(new Date(today))}
+                min={formatDateForInputField(dayjs(today))}
                 onChange={(event) => {
-                  return setEndDateTime(new Date(event.target.value));
+                  setEndDateTime(dayjs(event.target.value));
                 }}
               />
             </div>
@@ -112,10 +123,6 @@ function InputForm({ label, type, value, disabled }: InputFormProps) {
   );
 }
 
-function formatDateForInputField(date: Date) {
-  const offset = date.getTimezoneOffset();
-
-  return new Date(date.getTime() - offset * 60 * 1000)
-    .toISOString()
-    .substring(0, "YYYY-MM-DDTHH:MM".length);
+function formatDateForInputField(date: Dayjs) {
+  return date.format("YYYY-MM-DDTHH:mm");
 }
