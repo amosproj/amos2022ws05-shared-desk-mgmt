@@ -15,6 +15,7 @@ export interface IDesk {
 
 export interface IDeskBooking {
   bookingId: string;
+  userName: string;
   userId: string;
   endTime: string;
   startTime: string;
