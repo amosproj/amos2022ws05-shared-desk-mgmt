@@ -1,12 +1,13 @@
 import dayjs, { Dayjs } from "dayjs";
-import { useState } from "react";
-import { start } from "repl";
+import { useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { classes } from "../lib/helpers";
 import { IBooking } from "../types/booking";
 
 interface UpdateBookingModalProps {
   id: string;
   booking: IBooking;
-  onUpdate: Function;
+  onUpdate: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
 }
 
 export function UpdateBookingModal({
@@ -14,16 +15,8 @@ export function UpdateBookingModal({
   booking,
   onUpdate,
 }: UpdateBookingModalProps) {
-  const [startDateTime, setStartDateTime] = useState(
-    dayjs(booking.startTime, {
-      utc: true,
-    })
-  );
-  const [endDateTime, setEndDateTime] = useState(
-    dayjs(booking.endTime, {
-      utc: true,
-    })
-  );
+  const [startDateTime, setStartDateTime] = useState(dayjs(booking.startTime));
+  const [endDateTime, setEndDateTime] = useState(dayjs(booking.endTime));
 
   let today = dayjs();
   today = today
@@ -31,6 +24,28 @@ export function UpdateBookingModal({
     .set("minute", 0)
     .set("second", 0)
     .set("millisecond", 0);
+
+  const minimumEndDateTime = useMemo(() => {
+    return dayjs(startDateTime).add(1, "hour");
+  }, [startDateTime]);
+
+  async function updateBooking() {
+    if (endDateTime.isBefore(minimumEndDateTime)) {
+      toast.error(
+        "The End Time needs to be at minimum 1 hour after the start time."
+      );
+      return;
+    }
+    if (
+      !startDateTime ||
+      !endDateTime ||
+      !dayjs(startDateTime).isValid() ||
+      !dayjs(endDateTime).isValid()
+    )
+      return toast.error("Please select a start and end time");
+
+    await onUpdate(booking, startDateTime.toDate(), endDateTime.toDate());
+  }
 
   return (
     <>
@@ -74,23 +89,30 @@ export function UpdateBookingModal({
                 <b>End: </b>
               </label>
               <input
-                className="input input-bordered"
+                className={classes(
+                  "input input-bordered",
+                  dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime))
+                    ? "border-red-600"
+                    : ""
+                )}
                 type="datetime-local"
                 // Bind the value of the input to enddatetime
                 value={formatDateForInputField(endDateTime)}
-                min={formatDateForInputField(dayjs(today))}
+                min={formatDateForInputField(today)}
                 onChange={(event) => {
-                  setEndDateTime(dayjs(event.target.value));
+                  return setEndDateTime(dayjs(event.target.value));
                 }}
               />
             </div>
+            {dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime)) && (
+              <span className="text-red-600">
+                The End Time needs to be at minimum 1 hour
+                <br /> after the start time.
+              </span>
+            )}
           </form>
           <div className="modal-action">
-            <label
-              htmlFor={id}
-              className="btn"
-              onClick={() => onUpdate(booking, startDateTime, endDateTime)}
-            >
+            <label htmlFor={id} className="btn" onClick={() => updateBooking()}>
               Update
             </label>
           </div>

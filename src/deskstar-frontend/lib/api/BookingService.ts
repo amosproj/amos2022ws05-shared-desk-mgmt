@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { Session } from "next-auth";
 import { IBooking, GetBookingsResponse } from "../../types/booking";
 import { BACKEND_URL } from "./constants";
@@ -88,8 +89,8 @@ export async function getBookings(
 export async function createBooking(
   session: Session,
   deskId: string,
-  startTime: Date,
-  endTime: Date
+  startTime: Dayjs,
+  endTime: Dayjs
 ) {
   const response = await fetch(BACKEND_URL + "/bookings", {
     method: "POST",

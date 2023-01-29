@@ -11,7 +11,7 @@ const BookingsTable = ({
   onCheckIn,
 }: {
   bookings: IBooking[];
-  onEdit?: (booking: IBooking, startTime: Date, endTime: Date) => void;
+  onEdit?: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {
@@ -55,7 +55,7 @@ const BookingTableEntry = ({
   onCheckIn,
 }: {
   booking: IBooking;
-  onEdit?: Function;
+  onEdit?: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {

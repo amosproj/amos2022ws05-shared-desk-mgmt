@@ -16,12 +16,9 @@ import Filterbar from "../../components/Filterbar";
 import DesksTable from "../../components/DesksTable";
 import { toast } from "react-toastify";
 import { classes } from "../../lib/helpers";
+import { getAggregatedDesks } from "../../lib/api/DesksService";
 
-export default function AddBooking({
-  buildings: origBuildings,
-}: {
-  buildings: IBuilding[];
-}) {
+export default function AddBooking() {
   let { data: session } = useSession();
 
   const [desks, setDesks] = useState<IDesk[]>([]);
@@ -53,6 +50,16 @@ export default function AddBooking({
     return dayjs(startDateTime).add(1, "hour").toDate();
   }, [startDateTime]);
 
+  useMemo(async () => {
+    if (session == null) return [];
+    const desks = await getAggregatedDesks(
+      session,
+      dayjs(startDateTime),
+      dayjs(endDateTime)
+    );
+    setDesks(desks);
+  }, [session, startDateTime, endDateTime]);
+
   async function onBook(
     event: {
       target: Element;
@@ -78,7 +85,12 @@ export default function AddBooking({
     event.target.setAttribute("class", "btn loading");
 
     try {
-      await createBooking(session, desk.deskId, startDateTime, endDateTime);
+      await createBooking(
+        session,
+        desk.deskId,
+        dayjs(startDateTime),
+        dayjs(endDateTime)
+      );
 
       const message = `You successfully booked the desk ${
         desk.deskName
@@ -176,18 +188,11 @@ export default function AddBooking({
 
       <div className="my-4"></div>
 
-      <Filterbar
-        buildings={origBuildings}
-        desks={desks}
-        setDesks={setDesks}
-        setFilteredDesks={setFilteredDesks}
-        startDateTime={startDateTime}
-        endDateTime={endDateTime}
-      />
+      <Filterbar desks={desks} setFilteredDesks={setFilteredDesks} />
 
       {endDateTime >= minimumEndDateTime && filteredDesks.length > 0 && (
-        <DesksTable desks={filteredDesks} onBook={onBook} />
-        // <DeskSearchResults results={filteredDesks} onBook={onBook} />
+        // <DesksTable desks={filteredDesks} onBook={onBook} />
+        <DeskSearchResults results={filteredDesks} onBook={onBook} />
       )}
     </div>
   );
@@ -216,19 +221,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       },
     };
 
-  try {
-    const buildings = await getBuildings(session);
-    return {
-      props: {
-        buildings,
-      },
-    };
-  } catch (error) {
-    return {
-      redirect: {
-        destination: "500",
-        permanent: false,
-      },
-    };
-  }
+  return {
+    props: {},
+  };
 };
