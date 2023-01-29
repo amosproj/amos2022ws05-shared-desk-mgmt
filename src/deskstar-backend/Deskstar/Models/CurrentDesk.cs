@@ -38,6 +38,8 @@ public class BookingDesks
 
   [Required] public string UserId { get; set; } = null!;
 
+  [Required] public string UserName { get; set; } = null!;
+
   [Required] public DateTime? StartTime { get; set; } = null!;
 
   [Required] public DateTime? EndTime { get; set; } = null!;

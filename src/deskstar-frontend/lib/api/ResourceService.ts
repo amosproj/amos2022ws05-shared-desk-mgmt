@@ -1,4 +1,5 @@
 import { Session } from "next-auth";
+import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
 import { IDeskType } from "../../types/desktypes";
@@ -97,20 +98,23 @@ export async function getRooms(
  * Lists all available desks of a room
  * @param session The user session
  * @param roomId The room id
- * @param startTime
- * @param endTime
+ * @param startTime optional
+ * @param endTime optional
  * @returns All available desks
  * @throws Error containing status code and/or error message
  */
 export async function getDesks(
   session: Session,
   roomId: string,
-  startTime: number,
-  endTime: number
+  startTime?: number,
+  endTime?: number
 ): Promise<IDesk[]> {
+  const params = new URLSearchParams();
+  if (startTime) params.append("start", startTime.toString());
+  if (endTime) params.append("end", endTime.toString());
+
   const response = await fetch(
-    BACKEND_URL +
-      `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
+    BACKEND_URL + `/resources/rooms/${roomId}/desks?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,

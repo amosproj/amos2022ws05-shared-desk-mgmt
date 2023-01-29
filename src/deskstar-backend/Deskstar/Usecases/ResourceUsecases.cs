@@ -168,6 +168,7 @@ public class ResourceUsecases : IResourceUsecases
             StartTime = booking.StartTime,
             EndTime = booking.EndTime,
             UserId = booking.UserId.ToString(),
+            UserName = booking.User.FirstName + " " + booking.User.LastName,
           }).ToList(),
         FloorName = desk.Room.Floor.FloorName,
         FloorId = desk.Room.Floor.FloorId.ToString(),
