@@ -43,7 +43,7 @@ export default function FilterListbox<A>({
         onChange={setSelectedItem}
       >
         <Listbox.Button className="btn">
-          {!allOption || selectedItem ? getName(selectedItem) : "Alle"}
+          {!allOption || selectedItem ? getName(selectedItem) : "All"}
         </Listbox.Button>
         <Listbox.Options
           as="ul"
