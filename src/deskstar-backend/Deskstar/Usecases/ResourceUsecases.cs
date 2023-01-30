@@ -48,7 +48,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
 
     if (buildingExists.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate building '{buildingId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate building '{buildingExists.BuildingName}'");
 
     //change location
     if (location != null)
@@ -65,7 +65,7 @@ public class ResourceUsecases : IResourceUsecases
         throw new ArgumentInvalidException($"Building name must not be empty");
       var buildingNameIsUnique = buildingExists.Company.Buildings.Select(b => b.BuildingName).All(name => name != buildingName);
       if (!buildingNameIsUnique)
-        throw new ArgumentInvalidException($"There is already a building named '{buildingName}' in company '{buildingExists.CompanyId}'");
+        throw new ArgumentInvalidException($"There is already a building named '{buildingName}' in your company");
 
       buildingExists.BuildingName = buildingName;
     }

@@ -30,7 +30,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
     Assert.NotNull(ex);
-    Assert.That($"There is no building with id '{buildingId}'" == ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is no building with id '{buildingId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -61,7 +61,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, buildingName, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is already a building named '{buildingName}' in company '{companyId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is already a building named '{buildingName}' in your company"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -71,9 +71,13 @@ public class ResourceUsecaseTests
   {
     // setup
     var companyId = Guid.NewGuid();
+    var company2Id = Guid.NewGuid();
+    var company2 = new Company { CompanyId = company2Id, CompanyName = "testcompany2" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    var buildingName = "testname";
+    var building = new Building { BuildingId = buildingId, CompanyId = company2Id, BuildingName = buildingName, Location = "testlocation" };
+    context.Companies.Add(company2);
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -86,7 +90,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
     Assert.NotNull(ex);
-    Assert.That($"'{companyId}' has no access to administrate building '{buildingId}'" == ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate building '{buildingName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -120,8 +124,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.IsNotNull(updatedBuilding);
-    Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
-    Assert.AreEqual(updatedLocation, updatedBuilding.Location);
+    Assert.That(updatedBuilding.BuildingName, Is.EqualTo(updatedBuildingName));
+    Assert.That(updatedBuilding.Location, Is.EqualTo(updatedLocation));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -131,9 +135,11 @@ public class ResourceUsecaseTests
   {
     // setup
     var companyId = Guid.NewGuid();
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -149,8 +155,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedBuilding);
-    Assert.That(updatedBuilding.Location == newLocation);
-    Assert.That(updatedBuilding.BuildingId == buildingId);
+    Assert.That(updatedBuilding.Location, Is.EqualTo(newLocation));
+    Assert.That(updatedBuilding.BuildingId, Is.EqualTo(buildingId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -183,10 +189,10 @@ public class ResourceUsecaseTests
     var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, null);
 
     // assert
-    Assert.AreEqual(buildingId, updatedBuilding.BuildingId);
+    Assert.That(updatedBuilding.BuildingId, Is.EqualTo(buildingId));
     Assert.NotNull(updatedBuilding);
-    Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
-    Assert.AreEqual(location, updatedBuilding.Location);
+    Assert.That(updatedBuilding.BuildingName, Is.EqualTo(updatedBuildingName));
+    Assert.That(updatedBuilding.Location, Is.EqualTo(location));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -196,9 +202,11 @@ public class ResourceUsecaseTests
   {
     // setup
     var companyId = Guid.NewGuid();
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -212,7 +220,7 @@ public class ResourceUsecaseTests
     var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
 
     // assert
-    Assert.AreEqual(buildingId, updatedBuilding.BuildingId);
+    Assert.That(updatedBuilding.BuildingId, Is.EqualTo(buildingId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -222,9 +230,11 @@ public class ResourceUsecaseTests
   {
     // setup
     var companyId = Guid.NewGuid();
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -237,7 +247,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", ""));
     Assert.NotNull(ex);
-    Assert.That($"Location must not be empty" == ex.Message);
+    Assert.That(ex.Message, Is.EqualTo("Location must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -247,9 +257,11 @@ public class ResourceUsecaseTests
   {
     // setup
     var companyId = Guid.NewGuid();
+    var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -262,7 +274,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "", "New York"));
     Assert.NotNull(ex);
-    Assert.That($"Building name must not be empty" == ex.Message);
+    Assert.That(ex.Message, Is.EqualTo("Building name must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -518,7 +530,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{companyId}' has no access to move a floor to building '{building2Id}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to move a floor to building '{building2Id}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -554,7 +566,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is already a floor named '{floorName}' in building '{buildingId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is already a floor named '{floorName}' in building '{buildingId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -588,10 +600,10 @@ public class ResourceUsecaseTests
     var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, building2Id);
 
     // assert
-    Assert.AreEqual(floorId, updatedFloor.FloorId);
+    Assert.That(updatedFloor.FloorId, Is.EqualTo(floorId));
     Assert.NotNull(updatedFloor);
-    Assert.AreEqual(newFloorName, updatedFloor.FloorName);
-    Assert.AreEqual(building2Id, updatedFloor.BuildingId);
+    Assert.That(updatedFloor.FloorName, Is.EqualTo(newFloorName));
+    Assert.That(updatedFloor.BuildingId, Is.EqualTo(building2Id));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -635,7 +647,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, building2Id));
     Assert.NotNull(ex);
-    Assert.AreEqual($"You cant move floor '{floorId}' to building '{building2Id}'. In building '{building2Id}' already exists a floor called '{floorName}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"You cant move floor '{floorId}' to building '{building2Id}'. In building '{building2Id}' already exists a floor called '{floorName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -738,10 +750,10 @@ public class ResourceUsecaseTests
     var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
 
     // assert
-    Assert.AreEqual(floorId, updatedFloor.FloorId);
+    Assert.That(updatedFloor.FloorId, Is.EqualTo(floorId));
     Assert.NotNull(updatedFloor);
-    Assert.AreEqual(buildingId, updatedFloor.BuildingId);
-    Assert.AreEqual(floorName, updatedFloor.FloorName);
+    Assert.That(updatedFloor.BuildingId, Is.EqualTo(buildingId));
+    Assert.That(updatedFloor.FloorName, Is.EqualTo(floorName));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -784,7 +796,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateRoom(companyId, anotherRoomId, "Room Name", floorId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is no room with id '{anotherRoomId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is no room with id '{anotherRoomId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -884,7 +896,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"Floor does not exist with id '{anotherFloorId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"Floor does not exist with id '{anotherFloorId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -922,7 +934,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => usecases.UpdateRoom(companyId, roomId, "New Room", anotherFloorId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{companyId}' has no access to move a room to floor '{anotherFloorId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to move a room to floor '{anotherFloorId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -965,8 +977,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedRoom);
-    Assert.AreEqual(updatedRoomName, updatedRoom.RoomName);
-    Assert.AreEqual(anotherFloorId, updatedRoom.FloorId);
+    Assert.That(updatedRoom.RoomName, Is.EqualTo(updatedRoomName));
+    Assert.That(updatedRoom.FloorId, Is.EqualTo(anotherFloorId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1002,8 +1014,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedRoom);
-    Assert.AreEqual(updatedRoomName, updatedRoom.RoomName);
-    Assert.AreEqual(floorId, updatedRoom.FloorId);
+    Assert.That(updatedRoom.RoomName, Is.EqualTo(updatedRoomName));
+    Assert.That(updatedRoom.FloorId, Is.EqualTo(floorId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1035,7 +1047,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is already a room named '{roomName}' in floor '{floorId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is already a room named '{roomName}' in floor '{floorId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1083,7 +1095,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"You cant move room '{roomId}' to floor '{anotherFloorId}'. In floor '{anotherFloorId}' already exists a room called '{roomName}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"You cant move room '{roomId}' to floor '{anotherFloorId}'. In floor '{anotherFloorId}' already exists a room called '{roomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1124,8 +1136,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedRoom);
-    Assert.AreEqual(roomName, updatedRoom.RoomName);
-    Assert.AreEqual(anotherFloorId, updatedRoom.FloorId);
+    Assert.That(updatedRoom.RoomName, Is.EqualTo(roomName));
+    Assert.That(updatedRoom.FloorId, Is.EqualTo(anotherFloorId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1161,8 +1173,8 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedRoom);
-    Assert.AreEqual(roomName, updatedRoom.RoomName);
-    Assert.AreEqual(floorId, updatedRoom.FloorId);
+    Assert.That(updatedRoom.RoomName, Is.EqualTo(roomName));
+    Assert.That(updatedRoom.FloorId, Is.EqualTo(floorId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1191,7 +1203,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, unknownDeskId, null, null, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is no desk with id '{unknownDeskId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is no desk with id '{unknownDeskId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1253,7 +1265,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, anotherDeskId, null, null, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{companyId}' has no access to administrate desk '{anotherDeskId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to administrate desk '{anotherDeskId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1315,7 +1327,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, "", null, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"Desk name must not be empty", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"Desk name must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1378,7 +1390,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, unknownRoomId, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"Room does not exist with id '{unknownRoomId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"Room does not exist with id '{unknownRoomId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1441,7 +1453,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{companyId}' has no access to add a desk to room '{anotherRoomId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to add a desk to room '{anotherRoomId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1504,7 +1516,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, null, unknownDeskTypeId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"DeskType does not exist with id '{unknownDeskTypeId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"DeskType does not exist with id '{unknownDeskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1566,7 +1578,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{companyId}' has no access to desk type '{anotherDeskTypeId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to desk type '{anotherDeskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1631,9 +1643,9 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDesk);
-    Assert.AreEqual(updatedDeskName, updatedDesk.DeskName);
-    Assert.AreEqual(anotherRoomId, updatedDesk.RoomId);
-    Assert.AreEqual(anotherDeskTypeId, updatedDesk.DeskTypeId);
+    Assert.That(updatedDesk.DeskName, Is.EqualTo(updatedDeskName));
+    Assert.That(updatedDesk.RoomId, Is.EqualTo(anotherRoomId));
+    Assert.That(updatedDesk.DeskTypeId, Is.EqualTo(anotherDeskTypeId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1698,9 +1710,9 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDesk);
-    Assert.AreEqual(updatedDeskName, updatedDesk.DeskName);
-    Assert.AreEqual(roomId, updatedDesk.RoomId);
-    Assert.AreEqual(deskTypeId, updatedDesk.DeskTypeId);
+    Assert.That(updatedDesk.DeskName, Is.EqualTo(updatedDeskName));
+    Assert.That(updatedDesk.RoomId, Is.EqualTo(roomId));
+    Assert.That(updatedDesk.DeskTypeId, Is.EqualTo(deskTypeId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1763,7 +1775,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, null, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is already a desk named '{updatedDeskName}' in room '{roomId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is already a desk named '{updatedDeskName}' in room '{roomId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1825,7 +1837,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"You cant move desk '{deskId}' to room '{anotherRoomId}'. In room '{anotherRoomId}' already exists a desk called '{deskName}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"You cant move desk '{deskId}' to room '{anotherRoomId}'. In room '{anotherRoomId}' already exists a desk called '{deskName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1889,9 +1901,9 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDesk);
-    Assert.AreEqual(deskName, updatedDesk.DeskName);
-    Assert.AreEqual(anotherRoomId, updatedDesk.RoomId);
-    Assert.AreEqual(deskTypeId, updatedDesk.DeskTypeId);
+    Assert.That(updatedDesk.DeskName, Is.EqualTo(deskName));
+    Assert.That(updatedDesk.RoomId, Is.EqualTo(anotherRoomId));
+    Assert.That(updatedDesk.DeskTypeId, Is.EqualTo(deskTypeId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1955,9 +1967,9 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDesk);
-    Assert.AreEqual(deskName, updatedDesk.DeskName);
-    Assert.AreEqual(roomId, updatedDesk.RoomId);
-    Assert.AreEqual(anotherDeskTypeId, updatedDesk.DeskTypeId);
+    Assert.That(updatedDesk.DeskName, Is.EqualTo(deskName));
+    Assert.That(updatedDesk.RoomId, Is.EqualTo(roomId));
+    Assert.That(updatedDesk.DeskTypeId, Is.EqualTo(anotherDeskTypeId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2021,9 +2033,9 @@ public class ResourceUsecaseTests
 
     //assert
     Assert.NotNull(updatedDesk);
-    Assert.AreEqual(deskName, updatedDesk.DeskName);
-    Assert.AreEqual(roomId, updatedDesk.RoomId);
-    Assert.AreEqual(deskTypeId, updatedDesk.DeskTypeId);
+    Assert.That(updatedDesk.DeskName, Is.EqualTo(deskName));
+    Assert.That(updatedDesk.RoomId, Is.EqualTo(roomId));
+    Assert.That(updatedDesk.DeskTypeId, Is.EqualTo(deskTypeId));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2051,7 +2063,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDeskType(companyId, unknownDeskTypeId, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is no desk type with id '{unknownDeskTypeId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is no desk type with id '{unknownDeskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2079,7 +2091,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDeskType(noPermissionCompanyId, deskTypeId, null));
     Assert.NotNull(ex);
-    Assert.AreEqual($"'{noPermissionCompanyId}' has no access to administrate desk type '{deskTypeId}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"'{noPermissionCompanyId}' has no access to administrate desk type '{deskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2141,7 +2153,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, ""));
     Assert.NotNull(ex);
-    Assert.AreEqual($"Desk type name must not be empty", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo("Desk type name must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2204,7 +2216,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, anotherDeskTypeName));
     Assert.NotNull(ex);
-    Assert.AreEqual($"There is already a desktype named '{anotherDeskTypeName}'", ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"There is already a desktype named '{anotherDeskTypeName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2270,7 +2282,7 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDeskType);
-    Assert.AreEqual(deskTypeNameThatDoesNotExistYet, updatedDeskType.DeskTypeName);
+    Assert.That(updatedDeskType.DeskTypeName, Is.EqualTo(deskTypeNameThatDoesNotExistYet));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -2335,7 +2347,7 @@ public class ResourceUsecaseTests
 
     // assert
     Assert.NotNull(updatedDeskType);
-    Assert.AreEqual(anotherDeskTypeName, updatedDeskType.DeskTypeName);
+    Assert.That(updatedDeskType.DeskTypeName, Is.EqualTo(anotherDeskTypeName));
 
     // cleanup
     context.Database.EnsureDeleted();
