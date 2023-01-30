@@ -2088,7 +2088,8 @@ public class ResourceUsecaseTests
 
     var companyId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
-    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+    var deskTypeName = "testdesktype";
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = deskTypeName };
 
     context.DeskTypes.Add(deskType);
     context.SaveChanges();
@@ -2103,7 +2104,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDeskType(noPermissionCompanyId, deskTypeId, null));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"'{noPermissionCompanyId}' has no access to administrate desk type '{deskTypeId}'"));
+    Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate desk type '{deskTypeName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();

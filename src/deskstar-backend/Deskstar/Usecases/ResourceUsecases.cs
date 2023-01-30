@@ -232,7 +232,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new EntityNotFoundException($"There is no desk type with id '{deskTypeId}'");
 
     if (deskTypeExists.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate desk type '{deskTypeId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate desk type '{deskTypeExists.DeskTypeName}'");
 
     //change deskTypeName
     if (deskTypeName != null)
