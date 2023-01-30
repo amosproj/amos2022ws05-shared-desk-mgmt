@@ -175,7 +175,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
     if (deskExists.Room.Floor.Building.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate desk '{deskId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate desk '{deskExists.DeskName}'");
 
     //change room
     if (roomId != null)
@@ -184,11 +184,11 @@ public class ResourceUsecases : IResourceUsecases
       if (roomExists == null)
         throw new EntityNotFoundException($"Room does not exist with id '{(Guid)roomId}'");
       if (roomExists.Floor.Building.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to add a desk to room '{(Guid)roomId}'");
+        throw new InsufficientPermissionException($"Your company has no access to add a desk to room '{roomExists.RoomName}'");
       var deskNameToBeChecked = deskName != null ? deskName : deskExists.DeskName;
       var deskNameExists = _context.Desks.SingleOrDefault(d => d.RoomId == roomId && d.DeskName == deskNameToBeChecked);
       if (deskNameExists != null)
-        throw new ArgumentInvalidException($"You cant move desk '{deskId}' to room '{roomId}'. In room '{roomId}' already exists a desk called '{deskNameToBeChecked}'");
+        throw new ArgumentInvalidException($"You cant move desk '{deskExists.DeskName}' to room '{roomExists.RoomName}'. In room '{roomExists.RoomName}' already exists a desk called '{deskNameToBeChecked}'");
 
       deskExists.RoomId = (Guid)roomId;
     }
@@ -202,7 +202,7 @@ public class ResourceUsecases : IResourceUsecases
       {
         var deskNameIsUnique = deskExists.Room.Desks.Select(d => d.DeskName).All(name => name != deskName);
         if (!deskNameIsUnique)
-          throw new ArgumentInvalidException($"There is already a desk named '{deskName}' in room '{deskExists.RoomId}'");
+          throw new ArgumentInvalidException($"There is already a desk named '{deskName}' in room '{deskExists.Room.RoomName}'");
       }
 
       deskExists.DeskName = deskName;
@@ -215,7 +215,7 @@ public class ResourceUsecases : IResourceUsecases
       if (deskTypeExists == null)
         throw new EntityNotFoundException($"DeskType does not exist with id '{(Guid)deskTypeId}'");
       if (deskTypeExists.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to desk type '{(Guid)deskTypeId}'");
+        throw new InsufficientPermissionException($"Your company has no access to desk type '{deskTypeExists.DeskTypeName}'");
 
       deskExists.DeskTypeId = (Guid)deskTypeId;
     }
