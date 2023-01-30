@@ -1,6 +1,7 @@
 import { IDesk } from "../../types/desk";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import React from "react";
+import DeskResourceEditModal from "./DeskResourceEditModal";
 
 const DeskResourceTable = ({
   desks,
@@ -18,6 +19,7 @@ const DeskResourceTable = ({
           <tr>
             {/* set size of Desk column */}
             <th className="bg-deskstar-green-light text-left">Desk</th>
+            <th className="bg-deskstar-green-light text-left">Desk Type</th>
             <th className="bg-deskstar-green-light text-left">Room</th>
             <th className="bg-deskstar-green-light text-left">Floor</th>
             <th className="bg-deskstar-green-light text-left">Building</th>
@@ -52,6 +54,7 @@ const DeskResourceTableEntry = ({
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
+      <td className="text-left">{desk.deskTyp}</td>
       <td className="text-left">{desk.roomName}</td>
       <td className="text-left">{desk.floorName}</td>
       <td className="text-left">{desk.buildingName}</td>
@@ -64,10 +67,11 @@ const DeskResourceTableEntry = ({
             </button>
           )}
           {onEdit && (
-            <button className="btn btn-ghost" onClick={() => onEdit(desk)}>
-              <FaEdit />
-            </button>
+              <button className="btn btn-ghost" onClick={() => { onEdit(desk); }}>
+                <FaEdit />
+              </button>
           )}
+
         </td>
       )}
     </tr>

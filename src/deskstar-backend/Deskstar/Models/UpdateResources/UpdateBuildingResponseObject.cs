@@ -3,15 +3,12 @@ using AutoMapper;
 
 namespace Deskstar.Models;
 
-public class CreateBuildingResponseObject
+public class UpdateBuildingResponseObject
 {
-  public CreateBuildingResponseObject() { }
-
   public static void createMappings(IMapperConfigurationExpression cfg)
   {
-    cfg.CreateMap<Entities.Building, CreateBuildingResponseObject>();
+    cfg.CreateMap<Entities.Building, UpdateBuildingResponseObject>();
   }
-
   [Required]
   public Guid BuildingId { get; set; }
   [Required]

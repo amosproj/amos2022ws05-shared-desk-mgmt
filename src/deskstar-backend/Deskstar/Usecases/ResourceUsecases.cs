@@ -2,7 +2,7 @@ using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
-
+using Microsoft.EntityFrameworkCore;
 namespace Deskstar.Usecases;
 
 public interface IResourceUsecases
@@ -20,11 +20,11 @@ public interface IResourceUsecases
   public Floor CreateFloor(string floorName, Guid buildingId);
   public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
-  public Guid UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
-  public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
-  public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
-  public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId);
-  public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
+  public Building UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
+  public Floor UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
+  public Room UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
+  public Desk UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId);
+  public DeskType UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -41,14 +41,14 @@ public class ResourceUsecases : IResourceUsecases
     _userUsecases = userUsecases;
   }
 
-  public Guid UpdateBuilding(Guid companyId, Guid buildingId, string? buildingName, string? location)
+  public Building UpdateBuilding(Guid companyId, Guid buildingId, string? buildingName, string? location)
   {
-    var buildingExists = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    var buildingExists = _context.Buildings.Include(b => b.Company).ThenInclude(c => c.Buildings).SingleOrDefault(b => b.BuildingId == buildingId);
     if (buildingExists == null)
       throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
 
     if (buildingExists.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate building '{buildingId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate building '{buildingExists.BuildingName}'");
 
     //change location
     if (location != null)
@@ -65,7 +65,7 @@ public class ResourceUsecases : IResourceUsecases
         throw new ArgumentInvalidException($"Building name must not be empty");
       var buildingNameIsUnique = buildingExists.Company.Buildings.Select(b => b.BuildingName).All(name => name != buildingName);
       if (!buildingNameIsUnique)
-        throw new ArgumentInvalidException($"There is already a building named '{buildingName}' in company '{buildingExists.CompanyId}'");
+        throw new ArgumentInvalidException($"There is already a building named '{buildingName}' in your company");
 
       buildingExists.BuildingName = buildingName;
     }
@@ -73,17 +73,17 @@ public class ResourceUsecases : IResourceUsecases
     _context.Buildings.Update(buildingExists);
     _context.SaveChanges();
 
-    return buildingId;
+    return buildingExists;
   }
 
-  public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
+  public Floor UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
   {
-    var floorExists = _context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var floorExists = _context.Floors.Include(f => f.Building).SingleOrDefault(f => f.FloorId == floorId);
     if (floorExists == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
 
     if (floorExists.Building.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate floor '{floorId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate floor '{floorExists.FloorName}'");
 
     //change building
     if (buildingId != null)
@@ -92,11 +92,11 @@ public class ResourceUsecases : IResourceUsecases
       if (buildingExists == null)
         throw new EntityNotFoundException($"Building does not exist with id '{(Guid)buildingId}'");
       if (buildingExists.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to move a floor to building '{(Guid)buildingId}'");
+        throw new InsufficientPermissionException($"Your company has no access to move a floor to building '{buildingExists.BuildingName}'");
       var floorNameToBeChecked = floorName != null ? floorName : floorExists.FloorName;
       var floorNameExists = _context.Floors.SingleOrDefault(f => f.BuildingId == buildingId && f.FloorName == floorNameToBeChecked);
       if (floorNameExists != null)
-        throw new ArgumentInvalidException($"You cant move floor '{floorId}' to building '{buildingId}'. In building '{buildingId}' already exists a floor called '{floorNameToBeChecked}'");
+        throw new ArgumentInvalidException($"You cant move floor '{floorExists.FloorName}' to building '{buildingExists.BuildingName}'. In building '{buildingExists.BuildingName}' already exists a floor called '{floorNameToBeChecked}'");
 
       floorExists.BuildingId = (Guid)buildingId;
     }
@@ -110,7 +110,7 @@ public class ResourceUsecases : IResourceUsecases
       {
         var floorNameIsUnique = floorExists.Building.Floors.Select(f => f.FloorName).All(name => name != floorName);
         if (!floorNameIsUnique)
-          throw new ArgumentInvalidException($"There is already a floor named '{floorName}' in building '{floorExists.BuildingId}'");
+          throw new ArgumentInvalidException($"There is already a floor named '{floorName}' in building '{floorExists.Building.BuildingName}'");
       }
 
       floorExists.FloorName = floorName;
@@ -119,30 +119,30 @@ public class ResourceUsecases : IResourceUsecases
     _context.Floors.Update(floorExists);
     _context.SaveChanges();
 
-    return floorId;
+    return floorExists;
   }
 
-  public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId)
+  public Room UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId)
   {
-    var roomExists = _context.Rooms.SingleOrDefault(r => r.RoomId == roomId);
+    var roomExists = _context.Rooms.Include(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(r => r.RoomId == roomId);
     if (roomExists == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
     if (roomExists.Floor.Building.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate floor '{roomExists.FloorId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate room '{roomExists.RoomName}'");
 
     //change floor
     if (floorId != null)
     {
-      var floorExists = _context.Floors.SingleOrDefault(f => f.FloorId == (Guid)floorId);
+      var floorExists = _context.Floors.Include(f => f.Building).SingleOrDefault(f => f.FloorId == (Guid)floorId);
       if (floorExists == null)
         throw new EntityNotFoundException($"Floor does not exist with id '{(Guid)floorId}'");
       if (floorExists.Building.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to move a room to floor '{(Guid)floorId}'");
+        throw new InsufficientPermissionException($"Your company has no access to move a room to floor '{floorExists.FloorName}'");
       var roomNameToBeChecked = roomName != null ? roomName : roomExists.RoomName;
       var roomNameExists = _context.Rooms.SingleOrDefault(r => r.FloorId == floorId && r.RoomName == roomNameToBeChecked);
       if (roomNameExists != null)
-        throw new ArgumentInvalidException($"You cant move room '{roomId}' to floor '{floorId}'. In floor '{floorId}' already exists a room called '{roomNameToBeChecked}'");
+        throw new ArgumentInvalidException($"You cant move room '{roomExists.RoomName}' to floor '{floorExists.FloorName}'. In floor '{floorExists.FloorName}' already exists a room called '{roomNameToBeChecked}'");
 
       roomExists.FloorId = (Guid)floorId;
     }
@@ -156,7 +156,7 @@ public class ResourceUsecases : IResourceUsecases
       {
         var roomNameIsUnique = roomExists.Floor.Rooms.Select(r => r.RoomName).All(name => name != roomName);
         if (!roomNameIsUnique)
-          throw new ArgumentInvalidException($"There is already a room named '{roomName}' in floor '{roomExists.FloorId}'");
+          throw new ArgumentInvalidException($"There is already a room named '{roomName}' in floor '{roomExists.Floor.FloorName}'");
       }
 
       roomExists.RoomName = roomName;
@@ -165,30 +165,30 @@ public class ResourceUsecases : IResourceUsecases
     _context.Rooms.Update(roomExists);
     _context.SaveChanges();
 
-    return roomId;
+    return roomExists;
   }
 
-  public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId)
+  public Desk UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId)
   {
-    var deskExists = _context.Desks.SingleOrDefault(d => d.DeskId == deskId);
+    var deskExists = _context.Desks.Include(d => d.DeskType).Include(d => d.Room).ThenInclude(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(d => d.DeskId == deskId);
     if (deskExists == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
     if (deskExists.Room.Floor.Building.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate desk '{deskId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate desk '{deskExists.DeskName}'");
 
     //change room
     if (roomId != null)
     {
-      var roomExists = _context.Rooms.SingleOrDefault(r => r.RoomId == (Guid)roomId);
+      var roomExists = _context.Rooms.Include(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(r => r.RoomId == (Guid)roomId);
       if (roomExists == null)
         throw new EntityNotFoundException($"Room does not exist with id '{(Guid)roomId}'");
       if (roomExists.Floor.Building.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to add a desk to room '{(Guid)roomId}'");
+        throw new InsufficientPermissionException($"Your company has no access to add a desk to room '{roomExists.RoomName}'");
       var deskNameToBeChecked = deskName != null ? deskName : deskExists.DeskName;
       var deskNameExists = _context.Desks.SingleOrDefault(d => d.RoomId == roomId && d.DeskName == deskNameToBeChecked);
       if (deskNameExists != null)
-        throw new ArgumentInvalidException($"You cant move desk '{deskId}' to room '{roomId}'. In room '{roomId}' already exists a desk called '{deskNameToBeChecked}'");
+        throw new ArgumentInvalidException($"You cant move desk '{deskExists.DeskName}' to room '{roomExists.RoomName}'. In room '{roomExists.RoomName}' already exists a desk called '{deskNameToBeChecked}'");
 
       deskExists.RoomId = (Guid)roomId;
     }
@@ -202,7 +202,7 @@ public class ResourceUsecases : IResourceUsecases
       {
         var deskNameIsUnique = deskExists.Room.Desks.Select(d => d.DeskName).All(name => name != deskName);
         if (!deskNameIsUnique)
-          throw new ArgumentInvalidException($"There is already a desk named '{deskName}' in room '{deskExists.RoomId}'");
+          throw new ArgumentInvalidException($"There is already a desk named '{deskName}' in room '{deskExists.Room.RoomName}'");
       }
 
       deskExists.DeskName = deskName;
@@ -215,7 +215,7 @@ public class ResourceUsecases : IResourceUsecases
       if (deskTypeExists == null)
         throw new EntityNotFoundException($"DeskType does not exist with id '{(Guid)deskTypeId}'");
       if (deskTypeExists.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to desk type '{(Guid)deskTypeId}'");
+        throw new InsufficientPermissionException($"Your company has no access to desk type '{deskTypeExists.DeskTypeName}'");
 
       deskExists.DeskTypeId = (Guid)deskTypeId;
     }
@@ -223,16 +223,16 @@ public class ResourceUsecases : IResourceUsecases
     _context.Desks.Update(deskExists);
     _context.SaveChanges();
 
-    return deskId;
+    return deskExists;
   }
-  public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName)
+  public DeskType UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName)
   {
     var deskTypeExists = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);
     if (deskTypeExists == null)
       throw new EntityNotFoundException($"There is no desk type with id '{deskTypeId}'");
 
     if (deskTypeExists.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate desk type '{deskTypeId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate desk type '{deskTypeExists.DeskTypeName}'");
 
     //change deskTypeName
     if (deskTypeName != null)
@@ -249,7 +249,7 @@ public class ResourceUsecases : IResourceUsecases
     _context.DeskTypes.Update(deskTypeExists);
     _context.SaveChanges();
 
-    return deskTypeId;
+    return deskTypeExists;
   }
 
   public List<CurrentBuilding> GetBuildings(Guid userId)

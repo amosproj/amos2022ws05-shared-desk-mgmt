@@ -8,10 +8,15 @@ import { toast } from "react-toastify";
 import AddResourceModal from "../../components/AddResourceModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
+import BuildingResourceEditModal from "../../components/resources/BuildingResourceEditModal";
 import BuildingResourceTable from "../../components/resources/BuildingResourceTable";
+import DeskResourceEditModal from "../../components/resources/DeskResourceEditModal";
 import DeskResourceTable from "../../components/resources/DeskResourceTable";
+import DeskTypeResourceEditModal from "../../components/resources/DeskTypeResourceEditModal";
 import DeskTypeResourceTable from "../../components/resources/DeskTypeResourceTable";
+import FloorResourceEditModal from "../../components/resources/FloorResourceEditModal";
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
+import RoomResourceEditModal from "../../components/resources/RoomResourceEditModal";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
 import {
   getBuildings,
@@ -19,7 +24,13 @@ import {
   getDeskTypes,
   getFloors,
   getRooms,
+  updateBuilding,
+  updateDesk,
+  updateDeskType,
+  updateFloor,
+  updateRoom,
 } from "../../lib/api/ResourceService";
+import { UpdateBuildingDto } from "../../types/models/UpdateBuildingDto";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
 import { IDeskType } from "../../types/desktypes";
@@ -27,6 +38,10 @@ import { IFloor } from "../../types/floor";
 import { ILocation } from "../../types/location";
 import { IRoom } from "../../types/room";
 import { authOptions } from "../api/auth/[...nextauth]";
+import { UpdateFloorDto } from "../../types/models/UpdateFloorDto";
+import { UpdateRoomDto } from "../../types/models/UpdateRoomDto";
+import { UpdateDeskTypeDto } from "../../types/models/UpdateDeskTypeDto";
+import { UpdateDeskDto } from "../../types/models/UpdateDeskDto";
 
 const ResourceOverview = ({
   buildings: origBuildings,
@@ -36,6 +51,7 @@ const ResourceOverview = ({
   deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
+
 
   const locations: ILocation[] = origBuildings.map((building) => ({
     locationName: building.location,
@@ -47,7 +63,30 @@ const ResourceOverview = ({
   const [floors, setFloors] = useState<IFloor[]>([]);
   const [rooms, setRooms] = useState<IRoom[]>([]);
   const [desks, setDesks] = useState<IDesk[]>([]);
-  const [desktypes, setDeskTypes] = useState<IDeskType[]>([]);
+  const [deskTypes, setDeskTypes] = useState<IDeskType[]>(origDeskTypes);
+
+  const [editDeskType, setEditDeskType] = useState<IDeskType>();
+  const [isEditDeskTypeModalOpen, setIsEditDeskTypeModalOpen] = useState<boolean>(false);
+
+  const [editDesk, setEditDesk] = useState<IDesk>();
+  const [isEditDeskModalOpen, setIsEditDeskModalOpen] = useState<boolean>(false);
+
+  const [editRoom, setEditRoom] = useState<IRoom>();
+  const [isEditRoomModalOpen, setIsEditRoomModalOpen] = useState<boolean>(false);
+
+  const [editFloor, setEditFloor] = useState<IFloor>();
+  const [isEditFloorModalOpen, setIsEditFloorModalOpen] = useState<boolean>(false);
+
+  const [editBuilding, setEditBuilding] = useState<IBuilding>();
+  const [isEditBuildingModalOpen, setIsEditBuildingModalOpen] = useState<boolean>(false);
+
+  const [deskTypeNameModal, setDeskTypeNameModal] = useState<string>("");
+  const [deskNameModal, setDeskNameModal] = useState<string>("");
+  const [roomNameModal, setRoomNameModal] = useState<string>("");
+  const [floorNameModal, setFloorNameModal] = useState<string>("");
+  const [buildingNameModal, setBuildingNameModal] = useState<string>("");
+  const [locationModal, setLocationModal] = useState<string>("");
+
 
   const resourceOptions = [
     "Buildings",
@@ -158,10 +197,111 @@ const ResourceOverview = ({
     }
   }, [router, session]);
 
-  const onEdit = async (resource: object): Promise<void> => {
-    //TODO: Implement
-    toast.success(`Editing resource...`);
+  const openDeskTypeEditModal = async (deskType: IDeskType): Promise<void> => {
+    setDeskTypeNameModal(deskType.deskTypeName)
+    setEditDeskType(deskType);
+    setIsEditDeskTypeModalOpen(true);
   };
+  const openDeskEditModal = async (desk: IDesk): Promise<void> => {
+    setDeskNameModal(desk.deskName);
+    setEditDesk(desk);
+    setIsEditDeskModalOpen(true);
+  };
+  const openRoomEditModal = async (room: IRoom): Promise<void> => {
+    setRoomNameModal(room.roomName);
+    setEditRoom(room);
+    setIsEditRoomModalOpen(true);
+  };
+  const openFloorEditModal = async (floor: IFloor): Promise<void> => {
+    setFloorNameModal(floor.floorName);
+    setEditFloor(floor);
+    setIsEditFloorModalOpen(true);
+  };
+  const openBuildingEditModal = async (building: IBuilding): Promise<void> => {
+    setEditBuilding(building);
+    setBuildingNameModal(building.buildingName);
+    setLocationModal(building.location);
+    setIsEditBuildingModalOpen(true);
+  };
+  const updateBuildingState = async (building: IBuilding): Promise<void> => {
+    const i = buildings.findIndex((v, i) => v.buildingId == building.buildingId);
+    buildings[i] = building;
+    setBuildings(buildings);
+  };
+  const updateFloorState = async (floor: IFloor): Promise<void> => {
+    const i = floors.findIndex((v, i) => v.floorId == floor.floorId);
+    floors[i] = floor;
+    setFloors(floors);
+  };
+  const updateRoomState = async (room: IRoom): Promise<void> => {
+    const i = rooms.findIndex((v, i) => v.roomId == room.roomId);
+    rooms[i] = room;
+    setRooms(rooms);
+  };
+  const updateDeskState = async (desk: IDesk): Promise<void> => {
+    const i = desks.findIndex((v, i) => v.deskId == desk.deskId);
+    desks[i] = desk;
+    setDesks(desks);
+  };
+  const updateDeskTypeState = async (deskType: IDeskType): Promise<void> => {
+    const i = deskTypes.findIndex((v, i) => v.deskTypeId == deskType.deskTypeId);
+    deskTypes[i] = deskType;
+    setDeskTypes(deskTypes);
+  };
+  const updateBuildingInService = async (updateBuildingDto: UpdateBuildingDto, selectedBuilding: IBuilding): Promise<void> => {
+    if (!session) return;
+    const result = await updateBuilding(session, updateBuildingDto, selectedBuilding);
+    setIsEditBuildingModalOpen(false);
+    showMessageToast(result.message);
+    if (result.message.includes("Success")) {
+      const updatedBuilding = result.data as (IBuilding);
+      updateBuildingState(updatedBuilding);
+    }
+  };
+
+  const updateFloorInService = async (updateFloorDto: UpdateFloorDto, selectedFloor: IFloor): Promise<void> => {
+    if (!session) return;
+    const result = await updateFloor(session, updateFloorDto, selectedFloor);
+    setIsEditFloorModalOpen(false);
+    showMessageToast(result.message);
+    if (result.message.includes("Success")) {
+      const updatedFloor = result.data as (IFloor);
+      updateFloorState(updatedFloor);
+    }
+  };
+  const updateRoomInService = async (updateRoomDto: UpdateRoomDto, selectedRoom: IRoom): Promise<void> => {
+    if (!session) return;
+    const result = await updateRoom(session, updateRoomDto, selectedRoom);
+    setIsEditRoomModalOpen(false);
+    showMessageToast(result.message);
+    if (result.message.includes("Success")) {
+      const updatedRoom = result.data as (IRoom);
+      updateRoomState(updatedRoom);
+    }
+  };
+  const updateDeskInService = async (updateDeskDto: UpdateDeskDto, selectedDesk: IDesk): Promise<void> => {
+    if (!session) return;
+    const result = await updateDesk(session, updateDeskDto, selectedDesk);
+    setIsEditDeskModalOpen(false);
+    showMessageToast(result.message);
+    if (result.message.includes("Success")) {
+      const updatedDesk = result.data as (IDesk);
+      updateDeskState(updatedDesk);
+    }
+  };
+  const updateDeskTypeInService = async (updateDeskTypeDto: UpdateDeskTypeDto, selectedDeskType: IDeskType): Promise<void> => {
+    if (!session) return;
+    const result = await updateDeskType(session, updateDeskTypeDto, selectedDeskType);
+    setIsEditDeskTypeModalOpen(false);
+    showMessageToast(result.message);
+    if (result.message.includes("Success")) {
+      const updatedDeskType = result.data as (IDeskType);
+      updateDeskTypeState(updatedDeskType);
+    }
+  };
+  const showMessageToast = (message: string): void => {
+    message.includes("Success") ? toast.success(message) : toast.warn(message);
+  }
 
   const onDelete = async (resource: object): Promise<void> => {
     //TODO: Implement
@@ -172,7 +312,7 @@ const ResourceOverview = ({
     if (resourceName == null) return -1;
     return resourceOptions.findIndex((v, i, obj) => resourceName === v);
   };
-
+  if (!session) return (<></>)
   return (
     <>
       {isFetching && (
@@ -204,7 +344,7 @@ const ResourceOverview = ({
             href="#create-resource-modal"
             type="button"
             className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
-            onClick={() => {}}
+            onClick={() => { }}
           >
             Add Resource
           </a>
@@ -260,46 +400,50 @@ const ResourceOverview = ({
       )}
       {selectedResourceOption === "Desk types" && (
         <>
-          {origDeskTypes.length > 0 && (
+          {deskTypes.length > 0 && (
             <DeskTypeResourceTable
-              onEdit={onEdit}
+              onEdit={openDeskTypeEditModal}
               onDelete={onDelete}
-              deskTypes={origDeskTypes}
+              deskTypes={deskTypes}
             />
           )}
+          <DeskTypeResourceEditModal isOpen={isEditDeskTypeModalOpen} setState={setIsEditDeskTypeModalOpen} desktype={editDeskType} session={session} updateDeskType={updateDeskTypeInService} deskTypeName={deskTypeNameModal} setDeskTypeName={setDeskTypeNameModal} />
         </>
       )}
       {selectedResourceOption === "Desks" && (
         <>
           {desks.length > 0 && (
             <DeskResourceTable
-              onEdit={onEdit}
+              onEdit={openDeskEditModal}
               onDelete={onDelete}
               desks={desks}
             />
           )}
+          <DeskResourceEditModal desk={editDesk} rooms={rooms} isOpen={isEditDeskModalOpen} setState={setIsEditDeskModalOpen} session={session} updateDesk={updateDeskInService} origBuildings={origBuildings} origDeskTypes={origDeskTypes} deskName={deskNameModal} setDeskName={setDeskNameModal} />
         </>
       )}
       {selectedResourceOption === "Rooms" && (
         <>
           {rooms.length > 0 && (
             <RoomResourceTable
-              onEdit={onEdit}
+              onEdit={openRoomEditModal}
               onDelete={onDelete}
               rooms={rooms}
             />
           )}
+          <RoomResourceEditModal updateRoom={updateRoomInService} origBuildings={buildings} session={session} isOpen={isEditRoomModalOpen} setState={setIsEditRoomModalOpen} room={editRoom} roomName={roomNameModal} setRoomName={setRoomNameModal} />
         </>
       )}
       {selectedResourceOption === "Floors" && (
         <>
           {floors.length > 0 && (
             <FloorResourceTable
-              onEdit={onEdit}
+              onEdit={openFloorEditModal}
               onDelete={onDelete}
               floors={floors}
             />
           )}
+          <FloorResourceEditModal isOpen={isEditFloorModalOpen} setState={setIsEditFloorModalOpen} floor={editFloor} origBuildings={origBuildings} updateFloor={updateFloorInService} session={session} floorName={floorNameModal} setFloorName={setFloorNameModal} />
         </>
       )}
 
@@ -307,11 +451,12 @@ const ResourceOverview = ({
         <>
           {buildings.length > 0 && (
             <BuildingResourceTable
-              onEdit={onEdit}
+              onEdit={openBuildingEditModal}
               onDelete={onDelete}
               buildings={buildings}
             />
           )}
+          <BuildingResourceEditModal isOpen={isEditBuildingModalOpen} setState={setIsEditBuildingModalOpen} building={editBuilding} updateBuilding={updateBuildingInService} buildingName={buildingNameModal} location={locationModal} setBuildingName={setBuildingNameModal} setLocation={setLocationModal} />
         </>
       )}
 
