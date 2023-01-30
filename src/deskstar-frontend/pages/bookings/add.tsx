@@ -10,6 +10,7 @@ import { getBuildings } from "../../lib/api/ResourceService";
 import { createBooking } from "../../lib/api/BookingService";
 import { IBuilding } from "../../types/building";
 import { useMemo, useRef, useState } from "react";
+import DeskSearchResults from "../../components/DeskSearchResults";
 import { IDesk } from "../../types/desk";
 import Filterbar from "../../components/Filterbar";
 import DesksTable from "../../components/DesksTable";
