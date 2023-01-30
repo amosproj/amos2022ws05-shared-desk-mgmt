@@ -818,7 +818,8 @@ public class ResourceUsecaseTests
     var context = new DataContext();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
-    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
+    var roomName = "testroom";
+    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
     context.Buildings.Add(building);
     context.Floors.Add(floor);
     context.Rooms.Add(room);
@@ -833,7 +834,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateRoom(anotherCompanyId, roomId, "Room Name", floorId));
     Assert.NotNull(ex);
-    Assert.That($"'{anotherCompanyId}' has no access to administrate floor '{floorId}'" == ex.Message);
+    Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate room '{roomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -920,7 +921,8 @@ public class ResourceUsecaseTests
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "testfloor" };
+    var anotherFloorName = "anotherTestFloor";
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
     context.Buildings.Add(building);
@@ -938,7 +940,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() => usecases.UpdateRoom(companyId, roomId, "New Room", anotherFloorId));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"'{companyId}' has no access to move a room to floor '{anotherFloorId}'"));
+    Assert.That(ex.Message, Is.EqualTo($"Your company has no access to move a room to floor '{anotherFloorName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1035,7 +1037,8 @@ public class ResourceUsecaseTests
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
     var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
+    var floorName ="testfloor";
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = floorName };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
     context.Buildings.Add(building);
@@ -1051,7 +1054,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, null));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"There is already a room named '{roomName}' in floor '{floorId}'"));
+    Assert.That(ex.Message, Is.EqualTo($"There is already a room named '{roomName}' in floor '{floorName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -1082,7 +1085,8 @@ public class ResourceUsecaseTests
     var anotherRoomId = Guid.NewGuid();
 
     var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "testfloor" };
+    var anotherFloorName = "testfloor";
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = roomName };
 
     context.Buildings.Add(anotherBuilding);
@@ -1099,7 +1103,7 @@ public class ResourceUsecaseTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"You cant move room '{roomId}' to floor '{anotherFloorId}'. In floor '{anotherFloorId}' already exists a room called '{roomName}'"));
+    Assert.That(ex.Message, Is.EqualTo($"You cant move room '{roomName}' to floor '{anotherFloorName}'. In floor '{anotherFloorName}' already exists a room called '{roomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();

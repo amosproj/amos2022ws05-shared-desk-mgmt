@@ -129,7 +129,7 @@ public class ResourceUsecases : IResourceUsecases
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
     if (roomExists.Floor.Building.CompanyId != companyId)
-      throw new InsufficientPermissionException($"'{companyId}' has no access to administrate floor '{roomExists.FloorId}'");
+      throw new InsufficientPermissionException($"Your company has no access to administrate room '{roomExists.RoomName}'");
 
     //change floor
     if (floorId != null)
@@ -138,11 +138,11 @@ public class ResourceUsecases : IResourceUsecases
       if (floorExists == null)
         throw new EntityNotFoundException($"Floor does not exist with id '{(Guid)floorId}'");
       if (floorExists.Building.CompanyId != companyId)
-        throw new InsufficientPermissionException($"'{companyId}' has no access to move a room to floor '{(Guid)floorId}'");
+        throw new InsufficientPermissionException($"Your company has no access to move a room to floor '{floorExists.FloorName}'");
       var roomNameToBeChecked = roomName != null ? roomName : roomExists.RoomName;
       var roomNameExists = _context.Rooms.SingleOrDefault(r => r.FloorId == floorId && r.RoomName == roomNameToBeChecked);
       if (roomNameExists != null)
-        throw new ArgumentInvalidException($"You cant move room '{roomId}' to floor '{floorId}'. In floor '{floorId}' already exists a room called '{roomNameToBeChecked}'");
+        throw new ArgumentInvalidException($"You cant move room '{roomExists.RoomName}' to floor '{floorExists.FloorName}'. In floor '{floorExists.FloorName}' already exists a room called '{roomNameToBeChecked}'");
 
       roomExists.FloorId = (Guid)floorId;
     }
@@ -156,7 +156,7 @@ public class ResourceUsecases : IResourceUsecases
       {
         var roomNameIsUnique = roomExists.Floor.Rooms.Select(r => r.RoomName).All(name => name != roomName);
         if (!roomNameIsUnique)
-          throw new ArgumentInvalidException($"There is already a room named '{roomName}' in floor '{roomExists.FloorId}'");
+          throw new ArgumentInvalidException($"There is already a room named '{roomName}' in floor '{roomExists.Floor.FloorName}'");
       }
 
       roomExists.RoomName = roomName;
