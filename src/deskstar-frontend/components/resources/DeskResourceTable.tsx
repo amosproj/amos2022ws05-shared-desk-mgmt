@@ -19,6 +19,7 @@ const DeskResourceTable = ({
           <tr>
             {/* set size of Desk column */}
             <th className="bg-deskstar-green-light text-left">Desk</th>
+            <th className="bg-deskstar-green-light text-left">Desk Type</th>
             <th className="bg-deskstar-green-light text-left">Room</th>
             <th className="bg-deskstar-green-light text-left">Floor</th>
             <th className="bg-deskstar-green-light text-left">Building</th>
@@ -53,6 +54,7 @@ const DeskResourceTableEntry = ({
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
+      <td className="text-left">{desk.deskTyp}</td>
       <td className="text-left">{desk.roomName}</td>
       <td className="text-left">{desk.floorName}</td>
       <td className="text-left">{desk.buildingName}</td>
@@ -65,14 +67,11 @@ const DeskResourceTableEntry = ({
             </button>
           )}
           {onEdit && (
-            <a href={`#edit-desk-modal-${desk.deskId}`}>
-
-            <button  className="btn btn-ghost" onClick={() => onEdit(desk)}>
-              <FaEdit />
-            </button>
-            </a>
+              <button className="btn btn-ghost" onClick={() => { onEdit(desk); }}>
+                <FaEdit />
+              </button>
           )}
-          
+
         </td>
       )}
     </tr>
