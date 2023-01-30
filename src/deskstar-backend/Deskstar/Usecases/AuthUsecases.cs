@@ -17,7 +17,7 @@ namespace Deskstar.Usecases
   {
     LoginResponse CheckCredentials(string mail, string password);
     string CreateToken(IConfiguration configuration, string mail);
-    User RegisterAdmin(RegisterAdminDto registerAdmin);
+    User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName);
     RegisterResponse RegisterUser(RegisterUser registerUser);
   }
 
@@ -177,46 +177,54 @@ namespace Deskstar.Usecases
       }
     }
 
-    public User RegisterAdmin(RegisterAdminDto registerAdmin)
+    public User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName)
     {
-      if (string.IsNullOrEmpty(registerAdmin.FirstName))
-        throw new ArgumentInvalidException($"'{nameof(registerAdmin.FirstName)}' is not set");
-      if (string.IsNullOrEmpty(registerAdmin.LastName))
-        throw new ArgumentInvalidException($"'{nameof(registerAdmin.LastName)}' is not set");
-      if (string.IsNullOrEmpty(registerAdmin.MailAddress))
-        throw new ArgumentInvalidException($"'{nameof(registerAdmin.MailAddress)}' is not set");
-      if (string.IsNullOrEmpty(registerAdmin.Password))
-        throw new ArgumentInvalidException($"'{nameof(registerAdmin.Password)}' is not set");
-      if (string.IsNullOrEmpty(registerAdmin.CompanyName))
-        throw new ArgumentInvalidException($"'{nameof(registerAdmin.Password)}' is not set");
+      if (string.IsNullOrEmpty(firstName))
+        throw new ArgumentInvalidException($"'{nameof(firstName)}' is not set");
+
+      if (string.IsNullOrEmpty(lastName))
+        throw new ArgumentInvalidException($"'{nameof(lastName)}' is not set");
+
+      if (string.IsNullOrEmpty(mailAddress))
+        throw new ArgumentInvalidException($"'{nameof(mailAddress)}' is not set");
+
+      if (string.IsNullOrEmpty(password))
+        throw new ArgumentInvalidException($"'{nameof(password)}' is not set");
+
+      if (string.IsNullOrEmpty(companyName))
+        throw new ArgumentInvalidException($"'{nameof(companyName)}' is not set");
+
       var rx = new Regex(
         "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
         RegexOptions.IgnoreCase);
-      if (rx.Matches(registerAdmin.MailAddress).Count != 1)
-        throw new ArgumentInvalidException("Mailaddress is not valid");
-      if (_getUser(registerAdmin.MailAddress) != User.Null)
-        throw new ArgumentInvalidException($"E-Mail '{registerAdmin.MailAddress}' already in use");
+      if (rx.Matches(mailAddress).Count != 1)
+        throw new ArgumentInvalidException($"E-Mail '{mailAddress}' is not valid");
+        
+      if (_getUser(mailAddress) != User.Null)
+        throw new ArgumentInvalidException($"E-Mail '{mailAddress}' already in use");
 
-
-      var companyNameExists = _context.Companies.SingleOrDefault(c => c.CompanyName == registerAdmin.CompanyName);
+      var companyNameExists = _context.Companies.SingleOrDefault(c => c.CompanyName == companyName);
       if (companyNameExists != null)
-        throw new ArgumentInvalidException($"Company name '{registerAdmin.CompanyName}' already in use");
+        throw new ArgumentInvalidException($"Company name '{companyName}' already in use");
 
       var companyId = Guid.NewGuid();
-      var company = new Company { CompanyName = registerAdmin.CompanyName, CompanyId = companyId };
+      var company = new Company { CompanyName = companyName, CompanyId = companyId };
+
       var admin = new User
       {
         CompanyId = companyId,
-        MailAddress = registerAdmin.MailAddress,
-        FirstName = registerAdmin.FirstName,
-        LastName = registerAdmin.LastName,
+        MailAddress = mailAddress,
+        FirstName = firstName,
+        LastName = lastName,
         Company = company,
         IsApproved = true,
         IsCompanyAdmin = true,
       };
-      admin.Password = _hasher.HashPassword(admin, registerAdmin.Password);
+      admin.Password = _hasher.HashPassword(admin, password);
+
       _context.Companies.Add(company);
       _context.Users.Add(admin);
+
       _context.SaveChanges();
 
       return admin;

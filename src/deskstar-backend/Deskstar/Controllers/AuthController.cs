@@ -1,3 +1,4 @@
+using Deskstar.Core.Exceptions;
 using Deskstar.Entities;
 using Deskstar.Models;
 using Deskstar.Usecases;
@@ -92,11 +93,22 @@ public class AuthController : ControllerBase
   [AllowAnonymous]
   [ProducesResponseType(StatusCodes.Status200OK)]
   [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status400BadRequest)]
-  public IActionResult RegisterAdmin(RegisterAdminDto registerUser)
+  public IActionResult RegisterAdmin(RegisterAdminDto registerAdmin)
   {
-    var admin = _authUsecases.RegisterAdmin(registerUser);
-    var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
-    var dto = mapper.Map<User, RegisterAdminResponseObject>(admin);
-    return Ok(dto);
+    try
+    {
+      var admin = _authUsecases.RegisterAdmin(registerAdmin.FirstName, registerAdmin.LastName, registerAdmin.MailAddress, registerAdmin.Password, registerAdmin.CompanyName);
+      var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
+      var dto = mapper.Map<User, RegisterAdminResponseObject>(admin);
+      return Ok(dto);
+    }
+    catch (ArgumentInvalidException e)
+    {
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      return Problem(statusCode: 500);
+    }
   }
 }
