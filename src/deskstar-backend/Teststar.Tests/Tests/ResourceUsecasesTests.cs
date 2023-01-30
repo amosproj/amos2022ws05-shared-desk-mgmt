@@ -131,13 +131,41 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetFloors_WhenBuildingNotExsits_ShouldReturnAException()
+  public void GetFloors_WhenNoFloorIdProvided_ShouldReturnList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+
+    //act
+    var result = usecases.GetFloors(userId,"");
+
+    //assert
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetFloors_WhenBuildingNotExists_ShouldReturnAException()
   {
     //setup
     using var db = new DataContext();
 
     var buildingId = Guid.NewGuid();
-    SetupMockData(db, buildingId: buildingId);
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId, buildingId: buildingId);
 
     db.SaveChanges();
 
@@ -149,7 +177,7 @@ public class ResourceUsecasesTests
     //act
     try
     {
-      usecases.GetFloors(callId);
+      usecases.GetFloors(userId, callId.ToString());
 
       //assert
       Assert.Fail("No exception thrown");
@@ -162,6 +190,34 @@ public class ResourceUsecasesTests
     //cleanup
     db.Database.EnsureDeleted();
   }
+
+  [Test]
+  public void GetRooms_WhenNoFloorIDProvided_ShouldReturnAnList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId );
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //act
+    var result=usecases.GetRooms(userId, "");
+
+      //assert
+      Assert.That(result, Is.Not.Empty);
+      Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  //TODO: Get Room Tests
 
   [Test]
   public void GetDesks_WhenNoDeskFound_ShouldReturnAEmptyList()
@@ -223,7 +279,7 @@ public class ResourceUsecasesTests
 
 
     //act
-    var result = usecases.GetDesks(roomId, DateTime.Now, DateTime.Now);
+    var result = usecases.GetDesks(userId, roomId.ToString(), DateTime.Now, DateTime.Now);
 
     //assert
     Assert.That(result, Is.Empty);
@@ -241,7 +297,8 @@ public class ResourceUsecasesTests
     var roomId = Guid.NewGuid();
     var start = DateTime.Now;
     var end = DateTime.Now;
-    SetupMockData(db, roomId: roomId);
+    var userId = Guid.NewGuid();
+    SetupMockData(db, roomId: roomId, userId: userId);
 
     db.SaveChanges();
 
@@ -253,7 +310,7 @@ public class ResourceUsecasesTests
     //act
     try
     {
-      usecases.GetDesks(callId, start, end);
+      usecases.GetDesks(userId, callId.ToString(), start, end);
 
       //assert
       Assert.Fail("No exception thrown");
@@ -268,7 +325,37 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetDesks_WhenDeskIsFound_StartBevoreEndIn_ShouldReturnACurrentsDeskList()
+  public void GetDesks_WhenNoRoomIdProvided_ShouldListOfAllDesks()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var roomId = Guid.NewGuid();
+    var start = DateTime.Now;
+    var end = DateTime.Now;
+    var userId = Guid.NewGuid();
+    SetupMockData(db, roomId: roomId, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //act
+
+    var result = usecases.GetDesks(userId, "", start, end);
+
+    //assert
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetDesks_WhenDeskIsFound_StartBeforeEndIn_ShouldReturnACurrentsDeskList()
   {
     //setup
     using var db = new DataContext();
@@ -298,7 +385,7 @@ public class ResourceUsecasesTests
 
 
     //act
-    var result = usecases.GetDesks(roomId, start, end);
+    var result = usecases.GetDesks(userId, roomId.ToString(), start, end);
 
     //assert
 
@@ -358,7 +445,7 @@ public class ResourceUsecasesTests
 
 
     //act
-    var result = usecases.GetDesks(roomId, start, end);
+    var result = usecases.GetDesks(userId, roomId.ToString(), start, end);
 
     //assert
 
@@ -418,7 +505,7 @@ public class ResourceUsecasesTests
 
 
     //act
-    var result = usecases.GetDesks(roomId, start, end);
+    var result = usecases.GetDesks(userId, roomId.ToString(), start, end);
 
     //assert
 

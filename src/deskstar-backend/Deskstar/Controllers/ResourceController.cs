@@ -193,7 +193,6 @@ public class ResourceController : ControllerBase
     }
   }
 
-
   /// <summary>
   /// Returns a list of Floors.
   /// </summary>
@@ -213,10 +212,11 @@ public class ResourceController : ControllerBase
   [Produces("application/json")]
   public IActionResult GetFloorsByBuildingId(string buildingId)
   {
+    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
     List<CurrentFloor> floor;
     try
     {
-      floor = _resourceUsecases.GetFloors(new Guid(buildingId));
+      floor = _resourceUsecases.GetFloors(callerId, buildingId);
     }
     catch (ArgumentException e)
     {
@@ -376,10 +376,11 @@ public class ResourceController : ControllerBase
   [Produces("application/json")]
   public IActionResult GetRoomsByFloorId(string floorId)
   {
+    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
     List<CurrentRoom> rooms;
     try
     {
-      rooms = _resourceUsecases.GetRooms(new Guid(floorId));
+      rooms = _resourceUsecases.GetRooms(callerId, floorId);
     }
     catch (ArgumentException e)
     {
@@ -541,12 +542,13 @@ public class ResourceController : ControllerBase
   [Produces("application/json")]
   public IActionResult GetDesksByRoomId(string roomId, long start = 0, long end = 0)
   {
+    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
     var startDateTime = start == 0 ? DateTime.MinValue : DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
     var endDateTime = end == 0 ? DateTime.MaxValue : DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
     List<CurrentDesk> desks;
     try
     {
-      desks = _resourceUsecases.GetDesks(new Guid(roomId), startDateTime, endDateTime);
+      desks = _resourceUsecases.GetDesks(callerId, roomId, startDateTime, endDateTime);
     }
     catch (ArgumentException e)
     {
@@ -744,6 +746,7 @@ public class ResourceController : ControllerBase
       return Problem(statusCode: 500);
     }
   }
+
   /// <summary>
   /// Creates a new DeskType.
   /// </summary>
