@@ -2,6 +2,6 @@ namespace Deskstar.Models;
 
 public class UpdateRoomDto
 {
-    public string? FloorId;
-    public string? RoomName;
+    public string? FloorId {get;set;}
+    public string? RoomName {get;set;}
 }

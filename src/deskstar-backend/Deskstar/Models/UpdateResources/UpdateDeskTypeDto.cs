@@ -1,5 +1,5 @@
 namespace Deskstar.Models;
 
 public class UpdateDeskTypeDto{
-    public string? DeskTypeName;
+    public string? DeskTypeName {get;set;}
 }

@@ -2,7 +2,7 @@ using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
-
+using Microsoft.EntityFrameworkCore;
 namespace Deskstar.Usecases;
 
 public interface IResourceUsecases
@@ -20,11 +20,11 @@ public interface IResourceUsecases
   public Floor CreateFloor(string floorName, Guid buildingId);
   public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
-  public Guid UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
-  public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
-  public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
-  public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId);
-  public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
+  public Building UpdateBuilding(Guid companyId, Guid buildingGuid, string? buildingName, string? location);
+  public Floor UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId);
+  public Room UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId);
+  public Desk UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId);
+  public DeskType UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -41,9 +41,9 @@ public class ResourceUsecases : IResourceUsecases
     _userUsecases = userUsecases;
   }
 
-  public Guid UpdateBuilding(Guid companyId, Guid buildingId, string? buildingName, string? location)
+  public Building UpdateBuilding(Guid companyId, Guid buildingId, string? buildingName, string? location)
   {
-    var buildingExists = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    var buildingExists = _context.Buildings.Include(b => b.Company).ThenInclude(c => c.Buildings).SingleOrDefault(b => b.BuildingId == buildingId);
     if (buildingExists == null)
       throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
 
@@ -73,12 +73,12 @@ public class ResourceUsecases : IResourceUsecases
     _context.Buildings.Update(buildingExists);
     _context.SaveChanges();
 
-    return buildingId;
+    return buildingExists;
   }
 
-  public Guid UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
+  public Floor UpdateFloor(Guid companyId, Guid floorId, string? floorName, Guid? buildingId)
   {
-    var floorExists = _context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var floorExists = _context.Floors.Include(f => f.Building).SingleOrDefault(f => f.FloorId == floorId);
     if (floorExists == null)
       throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
 
@@ -119,12 +119,12 @@ public class ResourceUsecases : IResourceUsecases
     _context.Floors.Update(floorExists);
     _context.SaveChanges();
 
-    return floorId;
+    return floorExists;
   }
 
-  public Guid UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId)
+  public Room UpdateRoom(Guid companyId, Guid roomId, string? roomName, Guid? floorId)
   {
-    var roomExists = _context.Rooms.SingleOrDefault(r => r.RoomId == roomId);
+    var roomExists = _context.Rooms.Include(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(r => r.RoomId == roomId);
     if (roomExists == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
@@ -134,7 +134,7 @@ public class ResourceUsecases : IResourceUsecases
     //change floor
     if (floorId != null)
     {
-      var floorExists = _context.Floors.SingleOrDefault(f => f.FloorId == (Guid)floorId);
+      var floorExists = _context.Floors.Include(f => f.Building).SingleOrDefault(f => f.FloorId == (Guid)floorId);
       if (floorExists == null)
         throw new EntityNotFoundException($"Floor does not exist with id '{(Guid)floorId}'");
       if (floorExists.Building.CompanyId != companyId)
@@ -165,12 +165,12 @@ public class ResourceUsecases : IResourceUsecases
     _context.Rooms.Update(roomExists);
     _context.SaveChanges();
 
-    return roomId;
+    return roomExists;
   }
 
-  public Guid UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId)
+  public Desk UpdateDesk(Guid companyId, Guid deskId, string? deskName, Guid? roomId, Guid? deskTypeId)
   {
-    var deskExists = _context.Desks.SingleOrDefault(d => d.DeskId == deskId);
+    var deskExists = _context.Desks.Include(d => d.DeskType).Include(d => d.Room).ThenInclude(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(d => d.DeskId == deskId);
     if (deskExists == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
@@ -180,7 +180,7 @@ public class ResourceUsecases : IResourceUsecases
     //change room
     if (roomId != null)
     {
-      var roomExists = _context.Rooms.SingleOrDefault(r => r.RoomId == (Guid)roomId);
+      var roomExists = _context.Rooms.Include(r => r.Floor).ThenInclude(f => f.Building).SingleOrDefault(r => r.RoomId == (Guid)roomId);
       if (roomExists == null)
         throw new EntityNotFoundException($"Room does not exist with id '{(Guid)roomId}'");
       if (roomExists.Floor.Building.CompanyId != companyId)
@@ -223,9 +223,9 @@ public class ResourceUsecases : IResourceUsecases
     _context.Desks.Update(deskExists);
     _context.SaveChanges();
 
-    return deskId;
+    return deskExists;
   }
-  public Guid UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName)
+  public DeskType UpdateDeskType(Guid companyId, Guid deskTypeId, string? deskTypeName)
   {
     var deskTypeExists = _context.DeskTypes.SingleOrDefault(dt => dt.DeskTypeId == deskTypeId);
     if (deskTypeExists == null)
@@ -249,7 +249,7 @@ public class ResourceUsecases : IResourceUsecases
     _context.DeskTypes.Update(deskTypeExists);
     _context.SaveChanges();
 
-    return deskTypeId;
+    return deskTypeExists;
   }
 
   public List<CurrentBuilding> GetBuildings(Guid userId)

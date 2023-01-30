@@ -116,13 +116,9 @@ public class ResourceUsecaseTests
     var updatedBuildingName = "New Building Name";
     var updatedLocation = "New York";
     // act
-    var result = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, updatedLocation);
+    var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, updatedLocation);
 
     // assert
-    Assert.IsNotNull(result);
-    Assert.AreEqual(buildingId, result);
-
-    var updatedBuilding = context.Buildings.Find(buildingId);
     Assert.IsNotNull(updatedBuilding);
     Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
     Assert.AreEqual(updatedLocation, updatedBuilding.Location);
@@ -149,13 +145,12 @@ public class ResourceUsecaseTests
     var newLocation = "newlocation";
 
     // act
-    var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, newLocation);
+    var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, null, newLocation);
 
     // assert
-    var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
     Assert.NotNull(updatedBuilding);
     Assert.That(updatedBuilding.Location == newLocation);
-    Assert.That(buildingIdReturned == buildingId);
+    Assert.That(updatedBuilding.BuildingId == buildingId);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -185,11 +180,10 @@ public class ResourceUsecaseTests
     var updatedBuildingName = "updatedBuildingName";
 
     // act
-    var returnedBuildingId = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, null);
+    var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, updatedBuildingName, null);
 
     // assert
-    Assert.AreEqual(buildingId, returnedBuildingId);
-    var updatedBuilding = context.Buildings.SingleOrDefault(b => b.BuildingId == buildingId);
+    Assert.AreEqual(buildingId, updatedBuilding.BuildingId);
     Assert.NotNull(updatedBuilding);
     Assert.AreEqual(updatedBuildingName, updatedBuilding.BuildingName);
     Assert.AreEqual(location, updatedBuilding.Location);
@@ -215,10 +209,10 @@ public class ResourceUsecaseTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act
-    var buildingIdReturned = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
+    var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
 
     // assert
-    Assert.AreEqual(buildingId, buildingIdReturned);
+    Assert.AreEqual(buildingId, updatedBuilding.BuildingId);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -591,14 +585,13 @@ public class ResourceUsecaseTests
     var newFloorName = "new name";
 
     // act
-    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, building2Id);
-    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, building2Id);
 
     // assert
-    Assert.That(floorId == returnedFloorId);
+    Assert.AreEqual(floorId, updatedFloor.FloorId);
     Assert.NotNull(updatedFloor);
-    Assert.That(newFloorName == updatedFloor.FloorName);
-    Assert.That(building2Id == updatedFloor.BuildingId);
+    Assert.AreEqual(newFloorName, updatedFloor.FloorName);
+    Assert.AreEqual(building2Id, updatedFloor.BuildingId);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -671,14 +664,13 @@ public class ResourceUsecaseTests
     var newFloorName = "newFloorName";
 
     // act
-    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, null);
-    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, newFloorName, null);
 
     // assert
-    Assert.That(floorId == returnedFloorId);
+    Assert.That(updatedFloor.FloorId, Is.EqualTo(floorId));
     Assert.NotNull(updatedFloor);
-    Assert.That(buildingId == updatedFloor.BuildingId);
-    Assert.That(newFloorName == updatedFloor.FloorName);
+    Assert.That(updatedFloor.BuildingId, Is.EqualTo(buildingId));
+    Assert.That(updatedFloor.FloorName, Is.EqualTo(newFloorName));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -709,14 +701,13 @@ public class ResourceUsecaseTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act
-    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id);
-    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id);
 
     // assert
-    Assert.That(floorId == returnedFloorId);
+    Assert.That(updatedFloor.FloorId, Is.EqualTo(floorId));
     Assert.NotNull(updatedFloor);
-    Assert.That(building2Id == updatedFloor.BuildingId);
-    Assert.That(floorName == updatedFloor.FloorName);
+    Assert.That(updatedFloor.BuildingId, Is.EqualTo(building2Id));
+    Assert.That(updatedFloor.FloorName, Is.EqualTo(floorName));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -744,14 +735,13 @@ public class ResourceUsecaseTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act
-    var returnedFloorId = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
-    var updatedFloor = context.Floors.SingleOrDefault(f => f.FloorId == floorId);
+    var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
 
     // assert
-    Assert.That(floorId == returnedFloorId);
+    Assert.AreEqual(floorId, updatedFloor.FloorId);
     Assert.NotNull(updatedFloor);
-    Assert.That(buildingId == updatedFloor.BuildingId);
-    Assert.That(floorName == updatedFloor.FloorName);
+    Assert.AreEqual(buildingId, updatedFloor.BuildingId);
+    Assert.AreEqual(floorName, updatedFloor.FloorName);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -971,8 +961,7 @@ public class ResourceUsecaseTests
     var updatedRoomName = "updatedRoomName";
 
     // act
-    var gid = usecases.UpdateRoom(companyId, roomId, updatedRoomName, anotherFloorId);
-    var updatedRoom = context.Rooms.SingleOrDefault(r => r.RoomId == gid);
+    var updatedRoom = usecases.UpdateRoom(companyId, roomId, updatedRoomName, anotherFloorId);
 
     // assert
     Assert.NotNull(updatedRoom);
@@ -1009,8 +998,7 @@ public class ResourceUsecaseTests
     var updatedRoomName = "updatedRoomName";
 
     // act
-    var gid = usecases.UpdateRoom(companyId, roomId, updatedRoomName, null);
-    var updatedRoom = context.Rooms.SingleOrDefault(r => r.RoomId == gid);
+    var updatedRoom = usecases.UpdateRoom(companyId, roomId, updatedRoomName, null);
 
     // assert
     Assert.NotNull(updatedRoom);
@@ -1132,8 +1120,7 @@ public class ResourceUsecaseTests
     var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
 
     // act
-    var gid = usecases.UpdateRoom(companyId, roomId, null, anotherFloorId);
-    var updatedRoom = context.Rooms.SingleOrDefault(r => r.RoomId == gid);
+    var updatedRoom = usecases.UpdateRoom(companyId, roomId, null, anotherFloorId);
 
     // assert
     Assert.NotNull(updatedRoom);
@@ -1170,8 +1157,7 @@ public class ResourceUsecaseTests
     var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
 
     // act
-    var gid = usecases.UpdateRoom(companyId, roomId, null, null);
-    var updatedRoom = context.Rooms.SingleOrDefault(r => r.RoomId == gid);
+    var updatedRoom = usecases.UpdateRoom(companyId, roomId, null, null);
 
     // assert
     Assert.NotNull(updatedRoom);
@@ -1641,8 +1627,7 @@ public class ResourceUsecaseTests
     var updatedDeskName = "updatedDeskName";
 
     // act
-    var guid = resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, anotherRoomId, anotherDeskTypeId);
-    var updatedDesk = context.Desks.SingleOrDefault(d => d.DeskId == guid);
+    var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, anotherRoomId, anotherDeskTypeId);
 
     // assert
     Assert.NotNull(updatedDesk);
@@ -1709,8 +1694,7 @@ public class ResourceUsecaseTests
     var updatedDeskName = "updatedDeskName";
 
     // act
-    var guid = resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, null, null);
-    var updatedDesk = context.Desks.SingleOrDefault(d => d.DeskId == guid);
+    var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, null, null);
 
     // assert
     Assert.NotNull(updatedDesk);
@@ -1901,8 +1885,7 @@ public class ResourceUsecaseTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act
-    var guid = resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null);
-    var updatedDesk = context.Desks.SingleOrDefault(d => d.DeskId == guid);
+    var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null);
 
     // assert
     Assert.NotNull(updatedDesk);
@@ -1967,9 +1950,10 @@ public class ResourceUsecaseTests
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-    // act+assert
-    var guid = resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId);
-    var updatedDesk = context.Desks.SingleOrDefault(d => d.DeskId == guid);
+    // act
+    var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId);
+
+    // assert
     Assert.NotNull(updatedDesk);
     Assert.AreEqual(deskName, updatedDesk.DeskName);
     Assert.AreEqual(roomId, updatedDesk.RoomId);
@@ -2032,13 +2016,326 @@ public class ResourceUsecaseTests
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
-    // act+assert
-    var guid = resourceUsecases.UpdateDesk(companyId, deskId, null, null, null);
-    var updatedDesk = context.Desks.SingleOrDefault(d => d.DeskId == guid);
+    // act
+    var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, null, null);
+
+    //assert
     Assert.NotNull(updatedDesk);
     Assert.AreEqual(deskName, updatedDesk.DeskName);
     Assert.AreEqual(roomId, updatedDesk.RoomId);
     Assert.AreEqual(deskTypeId, updatedDesk.DeskTypeId);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenDeskTypeDoesNotExist_ShouldThrowEntityNotFoundException()
+  {
+    // setup
+    var companyId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var bui = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = Guid.NewGuid() };
+    var context = new DataContext();
+    context.Floors.Add(floor);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var unknownDeskTypeId = Guid.NewGuid();
+
+    // act+assert
+    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDeskType(companyId, unknownDeskTypeId, null));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"There is no desk type with id '{unknownDeskTypeId}'", ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenDeskTypeDoesBelongToDifferentCompany_ShouldThrowInsufficientPermissionException()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+
+    context.DeskTypes.Add(deskType);
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var noPermissionCompanyId = Guid.NewGuid();
+
+    // act+assert
+    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDeskType(noPermissionCompanyId, deskTypeId, null));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"'{noPermissionCompanyId}' has no access to administrate desk type '{deskTypeId}'", ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenDeskTypeNameIsEmpty_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
+    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+    var deskName = "testdesk";
+    var desk = new Desk { DeskId = deskId, DeskName = deskName, DeskTypeId = deskTypeId, RoomId = roomId };
+
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
+    context.Rooms.Add(room);
+    context.DeskTypes.Add(deskType);
+    context.Desks.Add(desk);
+
+
+    var anotherCompanyId = Guid.NewGuid();
+    var anotherBuildingId = Guid.NewGuid();
+    var anotherFloorId = Guid.NewGuid();
+    var anotherRoomId = Guid.NewGuid();
+    var anotherDeskId = Guid.NewGuid();
+    var anotherDeskTypeId = Guid.NewGuid();
+
+    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
+    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+
+    context.Buildings.Add(anotherBuilding);
+    context.Floors.Add(anotherFloor);
+    context.Rooms.Add(anotherRoom);
+    context.DeskTypes.Add(anotherDeskType);
+    context.Desks.Add(anotherDesk);
+
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, ""));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"Desk type name must not be empty", ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenDeskTypeNameIsTaken_ShouldThrowArgumentInvalidException()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
+    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+    var deskName = "testdesk";
+    var desk = new Desk { DeskId = deskId, DeskName = deskName, DeskTypeId = deskTypeId, RoomId = roomId };
+
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
+    context.Rooms.Add(room);
+    context.DeskTypes.Add(deskType);
+    context.Desks.Add(desk);
+
+
+    var anotherCompanyId = Guid.NewGuid();
+    var anotherBuildingId = Guid.NewGuid();
+    var anotherFloorId = Guid.NewGuid();
+    var anotherRoomId = Guid.NewGuid();
+    var anotherDeskId = Guid.NewGuid();
+    var anotherDeskTypeId = Guid.NewGuid();
+
+    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
+    var anotherDeskTypeName = "anotherdesktype";
+    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+
+    context.Buildings.Add(anotherBuilding);
+    context.Floors.Add(anotherFloor);
+    context.Rooms.Add(anotherRoom);
+    context.DeskTypes.Add(anotherDeskType);
+    context.Desks.Add(anotherDesk);
+
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act+assert
+    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, anotherDeskTypeName));
+    Assert.NotNull(ex);
+    Assert.AreEqual($"There is already a desktype named '{anotherDeskTypeName}'", ex.Message);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenUpdatingDeskTypeName_ShouldUpdateName()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
+    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+    var deskName = "testdesk";
+    var desk = new Desk { DeskId = deskId, DeskName = deskName, DeskTypeId = deskTypeId, RoomId = roomId };
+
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
+    context.Rooms.Add(room);
+    context.DeskTypes.Add(deskType);
+    context.Desks.Add(desk);
+
+
+    var anotherCompanyId = Guid.NewGuid();
+    var anotherBuildingId = Guid.NewGuid();
+    var anotherFloorId = Guid.NewGuid();
+    var anotherRoomId = Guid.NewGuid();
+    var anotherDeskId = Guid.NewGuid();
+    var anotherDeskTypeId = Guid.NewGuid();
+
+    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
+    var anotherDeskTypeName = "anotherdesktype";
+    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+
+    context.Buildings.Add(anotherBuilding);
+    context.Floors.Add(anotherFloor);
+    context.Rooms.Add(anotherRoom);
+    context.DeskTypes.Add(anotherDeskType);
+    context.Desks.Add(anotherDesk);
+
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var deskTypeNameThatDoesNotExistYet = "deskNameThatDoesNotExistYet";
+
+    // act
+    var updatedDeskType = resourceUsecases.UpdateDeskType(companyId, deskTypeId, deskTypeNameThatDoesNotExistYet);
+
+    // assert
+    Assert.NotNull(updatedDeskType);
+    Assert.AreEqual(deskTypeNameThatDoesNotExistYet, updatedDeskType.DeskTypeName);
+
+    // cleanup
+    context.Database.EnsureDeleted();
+  }
+  [Test]
+  public void UpdateDeskType_WhenUpdatingNothing_ShouldUpdateNothing()
+  {
+    // setup
+    var context = new DataContext();
+
+    var companyId = Guid.NewGuid();
+    var buildingId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
+    var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
+    var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
+    var deskName = "testdesk";
+    var desk = new Desk { DeskId = deskId, DeskName = deskName, DeskTypeId = deskTypeId, RoomId = roomId };
+
+    context.Buildings.Add(building);
+    context.Floors.Add(floor);
+    context.Rooms.Add(room);
+    context.DeskTypes.Add(deskType);
+    context.Desks.Add(desk);
+
+
+    var anotherCompanyId = Guid.NewGuid();
+    var anotherBuildingId = Guid.NewGuid();
+    var anotherFloorId = Guid.NewGuid();
+    var anotherRoomId = Guid.NewGuid();
+    var anotherDeskId = Guid.NewGuid();
+    var anotherDeskTypeId = Guid.NewGuid();
+
+    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
+    var anotherDeskTypeName = "anotherdesktype";
+    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+
+    context.Buildings.Add(anotherBuilding);
+    context.Floors.Add(anotherFloor);
+    context.Rooms.Add(anotherRoom);
+    context.DeskTypes.Add(anotherDeskType);
+    context.Desks.Add(anotherDesk);
+
+    context.SaveChanges();
+
+    // arrange
+    var userLogger = new Mock<ILogger<UserUsecases>>();
+    var userUsecases = new UserUsecases(userLogger.Object, context);
+    var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+
+    // act
+    var updatedDeskType = resourceUsecases.UpdateDeskType(companyId, anotherDeskTypeId, null);
+
+    // assert
+    Assert.NotNull(updatedDeskType);
+    Assert.AreEqual(anotherDeskTypeName, updatedDeskType.DeskTypeName);
 
     // cleanup
     context.Database.EnsureDeleted();

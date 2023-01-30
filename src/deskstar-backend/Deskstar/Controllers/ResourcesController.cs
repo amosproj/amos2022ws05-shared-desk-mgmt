@@ -57,9 +57,9 @@ public class ResourcesController : ControllerBase
       Guid? roomId = dto.RoomId == null ? null : new Guid(dto.RoomId);
       Guid? deskTypeId = dto.DeskTypeId == null ? null : new Guid(dto.DeskTypeId);
 
-      _resourceUsecases.UpdateDesk(companyId, deskGuid, dto.DeskName, roomId, deskTypeId);
-
-      return Ok();
+      var desk = _resourceUsecases.UpdateDesk(companyId, deskGuid, dto.DeskName, roomId, deskTypeId);
+      var updatedDesk = _mapper.Map<Desk, UpdateDeskResponseObject>(desk);
+      return Ok(updatedDesk);
     }
     catch (EntityNotFoundException e)
     {
@@ -106,9 +106,9 @@ public class ResourcesController : ControllerBase
       var deskTypeGuid = new Guid(deskTypeId);
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
 
-      _resourceUsecases.UpdateDeskType(companyId, deskTypeGuid, dto.DeskTypeName);
-
-      return Ok();
+      var deskType = _resourceUsecases.UpdateDeskType(companyId, deskTypeGuid, dto.DeskTypeName);
+      var updatedDeskType = _mapper.Map<DeskType, UpdateDeskTypeResponseObject>(deskType);
+      return Ok(updatedDeskType);
     }
     catch (EntityNotFoundException e)
     {
@@ -155,9 +155,9 @@ public class ResourcesController : ControllerBase
       var buildingGuid = new Guid(buildingId);
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
 
-      _resourceUsecases.UpdateBuilding(companyId, buildingGuid, dto.BuildingName, dto.Location);
-
-      return Ok();
+      var building = _resourceUsecases.UpdateBuilding(companyId, buildingGuid, dto.BuildingName, dto.Location);
+      var updatedBuilding = _mapper.Map<Building, UpdateBuildingResponseObject>(building);
+      return Ok(updatedBuilding);
     }
     catch (EntityNotFoundException e)
     {
@@ -205,9 +205,9 @@ public class ResourcesController : ControllerBase
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
       Guid? buildingGuid = dto.BuildingId == null ? null : new Guid(dto.BuildingId);
 
-      _resourceUsecases.UpdateFloor(companyId, floorGuid, dto.FloorName, buildingGuid);
-
-      return Ok();
+      var floor = _resourceUsecases.UpdateFloor(companyId, floorGuid, dto.FloorName, buildingGuid);
+      var updatedFloor = _mapper.Map<Floor, UpdateFloorResponseObject>(floor);
+      return Ok(updatedFloor);
     }
     catch (EntityNotFoundException e)
     {
@@ -255,9 +255,9 @@ public class ResourcesController : ControllerBase
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
       Guid? floorId = dto.FloorId == null ? null : new Guid(dto.FloorId);
 
-      _resourceUsecases.UpdateRoom(companyId, roomGuid, dto.RoomName, floorId);
-
-      return Ok();
+      var room = _resourceUsecases.UpdateRoom(companyId, roomGuid, dto.RoomName, floorId);
+      var updatedRoom = _mapper.Map<Room, UpdateRoomResponseObject>(room);
+      return Ok(updatedRoom);
     }
     catch (EntityNotFoundException e)
     {
