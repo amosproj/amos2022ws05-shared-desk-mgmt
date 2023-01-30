@@ -9,7 +9,7 @@ const BookingsTable = ({
   onCheckIn,
 }: {
   bookings: IBooking[];
-  onEdit?: (booking: IBooking, startTime: Date, endTime: Date) => void;
+  onEdit?: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {
@@ -53,7 +53,7 @@ const BookingTableEntry = ({
   onCheckIn,
 }: {
   booking: IBooking;
-  onEdit?: Function;
+  onEdit?: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {
@@ -64,7 +64,24 @@ const BookingTableEntry = ({
 
   return (
     <tr className="hover">
-      <td className="text-center">{booking.deskName}</td>
+      <td className="text-center">
+        <>
+          {booking.usesDeletedDesk && (
+            <div className="indicator">
+              <span
+                title="This booking uses a deleted desk!"
+                className="indicator-item badge badge-error"
+              >
+                !
+              </span>
+              <div className="grid w-10 h-10 place-items-center">
+                {booking.deskName}
+              </div>
+            </div>
+          )}
+          {!booking.usesDeletedDesk && <>{booking.deskName}</>}
+        </>
+      </td>
       <td className="text-center">{booking.room}</td>
       <td className="text-center">{booking.building}</td>
       <td className="text-center">{startDate}</td>

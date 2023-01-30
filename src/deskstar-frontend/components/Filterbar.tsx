@@ -1,5 +1,8 @@
+import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useMemo } from "react";
+import { toast } from "react-toastify";
+import { getAggregatedDesks } from "../lib/api/DesksService";
 import { getDesks, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -10,25 +13,53 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 
 type FilterbarProps = {
-  buildings: IBuilding[];
-  startDateTime: Date;
-  endDateTime: Date;
   desks: IDesk[];
-  setDesks: (desks: IDesk[]) => void;
   setFilteredDesks: (desks: IDesk[]) => void;
 };
 
-export default function Filterbar({
-  buildings: origBuildings,
-  startDateTime,
-  endDateTime,
-  desks,
-  setDesks,
-  setFilteredDesks,
-}: FilterbarProps) {
-  const { data: session } = useSession();
+export default function Filterbar({ desks, setFilteredDesks }: FilterbarProps) {
+  const initBuildings: IBuilding[] = desks
+    .map((desk) => ({
+      buildingName: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (building, index, self) =>
+        index === self.findIndex((b) => b.buildingId === building.buildingId)
+    );
 
-  const locations: ILocation[] = origBuildings.map((building) => ({
+  const initFloors: (IFloor & { buildingId: string })[] = desks
+    .map((desk) => ({
+      floorName: desk.floorName,
+      floorId: desk.floorId,
+      buildingName: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (floor, index, self) =>
+        index === self.findIndex((f) => f.floorId === floor.floorId)
+    );
+  const initRooms: (IRoom & { buildingId: string; floorId: string })[] = desks
+    .map((desk) => ({
+      roomName: desk.roomName,
+      roomId: desk.roomId,
+      floor: desk.floorName,
+      floorId: desk.floorId,
+      building: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (room, index, self) =>
+        index === self.findIndex((r) => r.roomId === room.roomId)
+    );
+
+  const locations: ILocation[] = initBuildings.map((building) => ({
     locationName: building.location,
   }));
   const [selectedLocation, _setSelectedLocation] = useState<ILocation | null>(
@@ -44,90 +75,107 @@ export default function Filterbar({
     null
   );
 
-  const [buildings, setBuildings] = useState<IBuilding[]>([]);
-  const [floors, setFloors] = useState<IFloor[]>([]);
-  const [rooms, setRooms] = useState<IRoom[]>([]);
-  const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+  const buildings = useMemo<IBuilding[]>(() => {
+    return initBuildings.filter(
+      (building) => selectedLocation?.locationName === building.location
+    );
+  }, [initBuildings, selectedLocation]);
+
+  const floors = useMemo<IFloor[]>(() => {
+    return initFloors.filter(
+      (floor) => selectedBuilding?.buildingId === floor.buildingId
+    );
+  }, [initFloors, selectedBuilding]);
+
+  const rooms = useMemo<IRoom[]>(() => {
+    return initRooms.filter(
+      (room) =>
+        selectedFloor?.floorId === room.floorId &&
+        selectedBuilding?.buildingId === room.buildingId
+    );
+  }, [initRooms, selectedFloor, selectedBuilding]);
+
+  const deskTypes = desks
+    .map((desk) => ({
+      deskTypeName: desk.deskTyp,
+      deskTypeId: desk.deskTyp,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (deskType, index, self) =>
+        index === self.findIndex((dT) => dT.deskTypeId === deskType.deskTypeId)
+    );
+
+  useMemo(() => {
+    let filteredDesks = desks;
+    if (selectedLocation) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.location === selectedLocation.locationName
+      );
+    }
+    if (selectedBuilding) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.buildingId === selectedBuilding.buildingId
+      );
+    }
+    if (selectedFloor) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.floorId === selectedFloor.floorId
+      );
+    }
+    if (selectedRoom) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.roomId === selectedRoom.roomId
+      );
+    }
+    if (selectedDeskType) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.deskTyp === selectedDeskType.deskTypeId
+      );
+    }
+
+    setFilteredDesks(filteredDesks);
+  }, [
+    desks,
+    setFilteredDesks,
+    selectedLocation,
+    selectedBuilding,
+    selectedFloor,
+    selectedRoom,
+    selectedDeskType,
+  ]);
 
   async function setSelectedLocation(selectedLocation: ILocation | null) {
+    _setSelectedLocation(selectedLocation);
     if (!selectedLocation) {
-      setBuildings([]);
       setSelectedBuilding(null);
       return;
     }
-    _setSelectedLocation(selectedLocation);
-
-    let buildings = origBuildings.filter(
-      (building) => selectedLocation.locationName === building.location
-    );
-
-    setBuildings(buildings);
     setSelectedBuilding(null);
   }
 
   async function setSelectedBuilding(selectedBuilding: IBuilding | null) {
     _setSelectedBuilding(selectedBuilding);
     if (!selectedBuilding) {
-      setFloors([]);
       setSelectedFloor(null);
       return;
     }
-
-    if (!session) {
-      setFloors([]);
-      return;
-    }
-
-    const floors = await getFloors(session, selectedBuilding.buildingId);
-
-    setFloors(floors);
     setSelectedFloor(null);
   }
 
   async function setSelectedFloor(selectedFloor: IFloor | null) {
     _setSelectedFloor(selectedFloor);
     if (!selectedFloor) {
-      setRooms([]);
       setSelectedRoom(null);
       return;
     }
-
-    if (!session) {
-      setRooms([]);
-      return;
-    }
-
-    const rooms = await getRooms(session, selectedFloor.floorId);
-
-    setRooms(rooms);
     setSelectedRoom(null);
   }
 
   async function setSelectedRoom(selectedRoom: IRoom | null) {
     _setSelectedRoom(selectedRoom);
-    if (!selectedRoom) {
-      return;
-    }
-
-    if (!session) {
-      setRooms([]);
-      return;
-    }
-
-    const desks = await getDesks(
-      session,
-      selectedRoom.roomId,
-      startDateTime.getTime(),
-      endDateTime.getTime()
-    );
-
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
-
-    setDeskTypes(deskTypes);
-    setSelectedDeskType(null); // Equals all there
-
-    setDesks(filteredDesks);
-    setFilteredDesks(filteredDesks);
+    if (!selectedRoom) return;
+    setSelectedDeskType(null);
   }
 
   function setSelectedDeskType(selectedDeskType: IDeskType | null) {
@@ -136,23 +184,17 @@ export default function Filterbar({
       setFilteredDesks(desks);
       return;
     }
-
-    const filteredDesks = desks.filter(
-      (desk) => desk.deskTyp === selectedDeskType.deskTypeName
-    );
-
-    setFilteredDesks(filteredDesks);
   }
 
   return (
     <div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 my-4">
         <FilterListbox
           items={locations}
           selectedItem={selectedLocation}
           setSelectedItem={setSelectedLocation}
           getName={(location) =>
-            location ? location.locationName : "Kein Ort ausgewählt"
+            location ? location.locationName : "Select location"
           }
         />
 
@@ -161,9 +203,7 @@ export default function Filterbar({
             items={buildings}
             selectedItem={selectedBuilding}
             setSelectedItem={setSelectedBuilding}
-            getName={(building) =>
-              building?.buildingName ?? "Kein Gebäude ausgewählt"
-            }
+            getName={(building) => building?.buildingName ?? "Select building"}
             getKey={(building) => building?.buildingId}
           />
         )}
@@ -173,7 +213,7 @@ export default function Filterbar({
             items={floors}
             selectedItem={selectedFloor}
             setSelectedItem={setSelectedFloor}
-            getName={(floor) => floor?.floorName ?? "Kein Stockwerk ausgewählt"}
+            getName={(floor) => floor?.floorName ?? "Select floor"}
             getKey={(floor) => floor?.floorId}
           />
         )}
@@ -183,7 +223,7 @@ export default function Filterbar({
             items={rooms}
             selectedItem={selectedRoom}
             setSelectedItem={setSelectedRoom}
-            getName={(room) => room?.roomName ?? "Kein Raum ausgewählt"}
+            getName={(room) => room?.roomName ?? "Select room"}
             getKey={(room) => room?.roomId}
           />
         )}
@@ -193,45 +233,12 @@ export default function Filterbar({
             items={deskTypes}
             selectedItem={selectedDeskType}
             setSelectedItem={setSelectedDeskType}
-            getName={(deskType) =>
-              deskType?.deskTypeName ?? "Kein Schreibtischtyp ausgewählt"
-            }
+            getName={(deskType) => deskType?.deskTypeName ?? "Select desktype"}
             getKey={(deskType) => deskType.deskTypeId}
             allOption={true}
           />
         )}
       </div>
-
-      <div className="my-4"></div>
-
-      {buildings.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a location</span>
-          </div>
-        </div>
-      )}
-      {!(buildings.length == 0) && floors.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a building</span>
-          </div>
-        </div>
-      )}
-      {!(floors.length == 0) && rooms.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a floor</span>
-          </div>
-        </div>
-      )}
-      {!(rooms.length == 0) && deskTypes.length == 0 && (
-        <div className="toast">
-          <div className="alert alert-info">
-            <span>Please select a room</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

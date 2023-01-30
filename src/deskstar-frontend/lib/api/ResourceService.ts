@@ -1,4 +1,5 @@
 import { Session } from "next-auth";
+import { URLSearchParams } from "next/dist/compiled/@edge-runtime/primitives/url";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
 import { IDeskType } from "../../types/desktypes";
@@ -27,6 +28,12 @@ export enum ResourceResponse {
   Success,
 }
 
+/**
+ * Lists buildings associated to company of given usersession
+ * @param session The user session
+ * @returns The list of company buildings
+ * @throws Error containing status code and/or error message
+ */
 export async function getBuildings(session: Session): Promise<IBuilding[]> {
   const response = await fetch(BACKEND_URL + "/resources/buildings", {
     headers: {
@@ -34,17 +41,19 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
     },
   });
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching buildings");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all floors of a building
+ * @param session The user session
+ * @param buildingId The building id
+ * @returns All floors of `buildingId`
+ * @throws Error containing status code and/or error message
+ */
 export async function getFloors(
   session: Session,
   buildingId: string
@@ -58,17 +67,19 @@ export async function getFloors(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching floors");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all rooms of a floor
+ * @param session The user session
+ * @param floorId The floor id
+ * @returns All rooms of `floorId`
+ * @throws Error containing status code and/or error message
+ */
 export async function getRooms(
   session: Session,
   floorId: string
@@ -82,26 +93,33 @@ export async function getRooms(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching rooms");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all available desks of a room
+ * @param session The user session
+ * @param roomId The room id
+ * @param startTime optional
+ * @param endTime optional
+ * @returns All available desks
+ * @throws Error containing status code and/or error message
+ */
 export async function getDesks(
   session: Session,
   roomId: string,
-  startTime: number,
-  endTime: number
+  startTime?: number,
+  endTime?: number
 ): Promise<IDesk[]> {
+  const params = new URLSearchParams();
+  if (startTime) params.append("start", startTime.toString());
+  if (endTime) params.append("end", endTime.toString());
+
   const response = await fetch(
-    BACKEND_URL +
-    `/resources/rooms/${roomId}/desks?start=${startTime}&end=${endTime}`,
+    BACKEND_URL + `/resources/rooms/${roomId}/desks?${params.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
@@ -109,17 +127,18 @@ export async function getDesks(
     }
   );
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching desks");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
-
   return data;
 }
 
+/**
+ * Lists all defined desk types associated to usersessions company
+ * @param session The user session
+ * @returns All defined desk types associated to usersessions company
+ * @throws Error containing status code and/or error message
+ */
 export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
   const response = await fetch(BACKEND_URL + `/resources/desktypes`, {
     headers: {
@@ -127,11 +146,7 @@ export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
     },
   });
 
-  if (response.status !== 200) {
-    console.log(response.status);
-    console.log("Error fetching desks");
-    return [];
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
   const resDeskTypes = data.map((e: any) => {
@@ -144,6 +159,12 @@ export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
   return resDeskTypes;
 }
 
+/**
+ * Creates a building
+ * @param session The user session
+ * @param createBuildingDto the building data for the post request
+ * @returns
+ */
 export async function createBuilding(
   session: Session,
   createBuildingDto: CreateBuildingDto
@@ -349,6 +370,50 @@ export async function updateDeskType(
   return result;
 }
 
+/**
+ * Delete a building
+ * @param session The user session
+ * @param deskTypeId The id of the building to delete
+ * @returns
+ */
+export async function deleteBuilding(
+  session: Session,
+  buildingId: string
+): Promise<IResourceResult> {
+  const response = await fetch(
+    BACKEND_URL + `/resources/buildings/${buildingId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted floor with id '${buildingId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Creates a floor
+ * @param session The user session
+ * @param createFloorDto The floor data for the post request
+ * @returns
+ */
 export async function createFloor(
   session: Session,
   createFloorDto: CreateFloorDto
@@ -382,6 +447,47 @@ export async function createFloor(
   return result;
 }
 
+/**
+ * Delete a floor
+ * @param session The user session
+ * @param deskTypeId The id of the floor to delete
+ * @returns
+ */
+export async function deleteFloor(
+  session: Session,
+  floorId: string
+): Promise<IResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/floors/${floorId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted floor with id '${floorId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Creates a room
+ * @param session The user session
+ * @param createRoomDto The room data for the post request
+ * @returns
+ */
 export async function createRoom(
   session: Session,
   createRoomDto: CreateRoomDto
@@ -415,6 +521,47 @@ export async function createRoom(
   return result;
 }
 
+/**
+ * Delete a room
+ * @param session The user session
+ * @param deskTypeId The id of the room to delete
+ * @returns
+ */
+export async function deleteRoom(
+  session: Session,
+  roomId: string
+): Promise<IResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/rooms/${roomId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted room with id '${roomId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Creates a new desk type
+ * @param session The user session
+ * @param createDeskTypeDto The desktype data for the post request
+ * @returns
+ */
 export async function createDeskType(
   session: Session,
   createDeskTypeDto: CreateDeskTypeDto
@@ -448,6 +595,50 @@ export async function createDeskType(
   return result;
 }
 
+/**
+ * Delete a deskType
+ * @param session The user session
+ * @param deskTypeId The id of the deskType to delete
+ * @returns
+ */
+export async function deleteDeskType(
+  session: Session,
+  deskTypeId: string
+): Promise<IResourceResult> {
+  const response = await fetch(
+    BACKEND_URL + `/resources/desktypes/${deskTypeId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted desktype with id '${deskTypeId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Creates a desk
+ * @param session The user session
+ * @param createDeskDto The desk data for the post request
+ * @returns
+ */
 export async function createDesk(
   session: Session,
   createDeskDto: CreateDeskDto
@@ -475,6 +666,41 @@ export async function createDesk(
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDesk,
       message: `Success! Created desk '${createDeskDto.deskName}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Delete a desk
+ * @param session The user session
+ * @param deskTypeId The id of the desk to delete
+ * @returns
+ */
+export async function deleteDesk(
+  session: Session,
+  deskId: string
+): Promise<IResourceResult> {
+  const response = await fetch(BACKEND_URL + `/resources/desks/${deskId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Deleted desk with id'${deskId}'`,
     };
   }
 

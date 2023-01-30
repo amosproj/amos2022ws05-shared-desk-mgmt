@@ -14,6 +14,7 @@ namespace Deskstar.Entities
         public string DeskName { get; set; } = null!;
         public Guid RoomId { get; set; }
         public Guid DeskTypeId { get; set; }
+        public bool IsMarkedForDeletion { get; set; } = false;
 
         public virtual DeskType DeskType { get; set; } = null!;
         public virtual Room Room { get; set; } = null!;

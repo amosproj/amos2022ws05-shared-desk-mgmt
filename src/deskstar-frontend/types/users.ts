@@ -6,5 +6,6 @@ export interface IUser {
   company: string;
   isAdmin: boolean;
   isApproved: boolean;
+  isMarkedForDeletion: boolean;
   selected?: boolean;
 }

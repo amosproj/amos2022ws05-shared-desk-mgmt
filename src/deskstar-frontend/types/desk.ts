@@ -10,10 +10,12 @@ export interface IDesk {
   buildingName: string;
   location: string;
   bookings: IDeskBooking[];
+  isMarkedForDeletion: boolean;
 }
 
 export interface IDeskBooking {
   bookingId: string;
+  userName: string;
   userId: string;
   endTime: string;
   startTime: string;

@@ -1,3 +1,4 @@
+import { Dayjs } from "dayjs";
 import { Session } from "next-auth";
 import { IBooking, GetBookingsResponse } from "../../types/booking";
 import { BACKEND_URL } from "./constants";
@@ -30,6 +31,13 @@ function getParams(queryOptions: QueryOptions) {
   return params;
 }
 
+/**
+ * Gets list of bookings associated with user session
+ * @param session The associated user session
+ * @param queryOptions The Query parameter for the request
+ * @returns The total amount of bookings and list of bookings according to `queryOptions`
+ * @throws Error containing status code and/or error message
+ */
 export async function getBookings(
   session: Session,
   queryOptions: QueryOptions
@@ -47,12 +55,7 @@ export async function getBookings(
     },
   });
 
-  if (response.status !== 200) {
-    return {
-      amountOfBookings: 0,
-      bookings: [],
-    };
-  }
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
 
@@ -74,11 +77,20 @@ export async function getBookings(
   return bookingsResponse;
 }
 
+/**
+ * Creates a user booking
+ * @param session The associated user session
+ * @param deskId The desk id associated to the booking
+ * @param startTime Start time of the booking
+ * @param endTime End time of the booking
+ * @returns The response object
+ * @throws Error containing status code and/or error message
+ */
 export async function createBooking(
   session: Session,
   deskId: string,
-  startTime: Date,
-  endTime: Date
+  startTime: Dayjs,
+  endTime: Dayjs
 ) {
   const response = await fetch(BACKEND_URL + "/bookings", {
     method: "POST",
@@ -92,35 +104,34 @@ export async function createBooking(
       endTime,
     }),
   });
-  console.log(
-    JSON.stringify({
-      deskId,
-      startTime,
-      endTime,
-    })
-  );
-  console.log(await response.status);
-  if (response.status !== 200) {
+
+  if (!response.ok) {
     let text = await response.text();
     // take away the quotes
     text = text.substring(1, text.length - 1);
-    console.log(text);
-    switch (text) {
-      case "User not found":
-        return "User not found";
-      case "Desk not found":
-        return "The desk you are trying to book does not exist";
-      case "Time slot not available":
-        return "The time slot you are trying to book is not available";
-      default:
-        return "An unknown error occurred";
-    }
-  } else {
-    return "success";
+
+    const textToErrorMessage: { [key: string]: string } = {
+      "User not found": "User not found",
+      "Desk not found": "The desk you are trying to book does not exist",
+      "Time slot not available":
+        "The time slot you are trying to book is not available",
+    };
+
+    throw Error(
+      `${response.status} ${textToErrorMessage[text] ?? response.statusText}`
+    );
   }
+
+  return response;
 }
 
-// create function for deleting booking. BookingId is passed as query parameter
+/**
+ * Deletes a booking associated to an user
+ * @param session The associated user session
+ * @param bookingId The bookings id
+ * @returns The response object
+ * @throws Error containing status code and/or error message
+ */
 export async function deleteBooking(session: Session, bookingId: string) {
   const response = await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
     method: "DELETE",
@@ -130,32 +141,33 @@ export async function deleteBooking(session: Session, bookingId: string) {
   });
 
   // check if response is 200. If not return error message
-  if ((await response.status) !== 200) {
+  if (!response.ok) {
     let text = await response.text();
     text = text.substring(1, text.length - 1);
-    console.log(text);
-    switch (text) {
-      case "User not found":
-        return "User not found";
-      case "Booking not found":
-        return "The booking you are trying to delete does not exist";
-      case "You are not allowed to delete this booking":
-        return "You are not allowed to delete this booking";
-      default:
-        return "An unknown error occurred";
-    }
-  } else {
-    return "success";
+
+    const textToErrorMessage: { [key: string]: string } = {
+      "User not found": "User not found",
+      "Booking not found":
+        "The booking you are trying to delete does not exist",
+      "You are not allowed to delete this booking":
+        "You are not allowed to delete this booking",
+    };
+
+    throw Error(
+      `${response.status} ${textToErrorMessage[text] ?? response.statusText}`
+    );
   }
+  return response;
 }
 
 /**
- * Update start and end time for a given booking
+ * Update start and end time for a given booking associated to an user
  * @param session the user session
- * @param bookingId
+ * @param bookingId The bookings id
  * @param startTime new start time for given booking
  * @param endTime new end time for given booking
- * @returns
+ * @returns The updated booking
+ * @throws Error containing status code and/or error message
  */
 export async function updateBooking(
   session: Session,
@@ -163,7 +175,7 @@ export async function updateBooking(
   startTime: string,
   endTime: string
 ) {
-  return await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
+  const response = await fetch(BACKEND_URL + `/bookings/${bookingId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -174,4 +186,10 @@ export async function updateBooking(
       endTime,
     }),
   });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  //TODO: fix this
+  //return await response.json();
+  return response;
 }

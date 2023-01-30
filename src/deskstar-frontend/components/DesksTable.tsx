@@ -1,5 +1,7 @@
 import { IDesk } from "../types/desk";
 import React, { useState } from "react";
+import dayjs from "dayjs";
+import { useSession } from "next-auth/react";
 
 const DesksTable = ({
   desks,
@@ -36,86 +38,40 @@ const DeskTableEntry = ({
   onBook: Function;
 }) => {
   const [buttonText, setButtonText] = useState("Book");
+
+  const { data: session } = useSession();
+
+  const isBooked = desk.bookings.length > 0;
+
   return (
     <tr className="hover">
       <td className="text-left font-bold">{desk.deskName}</td>
       <td className="text-left">{desk.deskTyp}</td>
       <td className="text-right">
-        <button
-          className="btn btn-success"
-          onClick={(event) => onBook(event, desk, setButtonText)}
-        >
-          {buttonText}
-        </button>
-        {/* <a href="#book-modal" className="btn btn-success">
-          Book
-        </a> */}
-        {/* <div id="book-modal" className="modal">
-          <div className="modal-box text-left">
-            <a href="#close" className="btn btn-sm btn-circle float-right">
-              x
-            </a>
-            <p>
-              <b>Desk:</b> {desk.deskName}
-            </p>
-            <p>
-              <b>Type:</b> {desk.deskTyp}
-            </p>
-            <p>
-              <b>Building:</b> {desk.buildingName}
-            </p>
-            <p>
-              <b>Room:</b> {desk.roomName}
-            </p>
-            <div className="form-group">
-              <label className="form-label" htmlFor="start-date">
-                <b>Start Date:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="date"
-                id="start-date"
-                placeholder="Start Date"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="start-time">
-                <b>Start Time:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="time"
-                id="start-time"
-                placeholder="Start Time"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="end-date">
-                <b>End Date:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="date"
-                id="end-date"
-                placeholder="End Date"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="end-time">
-                <b>End Time:</b> &nbsp;
-              </label>
-              <input
-                className="form-input"
-                type="time"
-                id="end-time"
-                placeholder="End Time"
-              />
-            </div>
-            <a href="#close" className="btn btn-success float-right">
-              Book
-            </a>
-          </div>
-        </div> */}
+        {isBooked && (
+          <button className="btn btn-success" disabled>
+            Booked by{" "}
+            {desk.bookings[0].userId == session?.user.id
+              ? "you"
+              : desk.bookings[0].userName}
+            <br />
+            {dayjs(desk.bookings[0].startTime, {
+              utc: true,
+            }).format("HH:mm")}{" "}
+            -{" "}
+            {dayjs(desk.bookings[0].endTime, {
+              utc: true,
+            }).format("HH:mm")}
+          </button>
+        )}
+        {!isBooked && (
+          <button
+            className="btn btn-success"
+            onClick={(event) => onBook(event, desk, setButtonText)}
+          >
+            {buttonText}
+          </button>
+        )}
       </td>
     </tr>
   );

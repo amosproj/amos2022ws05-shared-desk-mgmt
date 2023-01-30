@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import AddResourceModal from "../../components/AddResourceModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import DropDownFilter from "../../components/DropDownFilter";
 import FilterListbox from "../../components/FilterListbox";
 import BuildingResourceEditModal from "../../components/resources/BuildingResourceEditModal";
@@ -18,6 +19,7 @@ import FloorResourceEditModal from "../../components/resources/FloorResourceEdit
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceEditModal from "../../components/resources/RoomResourceEditModal";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
+import { deleteBooking } from "../../lib/api/BookingService";
 import {
   getBuildings,
   getDesks,
@@ -29,6 +31,12 @@ import {
   updateDeskType,
   updateFloor,
   updateRoom,
+  deleteBuilding,
+  deleteFloor,
+  deleteRoom,
+  deleteDesk,
+  deleteDeskType,
+  ResourceResponse,
 } from "../../lib/api/ResourceService";
 import { UpdateBuildingDto } from "../../types/models/UpdateBuildingDto";
 import { IBuilding } from "../../types/building";
@@ -88,6 +96,14 @@ const ResourceOverview = ({
   const [locationModal, setLocationModal] = useState<string>("");
 
 
+  const [building, setBuilding] = useState<IBuilding>();
+  const [floor, setFloor] = useState<IFloor>();
+  const [room, setRoom] = useState<IRoom>();
+  const [desk, setDesk] = useState<IDesk>();
+  const [deskType, setDeskType] = useState<IDeskType>();
+
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+
   const resourceOptions = [
     "Buildings",
     "Floors",
@@ -120,11 +136,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedBuildings.map(async (building) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resFloors;
+        try {
+          resFloors = await getFloors(session, building.buildingId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resFloors = await getFloors(session, building.buildingId);
         const enrichedFloors = resFloors.map((floor) => {
           floor.buildingName = building.buildingName;
           floor.location = building.location;
@@ -143,11 +164,16 @@ const ResourceOverview = ({
     setIsFetching(true);
     const promises = await Promise.all(
       selectedFloors.map(async (floor) => {
-        if (!session) {
+        if (!session) return [];
+
+        let resRooms;
+        try {
+          resRooms = await getRooms(session, floor.floorId);
+        } catch (error) {
+          toast.error(`${error}`);
           return [];
         }
 
-        const resRooms = await getRooms(session, floor.floorId);
         const enrichedRooms = resRooms.map((room) => {
           room.building = floor.buildingName;
           room.location = floor.location;
@@ -170,19 +196,27 @@ const ResourceOverview = ({
           return [];
         }
 
-        const resDeskType = await getDesks(
-          session,
-          room.roomId,
-          new Date().getTime(),
-          new Date().getTime()
-        );
+        let resDeskType;
+        try {
+          resDeskType = await getDesks(
+            session,
+            room.roomId,
+            new Date().getTime(),
+            new Date().getTime()
+          );
+        } catch (error) {
+          toast.error(`${error}`);
+          return [];
+        }
 
         return resDeskType;
       })
     );
 
     const desks = promises.flat();
-    const filteredDesks = desks.filter((desk) => desk.bookings.length === 0);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => desk.bookings.length === 0
+    );
     setDesks(filteredDesks);
     stopFetchingAnimation();
   }
@@ -303,9 +337,116 @@ const ResourceOverview = ({
     message.includes("Success") ? toast.success(message) : toast.warn(message);
   }
 
-  const onDelete = async (resource: object): Promise<void> => {
-    //TODO: Implement
-    toast.success(`Deleting resource...`);
+  const onDelete = async (resource: Object): Promise<void> => {
+    if (isInstanceOfIBuilding(resource)) setBuilding(resource);
+    if (isInstanceOfIFloor(resource)) setFloor(resource);
+    if (isInstanceOfIRoom(resource)) setRoom(resource);
+    if (isInstanceOfIDesk(resource)) setDesk(resource);
+    if (isInstanceOfIDeskType(resource)) setDeskType(resource);
+    setDeleteModalOpen(true);
+  };
+
+  function isInstanceOfIBuilding(object: Object): object is IBuilding {
+    return true;
+  }
+
+  function isInstanceOfIFloor(object: Object): object is IFloor {
+    return true;
+  }
+
+  function isInstanceOfIRoom(object: Object): object is IRoom {
+    return true;
+  }
+
+  function isInstanceOfIDesk(object: Object): object is IDesk {
+    return true;
+  }
+
+  function isInstanceOfIDeskType(object: Object): object is IDeskType {
+    return true;
+  }
+
+  const doDeleteBuilding = async (): Promise<void> => {
+    if (building) {
+      if (session == null) return;
+      let result = await deleteBuilding(session, building.buildingId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the building from buildingList
+        setBuildings(
+          buildings.filter((b) => b.buildingId !== building.buildingId)
+        );
+      } else {
+        console.error(result.message);
+        toast.error(`Building ${building.buildingName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteFloor = async (): Promise<void> => {
+    if (floor) {
+      if (session == null) return;
+      let result = await deleteFloor(session, floor.floorId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the floor from floorList
+        setFloors(floors.filter((b) => b.floorId !== floor.floorId));
+      } else {
+        console.error(result.message);
+        toast.error(`Floor ${floor.floorName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteRoom = async (): Promise<void> => {
+    if (room) {
+      if (session == null) return;
+      let result = await deleteRoom(session, room.roomName);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the room from roomList
+        setRooms(rooms.filter((b) => b.roomId !== room.roomId));
+      } else {
+        console.error(result.message);
+        toast.error(`Room ${room.roomName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDesk = async (): Promise<void> => {
+    if (desk) {
+      if (session == null) return;
+      let result = await deleteDesk(session, desk.deskId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the desk from deskList
+        setDesks(desks.filter((b) => b.deskId !== desk.deskId));
+      } else {
+        console.error(result.message);
+        toast.error(`Desk ${desk.deskName} could not be deleted!`);
+      }
+    }
+  };
+  const doDeleteDeskType = async (): Promise<void> => {
+    if (deskType) {
+      if (session == null) return;
+      let result = await deleteDeskType(session, deskType.deskTypeId);
+
+      if (result.response == ResourceResponse.Success) {
+        toast.success(result.message);
+
+        // Remove the deskType from deskTypeList
+        setDesks(desks.filter((b) => b.deskId !== deskType.deskTypeId));
+      } else {
+        console.error(result.message);
+        toast.error(`Desktype ${deskType.deskTypeName} could not be deleted!`);
+      }
+    }
   };
 
   const getIndex = (resourceName: string | null): number => {
@@ -408,6 +549,16 @@ const ResourceOverview = ({
             />
           )}
           <DeskTypeResourceEditModal isOpen={isEditDeskTypeModalOpen} setState={setIsEditDeskTypeModalOpen} desktype={editDeskType} session={session} updateDeskType={updateDeskTypeInService} deskTypeName={deskTypeNameModal} setDeskTypeName={setDeskTypeNameModal} />
+          <ConfirmModal
+            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDeskType}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Desks" && (
@@ -420,6 +571,16 @@ const ResourceOverview = ({
             />
           )}
           <DeskResourceEditModal desk={editDesk} rooms={rooms} isOpen={isEditDeskModalOpen} setState={setIsEditDeskModalOpen} session={session} updateDesk={updateDeskInService} origBuildings={origBuildings} origDeskTypes={origDeskTypes} deskName={deskNameModal} setDeskName={setDeskNameModal} />
+          <ConfirmModal
+            title={"Delete Desk " + desk?.deskName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteDesk}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Rooms" && (
@@ -432,6 +593,16 @@ const ResourceOverview = ({
             />
           )}
           <RoomResourceEditModal updateRoom={updateRoomInService} origBuildings={buildings} session={session} isOpen={isEditRoomModalOpen} setState={setIsEditRoomModalOpen} room={editRoom} roomName={roomNameModal} setRoomName={setRoomNameModal} />
+          <ConfirmModal
+            title={"Delete Room " + room?.roomName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteRoom}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
       {selectedResourceOption === "Floors" && (
@@ -444,6 +615,16 @@ const ResourceOverview = ({
             />
           )}
           <FloorResourceEditModal isOpen={isEditFloorModalOpen} setState={setIsEditFloorModalOpen} floor={editFloor} origBuildings={origBuildings} updateFloor={updateFloorInService} session={session} floorName={floorNameModal} setFloorName={setFloorNameModal} />
+          <ConfirmModal
+            title={"Delete Floor " + floor?.floorName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteFloor}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
 
@@ -457,9 +638,18 @@ const ResourceOverview = ({
             />
           )}
           <BuildingResourceEditModal isOpen={isEditBuildingModalOpen} setState={setIsEditBuildingModalOpen} building={editBuilding} updateBuilding={updateBuildingInService} buildingName={buildingNameModal} location={locationModal} setBuildingName={setBuildingNameModal} setLocation={setLocationModal} />
+          <ConfirmModal
+            title={"Delete Building " + building?.buildingName + "?"}
+            description="This can't be undone!"
+            text=""
+            warn
+            buttonText="DELETE"
+            action={doDeleteBuilding}
+            isOpen={isDeleteModalOpen}
+            setIsOpen={setDeleteModalOpen}
+          />
         </>
       )}
-
       {buildings.length == 0 && (
         <div className="toast">
           <div className="alert bg-deskstar-green-dark text-black">
@@ -499,7 +689,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
+  if (!session)
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+
+  try {
     const buildings = await getBuildings(session);
     const deskTypes = await getDeskTypes(session);
     return {
@@ -508,14 +706,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         deskTypes,
       },
     };
+  } catch (error) {
+    console.error(error);
+    return {
+      redirect: {
+        destination: "/500",
+        permanent: false,
+      },
+    };
   }
-
-  return {
-    props: {
-      buildings: [],
-      deskTypes: [],
-    },
-  };
 };
 
 export default ResourceOverview;

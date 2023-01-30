@@ -19,7 +19,8 @@ public class ResourcesController : ControllerBase
 
   private readonly AutoMapper.IMapper _mapper;
 
-  public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases, IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
+  public ResourcesController(ILogger<ResourcesController> logger, IResourceUsecases resourceUsecases,
+    IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
   {
     _logger = logger;
     _resourceUsecases = resourceUsecases;
@@ -27,7 +28,7 @@ public class ResourcesController : ControllerBase
     _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
   }
 
-  /// <summary>
+    /// <summary>
   /// Updates a Desk.
   /// </summary>
   /// <remarks>
@@ -344,7 +345,8 @@ public class ResourcesController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -364,16 +366,38 @@ public class ResourcesController : ControllerBase
   ///     DELETE /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
+  /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
-  /// <response code="501">Not Implemented</response>
+  /// <response code="500">Internal Server Error</response>
   [HttpDelete("buildings/{buildingId}")]
   [Authorize(Policy = "Admin")]
-  [ProducesResponseType(StatusCodes.Status205ResetContent)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult DeleteBuilding(string buildingId)
   {
-    return Problem(statusCode: 501);
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteBuilding(adminId, buildingId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
   }
 
 
@@ -443,7 +467,8 @@ public class ResourcesController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -463,16 +488,38 @@ public class ResourcesController : ControllerBase
   ///     DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
+  /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
-  /// <response code="501">Not Impelemented</response>
+  /// <response code="500">Internal Server Error</response>
   [HttpDelete("floors/{floorId}")]
   [Authorize(Policy = "Admin")]
-  [ProducesResponseType(StatusCodes.Status205ResetContent)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult DeleteFloor(string floorId)
   {
-    return Problem(statusCode: 501);
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteFloor(adminId, floorId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
   }
 
   /// <summary>
@@ -542,7 +589,8 @@ public class ResourcesController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -562,16 +610,38 @@ public class ResourcesController : ControllerBase
   ///     DELETE /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
+  /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
-  /// <response code="501">Not Implemented</response>
+  /// <response code="500">Internal Server Error</response>
   [HttpDelete("rooms/{roomId}")]
   [Authorize(Policy = "Admin")]
-  [ProducesResponseType(StatusCodes.Status205ResetContent)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult DeleteRoom(string roomId)
   {
-    return Problem(statusCode: 501);
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteRoom(adminId, roomId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
   }
 
   /// <summary>
@@ -701,7 +771,8 @@ public class ResourcesController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -721,16 +792,38 @@ public class ResourcesController : ControllerBase
   ///     DELETE /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
   ///
+  /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
-  /// <response code="501">Not Implemented</response>
+  /// <response code="500">Internal Server Error</response>
   [HttpDelete("desks/{deskId}")]
   [Authorize(Policy = "Admin")]
-  [ProducesResponseType(StatusCodes.Status205ResetContent)]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
   [Produces("application/json")]
   public IActionResult DeleteDesk(string deskId)
   {
-    return Problem(statusCode: 501);
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteDesk(adminId, deskId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
   }
 
   /// <summary>
@@ -766,6 +859,7 @@ public class ResourcesController : ControllerBase
       return Problem(statusCode: 500);
     }
   }
+
   /// <summary>
   /// Return a list of desk types
   /// </summary>
@@ -790,7 +884,8 @@ public class ResourcesController : ControllerBase
     {
       var companyId = _userUsecases.ReadSpecificUser(adminId).CompanyId;
       var entities = _resourceUsecases.GetDeskTypes(companyId);
-      var deskTypes = entities.Select<DeskType, DeskTypeDto>(desktype => _mapper.Map<DeskType, DeskTypeDto>(desktype)).ToList();
+      var deskTypes = entities.Select<DeskType, DeskTypeDto>(desktype => _mapper.Map<DeskType, DeskTypeDto>(desktype))
+        .ToList();
       return Ok(deskTypes);
     }
     catch (Exception e)
@@ -799,4 +894,46 @@ public class ResourcesController : ControllerBase
       return Problem(statusCode: 500);
     }
   }
-}
+
+  /// <summary>
+  /// Deletes a desk type.
+  /// </summary>
+  /// <remarks>
+  /// Sample request:
+  ///     DELETE /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  /// </remarks>
+  ///
+  /// <response code="200">Ok</response>
+  /// <response code="400">Bad Request</response>
+  /// <response code="500">Internal Server Error</response>
+  [HttpDelete("desktypes/{deskTypeId}")]
+  [Authorize(Policy = "Admin")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  [Produces("application/json")]
+  public IActionResult DeleteDeskType(string deskTypeId)
+  {
+    var adminId = RequestInteractions.ExtractIdFromRequest(Request);
+    try
+    {
+      _resourceUsecases.DeleteDeskType(adminId, deskTypeId);
+      return Ok();
+    }
+    catch (EntityNotFoundException e)
+    {
+      return Problem(statusCode: 404, detail: e.Message);
+    }
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      return BadRequest(e.Message);
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, e.Message);
+      return Problem(statusCode: 500);
+    }
+  }
+} 

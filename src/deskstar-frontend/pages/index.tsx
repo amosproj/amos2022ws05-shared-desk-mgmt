@@ -4,7 +4,6 @@ import Head from "next/head";
 import BookingsTable from "../components/BookingsTable";
 import { IBooking } from "../types/booking";
 //TODO: delete this when fetching from database
-import { bookings } from "../bookings";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "./api/auth/[...nextauth]";
 import { getBookings } from "../lib/api/BookingService";
@@ -19,8 +18,6 @@ export default function AppHome({
   bookingsTomorrow: IBooking[];
 }) {
   const { data: session } = useSession();
-
-  //console.log(session?.accessToken);
 
   const [buttonText, setButtonText] = useState("Check in");
   const [checkedIn, setCheckedIn] = useState(false);
@@ -74,54 +71,65 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     authOptions
   );
 
-  if (session) {
-    const start = new Date();
-    start.setHours(0, 0, 0);
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
 
-    const data = await getBookings(session, {
+  const start = new Date();
+  start.setHours(0, 0, 0);
+
+  let data;
+  try {
+    data = await getBookings(session, {
       n: 10,
       direction: "DESC",
       start: start.getTime(),
     });
-
-    const bookingsToday = data.bookings.filter((booking: IBooking) => {
-      const today = new Date().toISOString();
-      const startOfDay = new Date(today);
-      startOfDay.setHours(0, 0, 0);
-      const endOfDay = new Date(today);
-      endOfDay.setHours(23, 59, 59);
-      const startTime = new Date(booking.startTime).toISOString();
-      const endTime = new Date(booking.endTime).toISOString();
-
-      return (
-        (startTime >= startOfDay.toISOString() &&
-          startTime <= endOfDay.toISOString()) ||
-        (endTime >= startOfDay.toISOString() &&
-          endTime <= endOfDay.toISOString())
-      );
-    });
-
-    const bookingsTomorrow = data.bookings.filter((booking: IBooking) => {
-      const todayTimestamp = new Date().getTime();
-
-      let tomorrowTimestamp = todayTimestamp + 86400000;
-      let tomorrow = new Date(tomorrowTimestamp);
-      tomorrow.setHours(0, 0, 0);
-      const startTime = new Date(booking.startTime).getTime();
-      return startTime >= tomorrow.getTime();
-    });
-
+  } catch (error) {
+    console.error(error);
     return {
-      props: {
-        bookingsToday,
-        bookingsTomorrow,
-      },
-    };
-  } else {
-    return {
-      props: {
-        bookings: [],
+      redirect: {
+        destination: "/500",
+        permanent: false,
       },
     };
   }
+
+  const bookingsToday = data.bookings.filter((booking: IBooking) => {
+    const today = new Date().toISOString();
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0);
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59);
+    const startTime = new Date(booking.startTime).toISOString();
+    const endTime = new Date(booking.endTime).toISOString();
+
+    return (
+      (startTime >= startOfDay.toISOString() &&
+        startTime <= endOfDay.toISOString()) ||
+      (endTime >= startOfDay.toISOString() && endTime <= endOfDay.toISOString())
+    );
+  });
+
+  const bookingsTomorrow = data.bookings.filter((booking: IBooking) => {
+    const todayTimestamp = new Date().getTime();
+
+    let tomorrowTimestamp = todayTimestamp + 86400000;
+    let tomorrow = new Date(tomorrowTimestamp);
+    tomorrow.setHours(0, 0, 0);
+    const startTime = new Date(booking.startTime).getTime();
+    return startTime >= tomorrow.getTime();
+  });
+
+  return {
+    props: {
+      bookingsToday,
+      bookingsTomorrow,
+    },
+  };
 };
