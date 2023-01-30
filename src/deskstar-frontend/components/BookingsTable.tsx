@@ -1,6 +1,8 @@
 import { IBooking } from "../types/booking";
 import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import { UpdateBookingModal } from "./UpdateBookingModal";
+import dayjs, { Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
 
 const BookingsTable = ({
   bookings,
@@ -57,10 +59,24 @@ const BookingTableEntry = ({
   onDelete?: Function;
   onCheckIn?: Function;
 }) => {
-  const startDate = booking.startTime.split("T")[0];
-  const startTime = booking.startTime.split("T")[1].replace("Z", "");
-  const endDate = booking.endTime.split("T")[0];
-  const endTime = booking.endTime.split("T")[1].replace("Z", "");
+  const [start, setStart] = useState<Dayjs>();
+
+  const [end, setEnd] = useState<Dayjs>();
+
+  // Needed, because dayjs cannot be run on the server
+  useEffect(() => {
+    setStart(
+      dayjs(booking.startTime, {
+        utc: true,
+      })
+    );
+
+    setEnd(
+      dayjs(booking.endTime, {
+        utc: true,
+      })
+    );
+  }, [booking.startTime, booking.endTime]);
 
   return (
     <tr className="hover">
@@ -84,10 +100,10 @@ const BookingTableEntry = ({
       </td>
       <td className="text-center">{booking.room}</td>
       <td className="text-center">{booking.building}</td>
-      <td className="text-center">{startDate}</td>
-      <td className="text-center">{startTime}</td>
-      <td className="text-center">{endDate}</td>
-      <td className="text-center">{endTime}</td>
+      <td className="text-center">{start?.format("DD.MM.YYYY")}</td>
+      <td className="text-center">{start?.format("HH:mm")}</td>
+      <td className="text-center">{end?.format("DD.MM.YYYY")}</td>
+      <td className="text-center">{end?.format("HH:mm")}</td>
       {onEdit && (
         <td className="p-0">
           <label

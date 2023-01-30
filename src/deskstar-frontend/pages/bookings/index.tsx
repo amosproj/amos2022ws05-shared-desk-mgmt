@@ -56,15 +56,10 @@ export default function Bookings({
     newEndTime: Date
   ) => {
     if (session == null) return;
-    const offset = newStartTime.getTimezoneOffset();
 
     const update = {
-      startTime: new Date(
-        newStartTime.getTime() - offset * 60 * 1000
-      ).toISOString(),
-      endTime: new Date(
-        newEndTime.getTime() - offset * 60 * 1000
-      ).toISOString(),
+      startTime: newStartTime.toISOString(),
+      endTime: newEndTime.toISOString(),
     };
 
     try {

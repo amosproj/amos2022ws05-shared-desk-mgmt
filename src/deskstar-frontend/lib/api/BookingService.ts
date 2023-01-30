@@ -189,7 +189,5 @@ export async function updateBooking(
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
-  //TODO: fix this
-  //return await response.json();
   return response;
 }
