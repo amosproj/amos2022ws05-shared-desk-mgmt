@@ -2366,6 +2366,48 @@ public class ResourceUsecasesTests
   }
 
   [Test]
+  public void GetAllFloors_WhenNoFloorFound_ShouldReturnAEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
+    var hasher = new PasswordHasher<User>();
+    var company = new Company
+    {
+      CompanyId = companyId,
+      CompanyName = "gehmalbierholn"
+    };
+    var user = new User
+    {
+      UserId = userId,
+      MailAddress = "test@example.de",
+      FirstName = "testF",
+      LastName = "testL",
+      CompanyId = company.CompanyId,
+      IsApproved = true
+    };
+    user.Password = hasher.HashPassword(user, "testpw");
+    db.Add(company);
+    db.Add(user);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //act
+    var result = usecases.GetAllFloors(userId);
+
+    //assert
+    Assert.That(result, Is.Empty);
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
   public void GetFloors_WhenNoFloorFound_ShouldReturnAEmptyList()
   {
     //setup
@@ -2564,6 +2606,90 @@ public class ResourceUsecasesTests
       //assert
       Assert.That(result, Is.Not.Empty);
       Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetAllRooms_WhenNoRoomIsFound_ShouldReturnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
+    var hasher = new PasswordHasher<User>();
+    var company = new Company
+    {
+      CompanyId = companyId,
+      CompanyName = "gehmalbierholn"
+    };
+    var user = new User
+    {
+      UserId = userId,
+      MailAddress = "test@example.de",
+      FirstName = "testF",
+      LastName = "testL",
+      CompanyId = company.CompanyId,
+      IsApproved = true
+    };
+    user.Password = hasher.HashPassword(user, "testpw");
+    db.Add(company);
+    db.Add(user);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //act
+    var result = usecases.GetAllRooms(userId);
+
+    //assert
+    Assert.IsEmpty(result);
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetAllDesks_WhenNoDeskIsFound_ShouldReturnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
+    var hasher = new PasswordHasher<User>();
+    var company = new Company
+    {
+      CompanyId = companyId,
+      CompanyName = "gehmalbierholn"
+    };
+    var user = new User
+    {
+      UserId = userId,
+      MailAddress = "test@example.de",
+      FirstName = "testF",
+      LastName = "testL",
+      CompanyId = company.CompanyId,
+      IsApproved = true
+    };
+    user.Password = hasher.HashPassword(user, "testpw");
+    db.Add(company);
+    db.Add(user);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //act
+    var result = usecases.GetAllDesks(userId);
+
+    //assert
+    Assert.That(result, Is.Empty);
 
     //cleanup
     db.Database.EnsureDeleted();

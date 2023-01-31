@@ -50,22 +50,31 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
 /**
  * Lists all floors of a building
  * @param session The user session
- * @param buildingId The building id
+ * @param buildingId? The building id
  * @returns All floors of `buildingId`
  * @throws Error containing status code and/or error message
  */
 export async function getFloors(
   session: Session,
-  buildingId: string
+  buildingId?: string
 ): Promise<IFloor[]> {
-  const response = await fetch(
-    BACKEND_URL + `/resources/buildings/${buildingId}/floors`,
-    {
+  let response;
+  if (buildingId) {
+    response = await fetch(
+      BACKEND_URL + `/resources/buildings/${buildingId}/floors`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
+  } else {
+    response = await fetch(BACKEND_URL + `/resources/floors`, {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
-    }
-  );
+    });
+  }
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
@@ -95,22 +104,28 @@ export async function getAllFloors(session: Session): Promise<IFloor[]> {
 /**
  * Lists all rooms of a floor
  * @param session The user session
- * @param floorId The floor id
+ * @param floorId? The floor id
  * @returns All rooms of `floorId`
  * @throws Error containing status code and/or error message
  */
 export async function getRooms(
   session: Session,
-  floorId: string
+  floorId?: string
 ): Promise<IRoom[]> {
-  const response = await fetch(
-    BACKEND_URL + `/resources/floors/${floorId}/rooms`,
-    {
+  let response;
+  if (floorId) {
+    response = await fetch(BACKEND_URL + `/resources/floors/${floorId}/rooms`, {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
-    }
-  );
+    });
+  } else {
+    response = await fetch(BACKEND_URL + `/resources/rooms`, {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    });
+  }
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
@@ -140,15 +155,15 @@ export async function getAllRooms(session: Session): Promise<IRoom[]> {
 /**
  * Lists all available desks of a room
  * @param session The user session
- * @param roomId The room id
- * @param startTime optional
- * @param endTime optional
+ * @param roomId? optional The room id
+ * @param startTime? optional
+ * @param endTime? optional
  * @returns All available desks
  * @throws Error containing status code and/or error message
  */
 export async function getDesks(
   session: Session,
-  roomId: string,
+  roomId?: string,
   startTime?: number,
   endTime?: number
 ): Promise<IDesk[]> {
@@ -156,14 +171,26 @@ export async function getDesks(
   if (startTime) params.append("start", startTime.toString());
   if (endTime) params.append("end", endTime.toString());
 
-  const response = await fetch(
-    BACKEND_URL + `/resources/rooms/${roomId}/desks?${params.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-    }
-  );
+  let response;
+  if (roomId) {
+    response = await fetch(
+      BACKEND_URL + `/resources/rooms/${roomId}/desks?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
+  } else {
+    response = await fetch(
+      BACKEND_URL + `/resources/desks?${params.toString()}`,
+      {
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
+      }
+    );
+  }
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 

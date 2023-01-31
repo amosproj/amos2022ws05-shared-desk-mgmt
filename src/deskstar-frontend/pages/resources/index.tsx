@@ -52,9 +52,15 @@ import { UpdateDeskDto } from "../../types/models/UpdateDeskDto";
 
 const ResourceOverview = ({
   buildings: origBuildings,
+  floors: origFloors,
+  rooms: origRooms,
+  desks: origDesks,
   deskTypes: origDeskTypes,
 }: {
   buildings: IBuilding[];
+  floors: IFloor[];
+  rooms: IRoom[];
+  desks: IDesk[];
   deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
@@ -128,6 +134,7 @@ const ResourceOverview = ({
       .filter((building) => !building.isMarkedForDeletion);
 
     setBuildings(buildings);
+    onSelectedBuildingChange(buildings);
   }
 
   function stopFetchingAnimation() {
@@ -138,95 +145,44 @@ const ResourceOverview = ({
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
     setIsFetching(true);
-    const promises = await Promise.all(
-      selectedBuildings.map(async (building) => {
-        if (!session) return [];
-
-        let resFloors;
-        try {
-          resFloors = await getFloors(session, building.buildingId);
-        } catch (error) {
-          toast.error(`${error}`);
-          return [];
-        }
-
-        const enrichedFloors = resFloors
-          .map((floor) => {
-            floor.buildingName = building.buildingName;
-            floor.location = building.location;
-            return floor;
-          })
-          .filter((floor) => !floor.isMarkedForDeletion);
-        return enrichedFloors;
+    setIsFetching(true);
+    let floors = origFloors.filter((floor) =>
+      selectedBuildings.some((building) => {
+        return building.buildingId === floor.buildingId;
       })
     );
-
-    setFloors(promises.flat());
-    setIsFetching(true);
+    floors = floors.filter((floor) => !floor.isMarkedForDeletion);
+    setFloors(floors);
+    onSelectedFloorChange(floors);
     stopFetchingAnimation();
   }
 
   async function onSelectedFloorChange(selectedFloors: IFloor[]) {
     setIsFetching(true);
-    const promises = await Promise.all(
-      selectedFloors.map(async (floor) => {
-        if (!session) return [];
-
-        let resRooms;
-        try {
-          resRooms = await getRooms(session, floor.floorId);
-        } catch (error) {
-          toast.error(`${error}`);
-          return [];
-        }
-
-        const enrichedRooms = resRooms
-          .map((room) => {
-            room.building = floor.buildingName;
-            room.location = floor.location;
-            room.floor = floor.floorName;
-            return room;
-          })
-          .filter((room) => !room.isMarkedForDeletion);
-        return enrichedRooms;
+    let rooms = origRooms.filter((room) =>
+      selectedFloors.some((floor) => {
+        return floor.floorId === room.floorId;
       })
     );
+    rooms = rooms.filter((room) => !room.isMarkedForDeletion);
 
-    setRooms(promises.flat());
+    setRooms(rooms);
+    onSelectedRoomChange(rooms);
     stopFetchingAnimation();
   }
 
   async function onSelectedRoomChange(selectedRooms: IRoom[]) {
     setIsFetching(true);
-    const promises = await Promise.all(
-      selectedRooms.map(async (room) => {
-        if (!session) {
-          return [];
-        }
-
-        let resDeskType;
-        try {
-          resDeskType = await getDesks(
-            session,
-            room.roomId,
-            new Date().getTime(),
-            new Date().getTime()
-          );
-        } catch (error) {
-          toast.error(`${error}`);
-          return [];
-        }
-
-        resDeskType.filter((deskType) => !deskType.isMarkedForDeletion);
-
-        return resDeskType;
+    let desks = origDesks.filter((desk) =>
+      selectedRooms.some((room) => {
+        return room.roomId === desk.roomId;
       })
     );
 
-    const desks = promises.flat();
     const filteredDesks: IDesk[] = desks
       .filter((desk) => desk.bookings.length === 0)
       .filter((desk) => !desk.isMarkedForDeletion);
+
     setDesks(filteredDesks);
     stopFetchingAnimation();
   }
@@ -440,7 +396,7 @@ const ResourceOverview = ({
   const doDeleteRoom = async (): Promise<void> => {
     if (room) {
       if (session == null) return;
-      let result = await deleteRoom(session, room.roomName);
+      let result = await deleteRoom(session, room.roomId);
 
       if (result.response == ResourceResponse.Success) {
         toast.success(result.message);
@@ -782,10 +738,16 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   try {
     const buildings = await getBuildings(session);
+    const floors = await getFloors(session);
+    const rooms = await getRooms(session);
+    const desks = await getDesks(session);
     const deskTypes = await getDeskTypes(session);
     return {
       props: {
         buildings,
+        floors,
+        rooms,
+        desks,
         deskTypes,
       },
     };

@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
   /// Sample request:
   ///     Post /auth/createToken
   /// </remarks>
-  /// 
+  ///
   /// <response code="200">Login succesful </response>
   /// <response code="401">Credentials wrong or user not approved</response>
   [HttpPost("createToken")]
@@ -56,7 +56,7 @@ public class AuthController : ControllerBase
   /// Sample request:
   ///     Post /auth/register
   /// </remarks>
-  /// 
+  ///
   /// <response code="200">User added to db</response>
   /// <response code="400">Mail already in use</response>
   /// <response code="404">Company not found</response>
@@ -82,7 +82,7 @@ public class AuthController : ControllerBase
   /// Sample request:
   ///     Post /auth/registerAdmin
   /// </remarks>
-  /// 
+  ///
   /// <response code="200">Admin added to db</response>
   /// <response code="400">Mail or Company name already in use</response>
   [HttpPost("registerAdmin")]
@@ -102,7 +102,7 @@ public class AuthController : ControllerBase
     }
     catch (Exception e)
     {
-      return Problem(statusCode: 500);
+      return Problem(statusCode: 500, detail:e.Message);
     }
   }
 }

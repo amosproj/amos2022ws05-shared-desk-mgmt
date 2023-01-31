@@ -12,8 +12,12 @@ public interface IResourceUsecases
   public List<DeskType> GetDeskTypes(Guid companyId);
   public List<CurrentBuilding> GetBuildings(Guid userId);
   public List<CurrentFloor> GetFloors(Guid callerId, string buildingId);
+  public List<CurrentFloor> GetAllFloors(Guid userId);
   public List<CurrentRoom> GetRooms(Guid callerId, string floorId);
+
+  public List<CurrentRoom> GetAllRooms(Guid userId);
   public List<CurrentDesk> GetDesks(Guid callerId, string roomId, DateTime start, DateTime end);
+  public List<CurrentDesk> GetAllDesks(Guid userId);
   public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 
   public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
@@ -371,6 +375,37 @@ public class ResourceUsecases : IResourceUsecases
     return mapFloorsToCurrentFloors.ToList();
   }
 
+  public List<CurrentFloor> GetAllFloors(Guid userId)
+  {
+    IQueryable<Floor> databaseFloors;
+    try
+    {
+      var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
+      databaseFloors = _context.Floors.Where(floor => floor.Building.CompanyId == companyId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentException($"'{userId}' is not a valid UserId");
+    }
+    catch (InvalidOperationException)
+    {
+      throw new ArgumentException($"There is no User with id '{userId}'");
+    }
+
+    if (databaseFloors.ToList().Count == 0) return new List<CurrentFloor>();
+
+    var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
+    {
+      BuildingId = f.BuildingId.ToString(),
+      BuildingName = f.Building.BuildingName,
+      FloorName = f.FloorName,
+      FloorId = f.FloorId.ToString(),
+      IsMarkedForDeletion = f.IsMarkedForDeletion
+    });
+
+    return mapFloorsToCurrentFloors.ToList();
+  }
   public List<CurrentRoom> GetRooms(Guid callerId, string floorId)
   {
     IQueryable<Room> databaseRooms;
@@ -445,6 +480,36 @@ public class ResourceUsecases : IResourceUsecases
     return mapRoomsToCurrentRooms.ToList();
   }
 
+  public List<CurrentRoom> GetAllRooms(Guid userId)
+  {
+    IQueryable<Room> databaseRooms;
+    try
+    {
+      var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
+      databaseRooms = _context.Rooms.Where(room => room.Floor.Building.CompanyId == companyId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentException($"'{userId}' is not a valid UserId");
+    }
+    catch (InvalidOperationException)
+    {
+      throw new ArgumentException($"There is no User with id '{userId}'");
+    }
+
+    if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
+
+    var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom
+    {
+      RoomId = r.RoomId.ToString(),
+      RoomName = r.RoomName,
+      FloorId = r.FloorId.ToString(),
+      IsMarkedForDeletion = r.IsMarkedForDeletion
+    });
+
+    return mapRoomsToCurrentRooms.ToList();
+  }
   public List<CurrentDesk> GetDesks(Guid callerId, string roomId, DateTime start, DateTime end)
   {
     IQueryable<CurrentDesk> mapDesksToCurrentDesks;
@@ -536,6 +601,41 @@ public class ResourceUsecases : IResourceUsecases
     });
   }
 
+  public List<CurrentDesk> GetAllDesks(Guid userId)
+  {
+    IQueryable<CurrentDesk> mapDesksToCurrentDesks;
+    try
+    {
+      var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
+      var databaseDesks = _context.Desks.Where(desk => desk.Room.Floor.Building.CompanyId == companyId);
+
+      mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
+      {
+        DeskId = desk.DeskId.ToString(),
+        DeskName = desk.DeskName,
+        DeskTyp = desk.DeskType.DeskTypeName,
+        FloorName = desk.Room.Floor.FloorName,
+        FloorId = desk.Room.Floor.FloorId.ToString(),
+        RoomId = desk.Room.RoomId.ToString(),
+        RoomName = desk.Room.RoomName,
+        BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
+        BuildingName = desk.Room.Floor.Building.BuildingName,
+        Location = desk.Room.Floor.Building.Location,
+        IsMarkedForDeletion = desk.IsMarkedForDeletion
+      });
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentException($"'{userId}' is not a valid UserId");
+    }
+    catch (InvalidOperationException)
+    {
+      throw new ArgumentException($"There is no User with id '{userId}'");
+    }
+
+    return mapDesksToCurrentDesks.ToList();
+  }
   public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
   {
     CurrentDesk mapDeskToCurrentDesk;

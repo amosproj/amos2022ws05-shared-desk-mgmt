@@ -11,6 +11,9 @@ public class CurrentRoom
   public string RoomName { get; set; } = null!;
 
   [Required]
+  public string FloorId { get; set; } = null!;  
+
+  [Required]
   public string Floor { get; set; } = null!;
 
   [Required]
