@@ -84,3 +84,31 @@ export async function register(user: RegisterUser): Promise<AuthResponse> {
 
   return AuthResponse.Success;
 }
+
+type InitialRegisterAdmin = {
+  mailAddress: String;
+  firstName: String;
+  lastName: String;
+  password: String;
+  companyName: String;
+};
+
+export async function initialRegistration(
+  user: InitialRegisterAdmin
+): Promise<AuthResponse> {
+  const response = await fetch(BACKEND_URL + "/auth/registerAdmin", {
+    method: "POST",
+    body: JSON.stringify(user),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.log("Response:");
+    console.log(response);
+    return AuthResponse.ErrorUnknown;
+  }
+
+  return AuthResponse.Success;
+}
