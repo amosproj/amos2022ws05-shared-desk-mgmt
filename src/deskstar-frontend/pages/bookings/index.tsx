@@ -102,7 +102,7 @@ export default function Bookings({
           dayjs(booking?.startTime, {
             utc: true,
           }).format("DD.MM.YYYY HH:mm") +
-          " untill " +
+          " until " +
           dayjs(booking?.endTime, {
             utc: true,
           }).format("DD.MM.YYYY HH:mm") +
