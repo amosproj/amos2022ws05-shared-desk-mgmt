@@ -51,33 +51,23 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
     }
 
     if (initialRegistration) {
-      const response = await initialRegister({
-        companyName: newCompanyName,
-        firstName,
-        lastName,
-        mailAddress: email,
-        password,
-      });
-      setClicked(false);
-
-      if (response !== AuthResponse.Success) {
-        switch (response) {
-          case AuthResponse.ErrorCompanyNotFound:
-            toast.error("Company not Found");
-            break;
-          case AuthResponse.ErrorEmailaddressAlreadyExists:
-            toast.error("Email adress already registered");
-            break;
-          default:
-            toast.error("Unknown error");
-            break;
-        }
+      try {
+        const response = await initialRegister({
+          companyName: newCompanyName,
+          firstName,
+          lastName,
+          mailAddress: email,
+          password,
+        });
+      } catch (error) {
+        toast.error(`${error}`);
+        setClicked(false);
         return;
       }
 
+      setClicked(false);
       document.location =
         "/login?msg=Registration+successful!+We+will+contact+you+shortly+to+activate+your+account";
-
       return;
     }
 
