@@ -127,6 +127,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         onPermissionUpdate={onPermissionUpdate}
         onEdit={onEdit}
         onDelete={onDelete}
+        adminId={session.user.id}
       />
       <ConfirmModal
         title={"Delete User " + user?.firstName + " " + user?.lastName + "?"}
