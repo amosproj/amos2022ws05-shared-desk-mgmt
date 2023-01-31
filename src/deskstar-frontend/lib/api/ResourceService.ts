@@ -451,7 +451,7 @@ export async function updateDeskType(
 export async function restoreBuilding(
   session: Session,
   restoreBuilding: IBuilding
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var buildingId = restoreBuilding.buildingId;
   const response = await fetch(
     BACKEND_URL + `/resources/buildings/restore/${buildingId}`,
@@ -463,7 +463,7 @@ export async function restoreBuilding(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -567,7 +567,7 @@ export async function createFloor(
 export async function restoreFloor(
   session: Session,
   restoreFloor: IFloor
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var floorId = restoreFloor.floorId;
   const response = await fetch(
     BACKEND_URL + `/resources/floors/restore/${floorId}`,
@@ -579,7 +579,7 @@ export async function restoreFloor(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -680,7 +680,7 @@ export async function createRoom(
 export async function restoreRoom(
   session: Session,
   restoreRoom: IRoom
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var roomId = restoreRoom.roomId;
   const response = await fetch(
     BACKEND_URL + `/resources/rooms/restore/${roomId}`,
@@ -692,7 +692,7 @@ export async function restoreRoom(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -793,7 +793,7 @@ export async function createDeskType(
 export async function restoreDeskType(
   session: Session,
   restoreDeskType: IDeskType
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var desktypeId = restoreDeskType.deskTypeId;
   const response = await fetch(
     BACKEND_URL + `/resources/desktypes/restore/${desktypeId}`,
@@ -805,7 +805,7 @@ export async function restoreDeskType(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -909,7 +909,7 @@ export async function createDesk(
 export async function restoreDesk(
   session: Session,
   restoreDesk: IDesk
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var deskId = restoreDesk.deskId;
   const response = await fetch(
     BACKEND_URL + `/resources/desks/restore/${deskId}`,
@@ -921,7 +921,7 @@ export async function restoreDesk(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
