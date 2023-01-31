@@ -10,24 +10,15 @@ namespace Teststar.Tests.Tests;
 
 public class CompanyUsecasesTests
 {
-  private void setupMockData(DataContext db, Guid companyID, String companyName)
-  {
-    var company = new Company
-    {
-      CompanyId = companyID,
-      CompanyName = companyName
-    };
-    db.Companies.Add(company);
-    db.SaveChanges();
-  }
 
-  private void GetCompanies_ShouldReturnAllCompanies()
+  [Test]
+  public void GetCompanies_ShouldReturnAllCompanies()
   {
     // setup
     using var db = new DataContext();
-    var companyID = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
     var companyName = "Test Company";
-    setupMockData(db, companyID, companyName);
+    setupMockData(db, companyId, companyName);
 
     // arrange
     var logger = new Mock<ILogger<CompanyUsecases>>();
@@ -39,10 +30,21 @@ public class CompanyUsecasesTests
 
     // assert
     Assert.That(1 == companies.Count());
-    Assert.That(companyID.ToString() == companies.First().CompanyId);
+    Assert.That(companyId.ToString() == companies.First().CompanyId);
     Assert.That(companyName == companies.First().CompanyName);
 
     // cleanup
     db.Database.EnsureDeleted();
+  }
+
+  private void setupMockData(DataContext db, Guid companyID, String companyName)
+  {
+    var company = new Company
+    {
+      CompanyId = companyID,
+      CompanyName = companyName
+    };
+    db.Companies.Add(company);
+    db.SaveChanges();
   }
 }

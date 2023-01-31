@@ -17,6 +17,7 @@ namespace Deskstar.Usecases
   {
     LoginResponse CheckCredentials(string mail, string password);
     string CreateToken(IConfiguration configuration, string mail);
+    User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName);
     RegisterResponse RegisterUser(RegisterUser registerUser);
   }
 
@@ -41,17 +42,17 @@ namespace Deskstar.Usecases
           = _context.Users.Single(u => u.MailAddress == mail);
         if (registerUser.IsMarkedForDeletion)
           return new LoginResponse
-            { Message = LoginReturn.Deleted };
+          { Message = LoginReturn.Deleted };
         if (!registerUser
               .IsApproved)
           return new LoginResponse
-            { Message = LoginReturn.NotYetApproved };
+          { Message = LoginReturn.NotYetApproved };
         if (_hasher.VerifyHashedPassword(registerUser
               , registerUser
                 .Password, password)
             == PasswordVerificationResult.Success)
           return new LoginResponse
-            { Message = LoginReturn.Ok };
+          { Message = LoginReturn.Ok };
       }
       catch (Exception e)
       {
@@ -174,6 +175,59 @@ namespace Deskstar.Usecases
         _logger.LogError(e, e.Message);
         return Company.Null;
       }
+    }
+
+    public User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName)
+    {
+      if (string.IsNullOrEmpty(firstName))
+        throw new ArgumentInvalidException($"'{nameof(firstName)}' is not set");
+
+      if (string.IsNullOrEmpty(lastName))
+        throw new ArgumentInvalidException($"'{nameof(lastName)}' is not set");
+
+      if (string.IsNullOrEmpty(mailAddress))
+        throw new ArgumentInvalidException($"'{nameof(mailAddress)}' is not set");
+
+      if (string.IsNullOrEmpty(password))
+        throw new ArgumentInvalidException($"'{nameof(password)}' is not set");
+
+      if (string.IsNullOrEmpty(companyName))
+        throw new ArgumentInvalidException($"'{nameof(companyName)}' is not set");
+
+      var rx = new Regex(
+        "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])",
+        RegexOptions.IgnoreCase);
+      if (rx.Matches(mailAddress).Count != 1)
+        throw new ArgumentInvalidException($"E-Mail '{mailAddress}' is not valid");
+        
+      if (_getUser(mailAddress) != User.Null)
+        throw new ArgumentInvalidException($"E-Mail '{mailAddress}' already in use");
+
+      var companyNameExists = _context.Companies.SingleOrDefault(c => c.CompanyName == companyName);
+      if (companyNameExists != null)
+        throw new ArgumentInvalidException($"Company name '{companyName}' already in use");
+
+      var companyId = Guid.NewGuid();
+      var company = new Company { CompanyName = companyName, CompanyId = companyId };
+
+      var admin = new User
+      {
+        CompanyId = companyId,
+        MailAddress = mailAddress,
+        FirstName = firstName,
+        LastName = lastName,
+        Company = company,
+        IsApproved = true,
+        IsCompanyAdmin = true,
+      };
+      admin.Password = _hasher.HashPassword(admin, password);
+
+      _context.Companies.Add(company);
+      _context.Users.Add(admin);
+
+      _context.SaveChanges();
+
+      return admin;
     }
   }
 }

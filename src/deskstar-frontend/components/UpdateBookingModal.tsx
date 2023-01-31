@@ -15,8 +15,16 @@ export function UpdateBookingModal({
   booking,
   onUpdate,
 }: UpdateBookingModalProps) {
-  const [startDateTime, setStartDateTime] = useState(dayjs(booking.startTime));
-  const [endDateTime, setEndDateTime] = useState(dayjs(booking.endTime));
+  const [startDateTime, setStartDateTime] = useState(
+    dayjs(booking.startTime, {
+      utc: true,
+    })
+  );
+  const [endDateTime, setEndDateTime] = useState(
+    dayjs(booking.endTime, {
+      utc: true,
+    })
+  );
 
   let today = dayjs();
   today = today
