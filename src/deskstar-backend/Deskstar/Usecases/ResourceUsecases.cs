@@ -527,7 +527,7 @@ public class ResourceUsecases : IResourceUsecases
 
     var deskDbInstance = _context.Desks.Include(d => d.Room)
       .ThenInclude(r => r.Floor)
-      .ThenInclude(b => b.Building).ThenInclude(d => d.User).SingleOrDefault(d => d.DeskId == deskGuid);
+      .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
@@ -556,14 +556,14 @@ public class ResourceUsecases : IResourceUsecases
 
   private void notifybookers(Desk deletedDesk)
   {
-    var bookings = _context.Bookings.Where(b => b.DeskId == deletedDesk.DeskId).ToList();
+    var bookings = _context.Bookings.Where(b => b.DeskId == deletedDesk.DeskId).Include(b => b.User).ToList();
     foreach (var booking in bookings)
     {
-      var body = $"Hello {booking.User.FirstName},</br> " +
-                 $"some problems with your booking of desk {booking.Desk.DeskName} between" +
-                 $"{booking.StartTime} till {booking.EndTime} occured.</br>" +
-                 "The desk was deleted by an admin. Please make sure to book an other desk for your day in office.</br>";
-      EmailHelper.SendEmail(_logger, booking.User.MailAddress, $"Problem with the booking of desk {booking.Desk.DeskName}!", body);
+      var body = $"Hello {booking.User.FirstName},<br/> " +
+                 $"some problems with your booking of desk {booking.Desk.DeskName} between " +
+                 $"{booking.StartTime} till {booking.EndTime} occured.<br/>" +
+                 "The desk was deleted by an admin. Please make sure to book an other desk for your day in office.<br/>";
+      EmailHelper.SendEmail(_logger, booking.User.MailAddress, $"A problem with your booking of desk {booking.Desk.DeskName} occured!", body);
     }
   }
 

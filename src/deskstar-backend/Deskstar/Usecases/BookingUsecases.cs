@@ -112,7 +112,7 @@ public class BookingUsecases : IBookingUsecases
                $"you have successfully booked desk {booking.Desk.DeskName}.</br> " +
                $"Your booked timeslot is from {booking.StartTime} till {booking.EndTime}.</br>" +
                "Have a great day in the office!</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, $"Booking of desk {booking.Desk.DeskName} successful!", body);
+    EmailHelper.SendEmail(_logger, user.MailAddress, $"You're booking of desk {booking.Desk.DeskName} is confirmed!", body);
     return booking;
   }
 
@@ -133,7 +133,7 @@ public class BookingUsecases : IBookingUsecases
       throw new ArgumentException("User not found");
     }
 
-    var booking = _context.Bookings.Include(b => b.Desk).ThenInclude(b => b.user).FirstOrDefault(b => b.BookingId == bookingId);
+    var booking = _context.Bookings.Include(b => b.Desk).Include(b => b.User).FirstOrDefault(b => b.BookingId == bookingId);
     if (booking == null)
     {
       throw new ArgumentException("Booking not found");
@@ -147,11 +147,10 @@ public class BookingUsecases : IBookingUsecases
     _context.Bookings.Remove(booking);
     _context.SaveChanges();
 
-    var body = $"Hello {user.FirstName},</br> " +
+    var body = $"Hello {user.FirstName},<br/> " +
                $"you have successfully canceled your booking of desk {booking.Desk.DeskName} " +
-               $"form {booking.StartTime} till {booking.EndTime}.</br>" +
-               "Have a great day in the office!</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, $"Cancellation of booking of desk {booking.Desk.DeskName} successful!", body);
+               $"form {booking.StartTime} till {booking.EndTime}.<br/>";
+    EmailHelper.SendEmail(_logger, user.MailAddress, $"You're deleition of booking desk {booking.Desk.DeskName} is confirmed!", body);
     return booking;
   }
 
@@ -163,7 +162,7 @@ public class BookingUsecases : IBookingUsecases
       throw new ArgumentException("User not found");
     }
 
-    var booking = _context.Bookings.Include(b => b.Desk).ThenInclude(b => b.user).FirstOrDefault(b => b.BookingId == bookingId);
+    var booking = _context.Bookings.Include(b => b.Desk).Include(b => b.User).FirstOrDefault(b => b.BookingId == bookingId);
     if (booking == null)
     {
       throw new ArgumentException("Booking not found");
@@ -192,7 +191,7 @@ public class BookingUsecases : IBookingUsecases
                $"you have successfully edit your booking of desk {booking.Desk.DeskName}.</br> " +
                $"Your new timeslot is from {booking.StartTime} till {booking.EndTime}.</br>" +
                "Have a great day in the office!</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, $"Booking of desk {booking.Desk.DeskName} successful!", body);
+    EmailHelper.SendEmail(_logger, user.MailAddress, $"Your booking of desk {booking.Desk.DeskName} is confirmed!", body);
     return booking;
   }
 }
