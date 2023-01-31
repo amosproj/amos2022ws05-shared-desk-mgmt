@@ -16,15 +16,11 @@ public class AuthController : ControllerBase
   private readonly IAuthUsecases _authUsecases;
   private readonly IConfiguration _configuration;
 
-  private readonly IAutoMapperConfiguration _autoMapperConfiguration;
-
-
-  public AuthController(ILogger<AuthController> logger, IAuthUsecases authUsecases, IConfiguration configuration, IAutoMapperConfiguration autoMapperConfiguration)
+  public AuthController(ILogger<AuthController> logger, IAuthUsecases authUsecases, IConfiguration configuration)
   {
     _logger = logger;
     _authUsecases = authUsecases;
     _configuration = configuration;
-    _autoMapperConfiguration = autoMapperConfiguration;
   }
 
   /// <summary>
@@ -92,15 +88,13 @@ public class AuthController : ControllerBase
   [HttpPost("registerAdmin")]
   [AllowAnonymous]
   [ProducesResponseType(StatusCodes.Status200OK)]
-  [ProducesResponseType(typeof(RegisterResponse), StatusCodes.Status400BadRequest)]
+  [ProducesResponseType(StatusCodes.Status400BadRequest)]
   public IActionResult RegisterAdmin(RegisterAdminDto registerAdmin)
   {
     try
     {
       var admin = _authUsecases.RegisterAdmin(registerAdmin.FirstName, registerAdmin.LastName, registerAdmin.MailAddress, registerAdmin.Password, registerAdmin.CompanyName);
-      var mapper = _autoMapperConfiguration.GetConfiguration().CreateMapper();
-      var dto = mapper.Map<User, RegisterAdminResponseObject>(admin);
-      return Ok(dto);
+      return Ok();
     }
     catch (ArgumentInvalidException e)
     {

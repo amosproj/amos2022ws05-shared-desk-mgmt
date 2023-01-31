@@ -22,7 +22,6 @@ namespace Deskstar.Models
                 CreateDeskTypeResponseObject.createMappings(cfg);
                 CreateFloorResponseObject.createMappings(cfg);
                 CreateRoomResponseObject.createMappings(cfg);
-                RegisterAdminResponseObject.createMappings(cfg);
             });
             return config;
         }
