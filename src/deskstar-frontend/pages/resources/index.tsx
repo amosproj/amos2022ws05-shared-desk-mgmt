@@ -596,7 +596,7 @@ const ResourceOverview = ({
           />
           <ConfirmModal
             title={"Delete Desktype " + deskType?.deskTypeName + "?"}
-            description="This be undone!"
+            description="Make sure that all desks of this type are deleted first!"
             text=""
             warn
             buttonText="DELETE"

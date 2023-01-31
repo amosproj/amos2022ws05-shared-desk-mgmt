@@ -110,9 +110,9 @@ public class BookingUsecases : IBookingUsecases
     _context.SaveChanges();
     var body = $"Hello {user.FirstName},</br> " +
                $"you have successfully booked desk {booking.Desk.DeskName}.</br> " +
-               $"Your booked timeslot is from {booking.StartTime} till {booking.EndTime}.</br>" +
+               $"Your booked timeslot is from {booking.StartTime} until {booking.EndTime}.</br>" +
                "Have a great day in the office!</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, $"You're booking of desk {booking.Desk.DeskName} is confirmed!", body);
+    EmailHelper.SendEmail(_logger, user.MailAddress, $"Your booking of desk {booking.Desk.DeskName} is confirmed!", body);
     return booking;
   }
 
@@ -149,8 +149,8 @@ public class BookingUsecases : IBookingUsecases
 
     var body = $"Hello {user.FirstName},<br/> " +
                $"you have successfully canceled your booking of desk {booking.Desk.DeskName} " +
-               $"form {booking.StartTime} till {booking.EndTime}.<br/>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, $"You're deleition of booking desk {booking.Desk.DeskName} is confirmed!", body);
+               $"from {booking.StartTime} until {booking.EndTime}.<br/>";
+    EmailHelper.SendEmail(_logger, user.MailAddress, $"The deletion of your booking is confirmed!", body);
     return booking;
   }
 
@@ -188,8 +188,8 @@ public class BookingUsecases : IBookingUsecases
     _context.SaveChanges();
 
     var body = $"Hello {user.FirstName},</br> " +
-               $"you have successfully edit your booking of desk {booking.Desk.DeskName}.</br> " +
-               $"Your new timeslot is from {booking.StartTime} till {booking.EndTime}.</br>" +
+               $"you have successfully edited your booking of desk {booking.Desk.DeskName}.</br> " +
+               $"Your new timeslot is from {booking.StartTime} until {booking.EndTime}.</br>" +
                "Have a great day in the office!</br>";
     EmailHelper.SendEmail(_logger, user.MailAddress, $"Your booking of desk {booking.Desk.DeskName} is confirmed!", body);
     return booking;

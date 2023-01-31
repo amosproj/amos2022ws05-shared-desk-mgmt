@@ -774,9 +774,9 @@ public class ResourceUsecases : IResourceUsecases
     foreach (var booking in bookings)
     {
       var body = $"Hello {booking.User.FirstName},<br/> " +
-                 $"some problems with your booking of desk {booking.Desk.DeskName} between " +
-                 $"{booking.StartTime} till {booking.EndTime} occured.<br/>" +
-                 "The desk was deleted by an admin. Please make sure to book an other desk for your day in office.<br/>";
+                 $"some problems with your booking of desk {booking.Desk.DeskName} from " +
+                 $"{booking.StartTime} until {booking.EndTime} occured.<br/>" +
+                 "The desk was deleted by an admin. Please make sure to book another desk for your day in the office.<br/>";
       EmailHelper.SendEmail(_logger, booking.User.MailAddress, $"A problem with your booking of desk {booking.Desk.DeskName} occured!", body);
     }
   }
