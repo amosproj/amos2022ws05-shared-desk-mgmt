@@ -92,7 +92,7 @@ public class ResourceUsecases : IResourceUsecases
           .Where(desk => desk.Building.Company.CompanyId == callerDb.CompanyId);
         if (databaseFloors.ToList().Count == 0)
         {
-          throw new ArgumentException($"There are no Floor in this Company with id '{callerDb.CompanyId}'");
+          throw new ArgumentException($"There are no Floors in this Company with id '{callerDb.CompanyId}'");
         }
       }
       catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
@@ -106,6 +106,7 @@ public class ResourceUsecases : IResourceUsecases
         BuildingName = f.Building.BuildingName,
         FloorName = f.FloorName,
         FloorId = f.FloorId.ToString(),
+        Location = f.Building.Location,
         IsMarkedForDeletion = f.IsMarkedForDeletion
       });
 
@@ -149,6 +150,7 @@ public class ResourceUsecases : IResourceUsecases
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
       FloorId = f.FloorId.ToString(),
+      Location = f.Building.Location,
       IsMarkedForDeletion = f.IsMarkedForDeletion
     });
 
@@ -181,6 +183,9 @@ public class ResourceUsecases : IResourceUsecases
       {
         RoomId = r.RoomId.ToString(),
         RoomName = r.RoomName,
+        Floor = r.Floor.FloorName,
+        Building = r.Floor.Building.BuildingName,
+        Location = r.Floor.Building.Location,
         IsMarkedForDeletion = r.IsMarkedForDeletion
       });
       return mapRoomsToCurrentRoomsLocal.ToList();
@@ -217,6 +222,9 @@ public class ResourceUsecases : IResourceUsecases
     {
       RoomId = r.RoomId.ToString(),
       RoomName = r.RoomName,
+      Floor = r.Floor.FloorName,
+      Building = r.Floor.Building.BuildingName,
+      Location = r.Floor.Building.Location,
       IsMarkedForDeletion = r.IsMarkedForDeletion
     });
 
