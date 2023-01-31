@@ -93,7 +93,7 @@ type InitialRegisterAdmin = {
   companyName: String;
 };
 
-export async function initialRegistration(
+export async function initialRegister(
   user: InitialRegisterAdmin
 ): Promise<AuthResponse> {
   const response = await fetch(BACKEND_URL + "/auth/registerAdmin", {

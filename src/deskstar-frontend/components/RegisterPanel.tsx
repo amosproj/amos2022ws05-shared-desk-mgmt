@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { AuthResponse, register } from "../lib/api/AuthService";
+import {
+  AuthResponse,
+  register,
+  initialRegister,
+} from "../lib/api/AuthService";
 import Input from "./forms/Input";
 import { toast } from "react-toastify";
 import OwnCombobox from "./forms/Combobox";
@@ -32,15 +36,53 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
       return;
     }
 
-    if (!company) {
+    if (!initialRegistration && !company) {
       toast.error("Please select a company");
 
       setClicked(false);
       return;
     }
 
+    if (initialRegistration && !newCompanyName) {
+      toast.error("Please enter your company name");
+
+      setClicked(false);
+      return;
+    }
+
+    if (initialRegistration) {
+      const response = await initialRegister({
+        companyName: newCompanyName,
+        firstName,
+        lastName,
+        mailAddress: email,
+        password,
+      });
+      setClicked(false);
+
+      if (response !== AuthResponse.Success) {
+        switch (response) {
+          case AuthResponse.ErrorCompanyNotFound:
+            toast.error("Company not Found");
+            break;
+          case AuthResponse.ErrorEmailaddressAlreadyExists:
+            toast.error("Email adress already registered");
+            break;
+          default:
+            toast.error("Unknown error");
+            break;
+        }
+        return;
+      }
+
+      document.location =
+        "/login?msg=Registration+successful!+We+will+contact+you+shortly+to+activate+your+account";
+
+      return;
+    }
+
     const response = await register({
-      companyId: company.id,
+      companyId: company?.id ?? "",
       firstName,
       lastName,
       mailAddress: email,
