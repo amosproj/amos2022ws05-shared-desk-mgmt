@@ -10,6 +10,7 @@ import {
 
 export function UsersTable({
   users,
+  adminId,
   onEdit,
   onDelete,
   onPermissionUpdate,
@@ -18,6 +19,7 @@ export function UsersTable({
   onUsersSelection,
 }: {
   users: IUser[];
+  adminId: String;
   selectedUsers?: { [userId: string]: boolean };
   onEdit?: (user: IUser) => Promise<void>;
   onDelete?: (user: IUser) => Promise<void>;
@@ -118,6 +120,7 @@ export function UsersTable({
               onApprovalUpdate={onApprovalUpdate}
               onRestoreUpdate={onRestoreUpdate}
               onUserSelection={toggleUserSelection}
+              isSelf={user.userId === adminId}
             />
           ))}
         </tbody>
@@ -170,6 +173,7 @@ const UsersTableEntry = ({
   onApprovalUpdate,
   onRestoreUpdate,
   onUserSelection,
+  isSelf,
 }: {
   user: IUser;
   onEdit?: (user: IUser) => Promise<void>;
@@ -178,6 +182,7 @@ const UsersTableEntry = ({
   onApprovalUpdate?: (user: IUser[], decision: boolean) => Promise<void>;
   onRestoreUpdate?: (user: IUser[]) => Promise<void>;
   onUserSelection?: (user: IUser) => void;
+  isSelf: boolean;
 }) => {
   return (
     <tr className="hover">
@@ -201,6 +206,7 @@ const UsersTableEntry = ({
           <input
             type="checkbox"
             checked={user.isAdmin}
+            disabled={isSelf}
             onChange={() => onPermissionUpdate(user)}
             className="checkbox"
           />
@@ -241,9 +247,16 @@ const UsersTableEntry = ({
       )}
       {onDelete && (
         <td className="p-0">
-          <button className="btn btn-ghost" onClick={() => onDelete(user)}>
-            <FaTrashAlt color="red" />
-          </button>
+          {!isSelf && (
+            <button className="btn btn-ghost" onClick={() => onDelete(user)}>
+              <FaTrashAlt color="red" />
+            </button>
+          )}
+          {isSelf && (
+            <button className="btn btn-ghost no-animation">
+              <FaTrashAlt color="grey" />
+            </button>
+          )}
         </td>
       )}
     </tr>
