@@ -396,7 +396,7 @@ const ResourceOverview = ({
   const doDeleteRoom = async (): Promise<void> => {
     if (room) {
       if (session == null) return;
-      let result = await deleteRoom(session, room.roomName);
+      let result = await deleteRoom(session, room.roomId);
 
       if (result.response == ResourceResponse.Success) {
         toast.success(result.message);
