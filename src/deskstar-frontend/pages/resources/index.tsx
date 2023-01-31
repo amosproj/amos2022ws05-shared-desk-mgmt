@@ -60,7 +60,6 @@ const ResourceOverview = ({
 }) => {
   let { data: session } = useSession();
 
-
   const locations: ILocation[] = origBuildings.map((building) => ({
     locationName: building.location,
   }));
@@ -74,19 +73,24 @@ const ResourceOverview = ({
   const [deskTypes, setDeskTypes] = useState<IDeskType[]>(origDeskTypes);
 
   const [editDeskType, setEditDeskType] = useState<IDeskType>();
-  const [isEditDeskTypeModalOpen, setIsEditDeskTypeModalOpen] = useState<boolean>(false);
+  const [isEditDeskTypeModalOpen, setIsEditDeskTypeModalOpen] =
+    useState<boolean>(false);
 
   const [editDesk, setEditDesk] = useState<IDesk>();
-  const [isEditDeskModalOpen, setIsEditDeskModalOpen] = useState<boolean>(false);
+  const [isEditDeskModalOpen, setIsEditDeskModalOpen] =
+    useState<boolean>(false);
 
   const [editRoom, setEditRoom] = useState<IRoom>();
-  const [isEditRoomModalOpen, setIsEditRoomModalOpen] = useState<boolean>(false);
+  const [isEditRoomModalOpen, setIsEditRoomModalOpen] =
+    useState<boolean>(false);
 
   const [editFloor, setEditFloor] = useState<IFloor>();
-  const [isEditFloorModalOpen, setIsEditFloorModalOpen] = useState<boolean>(false);
+  const [isEditFloorModalOpen, setIsEditFloorModalOpen] =
+    useState<boolean>(false);
 
   const [editBuilding, setEditBuilding] = useState<IBuilding>();
-  const [isEditBuildingModalOpen, setIsEditBuildingModalOpen] = useState<boolean>(false);
+  const [isEditBuildingModalOpen, setIsEditBuildingModalOpen] =
+    useState<boolean>(false);
 
   const [deskTypeNameModal, setDeskTypeNameModal] = useState<string>("");
   const [deskNameModal, setDeskNameModal] = useState<string>("");
@@ -94,7 +98,6 @@ const ResourceOverview = ({
   const [floorNameModal, setFloorNameModal] = useState<string>("");
   const [buildingNameModal, setBuildingNameModal] = useState<string>("");
   const [locationModal, setLocationModal] = useState<string>("");
-
 
   const [building, setBuilding] = useState<IBuilding>();
   const [floor, setFloor] = useState<IFloor>();
@@ -232,7 +235,7 @@ const ResourceOverview = ({
   }, [router, session]);
 
   const openDeskTypeEditModal = async (deskType: IDeskType): Promise<void> => {
-    setDeskTypeNameModal(deskType.deskTypeName)
+    setDeskTypeNameModal(deskType.deskTypeName);
     setEditDeskType(deskType);
     setIsEditDeskTypeModalOpen(true);
   };
@@ -258,7 +261,9 @@ const ResourceOverview = ({
     setIsEditBuildingModalOpen(true);
   };
   const updateBuildingState = async (building: IBuilding): Promise<void> => {
-    const i = buildings.findIndex((v, i) => v.buildingId == building.buildingId);
+    const i = buildings.findIndex(
+      (v, i) => v.buildingId == building.buildingId
+    );
     buildings[i] = building;
     setBuildings(buildings);
   };
@@ -278,64 +283,89 @@ const ResourceOverview = ({
     setDesks(desks);
   };
   const updateDeskTypeState = async (deskType: IDeskType): Promise<void> => {
-    const i = deskTypes.findIndex((v, i) => v.deskTypeId == deskType.deskTypeId);
+    const i = deskTypes.findIndex(
+      (v, i) => v.deskTypeId == deskType.deskTypeId
+    );
     deskTypes[i] = deskType;
     setDeskTypes(deskTypes);
   };
-  const updateBuildingInService = async (updateBuildingDto: UpdateBuildingDto, selectedBuilding: IBuilding): Promise<void> => {
+  const updateBuildingInService = async (
+    updateBuildingDto: UpdateBuildingDto,
+    selectedBuilding: IBuilding
+  ): Promise<void> => {
     if (!session) return;
-    const result = await updateBuilding(session, updateBuildingDto, selectedBuilding);
+    const result = await updateBuilding(
+      session,
+      updateBuildingDto,
+      selectedBuilding
+    );
     setIsEditBuildingModalOpen(false);
     showMessageToast(result.message);
     if (result.message.includes("Success")) {
-      const updatedBuilding = result.data as (IBuilding);
+      const updatedBuilding = result.data as IBuilding;
       updateBuildingState(updatedBuilding);
     }
   };
 
-  const updateFloorInService = async (updateFloorDto: UpdateFloorDto, selectedFloor: IFloor): Promise<void> => {
+  const updateFloorInService = async (
+    updateFloorDto: UpdateFloorDto,
+    selectedFloor: IFloor
+  ): Promise<void> => {
     if (!session) return;
     const result = await updateFloor(session, updateFloorDto, selectedFloor);
     setIsEditFloorModalOpen(false);
     showMessageToast(result.message);
     if (result.message.includes("Success")) {
-      const updatedFloor = result.data as (IFloor);
+      const updatedFloor = result.data as IFloor;
       updateFloorState(updatedFloor);
     }
   };
-  const updateRoomInService = async (updateRoomDto: UpdateRoomDto, selectedRoom: IRoom): Promise<void> => {
+  const updateRoomInService = async (
+    updateRoomDto: UpdateRoomDto,
+    selectedRoom: IRoom
+  ): Promise<void> => {
     if (!session) return;
     const result = await updateRoom(session, updateRoomDto, selectedRoom);
     setIsEditRoomModalOpen(false);
     showMessageToast(result.message);
     if (result.message.includes("Success")) {
-      const updatedRoom = result.data as (IRoom);
+      const updatedRoom = result.data as IRoom;
       updateRoomState(updatedRoom);
     }
   };
-  const updateDeskInService = async (updateDeskDto: UpdateDeskDto, selectedDesk: IDesk): Promise<void> => {
+  const updateDeskInService = async (
+    updateDeskDto: UpdateDeskDto,
+    selectedDesk: IDesk
+  ): Promise<void> => {
     if (!session) return;
     const result = await updateDesk(session, updateDeskDto, selectedDesk);
     setIsEditDeskModalOpen(false);
     showMessageToast(result.message);
     if (result.message.includes("Success")) {
-      const updatedDesk = result.data as (IDesk);
+      const updatedDesk = result.data as IDesk;
       updateDeskState(updatedDesk);
     }
   };
-  const updateDeskTypeInService = async (updateDeskTypeDto: UpdateDeskTypeDto, selectedDeskType: IDeskType): Promise<void> => {
+  const updateDeskTypeInService = async (
+    updateDeskTypeDto: UpdateDeskTypeDto,
+    selectedDeskType: IDeskType
+  ): Promise<void> => {
     if (!session) return;
-    const result = await updateDeskType(session, updateDeskTypeDto, selectedDeskType);
+    const result = await updateDeskType(
+      session,
+      updateDeskTypeDto,
+      selectedDeskType
+    );
     setIsEditDeskTypeModalOpen(false);
     showMessageToast(result.message);
     if (result.message.includes("Success")) {
-      const updatedDeskType = result.data as (IDeskType);
+      const updatedDeskType = result.data as IDeskType;
       updateDeskTypeState(updatedDeskType);
     }
   };
   const showMessageToast = (message: string): void => {
     message.includes("Success") ? toast.success(message) : toast.warn(message);
-  }
+  };
 
   const onDelete = async (resource: Object): Promise<void> => {
     if (isInstanceOfIBuilding(resource)) setBuilding(resource);
@@ -453,7 +483,7 @@ const ResourceOverview = ({
     if (resourceName == null) return -1;
     return resourceOptions.findIndex((v, i, obj) => resourceName === v);
   };
-  if (!session) return (<></>)
+  if (!session) return <></>;
   return (
     <>
       {isFetching && (
@@ -485,7 +515,7 @@ const ResourceOverview = ({
             href="#create-resource-modal"
             type="button"
             className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
-            onClick={() => { }}
+            onClick={() => {}}
           >
             Add Resource
           </a>
@@ -548,7 +578,15 @@ const ResourceOverview = ({
               deskTypes={deskTypes}
             />
           )}
-          <DeskTypeResourceEditModal isOpen={isEditDeskTypeModalOpen} setState={setIsEditDeskTypeModalOpen} desktype={editDeskType} session={session} updateDeskType={updateDeskTypeInService} deskTypeName={deskTypeNameModal} setDeskTypeName={setDeskTypeNameModal} />
+          <DeskTypeResourceEditModal
+            isOpen={isEditDeskTypeModalOpen}
+            setState={setIsEditDeskTypeModalOpen}
+            desktype={editDeskType}
+            session={session}
+            updateDeskType={updateDeskTypeInService}
+            deskTypeName={deskTypeNameModal}
+            setDeskTypeName={setDeskTypeNameModal}
+          />
           <ConfirmModal
             title={"Delete Desktype " + deskType?.deskTypeName + "?"}
             description="This can't be undone!"
@@ -570,7 +608,18 @@ const ResourceOverview = ({
               desks={desks}
             />
           )}
-          <DeskResourceEditModal desk={editDesk} rooms={rooms} isOpen={isEditDeskModalOpen} setState={setIsEditDeskModalOpen} session={session} updateDesk={updateDeskInService} origBuildings={origBuildings} origDeskTypes={origDeskTypes} deskName={deskNameModal} setDeskName={setDeskNameModal} />
+          <DeskResourceEditModal
+            desk={editDesk}
+            rooms={rooms}
+            isOpen={isEditDeskModalOpen}
+            setState={setIsEditDeskModalOpen}
+            session={session}
+            updateDesk={updateDeskInService}
+            origBuildings={origBuildings}
+            origDeskTypes={origDeskTypes}
+            deskName={deskNameModal}
+            setDeskName={setDeskNameModal}
+          />
           <ConfirmModal
             title={"Delete Desk " + desk?.deskName + "?"}
             description="This can't be undone!"
@@ -592,7 +641,16 @@ const ResourceOverview = ({
               rooms={rooms}
             />
           )}
-          <RoomResourceEditModal updateRoom={updateRoomInService} origBuildings={buildings} session={session} isOpen={isEditRoomModalOpen} setState={setIsEditRoomModalOpen} room={editRoom} roomName={roomNameModal} setRoomName={setRoomNameModal} />
+          <RoomResourceEditModal
+            updateRoom={updateRoomInService}
+            origBuildings={buildings}
+            session={session}
+            isOpen={isEditRoomModalOpen}
+            setState={setIsEditRoomModalOpen}
+            room={editRoom}
+            roomName={roomNameModal}
+            setRoomName={setRoomNameModal}
+          />
           <ConfirmModal
             title={"Delete Room " + room?.roomName + "?"}
             description="This can't be undone!"
@@ -614,7 +672,16 @@ const ResourceOverview = ({
               floors={floors}
             />
           )}
-          <FloorResourceEditModal isOpen={isEditFloorModalOpen} setState={setIsEditFloorModalOpen} floor={editFloor} origBuildings={origBuildings} updateFloor={updateFloorInService} session={session} floorName={floorNameModal} setFloorName={setFloorNameModal} />
+          <FloorResourceEditModal
+            isOpen={isEditFloorModalOpen}
+            setState={setIsEditFloorModalOpen}
+            floor={editFloor}
+            origBuildings={origBuildings}
+            updateFloor={updateFloorInService}
+            session={session}
+            floorName={floorNameModal}
+            setFloorName={setFloorNameModal}
+          />
           <ConfirmModal
             title={"Delete Floor " + floor?.floorName + "?"}
             description="This can't be undone!"
@@ -637,7 +704,16 @@ const ResourceOverview = ({
               buildings={buildings}
             />
           )}
-          <BuildingResourceEditModal isOpen={isEditBuildingModalOpen} setState={setIsEditBuildingModalOpen} building={editBuilding} updateBuilding={updateBuildingInService} buildingName={buildingNameModal} location={locationModal} setBuildingName={setBuildingNameModal} setLocation={setLocationModal} />
+          <BuildingResourceEditModal
+            isOpen={isEditBuildingModalOpen}
+            setState={setIsEditBuildingModalOpen}
+            building={editBuilding}
+            updateBuilding={updateBuildingInService}
+            buildingName={buildingNameModal}
+            location={locationModal}
+            setBuildingName={setBuildingNameModal}
+            setLocation={setLocationModal}
+          />
           <ConfirmModal
             title={"Delete Building " + building?.buildingName + "?"}
             description="This can't be undone!"

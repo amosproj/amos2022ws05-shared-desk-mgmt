@@ -203,14 +203,17 @@ export async function updateBuilding(
   building: IBuilding
 ): Promise<IResourceResult> {
   const b = JSON.stringify(updateBuildingDto);
-  const response = await fetch(BACKEND_URL + "/resources/buildings/" + building.buildingId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
+  const response = await fetch(
+    BACKEND_URL + "/resources/buildings/" + building.buildingId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
   let result: IResourceResult;
   const body = await response.text();
 
@@ -236,14 +239,17 @@ export async function updateFloor(
   floor: IFloor
 ): Promise<IResourceResult> {
   const b = JSON.stringify(updateFloorDto);
-  const response = await fetch(BACKEND_URL + "/resources/floors/" + floor.floorId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
+  const response = await fetch(
+    BACKEND_URL + "/resources/floors/" + floor.floorId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
   let result: IResourceResult;
   const body = await response.text();
 
@@ -269,14 +275,17 @@ export async function updateRoom(
   room: IRoom
 ): Promise<IResourceResult> {
   const b = JSON.stringify(updateRoomDto);
-  const response = await fetch(BACKEND_URL + "/resources/rooms/" + room.roomId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
+  const response = await fetch(
+    BACKEND_URL + "/resources/rooms/" + room.roomId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
   let result: IResourceResult;
   const body = await response.text();
 
@@ -306,14 +315,17 @@ export async function updateDesk(
   desk: IDesk
 ): Promise<IResourceResult> {
   const b = JSON.stringify(updateDeskDto);
-  const response = await fetch(BACKEND_URL + "/resources/desks/" + desk.deskId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
+  const response = await fetch(
+    BACKEND_URL + "/resources/desks/" + desk.deskId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
   let result: IResourceResult;
   const body = await response.text();
 
@@ -342,14 +354,17 @@ export async function updateDeskType(
   deskType: IDeskType
 ): Promise<IResourceResult> {
   const b = JSON.stringify(updateDeskTypeDto);
-  const response = await fetch(BACKEND_URL + "/resources/desktypes/" + deskType.deskTypeId, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.accessToken}`,
-    },
-    body: b,
-  });
+  const response = await fetch(
+    BACKEND_URL + "/resources/desktypes/" + deskType.deskTypeId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
   let result: IResourceResult;
   const body = await response.text();
 

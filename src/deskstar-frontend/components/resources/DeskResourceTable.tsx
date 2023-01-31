@@ -67,11 +67,15 @@ const DeskResourceTableEntry = ({
             </button>
           )}
           {onEdit && (
-              <button className="btn btn-ghost" onClick={() => { onEdit(desk); }}>
-                <FaEdit />
-              </button>
+            <button
+              className="btn btn-ghost"
+              onClick={() => {
+                onEdit(desk);
+              }}
+            >
+              <FaEdit />
+            </button>
           )}
-
         </td>
       )}
     </tr>
