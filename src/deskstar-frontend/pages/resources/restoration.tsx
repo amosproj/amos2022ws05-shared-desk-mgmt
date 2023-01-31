@@ -25,6 +25,9 @@ import {
   restoreFloor,
   restoreRoom,
   ResourceResponse,
+  getAllFloors,
+  getAllRooms,
+  getAllDesks,
 } from "../../lib/api/ResourceService";
 import { IBuilding } from "../../types/building";
 import { IDesk } from "../../types/desk";
@@ -157,48 +160,45 @@ export default function DeletedRessourceOverview({
     }
   };
   const onSelectedTypeChange = (option: string | null): void => {
-    if (option != null) loadData(option);
-    setSelectedResourceOption(option);
+    //TODO: Fetch data is empty
+    if (option !== null) {
+      setSelectedResourceOption(option);
+      loadData(option);
+    }
   };
   const loadData = async (option: string): Promise<void> => {
     if (!session || !selectedResourceOption) return;
     let deletedResource;
-    if (option === selectedResourceOption[0]) {
+    if (option === resourceOptions[0]) {
       deletedResource = await getBuildings(session);
       deletedResource = deletedResource.filter(
         (resource: IBuilding) => resource.isMarkedForDeletion
       );
-    } else if (option === selectedResourceOption[1]) {
-      deletedResource = await getFloors(
-        session,
-        "5fcde910-ca65-4636-84dd-54bb250252cd"
-      );
+      setBuildings(deletedResource);
+    } else if (option === resourceOptions[1]) {
+      deletedResource = await getAllFloors(session);
       deletedResource = deletedResource.filter(
         (resource: IFloor) => resource.isMarkedForDeletion
       );
-    } else if (option === selectedResourceOption[2]) {
-      deletedResource = await getRooms(
-        session,
-        "7b5944f3-98ab-49e1-82cf-3238166f7b9d"
-      );
+      setFloors(deletedResource);
+    } else if (option === resourceOptions[2]) {
+      deletedResource = await getAllRooms(session);
       deletedResource = deletedResource.filter(
         (resource: IRoom) => resource.isMarkedForDeletion
       );
-    } else if (option === selectedResourceOption[3]) {
-      deletedResource = await getDesks(
-        session,
-        "8b3320e1-a1cb-48a0-84ca-ce58f813b584",
-        0,
-        1
-      );
+      setRooms(deletedResource);
+    } else if (option === resourceOptions[3]) {
+      deletedResource = await getAllDesks(session);
       deletedResource = deletedResource.filter(
         (resource: IDesk) => resource.isMarkedForDeletion
       );
+      setDesks(deletedResource);
     } else {
       deletedResource = await getDeskTypes(session);
       deletedResource = deletedResource.filter(
         (resource: IDeskType) => resource.isMarkedForDeletion
       );
+      setDeskTypes(deletedResource);
     }
   };
 

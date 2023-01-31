@@ -69,6 +69,25 @@ export async function getFloors(
 }
 
 /**
+ * Lists all floors
+ * @param session The user session
+ * @returns All floors
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllFloors(session: Session): Promise<IFloor[]> {
+  const response = await fetch(BACKEND_URL + `/resources/floors`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
  * Lists all rooms of a floor
  * @param session The user session
  * @param floorId The floor id
@@ -87,6 +106,25 @@ export async function getRooms(
       },
     }
   );
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Lists all rooms
+ * @param session The user session
+ * @returns All rooms
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllRooms(session: Session): Promise<IRoom[]> {
+  const response = await fetch(BACKEND_URL + `/resources/rooms`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
@@ -121,6 +159,25 @@ export async function getDesks(
       },
     }
   );
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Lists all desks
+ * @param session The user session
+ * @returns All desks
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllDesks(session: Session): Promise<IDesk[]> {
+  const response = await fetch(BACKEND_URL + `/resources/desks`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
