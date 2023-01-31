@@ -11,9 +11,9 @@ public interface IResourceUsecases
 {
   public List<DeskType> GetDeskTypes(Guid companyId);
   public List<CurrentBuilding> GetBuildings(Guid userId);
-  public List<CurrentFloor> GetFloors(Guid buildingId);
-  public List<CurrentRoom> GetRooms(Guid floorId);
-  public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end);
+  public List<CurrentFloor> GetFloors(Guid callerId, string buildingId);
+  public List<CurrentRoom> GetRooms(Guid callerId, string floorId);
+  public List<CurrentDesk> GetDesks(Guid callerId, string roomId, DateTime start, DateTime end);
   public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime);
 
   public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId);
@@ -23,10 +23,16 @@ public interface IResourceUsecases
   public Building CreateBuilding(string buildingName, string location, Guid companyId);
 
   public void DeleteDesk(Guid adminId, string deskId);
-  public void DeleteDeskType(Guid adminId, string typeId);
+  public void DeleteDeskType(Guid adminId, string deskId);
   public void DeleteRoom(Guid adminId, string roomId);
   public void DeleteFloor(Guid adminId, string floorId);
   public void DeleteBuilding(Guid adminId, string buildingId);
+
+  public void RestoreDesk(Guid adminId, string deskId);
+  public void RestoreDeskType(Guid adminId, string deskTypeId);
+  public void RestoreRoom(Guid adminId, string roomId);
+  public void RestoreFloor(Guid adminId, string floorId);
+  public void RestoreBuilding(Guid adminId, string buildingId);
 }
 
 public class ResourceUsecases : IResourceUsecases
@@ -74,26 +80,67 @@ public class ResourceUsecases : IResourceUsecases
     return mapBuildingsToCurrentBuildings.ToList();
   }
 
-  public List<CurrentFloor> GetFloors(Guid buildingId)
+  public List<CurrentFloor> GetFloors(Guid callerId, string buildingId)
   {
     IQueryable<Floor> databaseFloors;
+    if (buildingId.Length == 0)
+    {
+      var callerDb = _context.Users.First(user => user.UserId == callerId);
+      try
+      {
+        databaseFloors = _context.Floors.Include(b => b.Building).ThenInclude(c => c.Company)
+          .Where(desk => desk.Building.Company.CompanyId == callerDb.CompanyId);
+        if (databaseFloors.ToList().Count == 0)
+        {
+          throw new ArgumentException($"There are no Floors in this Company with id '{callerDb.CompanyId}'");
+        }
+      }
+      catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+      {
+        _logger.LogError(e, e.Message);
+        throw new ArgumentException($"There are no Floor in this Company with id '{callerDb.CompanyId}'");
+      }
+
+      var mapFloorsToCurrentFloorsLocal = databaseFloors.Select(f => new CurrentFloor
+      {
+        BuildingName = f.Building.BuildingName,
+        FloorName = f.FloorName,
+        FloorId = f.FloorId.ToString(),
+        Location = f.Building.Location,
+        IsMarkedForDeletion = f.IsMarkedForDeletion
+      });
+
+      return mapFloorsToCurrentFloorsLocal.ToList();
+    }
+
+    Guid buildingGuidId;
     try
     {
-      databaseFloors = _context.Floors.Where(floor => floor.BuildingId == buildingId);
+      buildingGuidId = new Guid(buildingId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{buildingId}' is not a valid BuildingId");
+    }
+
+    try
+    {
+      databaseFloors = _context.Floors.Where(floor => floor.BuildingId == buildingGuidId);
       if (databaseFloors.ToList().Count == 0)
       {
-        var databaseBuilding = _context.Buildings.First(building => building.BuildingId == buildingId);
-        if (databaseBuilding == null) throw new ArgumentException($"There is no Building with id '{buildingId}'");
+        var databaseBuilding = _context.Buildings.First(building => building.BuildingId == buildingGuidId);
+        if (databaseBuilding == null) throw new ArgumentException($"There is no Building with id '{buildingGuidId}'");
       }
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
-      throw new ArgumentException($"'{buildingId}' is not a valid FloorId");
+      throw new ArgumentException($"'{buildingGuidId}' is not a valid FloorId");
     }
     catch (InvalidOperationException)
     {
-      throw new ArgumentException($"There is no Floor with id '{buildingId}'");
+      throw new ArgumentException($"There is no Floor with id '{buildingGuidId}'");
     }
 
     if (databaseFloors.ToList().Count == 0) return new List<CurrentFloor>();
@@ -103,27 +150,70 @@ public class ResourceUsecases : IResourceUsecases
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
       FloorId = f.FloorId.ToString(),
+      Location = f.Building.Location,
       IsMarkedForDeletion = f.IsMarkedForDeletion
     });
 
     return mapFloorsToCurrentFloors.ToList();
   }
 
-  public List<CurrentRoom> GetRooms(Guid floorId)
+  public List<CurrentRoom> GetRooms(Guid callerId, string floorId)
   {
     IQueryable<Room> databaseRooms;
+    if (floorId.Length == 0)
+    {
+      var callerDb = _context.Users.First(user => user.UserId == callerId);
+      try
+      {
+        databaseRooms = _context.Rooms.Include(r => r.Floor)
+          .ThenInclude(b => b.Building).ThenInclude(c => c.Company)
+          .Where(desk => desk.Floor.Building.Company.CompanyId == callerDb.CompanyId);
+        if (databaseRooms.ToList().Count == 0)
+        {
+          throw new ArgumentException($"There are no Rooms in this Company with id '{callerDb.CompanyId}'");
+        }
+      }
+      catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+      {
+        _logger.LogError(e, e.Message);
+        throw new ArgumentException($"There are no Rooms in this Company with id '{callerDb.CompanyId}'");
+      }
+
+      var mapRoomsToCurrentRoomsLocal = databaseRooms.Select(r => new CurrentRoom
+      {
+        RoomId = r.RoomId.ToString(),
+        RoomName = r.RoomName,
+        Floor = r.Floor.FloorName,
+        Building = r.Floor.Building.BuildingName,
+        Location = r.Floor.Building.Location,
+        IsMarkedForDeletion = r.IsMarkedForDeletion
+      });
+      return mapRoomsToCurrentRoomsLocal.ToList();
+    }
+
+    Guid floorGuidId;
     try
     {
-      databaseRooms = _context.Rooms.Where(room => room.FloorId == floorId);
+      floorGuidId = new Guid(floorId);
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
-      throw new ArgumentException($"'{floorId}' is not a valid FloorId");
+      throw new ArgumentInvalidException($"'{floorId}' is not a valid FloorId");
+    }
+
+    try
+    {
+      databaseRooms = _context.Rooms.Where(room => room.FloorId == floorGuidId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentException($"'{floorGuidId}' is not a valid FloorId");
     }
     catch (InvalidOperationException)
     {
-      throw new ArgumentException($"There is no Floor with id '{floorId}'");
+      throw new ArgumentException($"There is no Floor with id '{floorGuidId}'");
     }
 
     if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
@@ -132,47 +222,64 @@ public class ResourceUsecases : IResourceUsecases
     {
       RoomId = r.RoomId.ToString(),
       RoomName = r.RoomName,
+      Floor = r.Floor.FloorName,
+      Building = r.Floor.Building.BuildingName,
+      Location = r.Floor.Building.Location,
       IsMarkedForDeletion = r.IsMarkedForDeletion
     });
 
     return mapRoomsToCurrentRooms.ToList();
   }
 
-  public List<CurrentDesk> GetDesks(Guid roomId, DateTime start, DateTime end)
+  public List<CurrentDesk> GetDesks(Guid callerId, string roomId, DateTime start, DateTime end)
   {
     IQueryable<CurrentDesk> mapDesksToCurrentDesks;
-    try
+    if (roomId.Length == 0)
     {
-      var databaseDesks = _context.Desks.Where(desk => desk.RoomId == roomId);
-      if (databaseDesks.ToList().Count == 0)
+      var callerDb = _context.Users.First(user => user.UserId == callerId);
+      try
       {
-        var databaseRoom = _context.Rooms.First(room => room.RoomId == roomId);
-        if (databaseRoom == null) throw new ArgumentException($"There is no Room with id '{roomId}'");
+        var databaseDesks = _context.Desks.Include(d => d.Room)
+          .ThenInclude(r => r.Floor)
+          .ThenInclude(b => b.Building).ThenInclude(c => c.Company)
+          .Where(desk => desk.Room.Floor.Building.Company.CompanyId == callerDb.CompanyId);
+        if (databaseDesks.ToList().Count == 0)
+        {
+          throw new ArgumentException($"There are no Desks in this Company with id '{callerDb.CompanyId}'");
+        }
+
+        mapDesksToCurrentDesks = MapDesksToCurrentDesks(databaseDesks, start, end);
+      }
+      catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+      {
+        _logger.LogError(e, e.Message);
+        throw new ArgumentException($"There are no Desks in this Company with id '{callerDb.CompanyId}'");
       }
 
-      mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
+      return mapDesksToCurrentDesks.ToList();
+    }
+
+    Guid roomGuid;
+    try
+    {
+      roomGuid = new Guid(roomId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{roomId}' is not a valid RoomId");
+    }
+
+    try
+    {
+      var databaseDesks = _context.Desks.Where(desk => desk.RoomId == roomGuid);
+      if (databaseDesks.ToList().Count == 0)
       {
-        DeskId = desk.DeskId.ToString(),
-        DeskName = desk.DeskName,
-        DeskTyp = desk.DeskType.DeskTypeName,
-        Bookings = desk.Bookings.Where(booking => (booking.StartTime < end && booking.EndTime > start))
-          .Select(booking => new BookingDesks
-          {
-            BookingId = booking.BookingId.ToString(),
-            StartTime = booking.StartTime,
-            EndTime = booking.EndTime,
-            UserId = booking.UserId.ToString(),
-            UserName = booking.User.FirstName + " " + booking.User.LastName,
-          }).ToList(),
-        FloorName = desk.Room.Floor.FloorName,
-        FloorId = desk.Room.Floor.FloorId.ToString(),
-        RoomId = desk.Room.RoomId.ToString(),
-        RoomName = desk.Room.RoomName,
-        BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
-        BuildingName = desk.Room.Floor.Building.BuildingName,
-        Location = desk.Room.Floor.Building.Location,
-        IsMarkedForDeletion = desk.IsMarkedForDeletion
-      });
+        var databaseRoom = _context.Rooms.First(room => room.RoomId == roomGuid);
+        if (databaseRoom == null) throw new ArgumentException($"There is no Room with id '{roomGuid}'");
+      }
+
+      mapDesksToCurrentDesks = MapDesksToCurrentDesks(databaseDesks, end, start);
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
@@ -185,6 +292,34 @@ public class ResourceUsecases : IResourceUsecases
     }
 
     return mapDesksToCurrentDesks.ToList();
+  }
+
+  private static IQueryable<CurrentDesk> MapDesksToCurrentDesks(IQueryable<Desk> databaseDesks, DateTime end,
+    DateTime start)
+  {
+    return databaseDesks.Select(desk => new CurrentDesk
+    {
+      DeskId = desk.DeskId.ToString(),
+      DeskName = desk.DeskName,
+      DeskTyp = desk.DeskType.DeskTypeName,
+      Bookings = desk.Bookings.Where(booking => booking.StartTime < end && booking.EndTime > start)
+        .Select(booking => new BookingDesks
+        {
+          BookingId = booking.BookingId.ToString(),
+          StartTime = booking.StartTime,
+          EndTime = booking.EndTime,
+          UserId = booking.UserId.ToString(),
+          UserName = booking.User.FirstName + " " + booking.User.LastName,
+        }).ToList(),
+      FloorName = desk.Room.Floor.FloorName,
+      FloorId = desk.Room.Floor.FloorId.ToString(),
+      RoomId = desk.Room.RoomId.ToString(),
+      RoomName = desk.Room.RoomName,
+      BuildingId = desk.Room.Floor.Building.BuildingId.ToString(),
+      BuildingName = desk.Room.Floor.Building.BuildingName,
+      Location = desk.Room.Floor.Building.Location,
+      IsMarkedForDeletion = desk.IsMarkedForDeletion
+    });
   }
 
   public CurrentDesk GetDesk(Guid deskId, DateTime startDateTime, DateTime endDateTime)
@@ -391,22 +526,25 @@ public class ResourceUsecases : IResourceUsecases
     }
 
     var deskDbInstance = _context.Desks.Include(d => d.Room)
-                                             .ThenInclude(r => r.Floor)
-                                             .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
+      .ThenInclude(r => r.Floor)
+      .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
-    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId);
+    var companyDbObject =
+      _context.Companies.SingleOrDefault(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId);
     if (companyDbObject == null)
     {
       throw new EntityNotFoundException($"This desk with id '{deskId}' doesn't belong to any company. How?");
     }
+
     var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
       throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
     }
+
     if (userDbObject.CompanyId != companyId)
       throw new InsufficientPermissionException(
         $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
@@ -436,12 +574,14 @@ public class ResourceUsecases : IResourceUsecases
     {
       throw new EntityNotFoundException($"This desk type with id '{typeId}' doesn't belong to any company. How?");
     }
+
     var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
       throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
     }
+
     if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The desk type with id '{typeId}' is not from the same company as the admin with id '{adminId}'");
@@ -449,6 +589,7 @@ public class ResourceUsecases : IResourceUsecases
     {
       throw new ArgumentInvalidException($"There are still desks with given type with id '{typeId}'");
     }
+
     deskTypeDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
   }
@@ -467,21 +608,24 @@ public class ResourceUsecases : IResourceUsecases
     }
 
     var roomDbInstance = _context.Rooms.Include(r => r.Floor)
-                                             .ThenInclude(b => b.Building).SingleOrDefault(r => r.RoomId == roomGuid);
+      .ThenInclude(b => b.Building).SingleOrDefault(r => r.RoomId == roomGuid);
     if (roomDbInstance == null)
       throw new EntityNotFoundException($"There is no room with id '{roomId}'");
 
-    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
+    var companyDbObject =
+      _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
     if (companyDbObject == null)
     {
-      throw new EntityNotFoundException($"This romm with id '{roomId}' doesn't belong to any company. How?");
+      throw new EntityNotFoundException($"This room with id '{roomId}' doesn't belong to any company. How?");
     }
+
     var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
       throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
     }
+
     if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
@@ -514,12 +658,14 @@ public class ResourceUsecases : IResourceUsecases
     {
       throw new EntityNotFoundException($"This floor with id '{floorId}' doesn't belong to any company. How?");
     }
+
     var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
       throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
     }
+
     if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
@@ -552,12 +698,14 @@ public class ResourceUsecases : IResourceUsecases
     {
       throw new EntityNotFoundException($"This building with id '{buildingId}' doesn't belong to any company. How?");
     }
+
     var companyId = companyDbObject.CompanyId;
     var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
     if (userDbObject == null)
     {
       throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
     }
+
     if (userDbObject.CompanyId != companyId)
       throw new ArgumentInvalidException(
         $"The building with id '{buildingId}' is not from the same company as the admin with id '{adminId}'");
@@ -565,6 +713,219 @@ public class ResourceUsecases : IResourceUsecases
     buildingDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
 
-    _context.Floors.Where(f => f.BuildingId == buildingGuid).ToList().ForEach(f => DeleteFloor(adminId, f.FloorId.ToString()));
+    _context.Floors.Where(f => f.BuildingId == buildingGuid).ToList()
+      .ForEach(f => DeleteFloor(adminId, f.FloorId.ToString()));
+  }
+
+  public void RestoreDesk(Guid adminId, string deskId)
+  {
+    Guid deskGuid;
+    try
+    {
+      deskGuid = new Guid(deskId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{deskId}' is not a valid DeskId");
+    }
+
+    var deskDbInstance = _context.Desks
+      .Include(d => d.Room)
+      .ThenInclude(r => r.Floor)
+      .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
+    if (deskDbInstance == null)
+      throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
+    if (!deskDbInstance.IsMarkedForDeletion)
+      throw new ArgumentInvalidException($"This room with id '{deskId}' is not deleted.");
+    var companyDbObject =
+      _context.Companies.SingleOrDefault(c => c.CompanyId == deskDbInstance.Room.Floor.Building.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This desk with id '{deskId}' doesn't belong to any company. How?");
+    }
+
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+
+    if (userDbObject.CompanyId != companyId)
+      throw new InsufficientPermissionException(
+        $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
+    if (deskDbInstance.Room.IsMarkedForDeletion)
+      throw new ArgumentInvalidException($"The desk with id '{deskId}' cannot be restored " +
+                                         $"because the room with id '{deskDbInstance.RoomId}' needs to be restored first.");
+    deskDbInstance.IsMarkedForDeletion = false;
+    _context.SaveChanges();
+  }
+
+  public void RestoreDeskType(Guid adminId, string typeId)
+  {
+    Guid deskTypeGuid;
+    try
+    {
+      deskTypeGuid = new Guid(typeId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{typeId}' is not a valid DeskTypeId");
+    }
+
+    var deskTypeDbInstance = _context.DeskTypes.SingleOrDefault(d => d.DeskTypeId == deskTypeGuid);
+    if (deskTypeDbInstance == null)
+      throw new EntityNotFoundException($"There is no desk type with id '{typeId}'");
+    if (!deskTypeDbInstance.IsMarkedForDeletion)
+      throw new ArgumentException($"This room with id '{typeId}' is not deleted.");
+
+    var companyDbObject = _context.Companies.SingleOrDefault(c => c.CompanyId == deskTypeDbInstance.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This desk type with id '{typeId}' doesn't belong to any company. How?");
+    }
+
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+
+    if (userDbObject.CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The desk type with id '{typeId}' is not from the same company as the admin with id '{adminId}'");
+    if (_context.Desks.Where(d => d.DeskTypeId == deskTypeGuid).Where(d => !d.IsMarkedForDeletion).ToList().Any())
+    {
+      throw new ArgumentInvalidException($"There are still desks with given type with id '{typeId}'");
+    }
+
+    deskTypeDbInstance.IsMarkedForDeletion = false;
+    _context.SaveChanges();
+  }
+
+  public void RestoreRoom(Guid adminId, string roomId)
+  {
+    Guid roomGuid;
+    try
+    {
+      roomGuid = new Guid(roomId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{roomId}' is not a valid RoomId");
+    }
+
+    var roomDbInstance = _context.Rooms.Include(r => r.Floor)
+      .ThenInclude(b => b.Building).SingleOrDefault(r => r.RoomId == roomGuid);
+    if (roomDbInstance == null)
+      throw new EntityNotFoundException($"There is no room with id '{roomId}'");
+    if (!roomDbInstance.IsMarkedForDeletion)
+      throw new ArgumentException($"This room with id '{roomId}' is not deleted.");
+
+    var companyDbObject =
+      _context.Companies.SingleOrDefault(c => c.CompanyId == roomDbInstance.Floor.Building.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This room with id '{roomId}' doesn't belong to any company. How?");
+    }
+
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+
+    if (userDbObject.CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The room with id '{roomId}' is not from the same company as the admin with id '{adminId}'");
+
+    if (roomDbInstance.Floor.IsMarkedForDeletion)
+      throw new ArgumentInvalidException($"The room with id '{roomId}' cannot be restored " +
+                                         $"because the floor with id '{roomDbInstance.FloorId}' needs to be restored first.");
+    roomDbInstance.IsMarkedForDeletion = false;
+    _context.SaveChanges();
+  }
+
+  public void RestoreFloor(Guid adminId, string floorId)
+  {
+    Guid floorGuid;
+    try
+    {
+      floorGuid = new Guid(floorId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{floorId}' is not a valid FloorId");
+    }
+
+    var floorDbInstance = _context.Floors.Include(b => b.Building).SingleOrDefault(f => f.FloorId == floorGuid);
+    if (floorDbInstance == null)
+      throw new EntityNotFoundException($"There is no floor with id '{floorId}'");
+    if (!floorDbInstance.IsMarkedForDeletion)
+      throw new ArgumentException($"This floor with id '{floorId}' is not deleted.");
+    var companyDbObject = _context.Companies.Single(c => c.CompanyId == floorDbInstance.Building.CompanyId);
+    if (companyDbObject == null)
+    {
+      throw new EntityNotFoundException($"This floor with id '{floorId}' doesn't belong to any company. How?");
+    }
+
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+
+    if (userDbObject.CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The floor with id '{floorId}' is not from the same company as the admin with id '{adminId}'");
+
+    if (floorDbInstance.Building.IsMarkedForDeletion)
+      throw new ArgumentInvalidException($"The floor with id '{floorId}' cannot be restored " +
+                                         $"because the building with id '{floorDbInstance.BuildingId}' needs to be restored first.");
+    floorDbInstance.IsMarkedForDeletion = false;
+    _context.SaveChanges();
+  }
+
+  public void RestoreBuilding(Guid adminId, string buildingId)
+  {
+    Guid buildingGuid;
+    try
+    {
+      buildingGuid = new Guid(buildingId);
+    }
+    catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
+    {
+      _logger.LogError(e, e.Message);
+      throw new ArgumentInvalidException($"'{buildingId}' is not a valid BuildingId");
+    }
+
+    var buildingDbInstance = _context.Buildings.SingleOrDefault(b => b.BuildingId == buildingGuid);
+    if (buildingDbInstance == null)
+      throw new EntityNotFoundException($"There is no building with id '{buildingId}'");
+    if (!buildingDbInstance.IsMarkedForDeletion)
+      throw new ArgumentException($"This building with id '{buildingId}' is not deleted.");
+    var companyDbObject = _context.Companies.Single(c => c.CompanyId == buildingDbInstance.CompanyId);
+    if (companyDbObject == null)
+      throw new EntityNotFoundException($"This building with id '{buildingId}' doesn't belong to any company. How?");
+    var companyId = companyDbObject.CompanyId;
+    var userDbObject = _context.Users.SingleOrDefault(u => u.UserId == adminId);
+    if (userDbObject == null)
+    {
+      throw new ArgumentInvalidException($"There is no user with id '{adminId}'");
+    }
+
+    if (userDbObject.CompanyId != companyId)
+      throw new ArgumentInvalidException(
+        $"The building with id '{buildingId}' is not from the same company as the admin with id '{adminId}'");
+
+    buildingDbInstance.IsMarkedForDeletion = false;
+    _context.SaveChanges();
   }
 }

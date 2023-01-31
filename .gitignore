@@ -40,3 +40,4 @@ bin/
 src/deskstar-backend/DeskstarSolution.sln.DotSettings.user
 *.cs~
 src/deskstar-backend/Deskstar/out/
+.devcontainer/.env

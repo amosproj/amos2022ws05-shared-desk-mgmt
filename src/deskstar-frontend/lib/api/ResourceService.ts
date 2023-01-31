@@ -69,6 +69,25 @@ export async function getFloors(
 }
 
 /**
+ * Lists all floors
+ * @param session The user session
+ * @returns All floors
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllFloors(session: Session): Promise<IFloor[]> {
+  const response = await fetch(BACKEND_URL + `/resources/floors`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
  * Lists all rooms of a floor
  * @param session The user session
  * @param floorId The floor id
@@ -87,6 +106,25 @@ export async function getRooms(
       },
     }
   );
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Lists all rooms
+ * @param session The user session
+ * @returns All rooms
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllRooms(session: Session): Promise<IRoom[]> {
+  const response = await fetch(BACKEND_URL + `/resources/rooms`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
@@ -121,6 +159,25 @@ export async function getDesks(
       },
     }
   );
+
+  if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
+
+  const data = await response.json();
+  return data;
+}
+
+/**
+ * Lists all desks
+ * @param session The user session
+ * @returns All desks
+ * @throws Error containing status code and/or error message
+ */
+export async function getAllDesks(session: Session): Promise<IDesk[]> {
+  const response = await fetch(BACKEND_URL + `/resources/desks`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  });
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
@@ -194,6 +251,45 @@ export async function createBuilding(
 }
 
 /**
+ * Restore a building
+ * @param session The user session
+ * @param restoreBuilding The building Object to restore
+ * @returns
+ */
+export async function restoreBuilding(
+  session: Session,
+  restoreBuilding: IBuilding
+): Promise<ICreateResourceResult> {
+  var buildingId = restoreBuilding.buildingId;
+  const response = await fetch(
+    BACKEND_URL + `/resources/buildings/restore/${buildingId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Restored building with id '${buildingId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
  * Delete a building
  * @param session The user session
  * @param deskTypeId The id of the building to delete
@@ -224,7 +320,7 @@ export async function deleteBuilding(
   } else {
     result = {
       response: ResourceResponse.Success,
-      message: `Success! Deleted floor with id '${buildingId}'`,
+      message: `Success! Deleted building with id '${buildingId}'`,
     };
   }
 
@@ -264,6 +360,45 @@ export async function createFloor(
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IFloor,
       message: `Success! Created floor '${createFloorDto.floorName}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Restore a floor
+ * @param session The user session
+ * @param restoreFloor The floor Object to restore
+ * @returns
+ */
+export async function restoreFloor(
+  session: Session,
+  restoreFloor: IFloor
+): Promise<ICreateResourceResult> {
+  var floorId = restoreFloor.floorId;
+  const response = await fetch(
+    BACKEND_URL + `/resources/floors/restore/${floorId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Restored floor with id '${floorId}'`,
     };
   }
 
@@ -345,6 +480,45 @@ export async function createRoom(
 }
 
 /**
+ * Restore a room
+ * @param session The user session
+ * @param restoreRoom The room Object to restore
+ * @returns
+ */
+export async function restoreRoom(
+  session: Session,
+  restoreRoom: IRoom
+): Promise<ICreateResourceResult> {
+  var roomId = restoreRoom.roomId;
+  const response = await fetch(
+    BACKEND_URL + `/resources/rooms/restore/${roomId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Restored room with id '${roomId}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
  * Delete a room
  * @param session The user session
  * @param deskTypeId The id of the room to delete
@@ -412,6 +586,45 @@ export async function createDeskType(
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDeskType,
       message: `Success! Created type '${createDeskTypeDto.deskTypeName}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Restore a deskType
+ * @param session The user session
+ * @param restoreDeskType The deskType Object to restore
+ * @returns
+ */
+export async function restoreDeskType(
+  session: Session,
+  restoreDeskType: IDeskType
+): Promise<ICreateResourceResult> {
+  var desktypeId = restoreDeskType.deskTypeId;
+  const response = await fetch(
+    BACKEND_URL + `/resources/desktypes/restore/${desktypeId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Restored desk type with id '${desktypeId}'`,
     };
   }
 
@@ -489,6 +702,45 @@ export async function createDesk(
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDesk,
       message: `Success! Created desk '${createDeskDto.deskName}'`,
+    };
+  }
+
+  return result;
+}
+
+/**
+ * Restore a desk
+ * @param session The user session
+ * @param restoreDesk The desk Object to restore
+ * @returns
+ */
+export async function restoreDesk(
+  session: Session,
+  restoreDesk: IDesk
+): Promise<ICreateResourceResult> {
+  var deskId = restoreDesk.deskId;
+  const response = await fetch(
+    BACKEND_URL + `/resources/desks/restore/${deskId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+    }
+  );
+
+  let result: ICreateResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    result = {
+      response: ResourceResponse.Success,
+      message: `Success! Restored desk with id '${deskId}'`,
     };
   }
 

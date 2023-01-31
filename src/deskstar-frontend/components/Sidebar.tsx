@@ -21,7 +21,14 @@ const userNavItems = [
   },
 ];
 
-const adminNavItems = [
+const adminNavItems: {
+  name: string;
+  href: string;
+  subNavItems?: {
+    name: string;
+    href: string;
+  }[];
+}[] = [
   {
     name: "User Management",
     href: "/users",
@@ -43,6 +50,16 @@ const adminNavItems = [
   {
     name: "Resource Management",
     href: "/resources",
+    subNavItems: [
+      {
+        name: "Overview",
+        href: "/resources",
+      },
+      {
+        name: "Archived Resources",
+        href: "/resources/restoration",
+      },
+    ],
   },
 ];
 
@@ -74,7 +91,7 @@ export default function Sidebar({ children }: SidebarProps) {
             session.user &&
             session.user.isAdmin &&
             adminNavItems.map((item) => {
-              if ("subNavItems" in item)
+              if ("subNavItems" in item) {
                 return (
                   <CollapseSideBarEntry
                     key={item.name}
@@ -83,7 +100,7 @@ export default function Sidebar({ children }: SidebarProps) {
                     subNavItems={item.subNavItems}
                   />
                 );
-              else
+              } else {
                 return (
                   <SidebarEntry
                     key={item.name}
@@ -91,6 +108,7 @@ export default function Sidebar({ children }: SidebarProps) {
                     name={item.name}
                   />
                 );
+              }
             })}
           <li>
             <div onClick={() => signOut()} className="dark:text-black">
