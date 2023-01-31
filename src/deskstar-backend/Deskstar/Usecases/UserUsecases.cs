@@ -184,7 +184,7 @@ public class UserUsecases : IUserUsecases
                "your account details have been updated.</br> " +
                "Please check if this was ok.</br>" +
                "If not get in touch with your company admin.</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been deleted!", body);
+    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account have been updated!", body);
     return user.UserId;
   }
 
@@ -210,9 +210,8 @@ public class UserUsecases : IUserUsecases
     var body = $"Hello {userDbInstance.FirstName},</br> " +
                "your account has been deleted by your Company admin.</br> " +
                "If you think this was an mistake, get in touch with your company admin.</br>";
-    EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details has been updated!", body);
+    EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details have been deleted!", body);
     userDbInstance.IsMarkedForDeletion = true;
-    // _context.Users.Remove(userDbInstance);
     _context.SaveChanges();
 
     return guid;

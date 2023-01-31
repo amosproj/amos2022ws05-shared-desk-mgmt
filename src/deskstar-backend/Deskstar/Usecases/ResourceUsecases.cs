@@ -209,11 +209,11 @@ public class ResourceUsecases : IResourceUsecases
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
-      throw new ArgumentException($"'{floorGuidId}' is not a valid FloorId");
+      throw new ArgumentInvalidException($"'{floorGuidId}' is not a valid FloorId");
     }
     catch (InvalidOperationException)
     {
-      throw new ArgumentException($"There is no Floor with id '{floorGuidId}'");
+      throw new ArgumentInvalidException($"There is no Floor with id '{floorGuidId}'");
     }
 
     if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
@@ -527,7 +527,7 @@ public class ResourceUsecases : IResourceUsecases
 
     var deskDbInstance = _context.Desks.Include(d => d.Room)
       .ThenInclude(r => r.Floor)
-      .ThenInclude(b => b.Building).SingleOrDefault(d => d.DeskId == deskGuid);
+      .ThenInclude(b => b.Building).ThenInclude(d => d.User).SingleOrDefault(d => d.DeskId == deskGuid);
     if (deskDbInstance == null)
       throw new EntityNotFoundException($"There is no desk with id '{deskId}'");
 
@@ -550,6 +550,21 @@ public class ResourceUsecases : IResourceUsecases
         $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
     deskDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
+
+    notifybookers(deskDbInstance);
+  }
+
+  private void notifybookers(Desk deletedDesk)
+  {
+    var bookings = _context.Bookings.Where(b => b.DeskId == deletedDesk.DeskId).ToList();
+    foreach (var booking in bookings)
+    {
+      var body = $"Hello {booking.User.FirstName},</br> " +
+                 $"some problems with your booking of desk {booking.Desk.DeskName} between" +
+                 $"{booking.StartTime} till {booking.EndTime} occured.</br>" +
+                 "The desk was deleted by an admin. Please make sure to book an other desk for your day in office.</br>";
+      EmailHelper.SendEmail(_logger, booking.User.MailAddress, $"Problem with the booking of desk {booking.Desk.DeskName}!", body);
+    }
   }
 
   public void DeleteDeskType(Guid adminId, string typeId)
