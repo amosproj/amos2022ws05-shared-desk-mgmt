@@ -473,38 +473,38 @@ public class ResourceController : ControllerBase
     return Ok(floor.ToList());
   }
 
-  /// <summary>
-  /// Returns a list of Floors.
-  /// </summary>
-  /// <returns>A List of Floors in JSON Format </returns>
-  /// <remarks>
-  /// Sample request:
-  ///     GET /resources/floors with JWT Token
-  /// </remarks>
-  ///
-  /// <response code="200">Returns the floor list</response>
-  /// <response code="400">Bad Request</response>
-  /// <response code="500">Internal Server Error</response>
-  [HttpGet("floors")]
-  [Authorize]
-  [ProducesResponseType(typeof(List<CurrentFloor>), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  [Produces("application/json")]
-  public IActionResult GetAllFloors()
-  {
-    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
-    List<CurrentFloor> floor;
-    try
-    {
-      floor = _resourceUsecases.GetFloors(callerId, "");
-    }
-    catch (ArgumentException e)
-    {
-      return Problem(statusCode: 500, detail: e.Message);
-    }
+  // /// <summary>
+  // /// Returns a list of Floors.
+  // /// </summary>
+  // /// <returns>A List of Floors in JSON Format </returns>
+  // /// <remarks>
+  // /// Sample request:
+  // ///     GET /resources/floors with JWT Token
+  // /// </remarks>
+  // ///
+  // /// <response code="200">Returns the floor list</response>
+  // /// <response code="400">Bad Request</response>
+  // /// <response code="500">Internal Server Error</response>
+  // [HttpGet("floors")]
+  // [Authorize]
+  // [ProducesResponseType(typeof(List<CurrentFloor>), StatusCodes.Status200OK)]
+  // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  // [Produces("application/json")]
+  // public IActionResult GetAllFloors()
+  // {
+  //   var callerId = RequestInteractions.ExtractIdFromRequest(Request);
+  //   List<CurrentFloor> floor;
+  //   try
+  //   {
+  //     floor = _resourceUsecases.GetFloors(callerId, "");
+  //   }
+  //   catch (ArgumentException e)
+  //   {
+  //     return Problem(statusCode: 500, detail: e.Message);
+  //   }
 
-    return Ok(floor.ToList());
-  }
+  //   return Ok(floor.ToList());
+  // }
 
   /// <summary>
   /// Returns a list of all Floors.
@@ -701,38 +701,38 @@ public class ResourceController : ControllerBase
     return Ok(rooms.ToList());
   }
 
-  /// <summary>
-  /// Returns a list of Rooms.
-  /// </summary>
-  /// <returns>A List of Rooms in JSON Format </returns>
-  /// <remarks>
-  /// Sample request:
-  ///     GET /resources/rooms with JWT Token
-  /// </remarks>
-  ///
-  /// <response code="200">Returns the rooms list</response>
-  /// <response code="400">Bad Request</response>
-  /// <response code="500">Internal Server Error</response>
-  [HttpGet("rooms")]
-  [Authorize]
-  [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  [Produces("application/json")]
-  public IActionResult GetAllRooms()
-  {
-    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
-    List<CurrentRoom> rooms;
-    try
-    {
-      rooms = _resourceUsecases.GetRooms(callerId, "");
-    }
-    catch (ArgumentException e)
-    {
-      return Problem(statusCode: 500, detail: e.Message);
-    }
+  // /// <summary>
+  // /// Returns a list of Rooms.
+  // /// </summary>
+  // /// <returns>A List of Rooms in JSON Format </returns>
+  // /// <remarks>
+  // /// Sample request:
+  // ///     GET /resources/rooms with JWT Token
+  // /// </remarks>
+  // ///
+  // /// <response code="200">Returns the rooms list</response>
+  // /// <response code="400">Bad Request</response>
+  // /// <response code="500">Internal Server Error</response>
+  // [HttpGet("rooms")]
+  // [Authorize]
+  // [ProducesResponseType(typeof(List<CurrentRoom>), StatusCodes.Status200OK)]
+  // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  // [Produces("application/json")]
+  // public IActionResult GetAllRooms()
+  // {
+  //   var callerId = RequestInteractions.ExtractIdFromRequest(Request);
+  //   List<CurrentRoom> rooms;
+  //   try
+  //   {
+  //     rooms = _resourceUsecases.GetRooms(callerId, "");
+  //   }
+  //   catch (ArgumentException e)
+  //   {
+  //     return Problem(statusCode: 500, detail: e.Message);
+  //   }
 
-    return Ok(rooms.ToList());
-  }
+  //   return Ok(rooms.ToList());
+  // }
 
   /// <summary>
   /// Returns a list of all Rooms.
@@ -934,39 +934,39 @@ public class ResourceController : ControllerBase
     return Ok(desks.ToList());
   }
 
-  /// <summary>
-  /// Returns a list of Desks.
-  /// </summary>
-  /// <returns>A List of Desks in JSON Format </returns>
-  /// <remarks>
-  /// Sample request:
-  ///     GET /resources/desks
-  ///     with JWT Token
-  /// </remarks>
-  ///
-  /// <response code="200">Returns the desks list</response>
-  /// <response code="400">Bad Request</response>
-  /// <response code="500">Internal Server Error</response>
-  [HttpGet("desks")]
-  [Authorize]
-  [ProducesResponseType(typeof(List<CurrentDesk>), StatusCodes.Status200OK)]
-  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-  [Produces("application/json")]
-  public IActionResult GetAllDesks()
-  {
-    var callerId = RequestInteractions.ExtractIdFromRequest(Request);
-    List<CurrentDesk> desks;
-    try
-    {
-      desks = _resourceUsecases.GetDesks(callerId, "", DateTime.MinValue, DateTime.MaxValue);
-    }
-    catch (ArgumentException e)
-    {
-      return Problem(statusCode: 500, detail: e.Message);
-    }
+  // /// <summary>
+  // /// Returns a list of Desks.
+  // /// </summary>
+  // /// <returns>A List of Desks in JSON Format </returns>
+  // /// <remarks>
+  // /// Sample request:
+  // ///     GET /resources/desks
+  // ///     with JWT Token
+  // /// </remarks>
+  // ///
+  // /// <response code="200">Returns the desks list</response>
+  // /// <response code="400">Bad Request</response>
+  // /// <response code="500">Internal Server Error</response>
+  // [HttpGet("desks")]
+  // [Authorize]
+  // [ProducesResponseType(typeof(List<CurrentDesk>), StatusCodes.Status200OK)]
+  // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  // [Produces("application/json")]
+  // public IActionResult GetAllDesks()
+  // {
+  //   var callerId = RequestInteractions.ExtractIdFromRequest(Request);
+  //   List<CurrentDesk> desks;
+  //   try
+  //   {
+  //     desks = _resourceUsecases.GetDesks(callerId, "", DateTime.MinValue, DateTime.MaxValue);
+  //   }
+  //   catch (ArgumentException e)
+  //   {
+  //     return Problem(statusCode: 500, detail: e.Message);
+  //   }
 
-    return Ok(desks.ToList());
-  }
+  //   return Ok(desks.ToList());
+  // }
 
   /// <summary>
   /// Returns a list of all Desks.
