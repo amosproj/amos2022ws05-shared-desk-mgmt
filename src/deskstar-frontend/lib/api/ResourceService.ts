@@ -9,10 +9,15 @@ import { CreateDeskDto } from "../../types/models/CreateDeskDto";
 import { CreateDeskTypeDto } from "../../types/models/CreateDeskTypeDto";
 import { CreateFloorDto } from "../../types/models/CreateFloorDto";
 import { CreateRoomDto } from "../../types/models/CreateRoomDto";
+import { UpdateBuildingDto } from "../../types/models/UpdateBuildingDto";
+import { UpdateDeskDto } from "../../types/models/UpdateDeskDto";
+import { UpdateDeskTypeDto } from "../../types/models/UpdateDeskTypeDto";
+import { UpdateFloorDto } from "../../types/models/UpdateFloorDto";
+import { UpdateRoomDto } from "../../types/models/UpdateRoomDto";
 import { IRoom } from "../../types/room";
 import { BACKEND_URL } from "./constants";
 
-export interface ICreateResourceResult {
+export interface IResourceResult {
   response: ResourceResponse;
   message: string;
   data?: Object;
@@ -220,7 +225,7 @@ export async function getDeskTypes(session: Session): Promise<IDeskType[]> {
 export async function createBuilding(
   session: Session,
   createBuildingDto: CreateBuildingDto
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const b = JSON.stringify(createBuildingDto);
   const response = await fetch(BACKEND_URL + "/resources/buildings", {
     method: "POST",
@@ -231,7 +236,7 @@ export async function createBuilding(
     body: b,
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -249,6 +254,193 @@ export async function createBuilding(
 
   return result;
 }
+export async function updateBuilding(
+  session: Session,
+  updateBuildingDto: UpdateBuildingDto,
+  building: IBuilding
+): Promise<IResourceResult> {
+  const b = JSON.stringify(updateBuildingDto);
+  const response = await fetch(
+    BACKEND_URL + "/resources/buildings/" + building.buildingId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    console.log(body);
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IBuilding,
+      message: `Success! Updated building '${building.buildingName}'`,
+    };
+  }
+
+  return result;
+}
+export async function updateFloor(
+  session: Session,
+  updateFloorDto: UpdateFloorDto,
+  floor: IFloor
+): Promise<IResourceResult> {
+  const b = JSON.stringify(updateFloorDto);
+  const response = await fetch(
+    BACKEND_URL + "/resources/floors/" + floor.floorId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    console.log(body);
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IFloor,
+      message: `Success! Updated floor '${floor.floorName}'`,
+    };
+  }
+
+  return result;
+}
+export async function updateRoom(
+  session: Session,
+  updateRoomDto: UpdateRoomDto,
+  room: IRoom
+): Promise<IResourceResult> {
+  const b = JSON.stringify(updateRoomDto);
+  const response = await fetch(
+    BACKEND_URL + "/resources/rooms/" + room.roomId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    console.log(body);
+    const parsed = JSON.parse(body);
+    const room = parsed as IRoom;
+    room.building = parsed["buildingName"];
+    room.floor = parsed["floorName"];
+    result = {
+      response: ResourceResponse.Success,
+      data: room,
+      message: `Success! Updated room '${room.roomName}'`,
+    };
+  }
+
+  return result;
+}
+export async function updateDesk(
+  session: Session,
+  updateDeskDto: UpdateDeskDto,
+  desk: IDesk
+): Promise<IResourceResult> {
+  const b = JSON.stringify(updateDeskDto);
+  const response = await fetch(
+    BACKEND_URL + "/resources/desks/" + desk.deskId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    console.log(body);
+    const parsed = JSON.parse(body);
+    const desk = parsed as IDesk;
+    desk.deskTyp = parsed["deskTypeName"];
+    result = {
+      response: ResourceResponse.Success,
+      data: desk,
+      message: `Success! Updated desk '${desk.deskName}'`,
+    };
+  }
+
+  return result;
+}
+export async function updateDeskType(
+  session: Session,
+  updateDeskTypeDto: UpdateDeskTypeDto,
+  deskType: IDeskType
+): Promise<IResourceResult> {
+  const b = JSON.stringify(updateDeskTypeDto);
+  const response = await fetch(
+    BACKEND_URL + "/resources/desktypes/" + deskType.deskTypeId,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      body: b,
+    }
+  );
+  let result: IResourceResult;
+  const body = await response.text();
+
+  if (response.status !== 200) {
+    result = {
+      response: ResourceResponse.Error,
+      message: body || "An error occured.",
+    };
+  } else {
+    console.log(body);
+    result = {
+      response: ResourceResponse.Success,
+      data: JSON.parse(body) as IDeskType,
+      message: `Success! Updated desk type '${deskType.deskTypeName}'`,
+    };
+  }
+
+  return result;
+}
 
 /**
  * Restore a building
@@ -259,7 +451,7 @@ export async function createBuilding(
 export async function restoreBuilding(
   session: Session,
   restoreBuilding: IBuilding
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var buildingId = restoreBuilding.buildingId;
   const response = await fetch(
     BACKEND_URL + `/resources/buildings/restore/${buildingId}`,
@@ -271,7 +463,7 @@ export async function restoreBuilding(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -298,7 +490,7 @@ export async function restoreBuilding(
 export async function deleteBuilding(
   session: Session,
   buildingId: string
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const response = await fetch(
     BACKEND_URL + `/resources/buildings/${buildingId}`,
     {
@@ -309,7 +501,7 @@ export async function deleteBuilding(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -336,7 +528,7 @@ export async function deleteBuilding(
 export async function createFloor(
   session: Session,
   createFloorDto: CreateFloorDto
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const b = JSON.stringify(createFloorDto);
   const response = await fetch(BACKEND_URL + "/resources/floors", {
     method: "POST",
@@ -347,7 +539,7 @@ export async function createFloor(
     body: b,
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -375,7 +567,7 @@ export async function createFloor(
 export async function restoreFloor(
   session: Session,
   restoreFloor: IFloor
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var floorId = restoreFloor.floorId;
   const response = await fetch(
     BACKEND_URL + `/resources/floors/restore/${floorId}`,
@@ -387,7 +579,7 @@ export async function restoreFloor(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -414,7 +606,7 @@ export async function restoreFloor(
 export async function deleteFloor(
   session: Session,
   floorId: string
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const response = await fetch(BACKEND_URL + `/resources/floors/${floorId}`, {
     method: "DELETE",
     headers: {
@@ -422,7 +614,7 @@ export async function deleteFloor(
     },
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -449,7 +641,7 @@ export async function deleteFloor(
 export async function createRoom(
   session: Session,
   createRoomDto: CreateRoomDto
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const b = JSON.stringify(createRoomDto);
   const response = await fetch(BACKEND_URL + "/resources/rooms", {
     method: "POST",
@@ -460,7 +652,7 @@ export async function createRoom(
     body: b,
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -488,7 +680,7 @@ export async function createRoom(
 export async function restoreRoom(
   session: Session,
   restoreRoom: IRoom
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var roomId = restoreRoom.roomId;
   const response = await fetch(
     BACKEND_URL + `/resources/rooms/restore/${roomId}`,
@@ -500,7 +692,7 @@ export async function restoreRoom(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -527,7 +719,7 @@ export async function restoreRoom(
 export async function deleteRoom(
   session: Session,
   roomId: string
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const response = await fetch(BACKEND_URL + `/resources/rooms/${roomId}`, {
     method: "DELETE",
     headers: {
@@ -535,7 +727,7 @@ export async function deleteRoom(
     },
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -562,7 +754,7 @@ export async function deleteRoom(
 export async function createDeskType(
   session: Session,
   createDeskTypeDto: CreateDeskTypeDto
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const b = JSON.stringify(createDeskTypeDto);
   const response = await fetch(BACKEND_URL + "/resources/desktypes", {
     method: "POST",
@@ -573,7 +765,7 @@ export async function createDeskType(
     body: b,
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -601,7 +793,7 @@ export async function createDeskType(
 export async function restoreDeskType(
   session: Session,
   restoreDeskType: IDeskType
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var desktypeId = restoreDeskType.deskTypeId;
   const response = await fetch(
     BACKEND_URL + `/resources/desktypes/restore/${desktypeId}`,
@@ -613,7 +805,7 @@ export async function restoreDeskType(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -640,7 +832,7 @@ export async function restoreDeskType(
 export async function deleteDeskType(
   session: Session,
   deskTypeId: string
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const response = await fetch(
     BACKEND_URL + `/resources/desktypes/${deskTypeId}`,
     {
@@ -651,7 +843,7 @@ export async function deleteDeskType(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -678,7 +870,7 @@ export async function deleteDeskType(
 export async function createDesk(
   session: Session,
   createDeskDto: CreateDeskDto
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const b = JSON.stringify(createDeskDto);
   const response = await fetch(BACKEND_URL + "/resources/desks", {
     method: "POST",
@@ -689,7 +881,7 @@ export async function createDesk(
     body: b,
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -717,7 +909,7 @@ export async function createDesk(
 export async function restoreDesk(
   session: Session,
   restoreDesk: IDesk
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   var deskId = restoreDesk.deskId;
   const response = await fetch(
     BACKEND_URL + `/resources/desks/restore/${deskId}`,
@@ -729,7 +921,7 @@ export async function restoreDesk(
     }
   );
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
@@ -756,7 +948,7 @@ export async function restoreDesk(
 export async function deleteDesk(
   session: Session,
   deskId: string
-): Promise<ICreateResourceResult> {
+): Promise<IResourceResult> {
   const response = await fetch(BACKEND_URL + `/resources/desks/${deskId}`, {
     method: "DELETE",
     headers: {
@@ -764,7 +956,7 @@ export async function deleteDesk(
     },
   });
 
-  let result: ICreateResourceResult;
+  let result: IResourceResult;
   const body = await response.text();
 
   if (response.status !== 200) {
