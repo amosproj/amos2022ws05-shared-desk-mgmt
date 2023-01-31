@@ -14,6 +14,7 @@ export enum AuthResponse {
   ErrorUnknown,
   ErrorCompanyNotFound,
   ErrorEmailaddressAlreadyExists,
+  ErrorCompanyNameAlreadyExists,
   ErrorNotAllowedToCreateUser,
   ErrorInvalidCredentials,
   ErrorUserNotApproved,
@@ -62,8 +63,6 @@ export async function register(user: RegisterUser): Promise<AuthResponse> {
     },
   });
 
-  console.log(await response.status);
-
   if (response.status != 200) {
     const text = await response.text();
     switch (response.status) {
@@ -83,4 +82,31 @@ export async function register(user: RegisterUser): Promise<AuthResponse> {
   }
 
   return AuthResponse.Success;
+}
+
+type InitialRegisterAdmin = {
+  mailAddress: String;
+  firstName: String;
+  lastName: String;
+  password: String;
+  companyName: String;
+};
+
+export async function initialRegister(
+  user: InitialRegisterAdmin
+): Promise<Response> {
+  const response = await fetch(BACKEND_URL + "/auth/registerAdmin", {
+    method: "POST",
+    body: JSON.stringify(user),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(`${message}`);
+  }
+
+  return response;
 }
