@@ -15,6 +15,8 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [initialRegistration, setInitialRegistration] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState("");
 
   const [clicked, setClicked] = useState(false);
   const [company, setCompany] = useState<Company | null>(null);
@@ -67,14 +69,29 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-3xl font-bold">Register</h1>
+      <h1 className="text-3xl font-bold mb-5">Register</h1>
       <form className="flex flex-col" onSubmit={submitForm}>
-        <OwnCombobox
-          selected={company}
-          setSelected={setCompany}
-          entities={companies}
-          getName={(entity) => entity?.name ?? ""}
+        <Input
+          type="checkbox"
+          name="I want to initially register my company"
+          checked={initialRegistration}
+          onChange={() => setInitialRegistration(!initialRegistration)}
         />
+        {initialRegistration ? (
+          <Input
+            name="Your Company"
+            value={newCompanyName}
+            onChange={(e) => setNewCompanyName(e.target.value)}
+            placeholder="Company Name"
+          />
+        ) : (
+          <OwnCombobox
+            selected={company}
+            setSelected={setCompany}
+            entities={companies}
+            getName={(entity) => entity?.name ?? ""}
+          />
+        )}
         <div className="columns-2">
           <Input
             name="Firstname"
