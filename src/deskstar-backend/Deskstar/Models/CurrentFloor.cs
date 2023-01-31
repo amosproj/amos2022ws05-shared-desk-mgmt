@@ -11,6 +11,9 @@ public class CurrentFloor
   public string FloorName { get; set; } = null!;
 
   [Required]
+  public string BuildingId { get; set; } = null!;
+
+  [Required]
   public string BuildingName { get; set; } = null!;
 
   [Required] public bool IsMarkedForDeletion { get; set; } = false;

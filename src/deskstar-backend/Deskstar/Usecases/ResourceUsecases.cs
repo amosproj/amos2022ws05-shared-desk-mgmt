@@ -135,6 +135,7 @@ public class ResourceUsecases : IResourceUsecases
 
     var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
     {
+      BuildingId = f.BuildingId.ToString(),
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
       FloorId = f.FloorId.ToString(),
@@ -196,6 +197,7 @@ public class ResourceUsecases : IResourceUsecases
     {
       RoomId = r.RoomId.ToString(),
       RoomName = r.RoomName,
+      FloorId = r.FloorId.ToString(),
       IsMarkedForDeletion = r.IsMarkedForDeletion
     });
 
