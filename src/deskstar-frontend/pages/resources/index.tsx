@@ -417,7 +417,7 @@ const ResourceOverview = ({
           )}
           <ConfirmModal
             title={"Delete Desktype " + deskType?.deskTypeName + "?"}
-            description="This can't be undone!"
+            description="This be undone!"
             text=""
             warn
             buttonText="DELETE"
@@ -438,7 +438,7 @@ const ResourceOverview = ({
           )}
           <ConfirmModal
             title={"Delete Desk " + desk?.deskName + "?"}
-            description="This can't be undone!"
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -459,7 +459,7 @@ const ResourceOverview = ({
           )}
           <ConfirmModal
             title={"Delete Room " + room?.roomName + "?"}
-            description="This can't be undone!"
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -480,7 +480,7 @@ const ResourceOverview = ({
           )}
           <ConfirmModal
             title={"Delete Floor " + floor?.floorName + "?"}
-            description="This can't be undone!"
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -502,7 +502,7 @@ const ResourceOverview = ({
           )}
           <ConfirmModal
             title={"Delete Building " + building?.buildingName + "?"}
-            description="This can't be undone!"
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
