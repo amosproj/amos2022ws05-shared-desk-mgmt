@@ -2471,7 +2471,80 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetRooms_WhenNoFloorIDProvided_ShouldReturnAnList()
+  public void GetRooms_WhenRoomFound_ShouldReturnAList()
+  {
+    //setup
+    using var db = new DataContext();
+    var userId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId= Guid.NewGuid();
+    SetupMockData(db, userId: userId, floorId: floorId, roomId:roomId);
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    usecases.DeleteRoom(userId, roomId.ToString());
+
+
+    //act
+    var result = usecases.GetRooms(userId, floorId.ToString());
+
+    //assert
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetRooms_WhenNoRoomFound_ShouldReturnAEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+    var userId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId= Guid.NewGuid();
+    SetupMockData(db, userId: userId, floorId: floorId, roomId:roomId);
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    usecases.DeleteRoom(userId, roomId.ToString());
+
+
+    //act
+    var result = usecases.GetRooms(userId, Guid.NewGuid().ToString());
+
+    //assert
+    Assert.That(result, Is.Empty);
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetRooms_WhenNoValidRoomId_ShouldReturnAnException()
+  {
+    //setup
+    using var db = new DataContext();
+    var userId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    SetupMockData(db, userId: userId, floorId: floorId );
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+
+    //assert + act
+    Assert.Throws<ArgumentInvalidException>(()=>usecases.GetRooms(userId, "abs"));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetRooms_WhenNoRoomIdProvided_ShouldReturnAnList()
   {
     //setup
     using var db = new DataContext();
@@ -2495,8 +2568,6 @@ public class ResourceUsecasesTests
     //cleanup
     db.Database.EnsureDeleted();
   }
-
-  //TODO: Get Room Tests
 
   [Test]
   public void GetDesks_WhenNoDeskFound_ShouldReturnAEmptyList()

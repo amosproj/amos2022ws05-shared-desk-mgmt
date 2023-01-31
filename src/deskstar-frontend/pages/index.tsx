@@ -87,7 +87,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   try {
     data = await getBookings(session, {
       n: 10,
-      direction: "DESC",
+      direction: "ASC",
       start: start.getTime(),
     });
   } catch (error) {

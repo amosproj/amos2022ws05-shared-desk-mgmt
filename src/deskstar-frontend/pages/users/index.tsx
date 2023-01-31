@@ -131,7 +131,7 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
       />
       <ConfirmModal
         title={"Delete User " + user?.firstName + " " + user?.lastName + "?"}
-        description="This can't be undone!"
+        description="The user will be notified about the change!"
         text=""
         warn
         buttonText="DELETE"

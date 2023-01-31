@@ -423,11 +423,11 @@ public class ResourceUsecases : IResourceUsecases
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
       _logger.LogError(e, e.Message);
-      throw new ArgumentException($"'{floorGuidId}' is not a valid FloorId");
+      throw new ArgumentInvalidException($"'{floorGuidId}' is not a valid FloorId");
     }
     catch (InvalidOperationException)
     {
-      throw new ArgumentException($"There is no Floor with id '{floorGuidId}'");
+      throw new ArgumentInvalidException($"There is no Floor with id '{floorGuidId}'");
     }
 
     if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
@@ -764,6 +764,21 @@ public class ResourceUsecases : IResourceUsecases
         $"The desk with id '{deskId}' is not from the same company as the admin with id '{adminId}'");
     deskDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
+
+    notifybookers(deskDbInstance);
+  }
+
+  private void notifybookers(Desk deletedDesk)
+  {
+    var bookings = _context.Bookings.Where(b => b.DeskId == deletedDesk.DeskId).Include(b => b.User).ToList();
+    foreach (var booking in bookings)
+    {
+      var body = $"Hello {booking.User.FirstName},<br/> " +
+                 $"some problems with your booking of desk {booking.Desk.DeskName} between " +
+                 $"{booking.StartTime} till {booking.EndTime} occured.<br/>" +
+                 "The desk was deleted by an admin. Please make sure to book an other desk for your day in office.<br/>";
+      EmailHelper.SendEmail(_logger, booking.User.MailAddress, $"A problem with your booking of desk {booking.Desk.DeskName} occured!", body);
+    }
   }
 
   public void DeleteDeskType(Guid adminId, string typeId)

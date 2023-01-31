@@ -14,6 +14,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Paginator from "../../components/Paginator";
+import ConfirmModal from "../../components/ConfirmModal";
+import dayjs from "dayjs";
 
 const DEFAULT_N = 10;
 
@@ -27,6 +29,9 @@ export default function Bookings({
 }) {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(0);
+  const [booking, setBooking] = useState<IBooking>(bookings[0]);
+
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const { data: session } = useSession();
 
@@ -36,7 +41,12 @@ export default function Bookings({
     router.push(path);
   };
 
-  const onDelete = async (booking: IBooking) => {
+  const onDelete = (currentBooking: IBooking) => {
+    setBooking(currentBooking);
+    setDeleteModalOpen(true);
+  };
+
+  const doDelete = async () => {
     if (session == null) return;
     console.log(`Pressed delete on ${booking.bookingId}`);
 
@@ -84,6 +94,28 @@ export default function Bookings({
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">My Bookings</h1>
       <BookingsTable bookings={bookings} onEdit={onEdit} onDelete={onDelete} />
+      <ConfirmModal
+        title={
+          "Delete booking of desk" +
+          booking?.deskName +
+          " between " +
+          dayjs(booking?.startTime, {
+            utc: true,
+          }).format("DD.MM.YYYY HH:mm") +
+          " till " +
+          dayjs(booking?.endTime, {
+            utc: true,
+          }).format("DD.MM.YYYY HH:mm") +
+          "?"
+        }
+        description="This can't be undone!"
+        text=""
+        warn
+        buttonText="DELETE"
+        action={doDelete}
+        isOpen={isDeleteModalOpen}
+        setIsOpen={setDeleteModalOpen}
+      ></ConfirmModal>
       <div className="flex justify-center mt-10">
         <Paginator
           n={DEFAULT_N}
