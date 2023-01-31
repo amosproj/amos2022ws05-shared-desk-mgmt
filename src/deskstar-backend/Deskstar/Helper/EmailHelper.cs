@@ -20,7 +20,7 @@ public class EmailHelper
   private static string? _emailUsername;
   private static SmtpClient? _smtpClient;
 
-  private const string Footer = "Please note: This is an automatic email notification. Do not reply to this email. If this email contains time infomation, the used timezone is the ISo Norm Timezone.<br/> " +
+  private const string Footer = "Please note: This is an automatic email notification. Do not reply to this email. If this email contains time information, the used timezone is the ISO Norm Timezone.<br/> " +
                                 "<br/> " +
                                 "Regards, <br/> " +
                                 "<br/>" +

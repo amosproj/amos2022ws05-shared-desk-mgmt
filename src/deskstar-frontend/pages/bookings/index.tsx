@@ -96,13 +96,13 @@ export default function Bookings({
       <BookingsTable bookings={bookings} onEdit={onEdit} onDelete={onDelete} />
       <ConfirmModal
         title={
-          "Delete booking of desk" +
+          "Delete booking of desk " +
           booking?.deskName +
-          " between " +
+          " from " +
           dayjs(booking?.startTime, {
             utc: true,
           }).format("DD.MM.YYYY HH:mm") +
-          " till " +
+          " untill " +
           dayjs(booking?.endTime, {
             utc: true,
           }).format("DD.MM.YYYY HH:mm") +
