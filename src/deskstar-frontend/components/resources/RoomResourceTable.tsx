@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IRoom } from "../../types/room";
 
@@ -6,10 +6,12 @@ const RoomResourceTable = ({
   rooms,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   rooms: IRoom[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (room: IRoom) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -21,7 +23,12 @@ const RoomResourceTable = ({
             <th className="bg-deskstar-green-light text-left">Floor</th>
             <th className="bg-deskstar-green-light text-left">Building</th>
             <th className="bg-deskstar-green-light text-left">Location</th>
-            <th className="bg-deskstar-green-light"></th>
+            {(onDelete || onEdit) && (
+              <th className="bg-deskstar-green-light"></th>
+            )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-left">Restore</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -31,6 +38,7 @@ const RoomResourceTable = ({
               room={room}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -43,10 +51,12 @@ const RoomResourceTableEntry = ({
   room,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   room: IRoom;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (room: IRoom) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -66,6 +76,16 @@ const RoomResourceTableEntry = ({
               <FaEdit />
             </button>
           )}
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-right">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate(room)}
+          >
+            <FaTrashRestore color="green" />
+          </button>
         </td>
       )}
     </tr>

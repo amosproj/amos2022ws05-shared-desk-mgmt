@@ -229,7 +229,7 @@ public class UserUsecasesTests
     }
 
     [Test]
-    public void UpdateUser_WhenValidUserIsProvided_ShouldUpdateUser()
+    public void UpdateUser_WhenValidUserIsProvided_ButLastAdmin_ShouldThrowException()
     {
         //setup
         using var db = new DataContext();
@@ -242,11 +242,50 @@ public class UserUsecasesTests
         var logger = new Mock<ILogger<UserUsecases>>();
         var userUsecases = new UserUsecases(logger.Object, db);
 
-        //act
-        var result = userUsecases.UpdateUser(user.UserId, user);
+        //assert+ act
+        Assert.Throws<ArgumentInvalidException>(() => userUsecases.UpdateUser(user.UserId, user));
+    }
 
-        //assert
-        Assert.That(result == user.UserId);
+    [Test]
+    public void UpdateUser_WhenValidUserIsProvided_ShouldUpdateUser()
+    {
+      //setup
+      using var db = new DataContext();
+      User user, admin;
+      bool isUserApproved = true;
+
+      SetupSingleUser(db, isUserApproved, out user, out admin);
+
+      //arrange
+      var logger = new Mock<ILogger<UserUsecases>>();
+      var userUsecases = new UserUsecases(logger.Object, db);
+
+      user.FirstName="test";
+      //act
+      var result = userUsecases.UpdateUser(admin.UserId, user);
+      //assert
+      Assert.That(result == user.UserId);
+      Assert.That(db.Users.First(u=>u.UserId==result).FirstName == "test");
+    }
+
+    [Test]
+    public void UpdateUser_nothingChanged_WhenValidUserIsProvided_ShouldUpdateUser()
+    {
+      //setup
+      using var db = new DataContext();
+      User user, admin;
+      bool isUserApproved = true;
+
+      SetupSingleUser(db, isUserApproved, out user, out admin);
+
+      //arrange
+      var logger = new Mock<ILogger<UserUsecases>>();
+      var userUsecases = new UserUsecases(logger.Object, db);
+
+      //act
+      var result = userUsecases.UpdateUser(admin.UserId, user);
+      //assert
+      Assert.That(result == user.UserId);
     }
 
     [Test]
@@ -367,6 +406,25 @@ public class UserUsecasesTests
 
         //act & assert
         Assert.Throws<EntityNotFoundException>(() => userUsecases.DeleteUser(admin.UserId, new Guid().ToString()));
+    }
+
+    [Test]
+    public void DeleteUser_WhenDeleteSelf_ShouldThrowArgumentInvalidException()
+    {
+      //setup
+      using var db = new DataContext();
+      User user, admin;
+      const bool isUserApproved = true;
+
+      SetupSingleUser(db, isUserApproved, out user, out admin);
+
+      //arrange
+      var logger = new Mock<ILogger<UserUsecases>>();
+      var userUsecases = new UserUsecases(logger.Object, db);
+
+
+      //act & assert
+      Assert.Throws<ArgumentInvalidException>(() => userUsecases.DeleteUser(admin.UserId, admin.UserId.ToString()));
     }
 
     private void SetupSingleUser(DataContext db, bool userApproved, out User user, out User admin)

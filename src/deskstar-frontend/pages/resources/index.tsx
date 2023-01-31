@@ -19,7 +19,6 @@ import FloorResourceEditModal from "../../components/resources/FloorResourceEdit
 import FloorResourceTable from "../../components/resources/FloorResourceTable";
 import RoomResourceEditModal from "../../components/resources/RoomResourceEditModal";
 import RoomResourceTable from "../../components/resources/RoomResourceTable";
-import { deleteBooking } from "../../lib/api/BookingService";
 import {
   getBuildings,
   getDesks,
@@ -120,11 +119,13 @@ const ResourceOverview = ({
   const [isFetching, setIsFetching] = useState<boolean>(false);
 
   async function onSelectedLocationChange(selectedLocations: ILocation[]) {
-    let buildings = origBuildings.filter((building) =>
-      selectedLocations.some((location) => {
-        return location.locationName === building.location;
-      })
-    );
+    let buildings = origBuildings
+      .filter((building) =>
+        selectedLocations.some((location) => {
+          return location.locationName === building.location;
+        })
+      )
+      .filter((building) => !building.isMarkedForDeletion);
 
     setBuildings(buildings);
   }
@@ -149,11 +150,13 @@ const ResourceOverview = ({
           return [];
         }
 
-        const enrichedFloors = resFloors.map((floor) => {
-          floor.buildingName = building.buildingName;
-          floor.location = building.location;
-          return floor;
-        });
+        const enrichedFloors = resFloors
+          .map((floor) => {
+            floor.buildingName = building.buildingName;
+            floor.location = building.location;
+            return floor;
+          })
+          .filter((floor) => !floor.isMarkedForDeletion);
         return enrichedFloors;
       })
     );
@@ -177,12 +180,14 @@ const ResourceOverview = ({
           return [];
         }
 
-        const enrichedRooms = resRooms.map((room) => {
-          room.building = floor.buildingName;
-          room.location = floor.location;
-          room.floor = floor.floorName;
-          return room;
-        });
+        const enrichedRooms = resRooms
+          .map((room) => {
+            room.building = floor.buildingName;
+            room.location = floor.location;
+            room.floor = floor.floorName;
+            return room;
+          })
+          .filter((room) => !room.isMarkedForDeletion);
         return enrichedRooms;
       })
     );
@@ -212,14 +217,16 @@ const ResourceOverview = ({
           return [];
         }
 
+        resDeskType.filter((deskType) => !deskType.isMarkedForDeletion);
+
         return resDeskType;
       })
     );
 
     const desks = promises.flat();
-    const filteredDesks: IDesk[] = desks.filter(
-      (desk) => desk.bookings.length === 0
-    );
+    const filteredDesks: IDesk[] = desks
+      .filter((desk) => desk.bookings.length === 0)
+      .filter((desk) => !desk.isMarkedForDeletion);
     setDesks(filteredDesks);
     stopFetchingAnimation();
   }

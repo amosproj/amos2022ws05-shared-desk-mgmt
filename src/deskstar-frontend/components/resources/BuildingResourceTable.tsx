@@ -1,5 +1,5 @@
 import { IDesk } from "../../types/desk";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IBuilding } from "../../types/building";
 
@@ -7,10 +7,12 @@ const BuildingResourceTable = ({
   buildings,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   buildings: IBuilding[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (building: IBuilding) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -20,7 +22,12 @@ const BuildingResourceTable = ({
             {/* set size of Desk column */}
             <th className="bg-deskstar-green-light text-left">Building</th>
             <th className="bg-deskstar-green-light text-left">Location</th>
-            <th className="bg-deskstar-green-light"></th>
+            {(onDelete || onEdit) && (
+              <th className="bg-deskstar-green-light"></th>
+            )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-left">Restore</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -30,6 +37,7 @@ const BuildingResourceTable = ({
               building={building}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -42,10 +50,12 @@ const BuildingResourceTableEntry = ({
   building,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   building: IBuilding;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (building: IBuilding) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -66,6 +76,16 @@ const BuildingResourceTableEntry = ({
               <FaEdit />
             </button>
           )}
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-right">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate(building)}
+          >
+            <FaTrashRestore color="green" />
+          </button>
         </td>
       )}
     </tr>

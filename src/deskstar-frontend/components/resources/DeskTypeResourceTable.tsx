@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IDeskType } from "../../types/desktypes";
 
@@ -6,10 +6,12 @@ const DeskTypeResourceTable = ({
   deskTypes: deskTypes,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   deskTypes: IDeskType[];
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (desktype: IDeskType) => Promise<void>;
 }) => {
   return (
     <div className="overflow-x-auto">
@@ -18,7 +20,12 @@ const DeskTypeResourceTable = ({
           <tr>
             {/* set size of Desk column */}
             <th className="bg-deskstar-green-light text-left">Desk Type</th>
-            <th className="bg-deskstar-green-light"></th>
+            {(onDelete || onEdit) && (
+              <th className="bg-deskstar-green-light"></th>
+            )}
+            {onRestoreUpdate && (
+              <th className="bg-deskstar-green-light text-left">Restore</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -28,6 +35,7 @@ const DeskTypeResourceTable = ({
               deskType={deskType}
               onEdit={onEdit}
               onDelete={onDelete}
+              onRestoreUpdate={onRestoreUpdate}
             />
           ))}
         </tbody>
@@ -40,10 +48,12 @@ const DeksTypeTableEntry = ({
   deskType,
   onEdit,
   onDelete,
+  onRestoreUpdate,
 }: {
   deskType: IDeskType;
-  onEdit: Function;
-  onDelete: Function;
+  onEdit?: Function;
+  onDelete?: Function;
+  onRestoreUpdate?: (desktype: IDeskType) => Promise<void>;
 }) => {
   return (
     <tr className="hover">
@@ -63,6 +73,16 @@ const DeksTypeTableEntry = ({
               <FaEdit />
             </button>
           )}
+        </td>
+      )}
+      {onRestoreUpdate && (
+        <td className="text-right">
+          <button
+            className="btn btn-ghost"
+            onClick={() => onRestoreUpdate(deskType)}
+          >
+            <FaTrashRestore color="green" />
+          </button>
         </td>
       )}
     </tr>

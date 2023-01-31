@@ -153,6 +153,8 @@ public class UserUsecases : IUserUsecases
     if (userDbInstance == null)
       throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
     CheckSameCompany(adminId, user.UserId);
+    if (adminId == user.UserId && !user.IsCompanyAdmin)
+      throw new ArgumentInvalidException($"You cannot delete your own admin rights");
     return SaveUpdateUser(user);
   }
   private Guid SaveUpdateUser(User user)
@@ -203,6 +205,8 @@ public class UserUsecases : IUserUsecases
     if (userDbInstance == null)
       throw new EntityNotFoundException($"There is no user with id '{userId}'");
     CheckSameCompany(adminId, guid);
+    if (adminId == guid)
+      throw new ArgumentInvalidException($"You cannot delete yourself");
     var body = $"Hello {userDbInstance.FirstName},</br> " +
                "your account has been deleted by your Company admin.</br> " +
                "If you think this was an mistake, get in touch with your company admin.</br>";
