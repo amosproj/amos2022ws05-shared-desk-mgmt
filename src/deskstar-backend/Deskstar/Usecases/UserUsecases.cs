@@ -68,10 +68,10 @@ public class UserUsecases : IUserUsecases
     _context.Update(user);
     _context.SaveChanges();
 
-    var body = $"Hello {user.FirstName},</br> " +
-              $"your account has been approved by {ReadSpecificUser(adminId).FirstName}.</br> " +
-              "You can now log into the system.</br>" +
-              "You can now book your first desk and get to work.</br>";
+    var body = $"Hello {user.FirstName},<br/> " +
+              $"your account has been approved by {ReadSpecificUser(adminId).FirstName}.<br/> " +
+              "You can now log into the system.<br/>" +
+              "You can now book your first desk and get to work.<br/>";
     EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been approved!", body);
 
     return guid;
@@ -106,9 +106,9 @@ public class UserUsecases : IUserUsecases
     if (user.IsApproved)
       throw new ArgumentInvalidException($"You cannot rejected an already approved user '{guid}'");
 
-    var body = $"Hello {user.FirstName},</br> " +
-              $"your account has been rejected.</br> " +
-              "Please contact one of your company's admins if you think this was a mistake.</br>";
+    var body = $"Hello {user.FirstName},<br/> " +
+              $"your account has been rejected.<br/> " +
+              "Please contact one of your company's admins if you think this was a mistake.<br/>";
     EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been rejected!", body);
 
     _context.Users.Remove(user);
@@ -153,6 +153,8 @@ public class UserUsecases : IUserUsecases
     if (userDbInstance == null)
       throw new EntityNotFoundException($"There is no user with id '{user.UserId}'");
     CheckSameCompany(adminId, user.UserId);
+    if (adminId == user.UserId && !user.IsCompanyAdmin)
+      throw new ArgumentInvalidException($"You cannot delete your own admin rights");
     return SaveUpdateUser(user);
   }
   private Guid SaveUpdateUser(User user)
@@ -178,11 +180,11 @@ public class UserUsecases : IUserUsecases
     userDbInstance.IsCompanyAdmin = user.IsCompanyAdmin;
     userDbInstance.IsMarkedForDeletion = user.IsMarkedForDeletion;
     _context.SaveChanges();
-    var body = $"Hello {user.FirstName},</br> " +
-               "your account details have been updated.</br> " +
-               "Please check if this was ok.</br>" +
-               "If not get in touch with your company admin.</br>";
-    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been deleted!", body);
+    var body = $"Hello {user.FirstName},<br/> " +
+               "your account details have been updated.<br/> " +
+               "Please check if this was ok.<br/>" +
+               "If not get in touch with your company admin.<br/>";
+    EmailHelper.SendEmail(_logger, user.MailAddress, "Your Deskstar account has been updated!", body);
     return user.UserId;
   }
 
@@ -203,12 +205,13 @@ public class UserUsecases : IUserUsecases
     if (userDbInstance == null)
       throw new EntityNotFoundException($"There is no user with id '{userId}'");
     CheckSameCompany(adminId, guid);
-    var body = $"Hello {userDbInstance.FirstName},</br> " +
-               "your account has been deleted by your Company admin.</br> " +
-               "If you think this was an mistake, get in touch with your company admin.</br>";
-    EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account details has been updated!", body);
+    if (adminId == guid)
+      throw new ArgumentInvalidException($"You cannot delete yourself");
+    var body = $"Hello {userDbInstance.FirstName},<br/> " +
+               "your account has been deleted by your Company admin.<br/>" +
+               "If you think this was an mistake, get in touch with your company admin.<br/>";
+    EmailHelper.SendEmail(_logger, userDbInstance.MailAddress, "Your Deskstar account has been deleted!", body);
     userDbInstance.IsMarkedForDeletion = true;
-    // _context.Users.Remove(userDbInstance);
     _context.SaveChanges();
 
     return guid;

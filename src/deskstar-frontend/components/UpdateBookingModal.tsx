@@ -1,11 +1,13 @@
-import { useState } from "react";
-import { start } from "repl";
+import dayjs, { Dayjs } from "dayjs";
+import { useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { classes } from "../lib/helpers";
 import { IBooking } from "../types/booking";
 
 interface UpdateBookingModalProps {
   id: string;
   booking: IBooking;
-  onUpdate: Function;
+  onUpdate: (booking: IBooking, startDateTime: Date, endDateTime: Date) => void;
 }
 
 export function UpdateBookingModal({
@@ -14,12 +16,44 @@ export function UpdateBookingModal({
   onUpdate,
 }: UpdateBookingModalProps) {
   const [startDateTime, setStartDateTime] = useState(
-    new Date(booking.startTime)
+    dayjs(booking.startTime, {
+      utc: true,
+    })
   );
-  const [endDateTime, setEndDateTime] = useState(new Date(booking.endTime));
+  const [endDateTime, setEndDateTime] = useState(
+    dayjs(booking.endTime, {
+      utc: true,
+    })
+  );
 
-  let today = new Date();
-  today.setHours(8, 0, 0, 0);
+  let today = dayjs();
+  today = today
+    .set("hour", 8)
+    .set("minute", 0)
+    .set("second", 0)
+    .set("millisecond", 0);
+
+  const minimumEndDateTime = useMemo(() => {
+    return dayjs(startDateTime).add(1, "hour");
+  }, [startDateTime]);
+
+  async function updateBooking() {
+    if (endDateTime.isBefore(minimumEndDateTime)) {
+      toast.error(
+        "The End Time needs to be at minimum 1 hour after the start time."
+      );
+      return;
+    }
+    if (
+      !startDateTime ||
+      !endDateTime ||
+      !dayjs(startDateTime).isValid() ||
+      !dayjs(endDateTime).isValid()
+    )
+      return toast.error("Please select a start and end time");
+
+    await onUpdate(booking, startDateTime.toDate(), endDateTime.toDate());
+  }
 
   return (
     <>
@@ -53,7 +87,7 @@ export function UpdateBookingModal({
                 value={formatDateForInputField(startDateTime)}
                 min={formatDateForInputField(today)}
                 onChange={(event) =>
-                  setStartDateTime(new Date(event.target.value))
+                  setStartDateTime(dayjs(event.target.value))
                 }
               />
             </div>
@@ -63,23 +97,30 @@ export function UpdateBookingModal({
                 <b>End: </b>
               </label>
               <input
-                className="input input-bordered"
+                className={classes(
+                  "input input-bordered",
+                  dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime))
+                    ? "border-red-600"
+                    : ""
+                )}
                 type="datetime-local"
                 // Bind the value of the input to enddatetime
                 value={formatDateForInputField(endDateTime)}
-                min={formatDateForInputField(new Date(today))}
+                min={formatDateForInputField(today)}
                 onChange={(event) => {
-                  return setEndDateTime(new Date(event.target.value));
+                  return setEndDateTime(dayjs(event.target.value));
                 }}
               />
             </div>
+            {dayjs(endDateTime).isBefore(dayjs(minimumEndDateTime)) && (
+              <span className="text-red-600">
+                The End Time needs to be at minimum 1 hour
+                <br /> after the start time.
+              </span>
+            )}
           </form>
           <div className="modal-action">
-            <label
-              htmlFor={id}
-              className="btn"
-              onClick={() => onUpdate(booking, startDateTime, endDateTime)}
-            >
+            <label htmlFor={id} className="btn" onClick={() => updateBooking()}>
               Update
             </label>
           </div>
@@ -112,10 +153,6 @@ function InputForm({ label, type, value, disabled }: InputFormProps) {
   );
 }
 
-function formatDateForInputField(date: Date) {
-  const offset = date.getTimezoneOffset();
-
-  return new Date(date.getTime() - offset * 60 * 1000)
-    .toISOString()
-    .substring(0, "YYYY-MM-DDTHH:MM".length);
+function formatDateForInputField(date: Dayjs) {
+  return date.format("YYYY-MM-DDTHH:mm");
 }

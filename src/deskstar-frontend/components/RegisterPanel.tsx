@@ -1,5 +1,9 @@
 import React, { useState } from "react";
-import { AuthResponse, register } from "../lib/api/AuthService";
+import {
+  AuthResponse,
+  register,
+  initialRegister,
+} from "../lib/api/AuthService";
 import Input from "./forms/Input";
 import { toast } from "react-toastify";
 import OwnCombobox from "./forms/Combobox";
@@ -15,6 +19,8 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [initialRegistration, setInitialRegistration] = useState(false);
+  const [newCompanyName, setNewCompanyName] = useState("");
 
   const [clicked, setClicked] = useState(false);
   const [company, setCompany] = useState<Company | null>(null);
@@ -30,15 +36,43 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
       return;
     }
 
-    if (!company) {
+    if (!initialRegistration && !company) {
       toast.error("Please select a company");
 
       setClicked(false);
       return;
     }
 
+    if (initialRegistration && !newCompanyName) {
+      toast.error("Please enter your company name");
+
+      setClicked(false);
+      return;
+    }
+
+    if (initialRegistration) {
+      try {
+        const response = await initialRegister({
+          companyName: newCompanyName,
+          firstName,
+          lastName,
+          mailAddress: email,
+          password,
+        });
+      } catch (error) {
+        toast.error(`${error}`);
+        setClicked(false);
+        return;
+      }
+
+      setClicked(false);
+      document.location =
+        "/login?msg=Registration+successful!+We+will+contact+you+shortly+to+activate+your+account";
+      return;
+    }
+
     const response = await register({
-      companyId: company.id,
+      companyId: company?.id ?? "",
       firstName,
       lastName,
       mailAddress: email,
@@ -67,14 +101,29 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
 
   return (
     <div className="flex flex-col">
-      <h1 className="text-3xl font-bold">Register</h1>
+      <h1 className="text-3xl font-bold mb-5">Register</h1>
       <form className="flex flex-col" onSubmit={submitForm}>
-        <OwnCombobox
-          selected={company}
-          setSelected={setCompany}
-          entities={companies}
-          getName={(entity) => entity?.name ?? ""}
+        <Input
+          type="checkbox"
+          name="I want to initially register my company"
+          checked={initialRegistration}
+          onChange={() => setInitialRegistration(!initialRegistration)}
         />
+        {initialRegistration ? (
+          <Input
+            name="Your Company"
+            value={newCompanyName}
+            onChange={(e) => setNewCompanyName(e.target.value)}
+            placeholder="Company Name"
+          />
+        ) : (
+          <OwnCombobox
+            selected={company}
+            setSelected={setCompany}
+            entities={companies}
+            getName={(entity) => entity?.name ?? ""}
+          />
+        )}
         <div className="columns-2">
           <Input
             name="Firstname"

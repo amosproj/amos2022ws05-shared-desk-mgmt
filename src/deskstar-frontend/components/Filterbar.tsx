@@ -1,6 +1,8 @@
+import dayjs from "dayjs";
 import { useSession } from "next-auth/react";
-import { useState, Fragment } from "react";
+import { useState, Fragment, useMemo } from "react";
 import { toast } from "react-toastify";
+import { getAggregatedDesks } from "../lib/api/DesksService";
 import { getDesks, getFloors, getRooms } from "../lib/api/ResourceService";
 import { IBuilding } from "../types/building";
 import { IDesk } from "../types/desk";
@@ -11,26 +13,52 @@ import { IRoom } from "../types/room";
 import FilterListbox from "./FilterListbox";
 
 type FilterbarProps = {
-  buildings: IBuilding[];
-  startDateTime: Date;
-  endDateTime: Date;
   desks: IDesk[];
-  setDesks: (desks: IDesk[]) => void;
   setFilteredDesks: (desks: IDesk[]) => void;
 };
 
-export default function Filterbar({
-  buildings: origBuildings,
-  startDateTime,
-  endDateTime,
-  desks,
-  setDesks,
-  setFilteredDesks,
-}: FilterbarProps) {
-  const { data: session } = useSession();
-  let initBuildings = origBuildings.filter(
-    (building) => !building.isMarkedForDeletion
-  );
+export default function Filterbar({ desks, setFilteredDesks }: FilterbarProps) {
+  const initBuildings: IBuilding[] = desks
+    .map((desk) => ({
+      buildingName: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (building, index, self) =>
+        index === self.findIndex((b) => b.buildingId === building.buildingId)
+    );
+
+  const initFloors: (IFloor & { buildingId: string })[] = desks
+    .map((desk) => ({
+      floorName: desk.floorName,
+      floorId: desk.floorId,
+      buildingName: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (floor, index, self) =>
+        index === self.findIndex((f) => f.floorId === floor.floorId)
+    );
+  const initRooms: (IRoom & { buildingId: string; floorId: string })[] = desks
+    .map((desk) => ({
+      roomName: desk.roomName,
+      roomId: desk.roomId,
+      floor: desk.floorName,
+      floorId: desk.floorId,
+      building: desk.buildingName,
+      buildingId: desk.buildingId,
+      location: desk.location,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (room, index, self) =>
+        index === self.findIndex((r) => r.roomId === room.roomId)
+    );
+
   const locations: ILocation[] = initBuildings.map((building) => ({
     locationName: building.location,
   }));
@@ -47,46 +75,90 @@ export default function Filterbar({
     null
   );
 
-  const [buildings, setBuildings] = useState<IBuilding[]>([]);
-  const [floors, setFloors] = useState<IFloor[]>([]);
-  const [rooms, setRooms] = useState<IRoom[]>([]);
-  const [deskTypes, setDeskTypes] = useState<IDeskType[]>([]);
+  const buildings = useMemo<IBuilding[]>(() => {
+    return initBuildings.filter(
+      (building) => selectedLocation?.locationName === building.location
+    );
+  }, [initBuildings, selectedLocation]);
+
+  const floors = useMemo<IFloor[]>(() => {
+    return initFloors.filter(
+      (floor) => selectedBuilding?.buildingId === floor.buildingId
+    );
+  }, [initFloors, selectedBuilding]);
+
+  const rooms = useMemo<IRoom[]>(() => {
+    return initRooms.filter(
+      (room) =>
+        selectedFloor?.floorId === room.floorId &&
+        selectedBuilding?.buildingId === room.buildingId
+    );
+  }, [initRooms, selectedFloor, selectedBuilding]);
+
+  const deskTypes = desks
+    .map((desk) => ({
+      deskTypeName: desk.deskTyp,
+      deskTypeId: desk.deskTyp,
+      isMarkedForDeletion: false,
+    }))
+    .filter(
+      (deskType, index, self) =>
+        index === self.findIndex((dT) => dT.deskTypeId === deskType.deskTypeId)
+    );
+
+  useMemo(() => {
+    let filteredDesks = desks;
+    if (selectedLocation) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.location === selectedLocation.locationName
+      );
+    }
+    if (selectedBuilding) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.buildingId === selectedBuilding.buildingId
+      );
+    }
+    if (selectedFloor) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.floorId === selectedFloor.floorId
+      );
+    }
+    if (selectedRoom) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.roomId === selectedRoom.roomId
+      );
+    }
+    if (selectedDeskType) {
+      filteredDesks = filteredDesks.filter(
+        (desk) => desk.deskTyp === selectedDeskType.deskTypeId
+      );
+    }
+
+    setFilteredDesks(filteredDesks);
+  }, [
+    desks,
+    setFilteredDesks,
+    selectedLocation,
+    selectedBuilding,
+    selectedFloor,
+    selectedRoom,
+    selectedDeskType,
+  ]);
 
   async function setSelectedLocation(selectedLocation: ILocation | null) {
+    _setSelectedLocation(selectedLocation);
     if (!selectedLocation) {
-      setBuildings([]);
       setSelectedBuilding(null);
       return;
     }
-    _setSelectedLocation(selectedLocation);
-
-    let buildings = initBuildings.filter(
-      (building) => selectedLocation.locationName === building.location
-    );
-
-    setBuildings(buildings);
     setSelectedBuilding(null);
   }
 
   async function setSelectedBuilding(selectedBuilding: IBuilding | null) {
     _setSelectedBuilding(selectedBuilding);
     if (!selectedBuilding) {
-      setFloors([]);
       setSelectedFloor(null);
       return;
-    }
-
-    if (!session) {
-      setFloors([]);
-      return;
-    }
-
-    try {
-      let floors = await getFloors(session, selectedBuilding.buildingId);
-      floors = floors.filter((floor) => !floor.isMarkedForDeletion);
-      setFloors(floors);
-    } catch (error) {
-      toast.error(`${error}`);
     }
     setSelectedFloor(null);
   }
@@ -94,53 +166,16 @@ export default function Filterbar({
   async function setSelectedFloor(selectedFloor: IFloor | null) {
     _setSelectedFloor(selectedFloor);
     if (!selectedFloor) {
-      setRooms([]);
       setSelectedRoom(null);
       return;
     }
-
-    if (!session) {
-      setRooms([]);
-      return;
-    }
-
-    try {
-      let rooms = await getRooms(session, selectedFloor.floorId);
-      rooms = rooms.filter((room) => !room.isMarkedForDeletion);
-      setRooms(rooms);
-    } catch (error) {
-      toast.error(`${error}`);
-    }
-
     setSelectedRoom(null);
   }
 
   async function setSelectedRoom(selectedRoom: IRoom | null) {
     _setSelectedRoom(selectedRoom);
     if (!selectedRoom) return;
-
-    if (!session) return setRooms([]);
-
-    try {
-      const desks = await getDesks(
-        session,
-        selectedRoom.roomId,
-        startDateTime.getTime(),
-        endDateTime.getTime()
-      );
-
-      const filteredDesks = desks.filter(
-        (desk) => desk.bookings.length === 0 && !desk.isMarkedForDeletion
-      );
-
-      setDeskTypes(deskTypes);
-      setSelectedDeskType(null); // Equals all there
-
-      setDesks(filteredDesks);
-      setFilteredDesks(filteredDesks);
-    } catch (error) {
-      toast.error(`${error}`);
-    }
+    setSelectedDeskType(null);
   }
 
   function setSelectedDeskType(selectedDeskType: IDeskType | null) {
@@ -149,14 +184,6 @@ export default function Filterbar({
       setFilteredDesks(desks);
       return;
     }
-
-    let filteredDesks = desks.filter(
-      (desk) => desk.deskTyp === selectedDeskType.deskTypeName
-    );
-    filteredDesks = filteredDesks.filter(
-      (deskType) => !deskType.isMarkedForDeletion
-    );
-    setFilteredDesks(filteredDesks);
   }
 
   return (

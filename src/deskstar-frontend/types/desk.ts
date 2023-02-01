@@ -9,12 +9,13 @@ export interface IDesk {
   buildingId: string;
   buildingName: string;
   location: string;
-  bookings: IDeskBooking[];
   isMarkedForDeletion: boolean;
+  bookings: IDeskBooking[];
 }
 
 export interface IDeskBooking {
   bookingId: string;
+  userName: string;
   userId: string;
   endTime: string;
   startTime: string;

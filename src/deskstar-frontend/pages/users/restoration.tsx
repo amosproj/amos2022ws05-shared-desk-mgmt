@@ -80,6 +80,7 @@ export default function DeletedUserOverview({
       <h1 className="text-3xl font-bold text-center my-10">Archived Users</h1>
       <UsersTable
         users={users}
+        adminId={session.user.id}
         onRestoreUpdate={onRestoreUpdate}
         onUsersSelection={setUsers}
       />

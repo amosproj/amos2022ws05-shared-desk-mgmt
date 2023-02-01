@@ -77,6 +77,7 @@ export default function UserRequests({
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
       <UsersTable
         users={users}
+        adminId={session.user.id}
         onApprovalUpdate={onApprovalUpdate}
         onUsersSelection={setUsers}
       />
