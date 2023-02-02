@@ -1,0 +1,1690 @@
+openapi: 3.0.1
+info:
+  title: Deskstar
+  version: '1.0'
+paths:
+  "/auth/createToken":
+    post:
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateTokenUser"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateTokenUser"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateTokenUser"
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                "$ref": "#/components/schemas/LoginResponse"
+  "/auth/register":
+    post:
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RegisterUser"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/RegisterUser"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/RegisterUser"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                "$ref": "#/components/schemas/RegisterResponse"
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                "$ref": "#/components/schemas/RegisterResponse"
+  "/auth/registerAdmin":
+    post:
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/RegisterAdminDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/RegisterAdminDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/RegisterAdminDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+  "/bookings":
+    get:
+      tags:
+      - Booking
+      parameters:
+      - name: n
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 2147483647
+      - name: skip
+        in: query
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: direction
+        in: query
+        schema:
+          type: string
+          default: DESC
+      - name: start
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      - name: end
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ExtendedBooking"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - Booking
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/BookingRequest"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/BookingRequest"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/BookingRequest"
+      responses:
+        '201':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+  "/bookings/recent":
+    get:
+      tags:
+      - Booking
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/ExtendedBooking"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+  "/bookings/{bookingId}":
+    delete:
+      tags:
+      - Booking
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+    put:
+      tags:
+      - Booking
+      parameters:
+      - name: bookingId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBookingRequest"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBookingRequest"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBookingRequest"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+  "/companies":
+    get:
+      tags:
+      - Company
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CompanyDto"
+        '500':
+          description: Server Error
+  "/":
+    get:
+      tags:
+      - HealthCheck
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+  "/withToken":
+    get:
+      tags:
+      - HealthCheck
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+  "/admin":
+    get:
+      tags:
+      - HealthCheck
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+  "/resources/desks/{deskId}":
+    put:
+      tags:
+      - Resource
+      parameters:
+      - name: deskId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    get:
+      tags:
+      - Resource
+      parameters:
+      - name: deskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: start
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      - name: end
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentDesk"
+        '500':
+          description: Server Error
+    delete:
+      tags:
+      - Resource
+      parameters:
+      - name: deskId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/desktypes/{desktypeId}":
+    put:
+      tags:
+      - Resource
+      parameters:
+      - name: deskTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskTypeDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskTypeDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateDeskTypeDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/buildings/{buildingId}":
+    put:
+      tags:
+      - Resource
+      parameters:
+      - name: buildingId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBuildingDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBuildingDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateBuildingDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    delete:
+      tags:
+      - Resource
+      parameters:
+      - name: buildingId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/floors/{floorId}":
+    put:
+      tags:
+      - Resource
+      parameters:
+      - name: floorId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateFloorDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateFloorDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateFloorDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    delete:
+      tags:
+      - Resource
+      parameters:
+      - name: floorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/rooms/{roomId}":
+    put:
+      tags:
+      - Resource
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateRoomDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateRoomDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UpdateRoomDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    delete:
+      tags:
+      - Resource
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/buildings":
+    get:
+      tags:
+      - Resource
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentBuilding"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateBuildingDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateBuildingDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateBuildingDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/buildings/restore/{buildingId}":
+    post:
+      tags:
+      - Resource
+      parameters:
+      - name: buildingId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/buildings/{buildingId}/floors":
+    get:
+      tags:
+      - Resource
+      parameters:
+      - name: buildingId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentFloor"
+        '500':
+          description: Server Error
+  "/resources/floors":
+    get:
+      tags:
+      - Resource
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentFloor"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateFloorDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateFloorDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateFloorDto"
+      responses:
+        '201':
+          description: Success
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/floors/restore/{floorID}":
+    post:
+      tags:
+      - Resource
+      parameters:
+      - name: floorID
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/floors/{floorId}/rooms":
+    get:
+      tags:
+      - Resource
+      parameters:
+      - name: floorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentRoom"
+        '500':
+          description: Server Error
+  "/resources/rooms":
+    get:
+      tags:
+      - Resource
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentRoom"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateRoomDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateRoomDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateRoomDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/rooms/restore/{roomId}":
+    post:
+      tags:
+      - Resource
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/rooms/{roomId}/desks":
+    get:
+      tags:
+      - Resource
+      parameters:
+      - name: roomId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: start
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      - name: end
+        in: query
+        schema:
+          type: integer
+          format: int64
+          default: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentDesk"
+        '500':
+          description: Server Error
+  "/resources/desks":
+    get:
+      tags:
+      - Resource
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/CurrentDesk"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/desks/restore/{deskId}":
+    post:
+      tags:
+      - Resource
+      parameters:
+      - name: deskId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/desktypes":
+    post:
+      tags:
+      - Resource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskTypeDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskTypeDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/CreateDeskTypeDto"
+      responses:
+        '201':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    get:
+      tags:
+      - Resource
+      responses:
+        '200':
+          description: Success
+        '500':
+          description: Server Error
+  "/resources/desktypes/{deskTypeId}":
+    delete:
+      tags:
+      - Resource
+      parameters:
+      - name: deskTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/resources/desktypes/restore/{deskTypeId}":
+    post:
+      tags:
+      - Resource
+      parameters:
+      - name: deskTypeId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users":
+    get:
+      tags:
+      - User
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserProfileDto"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users/me":
+    get:
+      tags:
+      - User
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/UserProfileDto"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+    post:
+      tags:
+      - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+      responses:
+        '200':
+          description: Success
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users/{userId}/approve":
+    post:
+      tags:
+      - User
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users/{userId}/decline":
+    post:
+      tags:
+      - User
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users/edit":
+    post:
+      tags:
+      - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+          text/json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+          application/*+json:
+            schema:
+              "$ref": "#/components/schemas/UserProfileDto"
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+  "/users/{userId}":
+    delete:
+      tags:
+      - User
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ProblemDetails"
+        '500':
+          description: Server Error
+components:
+  schemas:
+    BookingDesks:
+      required:
+      - bookingId
+      - endTime
+      - startTime
+      - userId
+      - userName
+      type: object
+      properties:
+        bookingId:
+          type: string
+        userId:
+          type: string
+        userName:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+      additionalProperties: false
+    BookingRequest:
+      required:
+      - deskId
+      - endTime
+      - startTime
+      type: object
+      properties:
+        deskId:
+          type: string
+          format: uuid
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+      additionalProperties: false
+    CompanyDto:
+      required:
+      - companyId
+      - companyName
+      type: object
+      properties:
+        companyId:
+          type: string
+        companyName:
+          type: string
+      additionalProperties: false
+    CreateBuildingDto:
+      required:
+      - buildingName
+      - location
+      type: object
+      properties:
+        buildingName:
+          type: string
+        location:
+          type: string
+      additionalProperties: false
+    CreateDeskDto:
+      required:
+      - deskName
+      - deskTypeId
+      - roomId
+      type: object
+      properties:
+        roomId:
+          type: string
+        deskName:
+          type: string
+        deskTypeId:
+          type: string
+      additionalProperties: false
+    CreateDeskTypeDto:
+      required:
+      - deskTypeName
+      type: object
+      properties:
+        deskTypeName:
+          type: string
+      additionalProperties: false
+    CreateFloorDto:
+      required:
+      - buildingId
+      - floorName
+      type: object
+      properties:
+        buildingId:
+          type: string
+        floorName:
+          type: string
+      additionalProperties: false
+    CreateRoomDto:
+      required:
+      - floorId
+      - roomName
+      type: object
+      properties:
+        floorId:
+          type: string
+        roomName:
+          type: string
+      additionalProperties: false
+    CreateTokenUser:
+      required:
+      - mailAddress
+      - password
+      type: object
+      properties:
+        mailAddress:
+          type: string
+        password:
+          type: string
+      additionalProperties: false
+    CurrentBuilding:
+      required:
+      - buildingId
+      - buildingName
+      - isMarkedForDeletion
+      - location
+      type: object
+      properties:
+        buildingId:
+          type: string
+        location:
+          type: string
+        buildingName:
+          type: string
+        isMarkedForDeletion:
+          type: boolean
+      additionalProperties: false
+    CurrentDesk:
+      required:
+      - bookings
+      - buildingId
+      - buildingName
+      - deskId
+      - deskName
+      - deskTyp
+      - floorId
+      - floorName
+      - isMarkedForDeletion
+      - location
+      - roomId
+      - roomName
+      type: object
+      properties:
+        deskId:
+          type: string
+        deskName:
+          type: string
+        deskTyp:
+          type: string
+        buildingId:
+          type: string
+        buildingName:
+          type: string
+        location:
+          type: string
+        roomId:
+          type: string
+        roomName:
+          type: string
+        floorId:
+          type: string
+        floorName:
+          type: string
+        isMarkedForDeletion:
+          type: boolean
+        bookings:
+          type: array
+          items:
+            "$ref": "#/components/schemas/BookingDesks"
+      additionalProperties: false
+    CurrentFloor:
+      required:
+      - buildingId
+      - buildingName
+      - floorId
+      - floorName
+      - isMarkedForDeletion
+      - location
+      type: object
+      properties:
+        floorId:
+          type: string
+        floorName:
+          type: string
+        buildingId:
+          type: string
+        buildingName:
+          type: string
+        location:
+          type: string
+        isMarkedForDeletion:
+          type: boolean
+      additionalProperties: false
+    CurrentRoom:
+      required:
+      - building
+      - floor
+      - floorId
+      - isMarkedForDeletion
+      - location
+      - roomId
+      - roomName
+      type: object
+      properties:
+        roomId:
+          type: string
+        roomName:
+          type: string
+        floorId:
+          type: string
+        floor:
+          type: string
+        building:
+          type: string
+        location:
+          type: string
+        isMarkedForDeletion:
+          type: boolean
+      additionalProperties: false
+    ExtendedBooking:
+      required:
+      - buildingName
+      - deskName
+      - endTime
+      - floorName
+      - roomName
+      - startTime
+      - timestamp
+      - usesDeletedDesk
+      type: object
+      properties:
+        bookingId:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        deskName:
+          type: string
+        buildingName:
+          type: string
+        floorName:
+          type: string
+        roomName:
+          type: string
+        usesDeletedDesk:
+          type: boolean
+      additionalProperties: false
+    LoginResponse:
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          "$ref": "#/components/schemas/LoginReturn"
+      additionalProperties: false
+    LoginReturn:
+      enum:
+      - NotYetApproved
+      - CredentialsWrong
+      - Deleted
+      - Ok
+      type: integer
+      format: int32
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: {}
+    RegisterAdminDto:
+      required:
+      - companyName
+      - firstName
+      - lastName
+      - mailAddress
+      - password
+      type: object
+      properties:
+        mailAddress:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+        companyName:
+          type: string
+      additionalProperties: false
+    RegisterResponse:
+      required:
+      - message
+      type: object
+      properties:
+        message:
+          "$ref": "#/components/schemas/RegisterReturn"
+      additionalProperties: false
+    RegisterReturn:
+      enum:
+      - Ok
+      - MailAddressInUse
+      - CompanyNotFound
+      type: integer
+      format: int32
+    RegisterUser:
+      required:
+      - companyId
+      - firstName
+      - lastName
+      - mailAddress
+      - password
+      type: object
+      properties:
+        mailAddress:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+        companyId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    UpdateBookingRequest:
+      required:
+      - endTime
+      - startTime
+      type: object
+      properties:
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+      additionalProperties: false
+    UpdateBuildingDto:
+      type: object
+      properties:
+        buildingName:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateDeskDto:
+      type: object
+      properties:
+        deskName:
+          type: string
+          nullable: true
+        roomId:
+          type: string
+          nullable: true
+        deskTypeId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateDeskTypeDto:
+      type: object
+      properties:
+        deskTypeName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateFloorDto:
+      type: object
+      properties:
+        floorName:
+          type: string
+          nullable: true
+        buildingId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UpdateRoomDto:
+      type: object
+      properties:
+        floorId:
+          type: string
+          nullable: true
+        roomName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserProfileCompanyDto:
+      type: object
+      properties:
+        companyId:
+          type: string
+          format: uuid
+        companyName:
+          type: string
+          nullable: true
+        logo:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    UserProfileDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        mailAddress:
+          type: string
+          nullable: true
+        companyId:
+          type: string
+          format: uuid
+        isApproved:
+          type: boolean
+        isCompanyAdmin:
+          type: boolean
+        isMarkedForDeletion:
+          type: boolean
+        company:
+          "$ref": "#/components/schemas/UserProfileCompanyDto"
+      additionalProperties: false
