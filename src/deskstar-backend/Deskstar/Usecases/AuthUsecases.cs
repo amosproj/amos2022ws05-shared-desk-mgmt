@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Identity;
 using System.Text.RegularExpressions;
 using Deskstar.Core.Exceptions;
+using Deskstar.Helper;
 
 namespace Deskstar.Usecases
 {
@@ -19,6 +20,7 @@ namespace Deskstar.Usecases
     string CreateToken(IConfiguration configuration, string mail);
     User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName);
     RegisterResponse RegisterUser(RegisterUser registerUser);
+    public bool SendInitialAdminEmail(string mailAddress, string companyName, string adminMail);
   }
 
   public class AuthUsecases : IAuthUsecases
@@ -199,7 +201,7 @@ namespace Deskstar.Usecases
         RegexOptions.IgnoreCase);
       if (rx.Matches(mailAddress).Count != 1)
         throw new ArgumentInvalidException($"E-Mail '{mailAddress}' is not valid");
-        
+
       if (_getUser(mailAddress) != User.Null)
         throw new ArgumentInvalidException($"E-Mail '{mailAddress}' already in use");
 
@@ -217,17 +219,20 @@ namespace Deskstar.Usecases
         FirstName = firstName,
         LastName = lastName,
         Company = company,
-        IsApproved = true,
+        IsApproved = false,
         IsCompanyAdmin = true,
       };
       admin.Password = _hasher.HashPassword(admin, password);
-
       _context.Companies.Add(company);
       _context.Users.Add(admin);
 
       _context.SaveChanges();
 
       return admin;
+    }
+    public bool SendInitialAdminEmail(string mailAddress, string companyName, string adminMail)
+    {
+      return EmailHelper.SendEmail(_logger, mailAddress, $"Account activation of {companyName} ", $"Please activate {companyName}'s initial admin with email: {adminMail}");
     }
   }
 }

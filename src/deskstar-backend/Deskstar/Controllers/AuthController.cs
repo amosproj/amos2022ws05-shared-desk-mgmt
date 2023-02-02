@@ -94,6 +94,7 @@ public class AuthController : ControllerBase
     try
     {
       var admin = _authUsecases.RegisterAdmin(registerAdmin.FirstName, registerAdmin.LastName, registerAdmin.MailAddress, registerAdmin.Password, registerAdmin.CompanyName);
+      _authUsecases.SendInitialAdminEmail(_configuration["EMAIL:ADDRESS"], admin.Company.CompanyName, admin.MailAddress);
       return Ok();
     }
     catch (ArgumentInvalidException e)
@@ -102,7 +103,7 @@ public class AuthController : ControllerBase
     }
     catch (Exception e)
     {
-      return Problem(statusCode: 500, detail:e.Message);
+      return Problem(statusCode: 500, detail: e.Message);
     }
   }
 }
