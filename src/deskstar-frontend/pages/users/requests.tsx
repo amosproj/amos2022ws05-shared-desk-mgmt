@@ -75,12 +75,18 @@ export default function UserRequests({
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-      <UsersTable
-        users={users}
-        adminId={session.user.id}
-        onApprovalUpdate={onApprovalUpdate}
-        onUsersSelection={setUsers}
-      />
+
+      {users.length === 0 && (
+        <p className="text-center text-xl">No user requests</p>
+      )}
+      {users.length > 0 && (
+        <UsersTable
+          users={users}
+          adminId={session.user.id}
+          onApprovalUpdate={onApprovalUpdate}
+          onUsersSelection={setUsers}
+        />
+      )}
     </>
   );
 }

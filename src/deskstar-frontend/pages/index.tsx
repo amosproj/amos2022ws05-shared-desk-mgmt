@@ -9,6 +9,7 @@ import { authOptions } from "./api/auth/[...nextauth]";
 import { getBookings } from "../lib/api/BookingService";
 import { useState } from "react";
 import { classes } from "../lib/helpers";
+import Link from "next/link";
 
 export default function AppHome({
   bookingsToday,
@@ -35,17 +36,45 @@ export default function AppHome({
       <h1 className="text-3xl font-bold text-center mt-10">
         Hello {session?.user?.name}, welcome back to Deskstar
       </h1>
-      <h1 className="text-2xl font-bold text-left my-10">Today</h1>
-      <BookingsTable bookings={bookingsToday} />
+
+      {bookingsToday.length > 0 && (
+        <>
+          <h1 className="text-2xl font-bold text-left my-10">Today</h1>
+          <BookingsTable bookings={bookingsToday} />
+        </>
+      )}
       {bookingsToday.length === 0 && (
-        <h1 className="text-l text-center my-10">You have no bookings today</h1>
+        <div className="alert mt-8">
+          <div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              className="stroke-info flex-shrink-0 w-6 h-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span>
+              You have no bookings today. Just book a table{" "}
+              <Link className="underline" href="/bookings/add">
+                here
+              </Link>
+              .
+            </span>
+          </div>
+        </div>
       )}
       {bookingsToday.length != 0 && (
         <div className="flex justify-center">
           <button
             className={classes(
-              "btn dark:text-black hover:dark:text-white border-none",
-              checkedIn ? "bg-red-500" : "bg-green-500"
+              "btn  border-none",
+              checkedIn ? "btn-error" : "btn-primary"
             )}
             onClick={() =>
               handleCheckIn(
@@ -58,8 +87,14 @@ export default function AppHome({
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-left my-10">Upcoming Bookings</h1>
-      <BookingsTable bookings={bookingsTomorrow} />
+      {bookingsTomorrow.length > 0 && (
+        <>
+          <h1 className="text-2xl font-bold text-left mt-10 mb-6">
+            Upcoming Bookings
+          </h1>
+          <BookingsTable bookings={bookingsTomorrow} />
+        </>
+      )}
     </div>
   );
 }

@@ -10,12 +10,6 @@ export default function Login() {
   const { data: session } = useSession();
   const router = useRouter();
 
-  const { msg } = router.query;
-
-  if (msg) {
-    toast.success(msg as string);
-  }
-
   useEffect(() => {
     if (session) {
       // redirect to homepage

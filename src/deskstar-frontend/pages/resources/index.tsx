@@ -688,6 +688,7 @@ const ResourceOverview = ({
           />
         </>
       )}
+
       {buildings.length == 0 && (
         <div className="toast">
           <div className="alert bg-primary text-black">

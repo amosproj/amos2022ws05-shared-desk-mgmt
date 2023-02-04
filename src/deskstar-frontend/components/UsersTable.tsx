@@ -3,8 +3,8 @@ import { IUser } from "../types/users";
 import {
   FaTrashAlt,
   FaPencilAlt,
-  FaCheckCircle,
-  FaTimesCircle,
+  FaCheck,
+  FaTimes,
   FaTrashRestore,
 } from "react-icons/fa";
 
@@ -92,7 +92,7 @@ export function UsersTable({
               </th>
             )}
             <th className="bg-secondary text-center">First Name</th>
-            <th className="bg-secondary text-center">LastName</th>
+            <th className="bg-secondary text-center">Last Name</th>
             <th className="bg-secondary text-center">E-Mail</th>
             {onPermissionUpdate && (
               <th className="bg-secondary text-center">Admin</th>
@@ -211,18 +211,18 @@ const UsersTableEntry = ({
         </td>
       )}
       {onApprovalUpdate && (
-        <td className="text-center">
+        <td className="text-center flex gap-2 justify-center">
           <button
             className="btn btn-ghost"
             onClick={() => onApprovalUpdate([user], true)}
           >
-            <FaCheckCircle color="green" />
+            <FaCheck color="green" />
           </button>
           <button
             className="btn btn-ghost"
             onClick={() => onApprovalUpdate([user], false)}
           >
-            <FaTimesCircle color="red" />
+            <FaTimes color="red" />
           </button>
         </td>
       )}

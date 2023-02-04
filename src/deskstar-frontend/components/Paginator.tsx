@@ -17,7 +17,7 @@ export default function Paginator({
       >
         «
       </button>
-      <button className="btn btn-success">Page {currentPage + 1}</button>
+      <button className="btn">Page {currentPage + 1}</button>
       <button
         className={`btn btn-success ${
           (currentPage + 1) * n > total - 1 ? "btn-disabled" : ""
