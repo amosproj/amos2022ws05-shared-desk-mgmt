@@ -1,5 +1,5 @@
 import { IDesk } from "../../types/desk";
-import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IBuilding } from "../../types/building";
 
@@ -20,13 +20,11 @@ const BuildingResourceTable = ({
         <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Building</th>
-            <th className="bg-deskstar-green-light text-left">Location</th>
-            {(onDelete || onEdit) && (
-              <th className="bg-deskstar-green-light"></th>
-            )}
+            <th className="bg-secondary text-left">Building</th>
+            <th className="bg-secondary text-left">Location</th>
+            {(onDelete || onEdit) && <th className="bg-secondary"></th>}
             {onRestoreUpdate && (
-              <th className="bg-deskstar-green-light text-left">Restore</th>
+              <th className="bg-secondary text-left">Restore</th>
             )}
           </tr>
         </thead>
@@ -62,18 +60,18 @@ const BuildingResourceTableEntry = ({
       <td className="text-left font-bold">{building.buildingName}</td>
       <td className="text-left">{building.location}</td>
       {(onDelete || onEdit) && (
-        <td className="p-0 text-right">
+        <td className="p-0 pr-2 text-right">
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(building)}>
+              <FaPencilAlt />
+            </button>
+          )}
           {onDelete && (
             <button
               className="btn btn-ghost"
               onClick={() => onDelete(building)}
             >
               <FaTrashAlt color="red" />
-            </button>
-          )}
-          {onEdit && (
-            <button className="btn btn-ghost" onClick={() => onEdit(building)}>
-              <FaEdit />
             </button>
           )}
         </td>

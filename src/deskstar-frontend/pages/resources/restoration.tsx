@@ -210,11 +210,11 @@ export default function DeletedRessourceOverview({
   return (
     <>
       <Head>
-        <title>Archived Ressources</title>
+        <title>Archived Resources</title>
       </Head>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-center my-10">
-          Archived Ressources
+          Archived Resources
         </h1>
 
         <div className="flex">

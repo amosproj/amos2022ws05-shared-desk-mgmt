@@ -45,7 +45,7 @@ export default function Input({
         placeholder={placeholder}
         className={classes(
           className,
-          "w-full border-2 border-gray-300 p-2 rounded-lg"
+          "dark:bg-base-100 w-full border-2 border-gray-300 p-2 rounded-lg"
         )}
       />
     </div>
