@@ -17,6 +17,7 @@ import { IRoom } from "../types/room";
 import { toast } from "react-toastify";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
+import { classes } from "../lib/helpers";
 
 const AddResourceModal = ({
   buildings: origBuildings,
@@ -26,6 +27,12 @@ const AddResourceModal = ({
   deskTypes: IDeskType[];
 }) => {
   let { data: session } = useSession();
+
+  const reload = () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 500);
+  };
 
   const resourceTypes: string[] = [
     "Building",
@@ -156,6 +163,8 @@ const AddResourceModal = ({
       );
       setLocations(Array.from(tmp.values()));
       toast.success(res.message);
+
+      reload();
     } else {
       toast.error(res.message);
     }
@@ -187,6 +196,8 @@ const AddResourceModal = ({
     if (res.message.toLowerCase().includes("success")) {
       setFloors([...floors, res.data as IFloor]);
       toast.success(res.message);
+
+      reload();
     } else {
       toast.error(res.message);
     }
@@ -220,6 +231,8 @@ const AddResourceModal = ({
     if (res.message.toLowerCase().includes("success")) {
       setRooms([...rooms, res.data as IRoom]);
       toast.success(res.message);
+
+      reload();
     } else {
       toast.error(res.message);
     }
@@ -239,6 +252,7 @@ const AddResourceModal = ({
     if (res.message.toLowerCase().includes("success")) {
       setDeskTypes([...deskTypes, res.data as IDeskType]);
       toast.success(res.message);
+      reload();
     } else {
       toast.error(res.message);
     }
@@ -280,6 +294,7 @@ const AddResourceModal = ({
     });
     if (res.message.toLowerCase().includes("success")) {
       toast.success(res.message);
+      reload();
     } else {
       toast.error(res.message);
     }
@@ -565,7 +580,10 @@ const AddResourceModal = ({
                 placeholder="Desk Type Name"
               />
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className={classes(
+                  isLoading ? "disabled" : "",
+                  "btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                )}
                 onClick={() => addDeskType()}
               >
                 Confirm
