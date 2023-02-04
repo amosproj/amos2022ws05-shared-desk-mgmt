@@ -52,11 +52,12 @@ export default function AddBooking() {
 
   useMemo(async () => {
     if (session == null) return [];
-    const desks = await getAggregatedDesks(
+    let desks = await getAggregatedDesks(
       session,
       dayjs(startDateTime),
       dayjs(endDateTime)
     );
+    desks = desks.filter((d) => d.isMarkedForDeletion === false);
     setDesks(desks);
   }, [session, startDateTime, endDateTime]);
 
