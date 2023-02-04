@@ -4,7 +4,6 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import LoginPanel from "../components/LoginPanel";
-import { toast } from "react-toastify";
 
 export default function Login() {
   const { data: session } = useSession();
