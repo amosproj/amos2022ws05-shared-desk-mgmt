@@ -4,12 +4,17 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import LoginPanel from "../components/LoginPanel";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { data: session } = useSession();
   const router = useRouter();
 
   const { msg } = router.query;
+
+  if (msg) {
+    toast.success(msg as string);
+  }
 
   useEffect(() => {
     if (session) {
@@ -29,8 +34,6 @@ export default function Login() {
       <Head>
         <title>Login</title>
       </Head>
-
-      <p className="text-green-500">{msg}</p>
 
       <LoginPanel />
 
