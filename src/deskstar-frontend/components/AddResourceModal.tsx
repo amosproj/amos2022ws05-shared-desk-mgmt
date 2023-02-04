@@ -303,7 +303,7 @@ const AddResourceModal = ({
                 key={type}
                 className={`btn mr-2 ${
                   selectedResourceType === type
-                    ? "bg-deskstar-green-dark text-black hover:bg-deskstar-green-light"
+                    ? "bg-primary text-black hover:bg-secondary"
                     : ""
                 }`}
                 onClick={() => {
@@ -358,7 +358,7 @@ const AddResourceModal = ({
               />
 
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
                 onClick={() => addBuilding()}
               >
                 Confirm
@@ -402,7 +402,7 @@ const AddResourceModal = ({
                 </>
               )}
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
                 onClick={() => addFloor()}
               >
                 Confirm
@@ -461,7 +461,7 @@ const AddResourceModal = ({
                 </>
               )}
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
                 onClick={() => addRoom()}
               >
                 Confirm
@@ -546,7 +546,7 @@ const AddResourceModal = ({
                 </>
               )}
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
                 onClick={() => addDesk()}
               >
                 Confirm
@@ -565,7 +565,7 @@ const AddResourceModal = ({
                 placeholder="Desk Type Name"
               />
               <a
-                className="btn text-black bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light float-right"
+                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
                 onClick={() => addDeskType()}
               >
                 Confirm

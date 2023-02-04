@@ -15,9 +15,9 @@ const DesksTable = ({
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            <th className="w-1/4 bg-deskstar-green-light text-left">Desk</th>
-            <th className="bg-deskstar-green-light text-left">Type</th>
-            <th className="bg-deskstar-green-light"></th>
+            <th className="w-1/4 bg-secondary text-left">Desk</th>
+            <th className="bg-secondary text-left">Type</th>
+            <th className="bg-secondary"></th>
           </tr>
         </thead>
         <tbody>

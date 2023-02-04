@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { IUser } from "../types/users";
 import {
   FaTrashAlt,
-  FaEdit,
+  FaPencilAlt,
   FaCheckCircle,
   FaTimesCircle,
   FaTrashRestore,
@@ -80,7 +80,7 @@ export function UsersTable({
         <thead className="dark:text-black">
           <tr>
             {onUsersSelection && (
-              <th className="bg-deskstar-green-light">
+              <th className="bg-secondary">
                 <label>
                   <input
                     type="checkbox"
@@ -91,22 +91,20 @@ export function UsersTable({
                 </label>
               </th>
             )}
-            <th className="bg-deskstar-green-light text-center">First Name</th>
-            <th className="bg-deskstar-green-light text-center">LastName</th>
-            <th className="bg-deskstar-green-light text-center">E-Mail</th>
+            <th className="bg-secondary text-center">First Name</th>
+            <th className="bg-secondary text-center">LastName</th>
+            <th className="bg-secondary text-center">E-Mail</th>
             {onPermissionUpdate && (
-              <th className="bg-deskstar-green-light text-center">Admin</th>
+              <th className="bg-secondary text-center">Admin</th>
             )}
             {onApprovalUpdate && (
-              <th className="bg-deskstar-green-light text-center">
-                Approve/Reject
-              </th>
+              <th className="bg-secondary text-center">Approve/Reject</th>
             )}
             {onRestoreUpdate && (
-              <th className="bg-deskstar-green-light text-center">Restore</th>
+              <th className="bg-secondary text-center">Restore</th>
             )}
-            {onEdit && <th className="bg-deskstar-green-light"></th>}
-            {onDelete && <th className="bg-deskstar-green-light"></th>}
+            {onEdit && <th className="bg-secondary"></th>}
+            {onDelete && <th className="bg-secondary"></th>}
           </tr>
         </thead>
         <tbody>
@@ -241,7 +239,7 @@ const UsersTableEntry = ({
       {onEdit && (
         <td className="p-0">
           <button className="btn btn-ghost" onClick={() => onEdit(user)}>
-            <FaEdit />
+            <FaPencilAlt />
           </button>
         </td>
       )}

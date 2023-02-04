@@ -145,7 +145,6 @@ const ResourceOverview = ({
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
     setIsFetching(true);
-    setIsFetching(true);
     let floors = origFloors.filter((floor) =>
       selectedBuildings.some((building) => {
         return building.buildingId === floor.buildingId;
@@ -477,7 +476,7 @@ const ResourceOverview = ({
           <a
             href="#create-resource-modal"
             type="button"
-            className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
+            className="btn text-black btn-secondary bg-primary hover:bg-secondary border-primary hover:border-secondary ml-2"
             onClick={() => {}}
           >
             Add Resource
@@ -691,28 +690,28 @@ const ResourceOverview = ({
       )}
       {buildings.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a location</span>
           </div>
         </div>
       )}
       {!(buildings.length == 0) && floors.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a building</span>
           </div>
         </div>
       )}
       {!(floors.length == 0) && rooms.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a floor</span>
           </div>
         </div>
       )}
       {!(rooms.length == 0) && desks.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a room</span>
           </div>
         </div>

@@ -81,7 +81,7 @@ export default function Sidebar({ children }: SidebarProps) {
 
       <div className="drawer-side ">
         <label htmlFor="my-drawer" className="drawer-overlay"></label>
-        <ul className="menu p-4 w-80 text-base-content bg-deskstar-green-dark">
+        <ul className="menu p-4 w-80 text-base-content bg-primary">
           {/* Sidebar content here */}
           <SidebarHeader />
           {userNavItems.map((item) => (
@@ -160,7 +160,7 @@ const SidebarEntry = ({ href, name }: SidebarEntryProps) => {
     <li className=" cursor-pointer" onClick={closeSidebar}>
       <Link
         href={href}
-        className="active:bg-deskstar-green-light hover:bg-deskstar-green-light dark:text-black"
+        className="active:bg-secondary hover:bg-secondary dark:text-black"
       >
         {name}
       </Link>

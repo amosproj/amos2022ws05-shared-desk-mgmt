@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IRoom } from "../../types/room";
 
@@ -19,15 +19,13 @@ const RoomResourceTable = ({
         <thead className="dark:text-black">
           <tr>
             {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Room</th>
-            <th className="bg-deskstar-green-light text-left">Floor</th>
-            <th className="bg-deskstar-green-light text-left">Building</th>
-            <th className="bg-deskstar-green-light text-left">Location</th>
-            {(onDelete || onEdit) && (
-              <th className="bg-deskstar-green-light"></th>
-            )}
+            <th className="bg-secondary text-left">Room</th>
+            <th className="bg-secondary text-left">Floor</th>
+            <th className="bg-secondary text-left">Building</th>
+            <th className="bg-secondary text-left">Location</th>
+            {(onDelete || onEdit) && <th className="bg-secondary"></th>}
             {onRestoreUpdate && (
-              <th className="bg-deskstar-green-light text-left">Restore</th>
+              <th className="bg-secondary text-left">Restore</th>
             )}
           </tr>
         </thead>
@@ -65,15 +63,15 @@ const RoomResourceTableEntry = ({
       <td className="text-left">{room.building}</td>
       <td className="text-left">{room.location}</td>
       {(onDelete || onEdit) && (
-        <td className="p-0 text-right">
+        <td className="p-0 pr-2 text-right">
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(room)}>
+              <FaPencilAlt />
+            </button>
+          )}
           {onDelete && (
             <button className="btn btn-ghost" onClick={() => onDelete(room)}>
               <FaTrashAlt color="red" />
-            </button>
-          )}
-          {onEdit && (
-            <button className="btn btn-ghost" onClick={() => onEdit(room)}>
-              <FaEdit />
             </button>
           )}
         </td>
