@@ -2566,6 +2566,40 @@ public class ResourceUsecasesTests
   }
 
   [Test]
+  public void GetBuildings_WhenTwoBuildingsFound_ShouldReturnAList()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var companyId = Guid.NewGuid();
+    SetupMockData(db, userId: userId, companyId: companyId);
+    var building2 = new Building
+    {
+      BuildingName = "testBuilding2",
+      Location = "testLocation2",
+      CompanyId = companyId
+    };
+    db.Buildings.Add(building2);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act
+    var result = usecases.GetBuildings(userId);
+
+    //assert
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.Count, Is.EqualTo(2));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
   public void GetBuildings_WhenOneBuildingFound_ShouldReturnAException()
   {
     //setup
@@ -2685,7 +2719,7 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetFloors_WhenNoFloorIdProvided_ShouldReturnList()
+  public void GetAllFloors_WhenNoFloorIdProvided_ShouldReturnList()
   {
     //setup
     using var db = new DataContext();
@@ -2706,6 +2740,29 @@ public class ResourceUsecasesTests
     //assert
     Assert.That(result, Is.Not.Empty);
     Assert.That(result.Count, Is.EqualTo(1));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetFloors_WhenInvaildFloorIdProvided_ShouldThrowAnExecption()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentException>(() => usecases.GetFloors(userId, Guid.NewGuid().ToString()));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -2819,7 +2876,30 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetRooms_WhenNoRoomIdProvided_ShouldReturnAnList()
+  public void GetRooms_WhenInvalidRoomIdProvided_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentException>(() => usecases.GetFloors(userId, Guid.NewGuid().ToString()));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetAllRooms_WhenNoRoomIdProvided_ShouldReturnAnList()
   {
     //setup
     using var db = new DataContext();
@@ -3034,7 +3114,100 @@ public class ResourceUsecasesTests
   }
 
   [Test]
-  public void GetDesks_WhenNoRoomIdProvided_ShouldListOfAllDesks()
+  public void GetDesks_WhenInvalidDeskIdProvided_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentException>(() => usecases.GetDesk(Guid.NewGuid(), DateTime.Now, DateTime.MaxValue));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetDesks_WhenInvalidDeskIdProvided2_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentInvalidException>(() => usecases.GetDesks(userId, "abc", DateTime.Now, DateTime.MaxValue));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetDesks_WhenInvalidDeskIdProvided3_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentException>(() =>
+      usecases.GetDesks(userId, Guid.NewGuid().ToString(), DateTime.Now, DateTime.MaxValue));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetRooms_WhenInvalidDeskIdProvided_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    SetupMockData(db, userId: userId);
+
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act+ assert
+    Assert.Throws<ArgumentInvalidException>(() => usecases.GetRooms(userId, "abc"));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetAllDesks_WhenNoRoomIdProvided_ShouldListOfAllDesks()
   {
     //setup
     using var db = new DataContext();
@@ -3329,6 +3502,26 @@ public class ResourceUsecasesTests
       Assert.That(result.Bookings, Has.Count.EqualTo(1));
       Assert.That(result.Bookings[0], Is.Not.Null);
     });
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
+  public void GetDesks_WhenNonVaildID_ShouldThrowAnError()
+  {
+    //setup
+    using var db = new DataContext();
+    SetupMockData(db);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var usecases = new ResourceUsecases(logger.Object, db);
+
+
+    //act + assert
+    Assert.Throws<ArgumentException>(() => usecases.GetDesk(new Guid(), DateTime.Now, DateTime.Now));
+
     //cleanup
     db.Database.EnsureDeleted();
   }
@@ -3928,6 +4121,176 @@ public class ResourceUsecasesTests
   }
 
   [Test]
+  public void DeleteBuilding_WhenNonValidAdminIsProvided_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+    var buildingId = Guid.NewGuid();
+    var adminId = Guid.NewGuid();
+
+    SetupMockData(db, buildingId: buildingId, userId: adminId);
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+
+    //act
+    Assert.Throws<ArgumentInvalidException>(
+      () => resourceUsecases.DeleteBuilding(Guid.NewGuid(), buildingId.ToString()));
+  }
+
+  [Test]
+  public void GetFloors_WhenNonValidFloorIdIsProvided_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+    var buildingId = Guid.NewGuid();
+    var adminId = Guid.NewGuid();
+
+    SetupMockData(db, buildingId: buildingId, userId: adminId);
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+
+    //act
+    Assert.Throws<ArgumentException>(() => resourceUsecases.GetFloors(adminId, Guid.NewGuid().ToString()));
+  }
+
+  [Test]
+  public void GetFloors_WhenNonValidFloorIdIsProvided2_ShouldThrowAnException()
+  {
+    //setup
+    using var db = new DataContext();
+    var buildingId = Guid.NewGuid();
+    var adminId = Guid.NewGuid();
+
+    SetupMockData(db, buildingId: buildingId, userId: adminId);
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+
+    //act
+    Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.GetFloors(adminId, "abc"));
+  }
+
+  [Test]
+  public void GetFloors_WhenNoFloorFound_ShouldReturnAnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+    var buildingId = Guid.NewGuid();
+    var adminId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    SetupMockData(db, buildingId: buildingId, userId: adminId, floorId: floorId, roomId: roomId, deskId: deskId,
+      deskTypeId: deskTypeId);
+    var desk = db.Desks.First(d => d.DeskId == deskId);
+    db.Desks.Remove(desk);
+    var deskType = db.DeskTypes.First(d => d.DeskTypeId == deskTypeId);
+    db.DeskTypes.Remove(deskType);
+    var room = db.Rooms.First(r => r.RoomId == roomId);
+    db.Rooms.Remove(room);
+    var floor = db.Floors.First(f => f.FloorId == floorId);
+    db.Floors.Remove(floor);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+    //act
+    var result = resourceUsecases.GetFloors(adminId, buildingId.ToString());
+    //Assert
+    Assert.That(result.Count == 0);
+  }
+
+  [Test]
+  public void GetRoom_WhenNoRoomFound_ShouldReturnAnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+    var adminId = Guid.NewGuid();
+    var floorId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    SetupMockData(db, userId: adminId, floorId: floorId, roomId: roomId, deskId: deskId,
+      deskTypeId: deskTypeId);
+    var desk = db.Desks.First(d => d.DeskId == deskId);
+    db.Desks.Remove(desk);
+    var deskType = db.DeskTypes.First(d => d.DeskTypeId == deskTypeId);
+    db.DeskTypes.Remove(deskType);
+    var room = db.Rooms.First(r => r.RoomId == roomId);
+    db.Rooms.Remove(room);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+    //act
+    var result = resourceUsecases.GetRooms(adminId, floorId.ToString());
+    //Assert
+    Assert.That(result.Count == 0);
+  }
+
+  [Test]
+  public void GetDesk_WhenNoDeskFound_ShouldReturnAnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+    var adminId = Guid.NewGuid();
+    var roomId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    SetupMockData(db, userId: adminId, roomId: roomId, deskId: deskId,
+      deskTypeId: deskTypeId);
+    var desk = db.Desks.First(d => d.DeskId == deskId);
+    db.Desks.Remove(desk);
+    var deskType = db.DeskTypes.First(d => d.DeskTypeId == deskTypeId);
+    db.DeskTypes.Remove(deskType);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+    //act
+    var result = resourceUsecases.GetDesks(adminId, roomId.ToString(), DateTime.MinValue, DateTime.MaxValue);
+    //Assert
+    Assert.That(result.Count == 0);
+  }
+
+  [Test]
+  public void GetDeskType_WhenNoDeskTypeFound_ShouldReturnAnEmptyList()
+  {
+    //setup
+    using var db = new DataContext();
+    var adminId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var deskTypeId = Guid.NewGuid();
+
+    SetupMockData(db, userId: adminId, deskTypeId: deskTypeId, deskId: deskId);
+    var desk = db.Desks.First(d => d.DeskId == deskId);
+    db.Desks.Remove(desk);
+    var deskType = db.DeskTypes.First(d => d.DeskTypeId == deskTypeId);
+    db.DeskTypes.Remove(deskType);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<ResourceUsecases>>();
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
+    //act
+    var result = resourceUsecases.GetDeskTypes(adminId);
+    //Assert
+    Assert.That(result.Count == 0);
+  }
+
+  [Test]
   public void DeleteBuilding_WhenNonValidBuildingIsProvided_ShouldThrowEntityNotFoundException()
   {
     //setup
@@ -3939,7 +4302,6 @@ public class ResourceUsecasesTests
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var resourceUsecases = new ResourceUsecases(logger.Object, db);
-
 
     //act & assert
     Assert.Throws<EntityNotFoundException>(() => resourceUsecases.DeleteBuilding(adminId, new Guid().ToString()));
