@@ -364,7 +364,7 @@ const ResourceOverview = ({
       let result = await deleteBuilding(session, building.buildingId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Building ${building.buildingName} deleted!`);
 
         // Remove the building from buildingList
         setBuildings(
@@ -382,7 +382,7 @@ const ResourceOverview = ({
       let result = await deleteFloor(session, floor.floorId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Floor ${floor.floorName} deleted!`);
 
         // Remove the floor from floorList
         setFloors(floors.filter((b) => b.floorId !== floor.floorId));
@@ -398,7 +398,7 @@ const ResourceOverview = ({
       let result = await deleteRoom(session, room.roomId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Room ${room.roomName} deleted!`);
 
         // Remove the room from roomList
         setRooms(rooms.filter((b) => b.roomId !== room.roomId));
@@ -414,7 +414,7 @@ const ResourceOverview = ({
       let result = await deleteDesk(session, desk.deskId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Desk ${desk.deskName} deleted!`);
 
         // Remove the desk from deskList
         setDesks(desks.filter((b) => b.deskId !== desk.deskId));
