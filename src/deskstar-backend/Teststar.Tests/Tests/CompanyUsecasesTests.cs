@@ -1,8 +1,6 @@
-using Deskstar.Core.Exceptions;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Usecases;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -10,7 +8,6 @@ namespace Teststar.Tests.Tests;
 
 public class CompanyUsecasesTests
 {
-
   [Test]
   public void GetCompanies_ShouldReturnAllCompanies()
   {
@@ -37,7 +34,7 @@ public class CompanyUsecasesTests
     db.Database.EnsureDeleted();
   }
 
-  private void setupMockData(DataContext db, Guid companyID, String companyName)
+  private void setupMockData(DataContext db, Guid companyID, string companyName)
   {
     var company = new Company
     {

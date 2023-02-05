@@ -17,7 +17,8 @@ public class ResourceUsecasesTests
     var companyId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = Guid.NewGuid(), CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = Guid.NewGuid(), CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -28,13 +29,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is no building with id '{buildingId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenBuildingNameDoesAlreadyExist_ShouldThrowArgumentInvalidException()
   {
@@ -46,7 +49,8 @@ public class ResourceUsecasesTests
 
     var buildingName = "testbuilding";
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
 
     context.Companies.Add(company);
     context.Buildings.Add(building);
@@ -59,13 +63,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, buildingName, null));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateBuilding(companyId, buildingId, buildingName, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is already a building named '{buildingName}' in your company"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenCompanyIdDoesNotMatchBuilding_ShouldThrowInsufficientPermissionException()
   {
@@ -76,7 +82,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
     var buildingName = "testname";
-    var building = new Building { BuildingId = buildingId, CompanyId = company2Id, BuildingName = buildingName, Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = company2Id, BuildingName = buildingName, Location = "testlocation" };
     context.Companies.Add(company2);
     context.Buildings.Add(building);
     context.SaveChanges();
@@ -88,13 +95,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", "Location"));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate building '{buildingName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenAllInputIsValid_ShouldUpdateBuilding()
   {
@@ -106,7 +115,8 @@ public class ResourceUsecasesTests
 
     var buildingName = "testbuilding";
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
 
     context.Companies.Add(company);
     context.Buildings.Add(building);
@@ -130,6 +140,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenOnlyLocationIsProvided_ShouldUpdateBuildingLocation()
   {
@@ -138,7 +149,8 @@ public class ResourceUsecasesTests
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
@@ -161,6 +173,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenOnlyBuildingNameIsProvided_ShouldUpdateBuildingName()
   {
@@ -172,7 +185,8 @@ public class ResourceUsecasesTests
     var location = "testlocation";
     var buildingName = "testbuilding";
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = location };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = location };
 
     context.Companies.Add(company);
     context.Buildings.Add(building);
@@ -197,6 +211,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenNeitherLocationNorBuildingNameIsProvided_ShouldReturnBuildingId()
   {
@@ -205,7 +220,8 @@ public class ResourceUsecasesTests
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
@@ -225,6 +241,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenLocationIsEmpty_ShouldThrowArgumentInvalidException()
   {
@@ -233,7 +250,8 @@ public class ResourceUsecasesTests
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
@@ -245,13 +263,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", ""));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateBuilding(companyId, buildingId, "Building Name", ""));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo("Location must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateBuilding_WhenBuildingNameIsEmpty_ShouldThrowArgumentInvalidException()
   {
@@ -260,7 +280,8 @@ public class ResourceUsecasesTests
     var company = new Company { CompanyId = companyId, CompanyName = "testcompany" };
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Companies.Add(company);
     context.Buildings.Add(building);
     context.SaveChanges();
@@ -272,7 +293,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateBuilding(companyId, buildingId, "", "New York"));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateBuilding(companyId, buildingId, "", "New York"));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo("Building name must not be empty"));
 
@@ -288,7 +310,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     context.SaveChanges();
 
@@ -299,7 +322,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", buildingId));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", buildingId));
     Assert.NotNull(ex);
     Assert.That($"There is no floor with id '{floorId}'" == ex.Message);
 
@@ -315,7 +339,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var floorName = "testfloor";
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
@@ -329,7 +354,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", null));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, "Floor Name", null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate floor '{floorName}'"));
 
@@ -345,7 +371,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
     context.Floors.Add(floor);
@@ -360,7 +387,7 @@ public class ResourceUsecasesTests
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "", null));
     Assert.NotNull(ex);
-    Assert.That($"Floor name must not be empty" == ex.Message);
+    Assert.That("Floor name must not be empty" == ex.Message);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -374,7 +401,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
     context.Floors.Add(floor);
@@ -388,7 +416,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "testname", buildingIdNotExisting));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, "testname", buildingIdNotExisting));
     Assert.NotNull(ex);
     Assert.That($"Building does not exist with id '{buildingIdNotExisting}'" == ex.Message);
 
@@ -404,7 +433,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = Guid.NewGuid(), BuildingName = "testname", Location = "testlocation" };
     var floorName = "testname";
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = floorName };
     context.Buildings.Add(building);
@@ -418,7 +448,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "new name", null));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, "new name", null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate floor '{floorName}'"));
 
@@ -436,7 +467,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
     context.Buildings.Add(building);
     context.Floors.Add(floor);
@@ -444,7 +476,10 @@ public class ResourceUsecasesTests
     var anotherCompanyId = Guid.NewGuid();
     var building2Id = Guid.NewGuid();
     var building2Name = "testbuilding2";
-    var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = building2Name, Location = "testlocation" };
+    var building2 = new Building
+    {
+      BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = building2Name, Location = "testlocation"
+    };
     context.Buildings.Add(building2);
     context.SaveChanges();
 
@@ -455,7 +490,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to move a floor to building '{building2Name}'"));
 
@@ -474,14 +510,18 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var floorName = "testfloor";
     var buildingName = "testname";
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = buildingName, Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
     context.Buildings.Add(building);
     context.Floors.Add(floor);
 
     var anotherCompanyId = Guid.NewGuid();
     var building2Id = Guid.NewGuid();
-    var building2 = new Building { BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    var building2 = new Building
+    {
+      BuildingId = building2Id, CompanyId = anotherCompanyId, BuildingName = "testbuilding2", Location = "testlocation"
+    };
     context.Buildings.Add(building2);
     context.SaveChanges();
 
@@ -492,7 +532,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, null));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, floorName, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is already a floor named '{floorName}' in building '{buildingName}'"));
 
@@ -508,10 +549,12 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var building2Id = Guid.NewGuid();
-    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    var building2 = new Building
+      { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
     context.Buildings.Add(building2);
     var floor = new Floor { FloorId = floorId, FloorName = "testfloor", BuildingId = buildingId, Building = building };
     context.Floors.Add(floor);
@@ -548,7 +591,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var floorName = "testfloor";
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId };
 
     context.Buildings.Add(building);
@@ -558,7 +602,8 @@ public class ResourceUsecasesTests
     var building2Id = Guid.NewGuid();
     var floor2Id = Guid.NewGuid();
     var building2Name = "testbuilding2";
-    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = building2Name, Location = "testlocation" };
+    var building2 = new Building
+      { BuildingId = building2Id, CompanyId = companyId, BuildingName = building2Name, Location = "testlocation" };
     var floor2 = new Floor { FloorId = floor2Id, FloorName = floorName, BuildingId = building2Id };
 
     context.Buildings.Add(building2);
@@ -573,9 +618,12 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, floorName, building2Id));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateFloor(companyId, floorId, floorName, building2Id));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"You cant move floor '{floorName}' to building '{building2Name}'. In building '{building2Name}' already exists a floor called '{floorName}'"));
+    Assert.That(ex.Message,
+      Is.EqualTo(
+        $"You cant move floor '{floorName}' to building '{building2Name}'. In building '{building2Name}' already exists a floor called '{floorName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -589,7 +637,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var floorName = "testfloor";
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
@@ -624,10 +673,12 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var building2Id = Guid.NewGuid();
-    var building2 = new Building { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
+    var building2 = new Building
+      { BuildingId = building2Id, CompanyId = companyId, BuildingName = "testbuilding2", Location = "testlocation" };
     context.Buildings.Add(building2);
     var floorName = "testfloor";
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
@@ -661,7 +712,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     context.Buildings.Add(building);
     var floorName = "testfloor";
     var floor = new Floor { FloorId = floorId, FloorName = floorName, BuildingId = buildingId, Building = building };
@@ -697,7 +749,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -708,7 +761,10 @@ public class ResourceUsecasesTests
     var anotherBuildingId = Guid.NewGuid();
     var anotherFloorId = Guid.NewGuid();
     var anotherRoomId = Guid.NewGuid();
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
     var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "testfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = roomName };
     context.Buildings.Add(anotherBuilding);
@@ -722,7 +778,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateRoom(companyId, anotherRoomId, "Room Name", floorId));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateRoom(companyId, anotherRoomId, "Room Name", floorId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is no room with id '{anotherRoomId}'"));
 
@@ -740,7 +797,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -756,7 +814,8 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateRoom(anotherCompanyId, roomId, "Room Name", floorId));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateRoom(anotherCompanyId, roomId, "Room Name", floorId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate room '{roomName}'"));
 
@@ -774,7 +833,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     context.Buildings.Add(building);
@@ -791,7 +851,7 @@ public class ResourceUsecasesTests
     // act and assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateRoom(companyId, roomId, "", floorId));
     Assert.NotNull(ex);
-    Assert.That($"Room name must not be empty" == ex.Message);
+    Assert.That("Room name must not be empty" == ex.Message);
 
     // cleanup
     context.Database.EnsureDeleted();
@@ -808,7 +868,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -823,13 +884,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Floor does not exist with id '{anotherFloorId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateRoom_WhenCompanyHasInsufficientPermissionToChangeFloor_ShouldThrowInsufficientPermissionException()
   {
@@ -842,11 +905,17 @@ public class ResourceUsecasesTests
     var anotherBuildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
     var context = new DataContext();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var anotherFloorName = "anotherTestFloor";
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
     context.Buildings.Add(building);
@@ -862,7 +931,8 @@ public class ResourceUsecasesTests
     var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => usecases.UpdateRoom(companyId, roomId, "New Room", anotherFloorId));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      usecases.UpdateRoom(companyId, roomId, "New Room", anotherFloorId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to move a room to floor '{anotherFloorName}'"));
 
@@ -880,7 +950,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -890,7 +961,10 @@ public class ResourceUsecasesTests
 
     var anotherFloorId = Guid.NewGuid();
     var anotherBuildingId = Guid.NewGuid();
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
     var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "testfloor" };
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -924,7 +998,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -950,6 +1025,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateRoom_WhenUpdatingOnlyRoomNameAndRoomNameAlreadyExists_ShouldThrowArgumentInvalidException()
   {
@@ -960,7 +1036,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floorName = "testfloor";
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = floorName };
     var roomName = "testroom";
@@ -995,7 +1072,8 @@ public class ResourceUsecasesTests
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -1008,9 +1086,13 @@ public class ResourceUsecasesTests
     var anotherBuildingId = Guid.NewGuid();
     var anotherRoomId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
     var anotherFloorName = "testfloor";
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = anotherFloorName };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = roomName };
 
     context.Buildings.Add(anotherBuilding);
@@ -1025,13 +1107,17 @@ public class ResourceUsecasesTests
     var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      usecases.UpdateRoom(companyId, roomId, roomName, anotherFloorId));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"You cant move room '{roomName}' to floor '{anotherFloorName}'. In floor '{anotherFloorName}' already exists a room called '{roomName}'"));
+    Assert.That(ex.Message,
+      Is.EqualTo(
+        $"You cant move room '{roomName}' to floor '{anotherFloorName}'. In floor '{anotherFloorName}' already exists a room called '{roomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateRoom_WhenUpdatingOnlyFloor_ShouldUpdateFloorOnly()
   {
@@ -1042,7 +1128,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -1052,7 +1139,10 @@ public class ResourceUsecasesTests
 
     var anotherFloorId = Guid.NewGuid();
     var anotherBuildingId = Guid.NewGuid();
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
     var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "testfloor" };
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1085,7 +1175,8 @@ public class ResourceUsecasesTests
     var floorId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -1133,13 +1224,15 @@ public class ResourceUsecasesTests
     var unknownDeskId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, unknownDeskId, null, null, null));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateDesk(companyId, unknownDeskId, null, null, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is no desk with id '{unknownDeskId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenCompanyHasInsufficientPermission_ShouldThrowInsufficientPermissionException()
   {
@@ -1153,7 +1246,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1174,11 +1268,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1195,13 +1296,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, anotherDeskId, null, null, null));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateDesk(companyId, anotherDeskId, null, null, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate desk '{deskName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenDeskNameIsEmpty_ShouldThrowArgumentInvalidException()
   {
@@ -1215,7 +1318,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1236,11 +1340,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1257,13 +1368,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, "", null, null));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, "", null, null));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"Desk name must not be empty"));
+    Assert.That(ex.Message, Is.EqualTo("Desk name must not be empty"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenRoomDoesNotExist_ShouldThrowEntityNotFoundException()
   {
@@ -1277,7 +1390,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1298,11 +1412,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1320,13 +1441,15 @@ public class ResourceUsecasesTests
     var unknownRoomId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, unknownRoomId, null));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, null, unknownRoomId, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Room does not exist with id '{unknownRoomId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenCompanyHasInsufficientPermissionToChangeRoom_ShouldThrowInsufficientPermissionException()
   {
@@ -1340,7 +1463,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1361,12 +1485,19 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoomName = "anothertestroom";
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = anotherRoomName };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1384,13 +1515,15 @@ public class ResourceUsecasesTests
     var unknownRoomId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to add a desk to room '{anotherRoomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenDeskTypeDoesNotExist_ShouldThrowEntityNotFoundException()
   {
@@ -1404,7 +1537,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1425,11 +1559,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1447,15 +1588,18 @@ public class ResourceUsecasesTests
     var unknownDeskTypeId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, null, unknownDeskTypeId));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, null, null, unknownDeskTypeId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"DeskType does not exist with id '{unknownDeskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
-  public void UpdateDesk_WhenCompanyHasInsufficientPermissionToChangeDeskType_ShouldThrowInsufficientPermissionException()
+  public void
+    UpdateDesk_WhenCompanyHasInsufficientPermissionToChangeDeskType_ShouldThrowInsufficientPermissionException()
   {
     // setup
     var context = new DataContext();
@@ -1467,7 +1611,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1488,12 +1633,19 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
     var anotherDeskTypeName = "anotherdesktype";
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1510,13 +1662,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to desk type '{anotherDeskTypeName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingDeskNameAndRoomAndDeskType_ShouldUpdateDeskNameAndRoomAndDeskType()
   {
@@ -1530,7 +1684,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1551,11 +1706,17 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1584,6 +1745,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingOnlyDeskNameAndNameDoesNotExists_ShouldOnlyUpdateName()
   {
@@ -1597,7 +1759,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1618,11 +1781,17 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1651,6 +1820,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingOnlyDeskNameAndNameDoesAlreadyExists_ShouldThrowArgumentInvalidException()
   {
@@ -1664,7 +1834,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var roomName = "testroom";
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = roomName };
@@ -1686,12 +1857,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
     var updatedDeskName = "updatedDeskName";
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = updatedDeskName, DeskTypeId = anotherDeskTypeId, RoomId = roomId };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = updatedDeskName, DeskTypeId = anotherDeskTypeId, RoomId = roomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1708,13 +1885,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, null, null));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, updatedDeskName, null, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is already a desk named '{updatedDeskName}' in room '{roomName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingOnlyRoomAndDeskNameInOtherRoomAlreadyExists_ShouldThrowArgumentInvalidException()
   {
@@ -1728,7 +1907,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1749,12 +1929,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoomName = "anothertestroom";
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = anotherRoomName };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1771,13 +1957,17 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null));
     Assert.NotNull(ex);
-    Assert.That(ex.Message, Is.EqualTo($"You cant move desk '{deskName}' to room '{anotherRoomName}'. In room '{anotherRoomName}' already exists a desk called '{deskName}'"));
+    Assert.That(ex.Message,
+      Is.EqualTo(
+        $"You cant move desk '{deskName}' to room '{anotherRoomName}'. In room '{anotherRoomName}' already exists a desk called '{deskName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingOnlyRoomAndDeskNameInOtherRoomDoesNotExists_ShouldUpdateRoomName()
   {
@@ -1791,7 +1981,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1812,11 +2003,17 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = "anotherDeskName", DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = "anotherDeskName", DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1844,6 +2041,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingOnlyDeskType_ShouldOnlyUpdateDeskType()
   {
@@ -1857,7 +2055,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1878,11 +2077,17 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1910,6 +2115,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDesk_WhenUpdatingNothing_ShouldThrowArgumentInvalidException()
   {
@@ -1923,7 +2129,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -1944,11 +2151,17 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = companyId, BuildingName = "anothertestname", Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -1976,6 +2189,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenDeskTypeDoesNotExist_ShouldThrowEntityNotFoundException()
   {
@@ -1997,13 +2211,15 @@ public class ResourceUsecasesTests
     var unknownDeskTypeId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<EntityNotFoundException>(() => resourceUsecases.UpdateDeskType(companyId, unknownDeskTypeId, null));
+    var ex = Assert.Throws<EntityNotFoundException>(() =>
+      resourceUsecases.UpdateDeskType(companyId, unknownDeskTypeId, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is no desk type with id '{unknownDeskTypeId}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenDeskTypeDoesBelongToDifferentCompany_ShouldThrowInsufficientPermissionException()
   {
@@ -2026,13 +2242,15 @@ public class ResourceUsecasesTests
     var noPermissionCompanyId = Guid.NewGuid();
 
     // act+assert
-    var ex = Assert.Throws<InsufficientPermissionException>(() => resourceUsecases.UpdateDeskType(noPermissionCompanyId, deskTypeId, null));
+    var ex = Assert.Throws<InsufficientPermissionException>(() =>
+      resourceUsecases.UpdateDeskType(noPermissionCompanyId, deskTypeId, null));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Your company has no access to administrate desk type '{deskTypeName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenDeskTypeNameIsEmpty_ShouldThrowArgumentInvalidException()
   {
@@ -2046,7 +2264,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -2067,11 +2286,18 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
-    var anotherDeskType = new DeskType { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = anotherCompanyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = "anotherdesktype" };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -2095,6 +2321,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenDeskTypeNameIsTaken_ShouldThrowArgumentInvalidException()
   {
@@ -2108,7 +2335,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -2129,12 +2357,19 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
     var anotherDeskTypeName = "anotherdesktype";
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -2151,13 +2386,15 @@ public class ResourceUsecasesTests
     var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, anotherDeskTypeName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      resourceUsecases.UpdateDeskType(companyId, deskTypeId, anotherDeskTypeName));
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"There is already a desktype named '{anotherDeskTypeName}'"));
 
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenUpdatingDeskTypeName_ShouldUpdateName()
   {
@@ -2171,7 +2408,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -2192,12 +2430,19 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
     var anotherDeskTypeName = "anotherdesktype";
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -2224,6 +2469,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void UpdateDeskType_WhenUpdatingNothing_ShouldUpdateNothing()
   {
@@ -2237,7 +2483,8 @@ public class ResourceUsecasesTests
     var deskId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
 
-    var building = new Building { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
+    var building = new Building
+      { BuildingId = buildingId, CompanyId = companyId, BuildingName = "testname", Location = "testlocation" };
     var floor = new Floor { FloorId = floorId, BuildingId = buildingId, FloorName = "testfloor" };
     var room = new Room { RoomId = roomId, FloorId = floorId, RoomName = "testroom" };
     var deskType = new DeskType { CompanyId = companyId, DeskTypeId = deskTypeId, DeskTypeName = "testdesktype" };
@@ -2258,12 +2505,19 @@ public class ResourceUsecasesTests
     var anotherDeskId = Guid.NewGuid();
     var anotherDeskTypeId = Guid.NewGuid();
 
-    var anotherBuilding = new Building { BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname", Location = "testlocation" };
-    var anotherFloor = new Floor { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
+    var anotherBuilding = new Building
+    {
+      BuildingId = anotherBuildingId, CompanyId = anotherCompanyId, BuildingName = "anothertestname",
+      Location = "testlocation"
+    };
+    var anotherFloor = new Floor
+      { FloorId = anotherFloorId, BuildingId = anotherBuildingId, FloorName = "anothertestfloor" };
     var anotherRoom = new Room { RoomId = anotherRoomId, FloorId = anotherFloorId, RoomName = "anothertestroom" };
     var anotherDeskTypeName = "anotherdesktype";
-    var anotherDeskType = new DeskType { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
-    var anotherDesk = new Desk { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
+    var anotherDeskType = new DeskType
+      { CompanyId = companyId, DeskTypeId = anotherDeskTypeId, DeskTypeName = anotherDeskTypeName };
+    var anotherDesk = new Desk
+      { DeskId = anotherDeskId, DeskName = deskName, DeskTypeId = anotherDeskTypeId, RoomId = anotherRoomId };
 
     context.Buildings.Add(anotherBuilding);
     context.Floors.Add(anotherFloor);
@@ -2289,6 +2543,7 @@ public class ResourceUsecasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void GetBuildings_WhenNoBuildingFound_ShouldReturnAEmptyList()
   {
@@ -2468,7 +2723,7 @@ public class ResourceUsecasesTests
 
 
     //act
-    var result = usecases.GetFloors(userId,"");
+    var result = usecases.GetFloors(userId, "");
 
     //assert
     Assert.That(result, Is.Not.Empty);
@@ -2519,8 +2774,8 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var userId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    var roomId= Guid.NewGuid();
-    SetupMockData(db, userId: userId, floorId: floorId, roomId:roomId);
+    var roomId = Guid.NewGuid();
+    SetupMockData(db, userId: userId, floorId: floorId, roomId: roomId);
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
@@ -2546,8 +2801,8 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var userId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    var roomId= Guid.NewGuid();
-    SetupMockData(db, userId: userId, floorId: floorId, roomId:roomId);
+    var roomId = Guid.NewGuid();
+    SetupMockData(db, userId: userId, floorId: floorId, roomId: roomId);
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
@@ -2572,14 +2827,14 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var userId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    SetupMockData(db, userId: userId, floorId: floorId );
+    SetupMockData(db, userId: userId, floorId: floorId);
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
     //assert + act
-    Assert.Throws<ArgumentInvalidException>(()=>usecases.GetRooms(userId, "abs"));
+    Assert.Throws<ArgumentInvalidException>(() => usecases.GetRooms(userId, "abs"));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -2592,7 +2847,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
-    SetupMockData(db, userId: userId );
+    SetupMockData(db, userId: userId);
 
     db.SaveChanges();
 
@@ -2601,11 +2856,11 @@ public class ResourceUsecasesTests
     var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
 
     //act
-    var result=usecases.GetRooms(userId, "");
+    var result = usecases.GetRooms(userId, "");
 
-      //assert
-      Assert.That(result, Is.Not.Empty);
-      Assert.That(result.Count, Is.EqualTo(1));
+    //assert
+    Assert.That(result, Is.Not.Empty);
+    Assert.That(result.Count, Is.EqualTo(1));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -3246,7 +3501,7 @@ public class ResourceUsecasesTests
     var companyId = Guid.NewGuid();
     var invalidDeskTypeId = Guid.NewGuid();
     var roomId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, roomId: roomId);
+    SetupMockData(db, companyId, roomId: roomId);
 
     db.SaveChanges();
 
@@ -3271,7 +3526,7 @@ public class ResourceUsecasesTests
     var companyId = Guid.NewGuid();
     var deskTypeId = Guid.NewGuid();
     var invalidRoomId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, deskTypeId: deskTypeId);
+    SetupMockData(db, companyId, deskTypeId: deskTypeId);
 
     db.SaveChanges();
 
@@ -3315,7 +3570,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3337,7 +3592,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3359,7 +3614,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3404,7 +3659,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, floorId: floorId);
+    SetupMockData(db, companyId, floorId: floorId);
 
     db.SaveChanges();
 
@@ -3427,7 +3682,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, floorId: floorId);
+    SetupMockData(db, companyId, floorId: floorId);
 
     db.SaveChanges();
 
@@ -3450,7 +3705,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var floorId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, floorId: floorId);
+    SetupMockData(db, companyId, floorId: floorId);
 
     db.SaveChanges();
 
@@ -3495,7 +3750,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, buildingId: buildingId);
+    SetupMockData(db, companyId, buildingId: buildingId);
 
     db.SaveChanges();
 
@@ -3518,7 +3773,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, buildingId: buildingId);
+    SetupMockData(db, companyId, buildingId: buildingId);
 
     db.SaveChanges();
 
@@ -3541,7 +3796,7 @@ public class ResourceUsecasesTests
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
     var buildingId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId, buildingId: buildingId);
+    SetupMockData(db, companyId, buildingId: buildingId);
 
     db.SaveChanges();
 
@@ -3586,7 +3841,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3609,7 +3864,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3632,7 +3887,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 
@@ -3655,7 +3910,7 @@ public class ResourceUsecasesTests
     //setup
     using var db = new DataContext();
     var companyId = Guid.NewGuid();
-    SetupMockData(db, companyId: companyId);
+    SetupMockData(db, companyId);
 
     db.SaveChanges();
 

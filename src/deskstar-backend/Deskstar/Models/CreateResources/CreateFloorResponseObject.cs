@@ -1,20 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
 public class CreateFloorResponseObject
 {
-    public CreateFloorResponseObject() { }
+  [Required] public Guid FloorId { get; set; }
 
-    public static void createMappings(IMapperConfigurationExpression cfg)
-    {
-        cfg.CreateMap<Entities.Floor, CreateFloorResponseObject>();
-    }
+  [Required] public string FloorName { get; set; } = null!;
 
-    [Required]
-    public Guid FloorId { get; set; }
-
-    [Required]
-    public string FloorName { get; set; } = null!;
+  public static void createMappings(IMapperConfigurationExpression cfg)
+  {
+    cfg.CreateMap<Floor, CreateFloorResponseObject>();
+  }
 }

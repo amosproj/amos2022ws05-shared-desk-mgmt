@@ -1,10 +1,11 @@
+using AutoMapper;
+using Deskstar.Core;
+using Deskstar.Core.Exceptions;
+using Deskstar.Entities;
+using Deskstar.Models;
+using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Deskstar.Usecases;
-using Deskstar.Models;
-using Deskstar.Core;
-using Deskstar.Entities;
-using Deskstar.Core.Exceptions;
 
 namespace Deskstar.Controllers;
 
@@ -13,11 +14,11 @@ namespace Deskstar.Controllers;
 [Produces("application/json")]
 public class ResourceController : ControllerBase
 {
-  private readonly IResourceUsecases _resourceUsecases;
-  private readonly IUserUsecases _userUsecases;
   private readonly ILogger<ResourceController> _logger;
 
-  private readonly AutoMapper.IMapper _mapper;
+  private readonly IMapper _mapper;
+  private readonly IResourceUsecases _resourceUsecases;
+  private readonly IUserUsecases _userUsecases;
 
   public ResourceController(ILogger<ResourceController> logger, IResourceUsecases resourceUsecases,
     IUserUsecases userUsecases, IAutoMapperConfiguration autoMapperConfiguration)
@@ -27,14 +28,14 @@ public class ResourceController : ControllerBase
     _userUsecases = userUsecases;
     _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
   }
+
   /// <summary>
-  /// Updates a Desk.
+  ///   Updates a Desk.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     PUT /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   PUT /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -66,7 +67,8 @@ public class ResourceController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -79,13 +81,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Updates a Desk Type.
+  ///   Updates a Desk Type.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     PUT /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   PUT /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -115,7 +116,8 @@ public class ResourceController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -128,13 +130,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Updates a Building.
+  ///   Updates a Building.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     PUT /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   PUT /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -164,7 +165,8 @@ public class ResourceController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -177,13 +179,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Updates a Floor.
+  ///   Updates a Floor.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     PUT /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   PUT /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -214,7 +215,8 @@ public class ResourceController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -227,13 +229,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Updates a Room.
+  ///   Updates a Room.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     PUT /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   PUT /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -264,7 +265,8 @@ public class ResourceController : ControllerBase
       _logger.LogError(e, e.Message);
       return NotFound(e.Message);
     }
-    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException or OverflowException)
+    catch (Exception e) when (e is ArgumentInvalidException or ArgumentNullException or FormatException
+                                or OverflowException)
     {
       _logger.LogError(e, e.Message);
       return BadRequest(e.Message);
@@ -275,15 +277,15 @@ public class ResourceController : ControllerBase
       return Problem(statusCode: 500);
     }
   }
+
   /// <summary>
-  /// Returns a list of Buildings.
+  ///   Returns a list of Buildings.
   /// </summary>
   /// <returns>A List of Buildings in JSON Format (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/buildings with JWT Token
+  ///   Sample request:
+  ///   GET /resources/buildings with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the buildings list</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -309,13 +311,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Creates a new Building.
+  ///   Creates a new Building.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/buildings with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/buildings with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">CreateBuildingResponseObject</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -357,13 +358,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Restores a Building.
+  ///   Restores a Building.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/buildings/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/buildings/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -399,13 +399,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Deletes a Building.
+  ///   Deletes a Building.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     DELETE /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   DELETE /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -441,14 +440,13 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Returns a list of Floors.
+  ///   Returns a list of Floors.
   /// </summary>
   /// <returns>A List of Floors in JSON Format by BuildingId (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a/floors with JWT Token
+  ///   Sample request:
+  ///   GET /resources/buildings/3de7afbf-0289-4ba6-bada-a34353c5548a/floors with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the floor list</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -507,14 +505,13 @@ public class ResourceController : ControllerBase
   // }
 
   /// <summary>
-  /// Returns a list of all Floors.
+  ///   Returns a list of all Floors.
   /// </summary>
   /// <returns>A List of Floors in JSON Format (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/floors with JWT Token
+  ///   Sample request:
+  ///   GET /resources/floors with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the floor list</response>
   /// <response code="500">Internal Server Error</response>
   [HttpGet("floors")]
@@ -534,17 +531,17 @@ public class ResourceController : ControllerBase
     {
       return Problem(statusCode: 500, detail: e.Message);
     }
+
     return Ok(floor.ToList());
   }
 
   /// <summary>
-  /// Creates a new Floor.
+  ///   Creates a new Floor.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/floors with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/floors with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">CreateFloorResponseObject</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -585,13 +582,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Deletes a Floor.
+  ///   Deletes a Floor.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   DELETE /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -627,13 +623,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Restores a floor.
+  ///   Restores a floor.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/floors/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/floors/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -669,14 +664,13 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Returns a list of Rooms.
+  ///   Returns a list of Rooms.
   /// </summary>
   /// <returns>A List of Rooms in JSON Format by FloorId (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a/rooms with JWT Token
+  ///   Sample request:
+  ///   GET /resources/floors/3de7afbf-0289-4ba6-bada-a34353c5548a/rooms with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the rooms list</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -735,14 +729,13 @@ public class ResourceController : ControllerBase
   // }
 
   /// <summary>
-  /// Returns a list of all Rooms.
+  ///   Returns a list of all Rooms.
   /// </summary>
   /// <returns>A List of Rooms in JSON Format (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/rooms with JWT Token
+  ///   Sample request:
+  ///   GET /resources/rooms with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the rooms list</response>
   /// <response code="500">Internal Server Error</response>
   [HttpGet("rooms")]
@@ -767,13 +760,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Creates a new Room.
+  ///   Creates a new Room.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/rooms with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/rooms with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">CreateRoomResponseObject</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -815,13 +807,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Deletes a Room.
+  ///   Deletes a Room.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     DELETE /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   DELETE /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -857,13 +848,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Restores a room.
+  ///   Restores a room.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/rooms/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/rooms/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -899,15 +889,14 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Returns a list of Desks.
+  ///   Returns a list of Desks.
   /// </summary>
   /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks?start=1669021730904&end=1669121730904
-  ///     with JWT Token
+  ///   Sample request:
+  ///   GET /resources/rooms/3de7afbf-0289-4ba6-bada-a34353c5548a/desks?start=1669021730904&end=1669121730904
+  ///   with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the desks list</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -969,14 +958,13 @@ public class ResourceController : ControllerBase
   // }
 
   /// <summary>
-  /// Returns a list of all Desks.
+  ///   Returns a list of all Desks.
   /// </summary>
   /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/desks with JWT Token
+  ///   Sample request:
+  ///   GET /resources/desks with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the desks list</response>
   /// <response code="500">Internal Server Error</response>
   [HttpGet("desks")]
@@ -1001,15 +989,14 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Returns details of Desks.
+  ///   Returns details of Desks.
   /// </summary>
   /// <returns>A List of Desks in JSON Format by RoomId (can be empty) </returns>
   /// <remarks>
-  /// Sample request:
-  ///     GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904
-  ///     with JWT Token
+  ///   Sample request:
+  ///   GET /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a?start=1669021730904&end=1669121730904
+  ///   with JWT Token
   /// </remarks>
-  ///
   /// <response code="200">Returns the buildings list</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1027,10 +1014,7 @@ public class ResourceController : ControllerBase
       startDateTime = start == 0 ? DateTime.Now : DateTimeOffset.FromUnixTimeMilliseconds(start).DateTime;
 
       endDateTime = end == 0 ? DateTime.MaxValue : DateTimeOffset.FromUnixTimeMilliseconds(end).DateTime;
-      if (start > end)
-      {
-        (endDateTime, startDateTime) = (startDateTime, endDateTime);
-      }
+      if (start > end) (endDateTime, startDateTime) = (startDateTime, endDateTime);
     }
     catch (FormatException e)
     {
@@ -1057,13 +1041,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Creates a new Desk.
+  ///   Creates a new Desk.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/desks with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/desks with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">CreateDeskResponseObject</response>
   /// <response code="400">Bad Request</response>
   /// <response code="404">Not Found</response>
@@ -1106,13 +1089,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Deletes a Desk.
+  ///   Deletes a Desk.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     DELETE /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   DELETE /resources/desks/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1148,13 +1130,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Restores a Desk.
+  ///   Restores a Desk.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/desks/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/desks/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1190,13 +1171,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Creates a new DeskType.
+  ///   Creates a new DeskType.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/desktypes with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/desktypes with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">CreateDeskTypeResponseObject</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1224,13 +1204,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Return a list of desk types
+  ///   Return a list of desk types
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     Get /resources/desktypes with JWT-Admin Token
+  ///   Sample request:
+  ///   Get /resources/desktypes with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">List<DeskTypeDto></response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1259,13 +1238,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Deletes a desk type.
+  ///   Deletes a desk type.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     DELETE /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   DELETE /resources/desktypes/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
@@ -1301,13 +1279,12 @@ public class ResourceController : ControllerBase
   }
 
   /// <summary>
-  /// Restores a deskType.
+  ///   Restores a deskType.
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     POST /resources/desktypes/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
+  ///   Sample request:
+  ///   POST /resources/desktypes/restore/3de7afbf-0289-4ba6-bada-a34353c5548a with JWT-Admin Token
   /// </remarks>
-  ///
   /// <response code="200">Ok</response>
   /// <response code="400">Bad Request</response>
   /// <response code="500">Internal Server Error</response>
