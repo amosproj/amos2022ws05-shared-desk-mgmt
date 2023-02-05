@@ -26,7 +26,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() =>
@@ -60,7 +60,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -92,7 +92,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -126,7 +126,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var updatedBuildingName = "New Building Name";
     var updatedLocation = "New York";
     // act
@@ -159,7 +159,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var newLocation = "newlocation";
 
     // act
@@ -196,7 +196,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var updatedBuildingName = "updatedBuildingName";
 
     // act
@@ -230,7 +230,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedBuilding = resourceUsecases.UpdateBuilding(companyId, buildingId, null, null);
@@ -260,7 +260,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -290,7 +290,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -319,7 +319,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() =>
@@ -351,7 +351,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -382,7 +382,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateFloor(companyId, floorId, "", null));
@@ -413,7 +413,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() =>
@@ -445,7 +445,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -487,7 +487,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -529,7 +529,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -564,7 +564,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var newFloorName = "new name";
 
     // act
@@ -614,7 +614,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -648,7 +648,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var newFloorName = "newFloorName";
 
     // act
@@ -688,7 +688,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, null, building2Id);
@@ -723,7 +723,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedFloor = resourceUsecases.UpdateFloor(companyId, floorId, null, null);
@@ -773,7 +773,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() =>
@@ -809,7 +809,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -843,7 +843,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act and assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateRoom(companyId, roomId, "", floorId));
@@ -877,7 +877,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var resourceUsecases = new ResourceUsecases(logger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<EntityNotFoundException>(() =>
@@ -924,7 +924,7 @@ public class ResourceUsecasesTests
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -969,7 +969,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
     var updatedRoomName = "updatedRoomName";
 
     // act
@@ -1007,7 +1007,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
     var updatedRoomName = "updatedRoomName";
 
     // act
@@ -1046,7 +1046,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => usecases.UpdateRoom(companyId, roomId, roomName, null));
@@ -1100,7 +1100,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -1147,7 +1147,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
 
     // act
     var updatedRoom = usecases.UpdateRoom(companyId, roomId, null, anotherFloorId);
@@ -1185,7 +1185,7 @@ public class ResourceUsecasesTests
     // arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
     var userUsecases = new Mock<IUserUsecases>();
-    var usecases = new ResourceUsecases(logger.Object, context, userUsecases.Object);
+    var usecases = new ResourceUsecases(logger.Object, context);
 
     // act
     var updatedRoom = usecases.UpdateRoom(companyId, roomId, null, null);
@@ -1214,7 +1214,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var unknownDeskId = Guid.NewGuid();
 
     // act+assert
@@ -1287,7 +1287,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -1359,7 +1359,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -1431,7 +1431,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var unknownRoomId = Guid.NewGuid();
 
     // act+assert
@@ -1505,7 +1505,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -1577,7 +1577,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var unknownDeskTypeId = Guid.NewGuid();
 
     // act+assert
@@ -1652,7 +1652,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<InsufficientPermissionException>(() =>
@@ -1721,7 +1721,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var updatedDeskName = "updatedDeskName";
 
     // act
@@ -1794,7 +1794,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var updatedDeskName = "updatedDeskName";
 
     // act
@@ -1870,7 +1870,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -1940,7 +1940,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -2011,7 +2011,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, anotherRoomId, null);
@@ -2083,7 +2083,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, null, anotherDeskTypeId);
@@ -2155,7 +2155,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedDesk = resourceUsecases.UpdateDesk(companyId, deskId, null, null, null);
@@ -2185,7 +2185,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var unknownDeskTypeId = Guid.NewGuid();
 
     // act+assert
@@ -2216,7 +2216,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var noPermissionCompanyId = Guid.NewGuid();
 
     // act+assert
@@ -2289,7 +2289,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() => resourceUsecases.UpdateDeskType(companyId, deskTypeId, ""));
@@ -2361,7 +2361,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act+assert
     var ex = Assert.Throws<ArgumentInvalidException>(() =>
@@ -2434,7 +2434,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
     var deskTypeNameThatDoesNotExistYet = "deskNameThatDoesNotExistYet";
 
     // act
@@ -2509,7 +2509,7 @@ public class ResourceUsecasesTests
     var userLogger = new Mock<ILogger<UserUsecases>>();
     var userUsecases = new UserUsecases(userLogger.Object, context);
     var resourceLogger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context, userUsecases);
+    var resourceUsecases = new ResourceUsecases(resourceLogger.Object, context);
 
     // act
     var updatedDeskType = resourceUsecases.UpdateDeskType(companyId, anotherDeskTypeId, null);
@@ -2552,7 +2552,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -2578,7 +2578,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var callId = Guid.NewGuid();
 
     //act
@@ -2628,7 +2628,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act
     var result = usecases.GetAllFloors(userId);
@@ -2671,7 +2671,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -2697,11 +2697,11 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
-    var result = usecases.GetFloors(userId, "");
+    var result = usecases.GetAllFloors(userId);
 
     //assert
     Assert.That(result, Is.Not.Empty);
@@ -2725,7 +2725,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var callId = Guid.NewGuid();
 
     //act
@@ -2757,7 +2757,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     usecases.DeleteRoom(userId, roomId.ToString());
 
 
@@ -2784,7 +2784,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     usecases.DeleteRoom(userId, roomId.ToString());
 
 
@@ -2809,7 +2809,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //assert + act
     Assert.Throws<ArgumentInvalidException>(() => usecases.GetRooms(userId, "abs"));
@@ -2831,10 +2831,10 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act
-    var result = usecases.GetRooms(userId, "");
+    var result = usecases.GetAllRooms(userId);
 
     //assert
     Assert.That(result, Is.Not.Empty);
@@ -2874,7 +2874,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act
     var result = usecases.GetAllRooms(userId);
@@ -2916,7 +2916,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act
     var result = usecases.GetAllDesks(userId);
@@ -2984,7 +2984,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3013,7 +3013,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var callId = Guid.NewGuid();
 
     //act
@@ -3049,11 +3049,11 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act
 
-    var result = usecases.GetDesks(userId, "", start, end);
+    var result = usecases.GetAllDesks(userId);
 
     //assert
     Assert.That(result, Is.Not.Empty);
@@ -3090,7 +3090,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3150,7 +3150,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3210,7 +3210,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3259,7 +3259,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var callId = Guid.NewGuid();
 
     //act
@@ -3305,7 +3305,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3347,7 +3347,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3376,7 +3376,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3405,7 +3405,7 @@ public class ResourceUsecasesTests
     //arrange
     var deskName = "validDeskName";
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
 
     //act
@@ -3434,7 +3434,7 @@ public class ResourceUsecasesTests
     //arrange
     var duplicated = "Desk1";
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act+assert
     Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(duplicated, deskTypeId, roomId));
@@ -3460,7 +3460,7 @@ public class ResourceUsecasesTests
     //arrange
     var noDeskName = "";
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act+assert
     Assert.Throws<ArgumentInvalidException>(() => usecases.CreateDesk(noDeskName, deskTypeId, roomId));
@@ -3486,7 +3486,7 @@ public class ResourceUsecasesTests
     //arrange
     var deskName = "validDeskName";
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act+assert
     Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, invalidDeskTypeId, roomId));
@@ -3511,7 +3511,7 @@ public class ResourceUsecasesTests
     //arrange
     var deskName = "validDeskName";
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
 
     //act+assert
     Assert.Throws<EntityNotFoundException>(() => usecases.CreateDesk(deskName, deskTypeId, invalidRoomId));
@@ -3531,7 +3531,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var deskTypeName = "validDeskName";
     var invalidCompanyId = Guid.NewGuid();
 
@@ -3554,7 +3554,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var noDeskTypeName = "";
 
     //act+assert
@@ -3576,7 +3576,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var duplicateName = "Typ1";
 
     //act+assert
@@ -3598,7 +3598,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var deskTypeName = "ValidName";
 
     //act+assert
@@ -3619,7 +3619,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var roomName = "validRoomName";
     var invalidFloorId = Guid.NewGuid();
 
@@ -3643,7 +3643,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var noRoomName = "";
 
     //act+assert
@@ -3666,7 +3666,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var duplicateName = "Raum1";
 
     //act+assert
@@ -3689,7 +3689,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var roomName = "ValidName";
 
     //act+assert
@@ -3710,7 +3710,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var floorName = "validName";
     var invalidBuildingId = Guid.NewGuid();
 
@@ -3734,7 +3734,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var noFloorName = "";
 
     //act+assert
@@ -3757,7 +3757,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var duplicateName = "Stockwerk1";
 
     //act+assert
@@ -3780,7 +3780,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var floorName = "ValidName";
 
     //act+assert
@@ -3801,7 +3801,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var buildingName = "validName";
     var location = "validLocation";
     var invalidCompanyId = Guid.NewGuid();
@@ -3825,7 +3825,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var buildingName = "validName";
     var noLocation = "";
 
@@ -3848,7 +3848,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var noBuildingName = "";
     var location = "validLocation";
 
@@ -3871,7 +3871,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var duplicateName = "Gebäude1";
     var location = "validLocation";
 
@@ -3894,7 +3894,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var usecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var usecases = new ResourceUsecases(logger.Object, db);
     var buildingName = "validName";
     var location = "validLocation";
 
@@ -3917,7 +3917,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
     //act
     resourceUsecases.DeleteBuilding(adminId, buildingId.ToString());
@@ -3938,7 +3938,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -3957,7 +3957,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
     //act
     resourceUsecases.DeleteFloor(adminId, floorId.ToString());
@@ -3978,7 +3978,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -3997,7 +3997,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
     //act
     resourceUsecases.DeleteRoom(adminId, roomId.ToString());
@@ -4018,7 +4018,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4037,7 +4037,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
     //act
     resourceUsecases.DeleteDesk(adminId, deskId.ToString());
@@ -4057,7 +4057,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4077,7 +4077,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteDesk(adminId, deskId.ToString());
     //act
     resourceUsecases.DeleteDeskType(adminId, deskTypeId.ToString());
@@ -4097,7 +4097,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4116,7 +4116,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteBuilding(adminId, buildingId.ToString());
 
     //act
@@ -4137,7 +4137,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4156,7 +4156,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteFloor(adminId, floorId.ToString());
 
     //act
@@ -4177,7 +4177,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4196,7 +4196,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteRoom(adminId, roomId.ToString());
 
     //act
@@ -4217,7 +4217,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4236,7 +4236,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteDesk(adminId, deskId.ToString());
 
     //act
@@ -4257,7 +4257,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
@@ -4277,7 +4277,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
     resourceUsecases.DeleteDesk(adminId, deskId.ToString());
     resourceUsecases.DeleteDeskType(adminId, deskTypeId.ToString());
 
@@ -4299,7 +4299,7 @@ public class ResourceUsecasesTests
 
     //arrange
     var logger = new Mock<ILogger<ResourceUsecases>>();
-    var resourceUsecases = new ResourceUsecases(logger.Object, db, SetupUserUsecases(db));
+    var resourceUsecases = new ResourceUsecases(logger.Object, db);
 
 
     //act & assert
