@@ -1,5 +1,4 @@
 using Deskstar.DataAccess;
-using Deskstar.Entities;
 using Deskstar.Models;
 
 namespace Deskstar.Usecases;
@@ -27,10 +26,10 @@ public class CompanyUsecases : ICompanyUsecases
 
     if (dbCompanies.ToList().Count == 0) return new List<CompanyDto>();
 
-    var mapCompaniesToCompaniesDto = dbCompanies.Select((c) => new CompanyDto
+    var mapCompaniesToCompaniesDto = dbCompanies.Select(c => new CompanyDto
     {
       CompanyId = c.CompanyId.ToString(),
-      CompanyName = c.CompanyName,
+      CompanyName = c.CompanyName
     }).ToList();
 
     return mapCompaniesToCompaniesDto;

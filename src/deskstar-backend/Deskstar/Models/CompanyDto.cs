@@ -1,21 +1,17 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
 public class CompanyDto
 {
+  [Required] public string CompanyId { get; set; } = null!;
+
+  [Required] public string CompanyName { get; set; } = null!;
+
   public static void createMappings(IMapperConfigurationExpression cfg)
   {
-    cfg.CreateMap<Entities.Company, CompanyDto>();
+    cfg.CreateMap<Company, CompanyDto>();
   }
-  public CompanyDto()
-  {
-
-  }
-
-  [Required]
-  public string CompanyId { get; set; } = null!;
-  [Required]
-  public string CompanyName { get; set; } = null!;
 }

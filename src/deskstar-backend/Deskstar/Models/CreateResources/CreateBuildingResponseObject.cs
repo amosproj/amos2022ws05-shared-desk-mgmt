@@ -1,21 +1,19 @@
 using System.ComponentModel.DataAnnotations;
 using AutoMapper;
+using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
 public class CreateBuildingResponseObject
 {
-  public CreateBuildingResponseObject() { }
+  [Required] public Guid BuildingId { get; set; }
+
+  [Required] public string BuildingName { get; set; } = null!;
+
+  [Required] public string Location { get; set; } = null!;
 
   public static void createMappings(IMapperConfigurationExpression cfg)
   {
-    cfg.CreateMap<Entities.Building, CreateBuildingResponseObject>();
+    cfg.CreateMap<Building, CreateBuildingResponseObject>();
   }
-
-  [Required]
-  public Guid BuildingId { get; set; }
-  [Required]
-  public string BuildingName { get; set; } = null!;
-  [Required]
-  public string Location { get; set; } = null!;
 }
