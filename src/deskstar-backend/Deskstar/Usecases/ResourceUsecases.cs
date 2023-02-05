@@ -270,7 +270,7 @@ public class ResourceUsecases : IResourceUsecases
     try
     {
       var companyId = _context.Users.Where(user => user.UserId == userId).Select(user => user.CompanyId).First();
-      databaseBuildings = _context.Buildings.Where(building => building.CompanyId == companyId);
+      databaseBuildings = _context.Buildings.Where(building => building.CompanyId == companyId).OrderBy(building => building.BuildingName);
     }
     catch (Exception e) when (e is FormatException or ArgumentNullException or OverflowException)
     {
@@ -331,7 +331,7 @@ public class ResourceUsecases : IResourceUsecases
 
     if (databaseFloors.ToList().Count == 0) return new List<CurrentFloor>();
 
-    var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
+    var mapFloorsToCurrentFloors = databaseFloors.OrderBy(f=>f.FloorName).Select(f => new CurrentFloor
     {
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
@@ -364,7 +364,7 @@ public class ResourceUsecases : IResourceUsecases
 
     if (databaseFloors.ToList().Count == 0) return new List<CurrentFloor>();
 
-    var mapFloorsToCurrentFloors = databaseFloors.Select(f => new CurrentFloor
+    var mapFloorsToCurrentFloors = databaseFloors.OrderBy(f=>f.FloorName).Select(f => new CurrentFloor
     {
       BuildingId = f.BuildingId.ToString(),
       BuildingName = f.Building.BuildingName,
@@ -406,7 +406,7 @@ public class ResourceUsecases : IResourceUsecases
 
     if (databaseRooms.ToList().Count == 0) return new List<CurrentRoom>();
 
-    var mapRoomsToCurrentRooms = databaseRooms.Select(r => new CurrentRoom
+    var mapRoomsToCurrentRooms = databaseRooms.OrderBy(r=>r.RoomName).Select(r => new CurrentRoom
     {
       RoomId = r.RoomId.ToString(),
       RoomName = r.RoomName,
@@ -469,7 +469,7 @@ public class ResourceUsecases : IResourceUsecases
     try
     {
       var databaseDesks = _context.Desks.Include(d => d.Room)
-        .ThenInclude(r=>r.Floor).ThenInclude(f=>f.Building).Where(desk => desk.RoomId == roomGuid);
+        .ThenInclude(r=>r.Floor).ThenInclude(f=>f.Building).Where(desk => desk.RoomId == roomGuid).OrderBy(d=>d.DeskName);
       if (databaseDesks.ToList().Count == 0)
       {
         var databaseRoom = _context.Rooms.First(room => room.RoomId == roomGuid);
@@ -529,7 +529,7 @@ public class ResourceUsecases : IResourceUsecases
         .ThenInclude(r=>r.Floor).ThenInclude(f=>f.Building)
         .Where(desk => desk.Room.Floor.Building.CompanyId == companyId);
 
-      mapDesksToCurrentDesks = databaseDesks.Select(desk => new CurrentDesk
+      mapDesksToCurrentDesks = databaseDesks.OrderBy(d=>d.DeskName).Select(desk => new CurrentDesk
       {
         DeskId = desk.DeskId.ToString(),
         DeskName = desk.DeskName,
@@ -603,7 +603,7 @@ public class ResourceUsecases : IResourceUsecases
 
   public List<DeskType> GetDeskTypes(Guid companyId)
   {
-    return _context.DeskTypes.Where(d => d.CompanyId == companyId).ToList();
+    return _context.DeskTypes.Where(d => d.CompanyId == companyId).OrderBy(d=>d.DeskTypeName).ToList();
   }
 
   public Desk CreateDesk(string deskName, Guid deskTypeId, Guid roomId)
@@ -786,10 +786,10 @@ public class ResourceUsecases : IResourceUsecases
     deskDbInstance.IsMarkedForDeletion = true;
     _context.SaveChanges();
 
-    notifybookers(deskDbInstance);
+    NotifyBookers(deskDbInstance);
   }
 
-  private void notifybookers(Desk deletedDesk)
+  private void NotifyBookers(Desk deletedDesk)
   {
     var bookings = _context.Bookings.Where(b => b.DeskId == deletedDesk.DeskId).Include(b => b.User).ToList();
     foreach (var booking in bookings)
