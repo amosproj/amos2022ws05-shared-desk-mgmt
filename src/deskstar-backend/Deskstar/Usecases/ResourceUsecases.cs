@@ -369,6 +369,7 @@ public class ResourceUsecases : IResourceUsecases
       BuildingId = f.BuildingId.ToString(),
       BuildingName = f.Building.BuildingName,
       FloorName = f.FloorName,
+      Location = f.Building.Location,
       FloorId = f.FloorId.ToString(),
       IsMarkedForDeletion = f.IsMarkedForDeletion
     });
@@ -442,6 +443,9 @@ public class ResourceUsecases : IResourceUsecases
     {
       RoomId = r.RoomId.ToString(),
       RoomName = r.RoomName,
+      Floor = r.Floor.FloorName,
+      Building = r.Floor.Building.BuildingName,
+      Location = r.Floor.Building.Location,
       FloorId = r.FloorId.ToString(),
       IsMarkedForDeletion = r.IsMarkedForDeletion
     });
