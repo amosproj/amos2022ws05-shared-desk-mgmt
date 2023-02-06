@@ -471,17 +471,26 @@ public class BookingUsecasesTest
   }
 
   [Test]
-  public void UpdateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
+  public void UpdateBooking_WhenBookingIsInThePast_ShouldThrowAnArgumentException()
   {
     //setup
     using var db = new DataContext();
 
     var deskId = Guid.NewGuid();
     var userId = Guid.NewGuid();
+    var bookingId = Guid.NewGuid();
     SetupMockData(db, deskId: deskId, userId:userId);
-
-     =
-    SetupTwoBookings(db, deskId, userId);}
+    var firstBooking = new Booking
+    {
+      BookingId = bookingId,
+      DeskId = deskId,
+      UserId = userId,
+      Timestamp = DateTime.Now,
+      StartTime = DateTime.MinValue,
+      EndTime = DateTime.MinValue
+    };
+    db.Add(firstBooking);
+    db.SaveChanges();
     //arrange
     var logger = new Mock<ILogger<BookingUsecases>>();
     var usecases = new BookingUsecases(logger.Object, db);
@@ -491,18 +500,8 @@ public class BookingUsecasesTest
       StartTime = DateTime.Now,
       EndTime = DateTime.Now
     };
-    //act
-    try
-    {
-      var result = usecases.UpdateBooking(userId,, updateBookingRequest);
-
-      //assert
-      Assert.Fail();
-    }
-    catch (ArgumentException e)
-    {
-      Assert.That(e.Message, Is.EqualTo("User not found"));
-    }
+    //act and assert
+    Assert.Throws<ArgumentException>(()=>usecases.UpdateBooking(userId,bookingId, updateBookingRequest));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -631,7 +630,7 @@ public class BookingUsecasesTest
       EndTime = fbEnd
     };
     //act
-    Assert.throws<ArgumentException>(()=> usecases.UpdateBooking(userId, bookingId, updateBookingRequest));
+    Assert.Throws<ArgumentException>(()=> usecases.UpdateBooking(userId, bookingId, updateBookingRequest));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -812,7 +811,7 @@ public class BookingUsecasesTest
   }
 
   [Test]
-  public void UpdateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
+  public void DeleteBooking_WhenBookingIsInThePast_ShouldThrowAnArgumentException()
   {
     //setup
     using var db = new DataContext();
@@ -838,10 +837,8 @@ public class BookingUsecasesTest
     //arrange
     var logger = new Mock<ILogger<BookingUsecases>>();
     var usecases = new BookingUsecases(logger.Object, db);
-    var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
-    var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
     //act
-    Assert.throws<ArgumentException>(()=> usecases.DeleteBooking(userId, bookingId));
+    Assert.Throws<ArgumentException>(()=> usecases.DeleteBooking(userId, bookingId));
 
     //cleanup
     db.Database.EnsureDeleted();
