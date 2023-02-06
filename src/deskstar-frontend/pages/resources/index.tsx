@@ -1,3 +1,5 @@
+"use client";
+
 import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
@@ -65,9 +67,11 @@ const ResourceOverview = ({
 }) => {
   let { data: session } = useSession();
 
-  const locations: ILocation[] = origBuildings.map((building) => ({
-    locationName: building.location,
-  }));
+  const [locations, setLocations] = useState<ILocation[]>(
+    origBuildings.map((building) => ({
+      locationName: building.location,
+    }))
+  );
 
   const router = useRouter();
 
@@ -485,6 +489,13 @@ const ResourceOverview = ({
           <AddResourceModal
             buildings={origBuildings}
             deskTypes={origDeskTypes}
+            desks={desks}
+            setDesks={setDesks}
+            setFloors={setFloors}
+            setRooms={setRooms}
+            setBuildings={setBuildings}
+            setDeskTypes={setDeskTypes}
+            setLocations={setLocations}
           />
         </div>
       </div>
@@ -737,11 +748,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 
   try {
-    const buildings = await getBuildings(session);
-    const floors = await getFloors(session);
-    const rooms = await getRooms(session);
-    const desks = await getDesks(session);
-    const deskTypes = await getDeskTypes(session);
+    const buildings = await (
+      await getBuildings(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const floors = await (
+      await getFloors(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const rooms = await (
+      await getRooms(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const desks = await (
+      await getDesks(session)
+    ).filter((d) => !d.isMarkedForDeletion);
+    const deskTypes = await (
+      await getDeskTypes(session)
+    ).filter((d) => !d.isMarkedForDeletion);
     return {
       props: {
         buildings,

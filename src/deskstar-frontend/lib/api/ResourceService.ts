@@ -39,6 +39,7 @@ export async function getBuildings(session: Session): Promise<IBuilding[]> {
     headers: {
       Authorization: `Bearer ${session.accessToken}`,
     },
+    cache: "no-cache",
   });
 
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
@@ -179,6 +180,7 @@ export async function getDesks(
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
         },
+        cache: "no-cache",
       }
     );
   } else {
@@ -188,6 +190,8 @@ export async function getDesks(
         headers: {
           Authorization: `Bearer ${session.accessToken}`,
         },
+
+        cache: "no-cache",
       }
     );
   }
@@ -195,6 +199,8 @@ export async function getDesks(
   if (!response.ok) throw Error(`${response.status} ${response.statusText}`);
 
   const data = await response.json();
+  console.log(data.length);
+
   return data;
 }
 
