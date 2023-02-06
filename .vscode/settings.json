@@ -3,5 +3,11 @@
   "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "[csharp]": {
     "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare"
   }
 }
