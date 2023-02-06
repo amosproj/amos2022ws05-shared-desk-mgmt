@@ -111,39 +111,37 @@ const BookingTableEntry = ({
       <td className="text-center">{end?.format("HH:mm")}</td>
       {onEdit && (
         <td className="p-0">
-          <td className="p-0">
-            {!isOld(end) && (
-              <label
-                htmlFor={`my-update-booking-${booking.bookingId}-modal`}
-                className="btn btn-ghost"
-              >
-                <FaPencilAlt />
-              </label>
-            )}
-            {isOld(end) && (
-              <label className="btn btn-ghost no-animation">
-                <FaPenSquare />
-              </label>
-            )}
-            <UpdateBookingModal
-              id={`my-update-booking-${booking.bookingId}-modal`}
-              booking={booking}
-              onUpdate={onEdit}
-            />
-          </td>
+          {!isOld(end) && (
+            <label
+              htmlFor={`my-update-booking-${booking.bookingId}-modal`}
+              className="btn btn-ghost"
+            >
+              <FaPencilAlt />
+            </label>
+          )}
+          {isOld(end) && (
+            <button disabled className="btn btn-ghost">
+              <FaPenSquare />
+            </button>
+          )}
+          <UpdateBookingModal
+            id={`my-update-booking-${booking.bookingId}-modal`}
+            booking={booking}
+            onUpdate={onEdit}
+          />
         </td>
       )}
       {onDelete && (
         <td className="p-0">
           {!isOld(end) && (
-            <label className="btn btn-ghost" onClick={() => onDelete(booking)}>
+            <button className="btn btn-ghost" onClick={() => onDelete(booking)}>
               <FaTrashAlt color="red" />
-            </label>
+            </button>
           )}
           {isOld(end) && (
-            <label className="btn btn-ghost no-animation">
+            <button disabled className="btn btn-ghost">
               <FaTrashAlt color="grey" />
-            </label>
+            </button>
           )}
         </td>
       )}
