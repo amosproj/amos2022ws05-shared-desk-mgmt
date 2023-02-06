@@ -18,7 +18,6 @@ const RoomResourceTable = ({
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            {/* set size of Desk column */}
             <th className="bg-secondary text-left">Room</th>
             <th className="bg-secondary text-left">Floor</th>
             <th className="bg-secondary text-left">Building</th>

@@ -30,13 +30,11 @@ export function UsersTable({
 }) {
   const [allUsersButtonState, setAllUsersButtonState] = useState(false);
 
-  // define selection handler
   let toggleUserSelection: (user: IUser) => void;
   let toggleAllUsersSelection: () => void;
   let selectedUsersCount = 0;
   if (onUsersSelection) {
     toggleUserSelection = (selectedUser: IUser) => {
-      // update user state
       const updatedUser: IUser = {
         ...selectedUser,
         selected: !selectedUser.selected,
@@ -45,10 +43,7 @@ export function UsersTable({
       const updatedUsers = users.map((u: IUser) =>
         u.userId !== selectedUser.userId ? u : updatedUser
       );
-
       onUsersSelection(updatedUsers);
-
-      // update all users selection button, if needed
       setAllUsersButtonState(
         updatedUsers.reduce((acc: boolean, currUser: IUser): boolean => {
           if (!currUser.selected) return false;

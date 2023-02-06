@@ -18,7 +18,6 @@ const DeskTypeResourceTable = ({
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            {/* set size of Desk column */}
             <th className="bg-secondary text-left">Desk Type</th>
             {(onDelete || onEdit) && <th className="bg-secondary"></th>}
             {onRestoreUpdate && (

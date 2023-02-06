@@ -276,10 +276,10 @@ export default function DeletedRessourceOverview({
             <p className="text-center text-xl">No archived Floors</p>
           )}
           {floors.length > 0 && (
-          <FloorResourceTable
-            floors={floors}
-            onRestoreUpdate={onRestoreFloorsUpdate}
-          />
+            <FloorResourceTable
+              floors={floors}
+              onRestoreUpdate={onRestoreFloorsUpdate}
+            />
           )}
         </>
       )}
@@ -301,7 +301,6 @@ export default function DeletedRessourceOverview({
   );
 }
 
-//TODO: delete this when using backend data instead of mockup
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,

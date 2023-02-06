@@ -169,9 +169,6 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
             placeholder="Repeat password"
           />
         </div>
-
-        {/* <p className="text-green-500 text-center py-4">{msg}</p> */}
-
         {!clicked ? (
           <button
             className="btn btn-info text-white font-bold py-2 px-4 rounded"
