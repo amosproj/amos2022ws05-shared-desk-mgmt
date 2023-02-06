@@ -232,7 +232,7 @@ namespace Deskstar.Usecases
     }
     public bool SendInitialAdminEmail(string mailAddress, string companyName, string adminMail)
     {
-      return EmailHelper.SendEmail(_logger, mailAddress, $"Account activation of {companyName} ", $"Please activate {companyName}'s initial admin with email: {adminMail}");
+      return EmailHelper.SendEmail(_logger, mailAddress, $"Account activation of {companyName} ", $"Please activate {companyName}'s initial admin with email: {adminMail} \n");
     }
   }
 }
