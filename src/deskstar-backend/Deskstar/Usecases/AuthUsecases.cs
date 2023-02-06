@@ -37,7 +37,7 @@ public class AuthUsecases : IAuthUsecases
     try
     {
       var registerUser
-        = _context.Users.Single(u => u.MailAddress == mail);
+        = _context.Users.Single(u => u.MailAddress == mail.ToLower());
       if (registerUser.IsMarkedForDeletion)
         return new LoginResponse
           { Message = LoginReturn.Deleted };
@@ -127,7 +127,7 @@ public class AuthUsecases : IAuthUsecases
     var newUser = new User
     {
       CompanyId = registerUser.CompanyId,
-      MailAddress = registerUser.MailAddress,
+      MailAddress = registerUser.MailAddress.ToLower(),
       FirstName = registerUser.FirstName,
       LastName = registerUser.LastName,
       IsApproved = false
