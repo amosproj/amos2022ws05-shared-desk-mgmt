@@ -1,5 +1,5 @@
 import { IBooking } from "../types/booking";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt } from "react-icons/fa";
 import { UpdateBookingModal } from "./UpdateBookingModal";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -20,16 +20,16 @@ const BookingsTable = ({
       <table className="table table-zebra w-full ">
         <thead className="dark:text-black">
           <tr>
-            <th className="bg-deskstar-green-light text-center">Desk</th>
-            <th className="bg-deskstar-green-light text-center">Room</th>
-            <th className="bg-deskstar-green-light text-center">Building</th>
-            <th className="bg-deskstar-green-light text-center">Start Date</th>
-            <th className="bg-deskstar-green-light text-center">Start Time</th>
-            <th className="bg-deskstar-green-light text-center">End Date</th>
-            <th className="bg-deskstar-green-light text-center">End Time</th>
-            {onEdit && <th className="bg-deskstar-green-light"></th>}
-            {onDelete && <th className="bg-deskstar-green-light"></th>}
-            {onCheckIn && <th className="bg-deskstar-green-light"></th>}
+            <th className="bg-secondary text-center">Desk</th>
+            <th className="bg-secondary text-center">Room</th>
+            <th className="bg-secondary text-center">Building</th>
+            <th className="bg-secondary text-center">Start Date</th>
+            <th className="bg-secondary text-center">Start Time</th>
+            <th className="bg-secondary text-center">End Date</th>
+            <th className="bg-secondary text-center">End Time</th>
+            {onEdit && <th className="bg-secondary"></th>}
+            {onDelete && <th className="bg-secondary"></th>}
+            {onCheckIn && <th className="bg-secondary"></th>}
           </tr>
         </thead>
         <tbody>
@@ -110,7 +110,7 @@ const BookingTableEntry = ({
             htmlFor={`my-update-booking-${booking.bookingId}-modal`}
             className="btn btn-ghost"
           >
-            <FaEdit />
+            <FaPencilAlt />
           </label>
           <UpdateBookingModal
             id={`my-update-booking-${booking.bookingId}-modal`}

@@ -66,8 +66,12 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
       }
 
       setClicked(false);
-      document.location =
-        "/login?msg=Registration+successful!+We+will+contact+you+shortly+to+activate+your+account";
+      toast.success(
+        "Registration successful! We will contact you shortly to activate your account."
+      );
+      setTimeout(() => {
+        document.location = "/login";
+      }, 1000);
       return;
     }
 
@@ -96,7 +100,11 @@ export default function RegisterPanel({ companies }: { companies: Company[] }) {
       return;
     }
 
-    document.location = "/login?msg=Registration+successful";
+    setClicked(false);
+    toast.success("Registration successful!");
+    setTimeout(() => {
+      document.location = "/login";
+    }, 1000);
   }
 
   return (

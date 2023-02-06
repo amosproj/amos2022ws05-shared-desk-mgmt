@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
@@ -27,13 +26,11 @@ public class CurrentDesk
 
   [Required] public bool IsMarkedForDeletion { get; set; } = false;
 
-  [Required]
-  public List<BookingDesks> Bookings { get; set; } = new List<BookingDesks>();
+  [Required] public List<BookingDesks> Bookings { get; set; } = new();
 }
 
 public class BookingDesks
 {
-
   [Required] public string BookingId { get; set; } = null!;
 
   [Required] public string UserId { get; set; } = null!;

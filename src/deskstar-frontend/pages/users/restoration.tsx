@@ -78,12 +78,17 @@ export default function DeletedUserOverview({
         <title>Archived Users</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">Archived Users</h1>
-      <UsersTable
-        users={users}
-        adminId={session.user.id}
-        onRestoreUpdate={onRestoreUpdate}
-        onUsersSelection={setUsers}
-      />
+      {users.length === 0 && (
+        <p className="text-center text-xl">No archived users</p>
+      )}
+      {users.length > 0 && (
+        <UsersTable
+          users={users}
+          adminId={session.user.id}
+          onRestoreUpdate={onRestoreUpdate}
+          onUsersSelection={setUsers}
+        />
+      )}
     </>
   );
 }

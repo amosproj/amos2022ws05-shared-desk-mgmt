@@ -149,7 +149,6 @@ const ResourceOverview = ({
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
     setIsFetching(true);
-    setIsFetching(true);
     let floors = origFloors.filter((floor) =>
       selectedBuildings.some((building) => {
         return building.buildingId === floor.buildingId;
@@ -369,7 +368,7 @@ const ResourceOverview = ({
       let result = await deleteBuilding(session, building.buildingId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Building ${building.buildingName} deleted!`);
 
         // Remove the building from buildingList
         setBuildings(
@@ -387,7 +386,7 @@ const ResourceOverview = ({
       let result = await deleteFloor(session, floor.floorId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Floor ${floor.floorName} deleted!`);
 
         // Remove the floor from floorList
         setFloors(floors.filter((b) => b.floorId !== floor.floorId));
@@ -403,7 +402,7 @@ const ResourceOverview = ({
       let result = await deleteRoom(session, room.roomId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Room ${room.roomName} deleted!`);
 
         // Remove the room from roomList
         setRooms(rooms.filter((b) => b.roomId !== room.roomId));
@@ -419,7 +418,7 @@ const ResourceOverview = ({
       let result = await deleteDesk(session, desk.deskId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Desk ${desk.deskName} deleted!`);
 
         // Remove the desk from deskList
         setDesks(desks.filter((b) => b.deskId !== desk.deskId));
@@ -481,7 +480,7 @@ const ResourceOverview = ({
           <a
             href="#create-resource-modal"
             type="button"
-            className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
+            className="btn text-black btn-secondary bg-primary hover:bg-secondary border-primary hover:border-secondary ml-2"
             onClick={() => {}}
           >
             Add Resource
@@ -596,7 +595,7 @@ const ResourceOverview = ({
           />
           <ConfirmModal
             title={"Delete Desk " + desk?.deskName + "?"}
-            description="This might affect some bookings!"
+            description="This might affect bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -627,7 +626,7 @@ const ResourceOverview = ({
           />
           <ConfirmModal
             title={"Delete Room " + room?.roomName + "?"}
-            description="This might affect some bookings!"
+            description="This might affect bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -658,7 +657,7 @@ const ResourceOverview = ({
           />
           <ConfirmModal
             title={"Delete Floor " + floor?.floorName + "?"}
-            description="This might affect some bookings!"
+            description="This might affect bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -690,7 +689,7 @@ const ResourceOverview = ({
           />
           <ConfirmModal
             title={"Delete Building " + building?.buildingName + "?"}
-            description="This might affect some bookings!"
+            description="This might affect bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -700,30 +699,31 @@ const ResourceOverview = ({
           />
         </>
       )}
+
       {buildings.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a location</span>
           </div>
         </div>
       )}
       {!(buildings.length == 0) && floors.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a building</span>
           </div>
         </div>
       )}
       {!(floors.length == 0) && rooms.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a floor</span>
           </div>
         </div>
       )}
       {!(rooms.length == 0) && desks.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a room</span>
           </div>
         </div>

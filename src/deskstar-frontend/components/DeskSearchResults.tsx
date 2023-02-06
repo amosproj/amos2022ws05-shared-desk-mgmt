@@ -32,10 +32,20 @@ export default function DeskSearchResults({
     <div>
       {Object.keys(formattedResults).map(
         (location: string, locationIndex: number) => (
-          <Collapse key={location} index={locationIndex} title={location}>
+          <Collapse
+            defaultChecked={true}
+            key={location}
+            index={locationIndex}
+            title={location}
+          >
             {Object.keys(formattedResults[location]).map(
               (building: string, buildingIndex: number) => (
-                <Collapse key={building} index={buildingIndex} title={building}>
+                <Collapse
+                  defaultChecked={true}
+                  key={building}
+                  index={buildingIndex}
+                  title={building}
+                >
                   {Object.keys(formattedResults[location][building]).map(
                     (room: string, roomIndex: number) => (
                       <Collapse key={room} index={roomIndex} title={room}>

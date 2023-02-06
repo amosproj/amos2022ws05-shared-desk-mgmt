@@ -72,7 +72,7 @@ export default function DeletedRessourceOverview({
     selectedBuilding.isMarkedForDeletion = false;
     const result = await restoreBuilding(session, selectedBuilding);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Building ${selectedBuilding.buildingName} restored.`);
       setBuildings(
         buildings.filter(
           (building) => building.buildingId != selectedBuilding.buildingId
@@ -94,7 +94,7 @@ export default function DeletedRessourceOverview({
     selectedFloor.isMarkedForDeletion = false;
     const result = await restoreFloor(session, selectedFloor);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Floor ${selectedFloor.floorName} restored.`);
       setFloors(
         floors.filter((floor) => floor.floorId != selectedFloor.floorId)
       );
@@ -112,7 +112,7 @@ export default function DeletedRessourceOverview({
     selectedRoom.isMarkedForDeletion = false;
     const result = await restoreRoom(session, selectedRoom);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Room ${selectedRoom.roomName} restored!`);
       setRooms(rooms.filter((room) => room.roomId != selectedRoom.roomId));
     } else {
       console.error(result.message);
@@ -128,7 +128,7 @@ export default function DeletedRessourceOverview({
     selectedDesk.isMarkedForDeletion = false;
     const result = await restoreDesk(session, selectedDesk);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Desk ${selectedDesk.deskName} restored.`);
       setDesks(desks.filter((desk) => desk.deskName != selectedDesk.deskName));
     } else {
       console.error(result.message);
@@ -146,7 +146,7 @@ export default function DeletedRessourceOverview({
     selectedDeskType.isMarkedForDeletion = false;
     const result = await restoreDeskType(session, selectedDeskType);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Desktype ${selectedDeskType.deskTypeName} restored.`);
       setDeskTypes(
         deskTypes.filter(
           (deskType) => deskType.deskTypeName != selectedDeskType.deskTypeName
@@ -210,11 +210,11 @@ export default function DeletedRessourceOverview({
   return (
     <>
       <Head>
-        <title>Archived Ressources</title>
+        <title>Archived Resources</title>
       </Head>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-center my-10">
-          Archived Ressources
+          Archived Resources
         </h1>
 
         <div className="flex">

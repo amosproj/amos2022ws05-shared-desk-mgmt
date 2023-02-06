@@ -4,9 +4,5 @@ namespace Deskstar.Models;
 
 public class CreateDeskTypeDto
 {
-    public CreateDeskTypeDto() { }
-
-    [Required]
-    public string DeskTypeName { get; set; } = null!;
-
+  [Required] public string DeskTypeName { get; set; } = null!;
 }
