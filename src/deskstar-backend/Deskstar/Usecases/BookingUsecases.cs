@@ -10,7 +10,7 @@ public interface IBookingUsecases
   public List<Booking> GetFilteredBookings(Guid userId, int n, int skip, string direction, DateTime start, DateTime end);
   public List<ExtendedBooking> GetRecentBookings(Guid userId);
   public Booking CreateBooking(Guid userId, BookingRequest bookingRequest);
-  int CountValidBookings(Guid userId, string direction, DateTime start, DateTime end);
+  public int CountValidBookings(Guid userId, string direction, DateTime start, DateTime end);
   public Booking DeleteBooking(Guid userId, Guid bookingId);
   public Booking UpdateBooking(Guid userId, Guid bookingId, UpdateBookingRequest updateBookingRequest);
 }

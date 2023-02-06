@@ -27,6 +27,8 @@ public class AutoMapperConfiguration : IAutoMapperConfiguration
       UpdateDeskTypeResponseObject.createMappings(cfg);
       UpdateFloorResponseObject.createMappings(cfg);
       UpdateRoomResponseObject.createMappings(cfg);
+      LoginResponse.createMappings(cfg);
+      RegisterResponse.createMappings(cfg);
     });
     return config;
   }

@@ -13,10 +13,10 @@ namespace Deskstar.Usecases;
 
 public interface IAuthUsecases
 {
-  LoginResponse CheckCredentials(string mail, string password);
+  Login CheckCredentials(string mail, string password);
   string CreateToken(IConfiguration configuration, string mail);
   User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName);
-  RegisterResponse RegisterUser(RegisterUser registerUser);
+  Registration RegisterUser(RegisterUser registerUser);
 }
 
 public class AuthUsecases : IAuthUsecases
@@ -32,34 +32,34 @@ public class AuthUsecases : IAuthUsecases
     _hasher = new PasswordHasher<User>();
   }
 
-  public LoginResponse CheckCredentials(string mail, string password)
+  public Login CheckCredentials(string mail, string password)
   {
     try
     {
       var registerUser
         = _context.Users.Single(u => u.MailAddress == mail.ToLower());
       if (registerUser.IsMarkedForDeletion)
-        return new LoginResponse
-          { Message = LoginReturn.Deleted };
+        return new Login
+          { Message = LoginStatus.Deleted };
       if (!registerUser
             .IsApproved)
-        return new LoginResponse
-          { Message = LoginReturn.NotYetApproved };
+        return new Login
+          { Message = LoginStatus.NotYetApproved };
       if (_hasher.VerifyHashedPassword(registerUser
             , registerUser
               .Password, password)
           == PasswordVerificationResult.Success)
-        return new LoginResponse
-          { Message = LoginReturn.Ok };
+        return new Login
+          { Message = LoginStatus.Ok };
     }
     catch (Exception e)
     {
       _logger.LogError(e, e.Message);
     }
 
-    return new LoginResponse
+    return new Login
     {
-      Message = LoginReturn.CredentialsWrong
+      Message = LoginStatus.CredentialsWrong
     };
   }
 
@@ -97,7 +97,7 @@ public class AuthUsecases : IAuthUsecases
     return stringToken;
   }
 
-  public RegisterResponse RegisterUser(RegisterUser registerUser)
+  public Registration RegisterUser(RegisterUser registerUser)
   {
     if (string.IsNullOrEmpty(registerUser.FirstName))
       throw new ArgumentInvalidException($"'{nameof(registerUser.FirstName)}' is not set");
@@ -113,15 +113,15 @@ public class AuthUsecases : IAuthUsecases
     if (rx.Matches(registerUser.MailAddress).Count != 1)
       throw new ArgumentInvalidException("Mailaddress is not valid");
     if (_getUser(registerUser.MailAddress) != User.Null)
-      return new RegisterResponse
+      return new Registration
       {
-        Message = RegisterReturn.MailAddressInUse
+        Message = RegisterStatus.MailAddressInUse
       };
 
     if (_getCompany(registerUser.CompanyId) == Company.Null)
-      return new RegisterResponse
+      return new Registration
       {
-        Message = RegisterReturn.CompanyNotFound
+        Message = RegisterStatus.CompanyNotFound
       };
 
     var newUser = new User
@@ -136,9 +136,9 @@ public class AuthUsecases : IAuthUsecases
 
     _context.Users.Add(newUser);
     _context.SaveChanges();
-    return new RegisterResponse
+    return new Registration
     {
-      Message = RegisterReturn.Ok
+      Message = RegisterStatus.Ok
     };
   }
 

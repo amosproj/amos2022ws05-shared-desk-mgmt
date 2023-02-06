@@ -1,4 +1,6 @@
+using AutoMapper;
 using Deskstar.Core.Exceptions;
+using Deskstar.Entities;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -14,12 +16,14 @@ public class AuthController : ControllerBase
   private readonly IAuthUsecases _authUsecases;
   private readonly IConfiguration _configuration;
   private readonly ILogger<AuthController> _logger;
+  private readonly IMapper _mapper;
 
-  public AuthController(ILogger<AuthController> logger, IAuthUsecases authUsecases, IConfiguration configuration)
+  public AuthController(ILogger<AuthController> logger, IAuthUsecases authUsecases, IConfiguration configuration, IAutoMapperConfiguration autoMapperConfiguration)
   {
     _logger = logger;
     _authUsecases = authUsecases;
     _configuration = configuration;
+    _mapper = autoMapperConfiguration.GetConfiguration().CreateMapper();
   }
 
   /// <summary>
@@ -38,8 +42,9 @@ public class AuthController : ControllerBase
   [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status401Unauthorized)]
   public IActionResult CreateToken(CreateTokenUser user)
   {
-    var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
-    if (returnValue.Message == LoginReturn.Ok) return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
+    var loginStatus = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
+    var returnValue = this._mapper.Map<Login, LoginResponse>(loginStatus);
+    if (returnValue.Message == LoginStatus.Ok) return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
 
     return Unauthorized(returnValue.Message.ToString());
   }
@@ -64,8 +69,8 @@ public class AuthController : ControllerBase
     var result = _authUsecases.RegisterUser(registerUser);
     return result.Message switch
     {
-      RegisterReturn.Ok => Ok(),
-      RegisterReturn.CompanyNotFound => NotFound(result.Message.ToString()),
+      RegisterStatus.Ok => Ok(),
+      RegisterStatus.CompanyNotFound => NotFound(result.Message.ToString()),
       _ => BadRequest(result.Message.ToString())
     };
   }

@@ -31,7 +31,7 @@ public class AuthUseCasesTests
 
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(LoginReturn.Ok));
+    Assert.That(result.Message, Is.EqualTo(LoginStatus.Ok));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -72,7 +72,7 @@ public class AuthUseCasesTests
 
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(LoginReturn.NotYetApproved));
+    Assert.That(result.Message, Is.EqualTo(LoginStatus.NotYetApproved));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -97,7 +97,7 @@ public class AuthUseCasesTests
 
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(LoginReturn.CredentialsWrong));
+    Assert.That(result.Message, Is.EqualTo(LoginStatus.CredentialsWrong));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -122,7 +122,7 @@ public class AuthUseCasesTests
 
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(LoginReturn.CredentialsWrong));
+    Assert.That(result.Message, Is.EqualTo(LoginStatus.CredentialsWrong));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -149,7 +149,7 @@ public class AuthUseCasesTests
 
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(LoginReturn.Deleted));
+    Assert.That(result.Message, Is.EqualTo(LoginStatus.Deleted));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -214,7 +214,7 @@ public class AuthUseCasesTests
     var result = subject.RegisterUser(user);
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(RegisterReturn.Ok));
+    Assert.That(result.Message, Is.EqualTo(RegisterStatus.Ok));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -244,7 +244,7 @@ public class AuthUseCasesTests
     var result = subject.RegisterUser(user);
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(RegisterReturn.MailAddressInUse));
+    Assert.That(result.Message, Is.EqualTo(RegisterStatus.MailAddressInUse));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
@@ -279,7 +279,7 @@ public class AuthUseCasesTests
     var result = subject.RegisterUser(user);
 
     //assert
-    Assert.That(result.Message, Is.EqualTo(RegisterReturn.CompanyNotFound));
+    Assert.That(result.Message, Is.EqualTo(RegisterStatus.CompanyNotFound));
 
     //cleanup
     mogDB.Database.EnsureDeleted();
