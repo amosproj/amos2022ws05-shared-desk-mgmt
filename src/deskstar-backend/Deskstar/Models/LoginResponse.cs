@@ -1,16 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
+using Deskstar.Entities;
 
 namespace Deskstar.Models;
 
-public enum LoginReturn
-{
-  NotYetApproved,
-  CredentialsWrong,
-  Deleted,
-  Ok
-}
-
 public class LoginResponse
 {
-  [Required] public LoginReturn Message { get; set; }
+  public static void createMappings(IMapperConfigurationExpression cfg)
+  {
+    cfg.CreateMap<Login, LoginResponse>();
+  }
+  [Required] public LoginStatus Message { get; set; }
 }
