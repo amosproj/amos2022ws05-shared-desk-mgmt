@@ -7,3 +7,7 @@ export * from "./floor";
 export * from "./building";
 export * from "./room";
 export * from "./users";
+
+export type Identifiable = {
+  id: string;
+};
