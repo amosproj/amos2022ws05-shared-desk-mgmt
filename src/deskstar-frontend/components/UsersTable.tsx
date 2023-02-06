@@ -137,7 +137,7 @@ export function UsersTable({
             Approve selection
           </button>
           <button
-            className="btn bg-red-900"
+            className="btn btn-error"
             onClick={() =>
               onApprovalUpdate(
                 users.filter((u) => u.selected),
@@ -152,7 +152,7 @@ export function UsersTable({
       {onRestoreUpdate && onUsersSelection && selectedUsersCount > 0 && (
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
-            className="btn bg-green-900 mb-5 lg:mr-5"
+            className="btn btn-primary mb-5 lg:mr-5"
             onClick={() => onRestoreUpdate(users.filter((u) => u.selected))}
           >
             Restore selection
