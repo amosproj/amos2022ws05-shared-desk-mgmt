@@ -1,5 +1,3 @@
-"use client";
-
 import { GetServerSideProps } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { useSession } from "next-auth/react";
