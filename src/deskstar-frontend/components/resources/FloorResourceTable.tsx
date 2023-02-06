@@ -23,9 +23,7 @@ const FloorResourceTable = ({
             <th className="bg-secondary text-left">Building</th>
             <th className="bg-secondary text-left">Location</th>
             {(onDelete || onEdit) && <th className="bg-secondary"></th>}
-            {onRestoreUpdate && (
-              <th className="bg-secondary text-left">Restore</th>
-            )}
+            {onRestoreUpdate && <th className="bg-secondary text-right">Restore</th>}
           </tr>
         </thead>
         <tbody>
