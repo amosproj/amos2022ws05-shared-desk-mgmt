@@ -13,7 +13,7 @@ public class BookingUsecasesTest
   [Test]
   public void CountValidBookings_WhenBookingsAvailable_ShouldReturnNumberOfBookings()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -39,7 +39,7 @@ public class BookingUsecasesTest
   [Test]
   public void CountValidBookings_WhenNoBookingsAvailable_ShouldReturnZero()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -70,7 +70,7 @@ public class BookingUsecasesTest
   [Test]
   public void GetFilteredBookings_WhenDefaultConfigIsUsed_ShouldReturnASingleBooking()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -114,7 +114,7 @@ public class BookingUsecasesTest
   public void GetFilteredBookings_WhenQueryForNandSkip_ShouldReturnTheExpectedAmountOfBookings(int n, int skip,
     int expectedBookings)
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -143,7 +143,7 @@ public class BookingUsecasesTest
   [Test]
   public void GetFilteredBookings_WhenQueryForDirectionASC_ShouldReturnTheBookingsInAscendingOrder()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -172,7 +172,7 @@ public class BookingUsecasesTest
   [Test]
   public void GetFilteredBookings_WhenQueryForDirectionDESC_ShouldReturnTheBookingsInDescendingOrder()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -202,7 +202,7 @@ public class BookingUsecasesTest
   public void
     GetFilteredBookings_WhenStartIsAfterBookingStartTime_ShouldNotReturnTheBookingsWhereStartTimeBeforeStart()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -233,7 +233,7 @@ public class BookingUsecasesTest
   [Test]
   public void GetFilteredBookings_WhenEndIsBeforeBookingStartTime_ShouldNotReturnTheBookingsWhereStartTimeAfterEnd()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -264,7 +264,7 @@ public class BookingUsecasesTest
   [Test]
   public void CreateBooking_WhenDesksNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -300,7 +300,7 @@ public class BookingUsecasesTest
   [Test]
   public void CreateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var deskId = Guid.NewGuid();
@@ -336,7 +336,7 @@ public class BookingUsecasesTest
   [Test]
   public void CreateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -388,7 +388,7 @@ public class BookingUsecasesTest
   [Test]
   public void CreateBooking_WhenAvailable_ShouldReturnABooking()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -438,7 +438,7 @@ public class BookingUsecasesTest
   [Test]
   public void UpdateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var deskId = Guid.NewGuid();
@@ -471,9 +471,47 @@ public class BookingUsecasesTest
   }
 
   [Test]
+  public void UpdateBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var deskId = Guid.NewGuid();
+    var userId = Guid.NewGuid();
+    SetupMockData(db, deskId: deskId, userId:userId);
+
+     =
+    SetupTwoBookings(db, deskId, userId);}
+    //arrange
+    var logger = new Mock<ILogger<BookingUsecases>>();
+    var usecases = new BookingUsecases(logger.Object, db);
+
+    var updateBookingRequest = new UpdateBookingRequest
+    {
+      StartTime = DateTime.Now,
+      EndTime = DateTime.Now
+    };
+    //act
+    try
+    {
+      var result = usecases.UpdateBooking(userId,, updateBookingRequest);
+
+      //assert
+      Assert.Fail();
+    }
+    catch (ArgumentException e)
+    {
+      Assert.That(e.Message, Is.EqualTo("User not found"));
+    }
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
   public void UpdateBooking_WhenBookingNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -508,7 +546,7 @@ public class BookingUsecasesTest
   [Test]
   public void UpdateBooking_WhenBookingNotFromUser_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId1 = Guid.NewGuid();
@@ -561,7 +599,7 @@ public class BookingUsecasesTest
   [Test]
   public void UpdateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -569,8 +607,6 @@ public class BookingUsecasesTest
     var bookingId = Guid.NewGuid();
 
     SetupMockData(db, userId: userId, deskId: deskId);
-    var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
-    var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
 
     var firstBooking = new Booking
     {
@@ -578,43 +614,24 @@ public class BookingUsecasesTest
       DeskId = deskId,
       UserId = userId,
       Timestamp = DateTime.Now,
-      StartTime = DateTime.Now,
-      EndTime = DateTime.Now
-    };
-    var secondBooking = new Booking
-    {
-      BookingId = Guid.NewGuid(),
-      DeskId = deskId,
-      UserId = userId,
-      Timestamp = DateTime.Now,
-      StartTime = fbStart,
-      EndTime = fbEnd
+      StartTime = DateTime.MinValue,
+      EndTime = DateTime.MinValue
     };
     db.Add(firstBooking);
-    db.Add(secondBooking);
     db.SaveChanges();
 
     //arrange
     var logger = new Mock<ILogger<BookingUsecases>>();
     var usecases = new BookingUsecases(logger.Object, db);
-
+    var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+    var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
     var updateBookingRequest = new UpdateBookingRequest
     {
       StartTime = fbStart,
       EndTime = fbEnd
     };
     //act
-    try
-    {
-      var result = usecases.UpdateBooking(userId, bookingId, updateBookingRequest);
-
-      //assert
-      Assert.Fail();
-    }
-    catch (ArgumentException e)
-    {
-      Assert.That(e.Message, Is.EqualTo("Time slot not available"));
-    }
+    Assert.throws<ArgumentException>(()=> usecases.UpdateBooking(userId, bookingId, updateBookingRequest));
 
     //cleanup
     db.Database.EnsureDeleted();
@@ -623,7 +640,7 @@ public class BookingUsecasesTest
   [Test]
   public void UpdateBooking_WhenAvailable_ShouldReturnABooking()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -673,7 +690,7 @@ public class BookingUsecasesTest
   [Test]
   public void DeleteBooking_WhenUserNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -717,7 +734,7 @@ public class BookingUsecasesTest
   [Test]
   public void DeleteBooking_WhenBookingNotExists_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
@@ -750,7 +767,7 @@ public class BookingUsecasesTest
   [Test]
   public void DeleteBooking_WhenBookingNotFromUser_ShouldThrowAnArgumentException()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId1 = Guid.NewGuid();
@@ -795,9 +812,45 @@ public class BookingUsecasesTest
   }
 
   [Test]
+  public void UpdateBooking_WhenTimeslotBooked_ShouldThrowAnArgumentException()
+  {
+    //setup
+    using var db = new DataContext();
+
+    var userId = Guid.NewGuid();
+    var deskId = Guid.NewGuid();
+    var bookingId = Guid.NewGuid();
+
+    SetupMockData(db, userId: userId, deskId: deskId);
+
+    var firstBooking = new Booking
+    {
+      BookingId = bookingId,
+      DeskId = deskId,
+      UserId = userId,
+      Timestamp = DateTime.Now,
+      StartTime = DateTime.MinValue,
+      EndTime = DateTime.MinValue
+    };
+    db.Add(firstBooking);
+    db.SaveChanges();
+
+    //arrange
+    var logger = new Mock<ILogger<BookingUsecases>>();
+    var usecases = new BookingUsecases(logger.Object, db);
+    var fbStart = DateTime.Now.Add(TimeSpan.FromHours(1));
+    var fbEnd = DateTime.Now.Add(TimeSpan.FromHours(2));
+    //act
+    Assert.throws<ArgumentException>(()=> usecases.DeleteBooking(userId, bookingId));
+
+    //cleanup
+    db.Database.EnsureDeleted();
+  }
+
+  [Test]
   public void DeleteBooking_WhenBookingExists_ShouldReturnABooking()
   {
-    //setup 
+    //setup
     using var db = new DataContext();
 
     var userId = Guid.NewGuid();
