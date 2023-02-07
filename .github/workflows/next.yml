@@ -113,6 +113,15 @@ jobs:
       - name: Run Playwright tests
         working-directory: ./src/deskstar-frontend
         run: yarn playwright test
+        env:
+          DB__HOST: localhost
+          DB__DATABASE: postgres
+          DB__USERNAME: postgres
+          DB__PASSWORD: postgres
+          EMAIL__HOST: example.com
+          EMAIL__PORT: 467
+          EMAIL__ADDRESS: test@example.com
+          EMAIL__PSW: test
 
       - uses: actions/upload-artifact@v3
         if: always()
