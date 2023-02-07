@@ -130,8 +130,8 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
         adminId={session.user.id}
       />
       <ConfirmModal
-        title={"Delete User " + user?.firstName + " " + user?.lastName + "?"}
-        description="The user will be notified about the change!"
+        title={"Delete user " + user?.firstName + " " + user?.lastName + "?"}
+        description="The user will be notified about the change."
         text=""
         warn
         buttonText="DELETE"
@@ -141,13 +141,13 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
       ></ConfirmModal>
       <ConfirmModal
         title={
-          "Change admin rights for User " +
+          "Change admin rights for user " +
           user?.firstName +
           " " +
           user?.lastName +
           "?"
         }
-        description="Please confirm that you want to update the privileges this user an admin."
+        description="Please confirm that you want to update the privileges this user."
         text=""
         warn
         buttonText="UPDATE PRIVILEGES"

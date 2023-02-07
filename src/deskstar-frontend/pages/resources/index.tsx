@@ -559,7 +559,7 @@ const ResourceOverview = ({
             setDeskTypeName={setDeskTypeNameModal}
           />
           <ConfirmModal
-            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            title={"Delete desk type " + deskType?.deskTypeName + "?"}
             description="Make sure that all desks of this type are deleted first!"
             text=""
             warn
@@ -592,8 +592,8 @@ const ResourceOverview = ({
             setDeskName={setDeskNameModal}
           />
           <ConfirmModal
-            title={"Delete Desk " + desk?.deskName + "?"}
-            description="This might affect bookings!"
+            title={"Delete desk " + desk?.deskName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -623,8 +623,8 @@ const ResourceOverview = ({
             setRoomName={setRoomNameModal}
           />
           <ConfirmModal
-            title={"Delete Room " + room?.roomName + "?"}
-            description="This might affect bookings!"
+            title={"Delete room " + room?.roomName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -654,8 +654,8 @@ const ResourceOverview = ({
             setFloorName={setFloorNameModal}
           />
           <ConfirmModal
-            title={"Delete Floor " + floor?.floorName + "?"}
-            description="This might affect bookings!"
+            title={"Delete floor " + floor?.floorName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -686,8 +686,8 @@ const ResourceOverview = ({
             setLocation={setLocationModal}
           />
           <ConfirmModal
-            title={"Delete Building " + building?.buildingName + "?"}
-            description="This might affect bookings!"
+            title={"Delete building " + building?.buildingName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
