@@ -54,3 +54,17 @@ test("login with unknown email and password fails", async ({ page }) => {
   await expect(page).toHaveURL("/login");
   await expect(page.getByText("ErrorInvalidCredentials")).toHaveCount(1);
 });
+
+test("login with email without password fails", async ({ page }) => {
+  await page.goto("/login");
+
+  await page.getByPlaceholder("Email").click();
+  await page.getByPlaceholder("Email").fill("trudy@unknown.com");
+  await page.getByRole("button", { name: "Login" }).click();
+
+  // Displays welcome page
+  await page.waitForLoadState("networkidle");
+  await expect(page).toHaveURL("/login");
+  await page.pause();
+  await expect(page.getByText("ErrorInvalidCredentials")).toHaveCount(1);
+});

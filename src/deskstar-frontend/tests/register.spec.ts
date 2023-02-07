@@ -217,3 +217,38 @@ test("Company select suggests acme ltd", async ({ page }) => {
   await page.getByPlaceholder("Company").fill("A");
   await expect(page.getByText("ACME Ltd.")).toHaveCount(1);
 });
+
+test.only("Registered users can't use the application before approval", async ({
+  page,
+}) => {
+  await page.goto("/register");
+
+  await page.getByPlaceholder("Company").click();
+  await page.getByPlaceholder("Company").fill("A");
+  await page.getByText("ACME Ltd.").click();
+  await page.getByPlaceholder("Firstname").click();
+  await page.getByPlaceholder("Firstname").fill("eve");
+  await page.getByPlaceholder("Firstname").press("Tab");
+  await page.getByPlaceholder("Lastname").fill("employee");
+  await page.getByPlaceholder("Lastname").press("Tab");
+  await page.getByPlaceholder("Email").fill("eve.employee@acme.com");
+  await page.getByPlaceholder("Email").press("Tab");
+  await page.locator('input[name="Password"]').fill("test123");
+  await page.locator('input[name="Password"]').press("Tab");
+  await page.getByPlaceholder("Repeat password").fill("test123");
+  await page.getByRole("button", { name: "Register" }).click();
+
+  await expect(page.getByText("Registration successful!")).toHaveCount(1);
+  await expect(page).toHaveURL("/login");
+  await page.waitForLoadState("networkidle");
+
+  await page.getByPlaceholder("Email").click();
+  await page.getByPlaceholder("Email").fill("eve.employee@acme.com");
+  await page.getByPlaceholder("Email").press("Tab");
+  await page.getByPlaceholder("Password").fill("test123");
+  await page.getByRole("button", { name: "Login" }).click();
+
+  // Notifies approval error and stays on login page
+  await expect(page.getByText("ErrorUserNotApproved")).toHaveCount(1);
+  await expect(page).toHaveURL("/login");
+});
