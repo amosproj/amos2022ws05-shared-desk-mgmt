@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 using Deskstar.Core.Exceptions;
+using Deskstar.Helper;
 using Deskstar.DataAccess;
 using Deskstar.Entities;
 using Deskstar.Models;
@@ -17,6 +18,8 @@ public interface IAuthUsecases
   string CreateToken(IConfiguration configuration, string mail);
   User RegisterAdmin(string firstName, string lastName, string mailAddress, string password, string companyName);
   RegisterResponse RegisterUser(RegisterUser registerUser);
+  public bool SendInitialAdminEmail(string mailAddress, string companyName, string adminMail);
+
 }
 
 public class AuthUsecases : IAuthUsecases
@@ -40,17 +43,17 @@ public class AuthUsecases : IAuthUsecases
         = _context.Users.Single(u => u.MailAddress == mail.ToLower());
       if (registerUser.IsMarkedForDeletion)
         return new LoginResponse
-          { Message = LoginReturn.Deleted };
+        { Message = LoginReturn.Deleted };
       if (!registerUser
             .IsApproved)
         return new LoginResponse
-          { Message = LoginReturn.NotYetApproved };
+        { Message = LoginReturn.NotYetApproved };
       if (_hasher.VerifyHashedPassword(registerUser
             , registerUser
               .Password, password)
           == PasswordVerificationResult.Success)
         return new LoginResponse
-          { Message = LoginReturn.Ok };
+        { Message = LoginReturn.Ok };
     }
     catch (Exception e)
     {
@@ -182,11 +185,10 @@ public class AuthUsecases : IAuthUsecases
       FirstName = firstName,
       LastName = lastName,
       Company = company,
-      IsApproved = true,
-      IsCompanyAdmin = true
+      IsApproved = false,
+      IsCompanyAdmin = true,
     };
     admin.Password = _hasher.HashPassword(admin, password);
-
     _context.Companies.Add(company);
     _context.Users.Add(admin);
 
@@ -194,7 +196,6 @@ public class AuthUsecases : IAuthUsecases
 
     return admin;
   }
-
   private User _getUser(string mail)
   {
     try
@@ -219,5 +220,11 @@ public class AuthUsecases : IAuthUsecases
       _logger.LogError(e, e.Message);
       return Company.Null;
     }
+
+  }
+  public bool SendInitialAdminEmail(string mailAddress, string companyName, string adminMail)
+  {
+    return EmailHelper.SendEmail(_logger, mailAddress, $"Account activation of {companyName} ",
+      $"Please activate {companyName}'s initial admin with email: {adminMail} \n");
   }
 }
