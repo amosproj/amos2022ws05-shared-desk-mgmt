@@ -30,13 +30,11 @@ export function UsersTable({
 }) {
   const [allUsersButtonState, setAllUsersButtonState] = useState(false);
 
-  // define selection handler
   let toggleUserSelection: (user: IUser) => void;
   let toggleAllUsersSelection: () => void;
   let selectedUsersCount = 0;
   if (onUsersSelection) {
     toggleUserSelection = (selectedUser: IUser) => {
-      // update user state
       const updatedUser: IUser = {
         ...selectedUser,
         selected: !selectedUser.selected,
@@ -45,10 +43,7 @@ export function UsersTable({
       const updatedUsers = users.map((u: IUser) =>
         u.userId !== selectedUser.userId ? u : updatedUser
       );
-
       onUsersSelection(updatedUsers);
-
-      // update all users selection button, if needed
       setAllUsersButtonState(
         updatedUsers.reduce((acc: boolean, currUser: IUser): boolean => {
           if (!currUser.selected) return false;
@@ -126,7 +121,7 @@ export function UsersTable({
       {onApprovalUpdate && onUsersSelection && selectedUsersCount > 0 && (
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
-            className="btn bg-green-900 mb-5 lg:mr-5"
+            className="btn btn-primary mb-5 lg:mr-5"
             onClick={() =>
               onApprovalUpdate(
                 users.filter((u) => u.selected),
@@ -137,7 +132,7 @@ export function UsersTable({
             Approve selection
           </button>
           <button
-            className="btn bg-red-900"
+            className="btn btn-error"
             onClick={() =>
               onApprovalUpdate(
                 users.filter((u) => u.selected),
@@ -152,7 +147,7 @@ export function UsersTable({
       {onRestoreUpdate && onUsersSelection && selectedUsersCount > 0 && (
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
-            className="btn bg-green-900 mb-5 lg:mr-5"
+            className="btn btn-primary mb-5 lg:mr-5"
             onClick={() => onRestoreUpdate(users.filter((u) => u.selected))}
           >
             Restore selection
@@ -251,7 +246,7 @@ const UsersTableEntry = ({
             </button>
           )}
           {isSelf && (
-            <button className="btn btn-ghost no-animation">
+            <button disabled className="btn btn-ghost no-animation">
               <FaTrashAlt color="grey" />
             </button>
           )}

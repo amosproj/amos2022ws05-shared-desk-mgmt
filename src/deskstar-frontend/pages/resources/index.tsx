@@ -65,9 +65,11 @@ const ResourceOverview = ({
 }) => {
   let { data: session } = useSession();
 
-  const locations: ILocation[] = origBuildings.map((building) => ({
-    locationName: building.location,
-  }));
+  const [locations, setLocations] = useState<ILocation[]>(
+    origBuildings.map((building) => ({
+      locationName: building.location,
+    }))
+  );
 
   const router = useRouter();
 
@@ -178,9 +180,9 @@ const ResourceOverview = ({
       })
     );
 
-    const filteredDesks: IDesk[] = desks
-      .filter((desk) => desk.bookings.length === 0)
-      .filter((desk) => !desk.isMarkedForDeletion);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => !desk.isMarkedForDeletion
+    );
 
     setDesks(filteredDesks);
     stopFetchingAnimation();
@@ -454,12 +456,12 @@ const ResourceOverview = ({
       {!isFetching && <div className="h-6"></div>}
 
       <Head>
-        <title>Resources Overview</title>
+        <title>Resource Overview</title>
       </Head>
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-left mb-10 mt-5">
-          Resources Overview
+          Resource Overview
         </h1>
         <div className="flex">
           <FilterListbox
@@ -484,6 +486,13 @@ const ResourceOverview = ({
           <AddResourceModal
             buildings={origBuildings}
             deskTypes={origDeskTypes}
+            desks={desks}
+            setDesks={setDesks}
+            setFloors={setFloors}
+            setRooms={setRooms}
+            setBuildings={setBuildings}
+            setDeskTypes={setDeskTypes}
+            setLocations={setLocations}
           />
         </div>
       </div>
@@ -550,7 +559,7 @@ const ResourceOverview = ({
             setDeskTypeName={setDeskTypeNameModal}
           />
           <ConfirmModal
-            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            title={"Delete desk type " + deskType?.deskTypeName + "?"}
             description="Make sure that all desks of this type are deleted first!"
             text=""
             warn
@@ -583,8 +592,8 @@ const ResourceOverview = ({
             setDeskName={setDeskNameModal}
           />
           <ConfirmModal
-            title={"Delete Desk " + desk?.deskName + "?"}
-            description="This might affect bookings!"
+            title={"Delete desk " + desk?.deskName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -614,8 +623,8 @@ const ResourceOverview = ({
             setRoomName={setRoomNameModal}
           />
           <ConfirmModal
-            title={"Delete Room " + room?.roomName + "?"}
-            description="This might affect bookings!"
+            title={"Delete room " + room?.roomName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -645,8 +654,8 @@ const ResourceOverview = ({
             setFloorName={setFloorNameModal}
           />
           <ConfirmModal
-            title={"Delete Floor " + floor?.floorName + "?"}
-            description="This might affect bookings!"
+            title={"Delete floor " + floor?.floorName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -677,8 +686,8 @@ const ResourceOverview = ({
             setLocation={setLocationModal}
           />
           <ConfirmModal
-            title={"Delete Building " + building?.buildingName + "?"}
-            description="This might affect bookings!"
+            title={"Delete building " + building?.buildingName + "?"}
+            description="This might affect some bookings!"
             text=""
             warn
             buttonText="DELETE"
@@ -737,11 +746,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 
   try {
-    const buildings = await getBuildings(session);
-    const floors = await getFloors(session);
-    const rooms = await getRooms(session);
-    const desks = await getDesks(session);
-    const deskTypes = await getDeskTypes(session);
+    const buildings = await (
+      await getBuildings(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const floors = await (
+      await getFloors(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const rooms = await (
+      await getRooms(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const desks = await (
+      await getDesks(session)
+    ).filter((d) => !d.isMarkedForDeletion);
+    const deskTypes = await (
+      await getDeskTypes(session)
+    ).filter((d) => !d.isMarkedForDeletion);
     return {
       props: {
         buildings,

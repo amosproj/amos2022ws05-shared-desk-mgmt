@@ -233,50 +233,74 @@ export default function DeletedRessourceOverview({
       </div>
       {selectedResourceOption === "Desk types" && (
         <>
-          <DeskTypeResourceTable
-            deskTypes={deskTypes}
-            onRestoreUpdate={onRestoreDeskTypesUpdate}
-          />
+          {deskTypes.length === 0 && (
+            <p className="text-center text-xl">No archived Desk Types</p>
+          )}
+          {deskTypes.length > 0 && (
+            <DeskTypeResourceTable
+              deskTypes={deskTypes}
+              onRestoreUpdate={onRestoreDeskTypesUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Desks" && (
         <>
-          <DeskResourceTable
-            desks={desks}
-            onRestoreUpdate={onRestoreDesksUpdate}
-          />
+          {desks.length === 0 && (
+            <p className="text-center text-xl">No archived Desks</p>
+          )}
+          {desks.length > 0 && (
+            <DeskResourceTable
+              desks={desks}
+              onRestoreUpdate={onRestoreDesksUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Rooms" && (
         <>
-          <RoomResourceTable
-            rooms={rooms}
-            onRestoreUpdate={onRestoreRoomsUpdate}
-          />
+          {rooms.length === 0 && (
+            <p className="text-center text-xl">No archived Rooms</p>
+          )}
+          {rooms.length > 0 && (
+            <RoomResourceTable
+              rooms={rooms}
+              onRestoreUpdate={onRestoreRoomsUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Floors" && (
         <>
-          <FloorResourceTable
-            floors={floors}
-            onRestoreUpdate={onRestoreFloorsUpdate}
-          />
+          {floors.length === 0 && (
+            <p className="text-center text-xl">No archived Floors</p>
+          )}
+          {floors.length > 0 && (
+            <FloorResourceTable
+              floors={floors}
+              onRestoreUpdate={onRestoreFloorsUpdate}
+            />
+          )}
         </>
       )}
 
       {selectedResourceOption === "Buildings" && (
         <>
-          <BuildingResourceTable
-            buildings={buildings}
-            onRestoreUpdate={onRestoreBuildingsUpdate}
-          />
+          {buildings.length === 0 && (
+            <p className="text-center text-xl">No archived Buildings</p>
+          )}
+          {buildings.length > 0 && (
+            <BuildingResourceTable
+              buildings={buildings}
+              onRestoreUpdate={onRestoreBuildingsUpdate}
+            />
+          )}
         </>
       )}
     </>
   );
 }
 
-//TODO: delete this when using backend data instead of mockup
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,

@@ -307,7 +307,6 @@ export async function updateBuilding(
       message: body || "An error occured.",
     };
   } else {
-    console.log(body);
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IBuilding,
@@ -343,7 +342,6 @@ export async function updateFloor(
       message: body || "An error occured.",
     };
   } else {
-    console.log(body);
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IFloor,
@@ -379,7 +377,6 @@ export async function updateRoom(
       message: body || "An error occured.",
     };
   } else {
-    console.log(body);
     const parsed = JSON.parse(body);
     const room = parsed as IRoom;
     room.building = parsed["buildingName"];
@@ -419,7 +416,6 @@ export async function updateDesk(
       message: body || "An error occured.",
     };
   } else {
-    console.log(body);
     const parsed = JSON.parse(body);
     const desk = parsed as IDesk;
     desk.deskTyp = parsed["deskTypeName"];
@@ -458,7 +454,6 @@ export async function updateDeskType(
       message: body || "An error occured.",
     };
   } else {
-    console.log(body);
     result = {
       response: ResourceResponse.Success,
       data: JSON.parse(body) as IDeskType,

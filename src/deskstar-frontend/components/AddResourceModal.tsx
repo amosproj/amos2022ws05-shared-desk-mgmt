@@ -6,6 +6,8 @@ import {
   createDeskType,
   createFloor,
   createRoom,
+  getAllDesks,
+  getDesks,
   getFloors,
   getRooms,
 } from "../lib/api/ResourceService";
@@ -17,13 +19,29 @@ import { IRoom } from "../types/room";
 import { toast } from "react-toastify";
 import FilterListbox from "./FilterListbox";
 import Input from "./forms/Input";
+import { classes } from "../lib/helpers";
+import { IDesk } from "../types/desk";
 
 const AddResourceModal = ({
   buildings: origBuildings,
   deskTypes: origDeskTypes,
+  setLocations: setParentLocations,
+  setBuildings: setParentBuildings,
+  desks,
+  setDesks: setParentDesks,
+  setDeskTypes: setParentDeskTypes,
+  setFloors: setParentFloors,
+  setRooms: setParentRooms,
 }: {
   buildings: IBuilding[];
   deskTypes: IDeskType[];
+  setLocations: (locations: ILocation[]) => void;
+  setBuildings: (buildings: IBuilding[]) => void;
+  desks: IDesk[];
+  setDesks: (desks: IDesk[]) => void;
+  setDeskTypes: (deskTypes: IDeskType[]) => void;
+  setFloors: (floors: IFloor[]) => void;
+  setRooms: (rooms: IRoom[]) => void;
 }) => {
   let { data: session } = useSession();
 
@@ -93,7 +111,9 @@ const AddResourceModal = ({
     if (!session) return [];
 
     try {
-      const resFloors = await getFloors(session, selectedBuilding.buildingId);
+      const resFloors = (
+        await getFloors(session, selectedBuilding.buildingId)
+      ).filter((floor) => !floor.isMarkedForDeletion);
       setFloors(resFloors);
     } catch (error) {
       toast.error(`${error}`);
@@ -112,7 +132,10 @@ const AddResourceModal = ({
     if (!session) return [];
 
     try {
-      const resRooms = await getRooms(session, selectedFloor.floorId);
+      const resRooms = await (
+        await getRooms(session, selectedFloor.floorId)
+      ).filter((room) => !room.isMarkedForDeletion);
+
       setRooms(resRooms);
     } catch (error) {
       toast.error(`${error}`);
@@ -146,7 +169,8 @@ const AddResourceModal = ({
     });
     if (res.message.toLowerCase().includes("success")) {
       origBuildings.push(res.data as IBuilding);
-      setBuildings([...buildings, res.data as IBuilding]);
+      setBuildings(origBuildings);
+      setParentBuildings(origBuildings);
       const tmp = new Map<string, ILocation>();
       [
         ...locations,
@@ -155,6 +179,7 @@ const AddResourceModal = ({
         tmp.set(element.locationName, { locationName: element.locationName })
       );
       setLocations(Array.from(tmp.values()));
+      setParentLocations(Array.from(tmp.values()));
       toast.success(res.message);
     } else {
       toast.error(res.message);
@@ -186,6 +211,7 @@ const AddResourceModal = ({
 
     if (res.message.toLowerCase().includes("success")) {
       setFloors([...floors, res.data as IFloor]);
+      setParentFloors([...floors, res.data as IFloor]);
       toast.success(res.message);
     } else {
       toast.error(res.message);
@@ -219,6 +245,7 @@ const AddResourceModal = ({
     });
     if (res.message.toLowerCase().includes("success")) {
       setRooms([...rooms, res.data as IRoom]);
+      setParentRooms([...rooms, res.data as IRoom]);
       toast.success(res.message);
     } else {
       toast.error(res.message);
@@ -238,6 +265,7 @@ const AddResourceModal = ({
 
     if (res.message.toLowerCase().includes("success")) {
       setDeskTypes([...deskTypes, res.data as IDeskType]);
+      setParentDeskTypes([...deskTypes, res.data as IDeskType]);
       toast.success(res.message);
     } else {
       toast.error(res.message);
@@ -279,6 +307,10 @@ const AddResourceModal = ({
       roomId: room?.roomId,
     });
     if (res.message.toLowerCase().includes("success")) {
+      const desk = (await getDesks(session)).find(
+        (d) => d.deskId === (res.data as any).deskId
+      );
+      if (desk) setParentDesks([...desks, desk]);
       toast.success(res.message);
     } else {
       toast.error(res.message);
@@ -565,7 +597,10 @@ const AddResourceModal = ({
                 placeholder="Desk Type Name"
               />
               <a
-                className="btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
+                className={classes(
+                  isLoading ? "disabled" : "",
+                  "btn text-black bg-primary hover:bg-secondary border-primary hover:border-secondary float-right"
+                )}
                 onClick={() => addDeskType()}
               >
                 Confirm

@@ -19,12 +19,11 @@ const BuildingResourceTable = ({
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            {/* set size of Desk column */}
             <th className="bg-secondary text-left">Building</th>
             <th className="bg-secondary text-left">Location</th>
             {(onDelete || onEdit) && <th className="bg-secondary"></th>}
             {onRestoreUpdate && (
-              <th className="bg-secondary text-left">Restore</th>
+              <th className="bg-secondary text-right">Restore</th>
             )}
           </tr>
         </thead>

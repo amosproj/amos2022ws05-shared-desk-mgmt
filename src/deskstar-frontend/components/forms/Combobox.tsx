@@ -21,6 +21,7 @@ export default function OwnCombobox<T>({
   return (
     <div className="dropdown my-2">
       <Combobox value={selected} onChange={setSelected} nullable>
+        <p>Your Company</p>
         <Combobox.Input
           className="input w-full border-2 border-gray-300 p-2 rounded-lg"
           placeholder="Company"
