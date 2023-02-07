@@ -59,13 +59,13 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
-      # - name: Restore dependencies
-      #   run: dotnet restore
-      #   working-directory: ./src/deskstar-backend/Deskstar
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./src/deskstar-backend/Deskstar
 
-      # - name: Build
-      #   run: dotnet build --no-restore
-      #   working-directory: ./src/deskstar-backend/Deskstar
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: ./src/deskstar-backend/Deskstar
 
       - name: Install dotnet ef
         run: dotnet tool install --global dotnet-ef
@@ -85,6 +85,10 @@ jobs:
 
       - name: Push Mockdata to database
         run: PGPASSWORD=postgres psql -U postgres -h localhost postgres < ./src/deskstar-db/dummy-data.sql
+
+      - name: Start the backend
+        run: ./run.sh &
+        working-directory: ./src/deskstar-backend/Deskstar
 
       - uses: actions/setup-node@v3
         with:
