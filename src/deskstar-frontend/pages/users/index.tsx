@@ -119,9 +119,9 @@ export default function UsersOverview({ users }: { users: IUser[] }) {
   return (
     <>
       <Head>
-        <title>Users Overview</title>
+        <title>User Overview</title>
       </Head>
-      <h1 className="text-3xl font-bold text-center my-10">Users Overview</h1>
+      <h1 className="text-3xl font-bold text-center my-10">User Overview</h1>
       <UsersTable
         users={userList}
         onPermissionUpdate={onPermissionUpdate}

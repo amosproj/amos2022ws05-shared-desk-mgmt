@@ -456,12 +456,12 @@ const ResourceOverview = ({
       {!isFetching && <div className="h-6"></div>}
 
       <Head>
-        <title>Resources Overview</title>
+        <title>Resource Overview</title>
       </Head>
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-left mb-10 mt-5">
-          Resources Overview
+          Resource Overview
         </h1>
         <div className="flex">
           <FilterListbox
