@@ -180,9 +180,9 @@ const ResourceOverview = ({
       })
     );
 
-    const filteredDesks: IDesk[] = desks
-      .filter((desk) => desk.bookings.length === 0)
-      .filter((desk) => !desk.isMarkedForDeletion);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => !desk.isMarkedForDeletion
+    );
 
     setDesks(filteredDesks);
     stopFetchingAnimation();

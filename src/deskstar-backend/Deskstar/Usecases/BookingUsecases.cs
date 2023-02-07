@@ -138,10 +138,13 @@ public class BookingUsecases : IBookingUsecases
     {
       throw new ArgumentException("Booking not found");
     }
-
     if (booking.UserId != userId)
     {
       throw new ArgumentException("You are not allowed to delete this booking");
+    }
+    if(booking.EndTime.Date.CompareTo(DateTime.Now.Date) < 0)
+    {
+      throw new ArgumentException("You are not allowed to delete a booking in the past");
     }
 
     _context.Bookings.Remove(booking);
@@ -174,6 +177,10 @@ public class BookingUsecases : IBookingUsecases
     }
 
     var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId && b.BookingId != bookingId);
+    if(booking.EndTime.Date.CompareTo(DateTime.Now.Date) < 0)
+    {
+      throw new ArgumentException("You are not allowed to update a booking in the past.");
+    }
     var timeSlotAvailable = bookings.All(b => b.StartTime >= updateBookingRequest.EndTime || b.EndTime <= updateBookingRequest.StartTime);
     if (!timeSlotAvailable)
     {

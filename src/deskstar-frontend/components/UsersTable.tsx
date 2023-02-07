@@ -246,7 +246,7 @@ const UsersTableEntry = ({
             </button>
           )}
           {isSelf && (
-            <button className="btn btn-ghost no-animation">
+            <button disabled className="btn btn-ghost no-animation">
               <FaTrashAlt color="grey" />
             </button>
           )}
