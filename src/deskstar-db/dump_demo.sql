@@ -28,7 +28,7 @@ INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('eb6
 --
 
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('3de7afbf-0289-4ba6-bada-a34353c5548a', 'Innovation Center', '8745f064-c658-4a32-83fb-9d7d7e6d8f17', 'Platz d. Luftbrücke 5, 12101 Berlin', false);
-INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('5fcde910-ca65-4636-84dd-54bb250252cd', 'Headquarter', '8745f064-c658-4a32-83fb-9d7d7e6d8f17', 'Panoramastraße 1A, 10178 Berlin', true);
+INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('5fcde910-ca65-4636-84dd-54bb250252cd', 'Headquarter', '8745f064-c658-4a32-83fb-9d7d7e6d8f17', 'Panoramastraße 1A, 10178 Berlin', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('d4747f4c-519b-465a-9c1d-2363cbbdec75', 'Headquarter', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Sunshine Avenue 154, 99999 Sunset Valley', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('89d70192-e7be-45a7-a5d6-3fd894f2d0b9', 'Factory', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Moonlight Road 78, 99999 Sunset Valley', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('a4e44b37-c1a8-4d57-9969-abb53975f9a6', 'IT-Center', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Sunshine Avenue 154, 99999 Sunset Valley', false);
