@@ -26,6 +26,14 @@ jobs:
         with:
           dotnet-version: 6.0.x
 
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./src/deskstar-backend/Deskstar
+
+      - name: Build
+        run: dotnet build --no-restore
+        working-directory: ./src/deskstar-backend/Deskstar
+
       - name: Install dotnet ef
         run: dotnet tool install --global dotnet-ef
 
