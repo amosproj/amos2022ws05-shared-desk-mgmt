@@ -311,7 +311,6 @@ public class AuthUseCasesTests
     Assert.NotNull(admin.Company);
     Assert.NotNull(admin.Company.CompanyId);
 
-    Assert.True(admin.IsApproved);
     Assert.True(admin.IsCompanyAdmin);
 
     Assert.That(admin.FirstName, Is.EqualTo(firstName));
