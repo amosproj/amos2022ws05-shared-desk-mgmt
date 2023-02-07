@@ -89,6 +89,15 @@ jobs:
       - name: Start the backend
         run: ./run.sh &
         working-directory: ./src/deskstar-backend/Deskstar
+        env:
+          DB__HOST: localhost
+          DB__DATABASE: postgres
+          DB__USERNAME: postgres
+          DB__PASSWORD: postgres
+          EMAIL__HOST: example.com
+          EMAIL__PORT: 467
+          EMAIL__ADDRESS: test@example.com
+          EMAIL__PSW: test
 
       - uses: actions/setup-node@v3
         with:
