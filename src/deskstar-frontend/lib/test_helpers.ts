@@ -1,6 +1,7 @@
-export async function getUsersInDb(db) {
+export async function getUsersInDb(db: any) {
+  if (!db) throw new Error("No database connection");
   try {
-    const result = await db.query('SELECT * FROM public."User"');
+    const result = await db?.query('SELECT * FROM public."User"');
     console.log(result);
     return result.rows;
   } catch (error) {
@@ -9,9 +10,10 @@ export async function getUsersInDb(db) {
   }
 }
 
-export async function deleteUserInDb(db, email: string) {
+export async function deleteUserInDb(db: any, email: string) {
+  if (!db) throw new Error("No database connection");
   try {
-    await db.query(
+    await db?.query(
       `DELETE FROM public."User" WHERE "MailAddress" IN ('${email}');`
     );
   } catch (error) {

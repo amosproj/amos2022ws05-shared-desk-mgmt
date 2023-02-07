@@ -3,7 +3,7 @@ import { exit } from "process";
 import { getUsersInDb, deleteUserInDb } from "../lib/test_helpers";
 const { Client } = require("pg");
 
-let db;
+let db: any;
 
 test.beforeAll(async () => {
   db = new Client({
@@ -14,7 +14,7 @@ test.beforeAll(async () => {
   });
 
   try {
-    await db.connect();
+    await db?.connect();
     console.log("Connected to database");
   } catch (error) {
     console.error("Error connecting to database");
