@@ -4,13 +4,12 @@ namespace Deskstar.Models;
 
 public enum RegisterReturn
 {
-    Ok,
-    MailAddressInUse,
-    CompanyNotFound
+  Ok,
+  MailAddressInUse,
+  CompanyNotFound
 }
 
 public class RegisterResponse
 {
-    [Required]
-    public RegisterReturn Message { get; set; }
+  [Required] public RegisterReturn Message { get; set; }
 }

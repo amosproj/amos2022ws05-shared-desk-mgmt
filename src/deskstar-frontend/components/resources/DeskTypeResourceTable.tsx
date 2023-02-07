@@ -1,4 +1,4 @@
-import { FaTrashAlt, FaEdit, FaTrashRestore } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaTrashRestore } from "react-icons/fa";
 import React from "react";
 import { IDeskType } from "../../types/desktypes";
 
@@ -18,13 +18,10 @@ const DeskTypeResourceTable = ({
       <table className="table table-zebra w-full">
         <thead className="dark:text-black">
           <tr>
-            {/* set size of Desk column */}
-            <th className="bg-deskstar-green-light text-left">Desk Type</th>
-            {(onDelete || onEdit) && (
-              <th className="bg-deskstar-green-light"></th>
-            )}
+            <th className="bg-secondary text-left">Desk Type</th>
+            {(onDelete || onEdit) && <th className="bg-secondary"></th>}
             {onRestoreUpdate && (
-              <th className="bg-deskstar-green-light text-left">Restore</th>
+              <th className="bg-secondary text-right">Restore</th>
             )}
           </tr>
         </thead>
@@ -59,18 +56,18 @@ const DeksTypeTableEntry = ({
     <tr className="hover">
       <td className="text-left font-bold">{deskType.deskTypeName}</td>
       {(onDelete || onEdit) && (
-        <td className="p-0 text-right">
+        <td className="p-0 pr-2 text-right">
+          {onEdit && (
+            <button className="btn btn-ghost" onClick={() => onEdit(deskType)}>
+              <FaPencilAlt />
+            </button>
+          )}
           {onDelete && (
             <button
               className="btn btn-ghost"
               onClick={() => onDelete(deskType)}
             >
               <FaTrashAlt color="red" />
-            </button>
-          )}
-          {onEdit && (
-            <button className="btn btn-ghost" onClick={() => onEdit(deskType)}>
-              <FaEdit />
             </button>
           )}
         </td>

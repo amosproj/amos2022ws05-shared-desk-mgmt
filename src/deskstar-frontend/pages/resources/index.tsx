@@ -65,9 +65,11 @@ const ResourceOverview = ({
 }) => {
   let { data: session } = useSession();
 
-  const locations: ILocation[] = origBuildings.map((building) => ({
-    locationName: building.location,
-  }));
+  const [locations, setLocations] = useState<ILocation[]>(
+    origBuildings.map((building) => ({
+      locationName: building.location,
+    }))
+  );
 
   const router = useRouter();
 
@@ -145,7 +147,6 @@ const ResourceOverview = ({
 
   async function onSelectedBuildingChange(selectedBuildings: IBuilding[]) {
     setIsFetching(true);
-    setIsFetching(true);
     let floors = origFloors.filter((floor) =>
       selectedBuildings.some((building) => {
         return building.buildingId === floor.buildingId;
@@ -179,9 +180,9 @@ const ResourceOverview = ({
       })
     );
 
-    const filteredDesks: IDesk[] = desks
-      .filter((desk) => desk.bookings.length === 0)
-      .filter((desk) => !desk.isMarkedForDeletion);
+    const filteredDesks: IDesk[] = desks.filter(
+      (desk) => !desk.isMarkedForDeletion
+    );
 
     setDesks(filteredDesks);
     stopFetchingAnimation();
@@ -365,7 +366,7 @@ const ResourceOverview = ({
       let result = await deleteBuilding(session, building.buildingId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Building ${building.buildingName} deleted!`);
 
         // Remove the building from buildingList
         setBuildings(
@@ -383,7 +384,7 @@ const ResourceOverview = ({
       let result = await deleteFloor(session, floor.floorId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Floor ${floor.floorName} deleted!`);
 
         // Remove the floor from floorList
         setFloors(floors.filter((b) => b.floorId !== floor.floorId));
@@ -399,7 +400,7 @@ const ResourceOverview = ({
       let result = await deleteRoom(session, room.roomId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Room ${room.roomName} deleted!`);
 
         // Remove the room from roomList
         setRooms(rooms.filter((b) => b.roomId !== room.roomId));
@@ -415,7 +416,7 @@ const ResourceOverview = ({
       let result = await deleteDesk(session, desk.deskId);
 
       if (result.response == ResourceResponse.Success) {
-        toast.success(result.message);
+        toast.success(`Desk ${desk.deskName} deleted!`);
 
         // Remove the desk from deskList
         setDesks(desks.filter((b) => b.deskId !== desk.deskId));
@@ -455,12 +456,12 @@ const ResourceOverview = ({
       {!isFetching && <div className="h-6"></div>}
 
       <Head>
-        <title>Resources Overview</title>
+        <title>Resource Overview</title>
       </Head>
 
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-left mb-10 mt-5">
-          Resources Overview
+          Resource Overview
         </h1>
         <div className="flex">
           <FilterListbox
@@ -477,7 +478,7 @@ const ResourceOverview = ({
           <a
             href="#create-resource-modal"
             type="button"
-            className="btn text-black btn-secondary bg-deskstar-green-dark hover:bg-deskstar-green-light border-deskstar-green-dark hover:border-deskstar-green-light ml-2"
+            className="btn text-black btn-secondary bg-primary hover:bg-secondary border-primary hover:border-secondary ml-2"
             onClick={() => {}}
           >
             Add Resource
@@ -485,6 +486,13 @@ const ResourceOverview = ({
           <AddResourceModal
             buildings={origBuildings}
             deskTypes={origDeskTypes}
+            desks={desks}
+            setDesks={setDesks}
+            setFloors={setFloors}
+            setRooms={setRooms}
+            setBuildings={setBuildings}
+            setDeskTypes={setDeskTypes}
+            setLocations={setLocations}
           />
         </div>
       </div>
@@ -551,7 +559,7 @@ const ResourceOverview = ({
             setDeskTypeName={setDeskTypeNameModal}
           />
           <ConfirmModal
-            title={"Delete Desktype " + deskType?.deskTypeName + "?"}
+            title={"Delete desk type " + deskType?.deskTypeName + "?"}
             description="Make sure that all desks of this type are deleted first!"
             text=""
             warn
@@ -584,7 +592,7 @@ const ResourceOverview = ({
             setDeskName={setDeskNameModal}
           />
           <ConfirmModal
-            title={"Delete Desk " + desk?.deskName + "?"}
+            title={"Delete desk " + desk?.deskName + "?"}
             description="This might affect some bookings!"
             text=""
             warn
@@ -615,7 +623,7 @@ const ResourceOverview = ({
             setRoomName={setRoomNameModal}
           />
           <ConfirmModal
-            title={"Delete Room " + room?.roomName + "?"}
+            title={"Delete room " + room?.roomName + "?"}
             description="This might affect some bookings!"
             text=""
             warn
@@ -646,7 +654,7 @@ const ResourceOverview = ({
             setFloorName={setFloorNameModal}
           />
           <ConfirmModal
-            title={"Delete Floor " + floor?.floorName + "?"}
+            title={"Delete floor " + floor?.floorName + "?"}
             description="This might affect some bookings!"
             text=""
             warn
@@ -678,7 +686,7 @@ const ResourceOverview = ({
             setLocation={setLocationModal}
           />
           <ConfirmModal
-            title={"Delete Building " + building?.buildingName + "?"}
+            title={"Delete building " + building?.buildingName + "?"}
             description="This might affect some bookings!"
             text=""
             warn
@@ -689,30 +697,31 @@ const ResourceOverview = ({
           />
         </>
       )}
+
       {buildings.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a location</span>
           </div>
         </div>
       )}
       {!(buildings.length == 0) && floors.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a building</span>
           </div>
         </div>
       )}
       {!(floors.length == 0) && rooms.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a floor</span>
           </div>
         </div>
       )}
       {!(rooms.length == 0) && desks.length == 0 && (
         <div className="toast">
-          <div className="alert bg-deskstar-green-dark text-black">
+          <div className="alert bg-primary text-black">
             <span>Please select a room</span>
           </div>
         </div>
@@ -737,11 +746,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     };
 
   try {
-    const buildings = await getBuildings(session);
-    const floors = await getFloors(session);
-    const rooms = await getRooms(session);
-    const desks = await getDesks(session);
-    const deskTypes = await getDeskTypes(session);
+    const buildings = await (
+      await getBuildings(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const floors = await (
+      await getFloors(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const rooms = await (
+      await getRooms(session)
+    ).filter((b) => !b.isMarkedForDeletion);
+    const desks = await (
+      await getDesks(session)
+    ).filter((d) => !d.isMarkedForDeletion);
+    const deskTypes = await (
+      await getDeskTypes(session)
+    ).filter((d) => !d.isMarkedForDeletion);
     return {
       props: {
         buildings,

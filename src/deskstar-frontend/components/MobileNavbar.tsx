@@ -2,7 +2,7 @@ import { HamburgerIcon } from "./Icons";
 
 export default function MobileNavbar() {
   return (
-    <div className="w-full navbar bg-deskstar-green-dark lg:hidden">
+    <div className="w-full navbar bg-primary lg:hidden">
       <div className="flex-none lg:hidden">
         <label htmlFor="my-drawer" className="btn btn-square btn-ghost">
           <HamburgerIcon />

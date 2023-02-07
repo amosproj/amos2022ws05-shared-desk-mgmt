@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { IUser } from "../types/users";
 import {
   FaTrashAlt,
-  FaEdit,
-  FaCheckCircle,
-  FaTimesCircle,
+  FaPencilAlt,
+  FaCheck,
+  FaTimes,
   FaTrashRestore,
 } from "react-icons/fa";
 
@@ -30,13 +30,11 @@ export function UsersTable({
 }) {
   const [allUsersButtonState, setAllUsersButtonState] = useState(false);
 
-  // define selection handler
   let toggleUserSelection: (user: IUser) => void;
   let toggleAllUsersSelection: () => void;
   let selectedUsersCount = 0;
   if (onUsersSelection) {
     toggleUserSelection = (selectedUser: IUser) => {
-      // update user state
       const updatedUser: IUser = {
         ...selectedUser,
         selected: !selectedUser.selected,
@@ -45,10 +43,7 @@ export function UsersTable({
       const updatedUsers = users.map((u: IUser) =>
         u.userId !== selectedUser.userId ? u : updatedUser
       );
-
       onUsersSelection(updatedUsers);
-
-      // update all users selection button, if needed
       setAllUsersButtonState(
         updatedUsers.reduce((acc: boolean, currUser: IUser): boolean => {
           if (!currUser.selected) return false;
@@ -80,7 +75,7 @@ export function UsersTable({
         <thead className="dark:text-black">
           <tr>
             {onUsersSelection && (
-              <th className="bg-deskstar-green-light">
+              <th className="bg-secondary">
                 <label>
                   <input
                     type="checkbox"
@@ -91,22 +86,20 @@ export function UsersTable({
                 </label>
               </th>
             )}
-            <th className="bg-deskstar-green-light text-center">First Name</th>
-            <th className="bg-deskstar-green-light text-center">LastName</th>
-            <th className="bg-deskstar-green-light text-center">E-Mail</th>
+            <th className="bg-secondary text-center">First Name</th>
+            <th className="bg-secondary text-center">Last Name</th>
+            <th className="bg-secondary text-center">E-Mail</th>
             {onPermissionUpdate && (
-              <th className="bg-deskstar-green-light text-center">Admin</th>
+              <th className="bg-secondary text-center">Admin</th>
             )}
             {onApprovalUpdate && (
-              <th className="bg-deskstar-green-light text-center">
-                Approve/Reject
-              </th>
+              <th className="bg-secondary text-center">Approve/Reject</th>
             )}
             {onRestoreUpdate && (
-              <th className="bg-deskstar-green-light text-center">Restore</th>
+              <th className="bg-secondary text-center">Restore</th>
             )}
-            {onEdit && <th className="bg-deskstar-green-light"></th>}
-            {onDelete && <th className="bg-deskstar-green-light"></th>}
+            {onEdit && <th className="bg-secondary"></th>}
+            {onDelete && <th className="bg-secondary"></th>}
           </tr>
         </thead>
         <tbody>
@@ -128,7 +121,7 @@ export function UsersTable({
       {onApprovalUpdate && onUsersSelection && selectedUsersCount > 0 && (
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
-            className="btn bg-green-900 mb-5 lg:mr-5"
+            className="btn btn-primary mb-5 lg:mr-5"
             onClick={() =>
               onApprovalUpdate(
                 users.filter((u) => u.selected),
@@ -139,7 +132,7 @@ export function UsersTable({
             Approve selection
           </button>
           <button
-            className="btn bg-red-900"
+            className="btn btn-error"
             onClick={() =>
               onApprovalUpdate(
                 users.filter((u) => u.selected),
@@ -154,7 +147,7 @@ export function UsersTable({
       {onRestoreUpdate && onUsersSelection && selectedUsersCount > 0 && (
         <div className="mt-10 flex md:justify-center flex-col lg:flex-row">
           <button
-            className="btn bg-green-900 mb-5 lg:mr-5"
+            className="btn btn-primary mb-5 lg:mr-5"
             onClick={() => onRestoreUpdate(users.filter((u) => u.selected))}
           >
             Restore selection
@@ -213,18 +206,18 @@ const UsersTableEntry = ({
         </td>
       )}
       {onApprovalUpdate && (
-        <td className="text-center">
+        <td className="text-center flex gap-2 justify-center">
           <button
             className="btn btn-ghost"
             onClick={() => onApprovalUpdate([user], true)}
           >
-            <FaCheckCircle color="green" />
+            <FaCheck color="green" />
           </button>
           <button
             className="btn btn-ghost"
             onClick={() => onApprovalUpdate([user], false)}
           >
-            <FaTimesCircle color="red" />
+            <FaTimes color="red" />
           </button>
         </td>
       )}
@@ -241,7 +234,7 @@ const UsersTableEntry = ({
       {onEdit && (
         <td className="p-0">
           <button className="btn btn-ghost" onClick={() => onEdit(user)}>
-            <FaEdit />
+            <FaPencilAlt />
           </button>
         </td>
       )}
@@ -253,7 +246,7 @@ const UsersTableEntry = ({
             </button>
           )}
           {isSelf && (
-            <button className="btn btn-ghost no-animation">
+            <button disabled className="btn btn-ghost no-animation">
               <FaTrashAlt color="grey" />
             </button>
           )}
