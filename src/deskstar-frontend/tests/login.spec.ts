@@ -50,6 +50,7 @@ test("login with unknown email and password fails", async ({ page }) => {
   await page.getByRole("button", { name: "Login" }).click();
 
   // Displays welcome page
+  await page.waitForLoadState("networkidle");
   await expect(page).toHaveURL("/login");
   await expect(page.getByText("ErrorInvalidCredentials")).toHaveCount(1);
 });
