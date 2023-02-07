@@ -48,6 +48,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
 
     steps:
       - uses: actions/checkout@v3
@@ -72,7 +74,7 @@ jobs:
         run: dotnet ef database update
         working-directory: ./src/deskstar-backend/Deskstar
         env:
-          DB__HOST: postgres
+          DB__HOST: localhost
           DB__DATABASE: postgres
           DB__USERNAME: postgres
           DB__PASSWORD: postgres
