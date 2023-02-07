@@ -65,6 +65,5 @@ test("login with email without password fails", async ({ page }) => {
   // Displays welcome page
   await page.waitForLoadState("networkidle");
   await expect(page).toHaveURL("/login");
-  await page.pause();
-  await expect(page.getByText("ErrorInvalidCredentials")).toHaveCount(1);
+  await expect(page.getByText("CredentialsSignin")).toHaveCount(1);
 });

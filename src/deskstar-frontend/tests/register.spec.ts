@@ -218,7 +218,7 @@ test("Company select suggests acme ltd", async ({ page }) => {
   await expect(page.getByText("ACME Ltd.")).toHaveCount(1);
 });
 
-test.only("Registered users can't use the application before approval", async ({
+test("Registered users can't use the application before approval", async ({
   page,
 }) => {
   await page.goto("/register");
