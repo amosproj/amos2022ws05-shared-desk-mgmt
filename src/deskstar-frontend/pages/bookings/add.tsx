@@ -111,9 +111,7 @@ export default function AddBooking() {
       <Head>
         <title>Add New Booking</title>
       </Head>
-
       <h1 className="text-3xl font-bold text-center my-10">Book a Desk</h1>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div className="form-control">
           <label className="label" htmlFor="start-date">
@@ -193,7 +191,6 @@ export default function AddBooking() {
       <Filterbar desks={desks} setFilteredDesks={setFilteredDesks} />
 
       {endDateTime >= minimumEndDateTime && filteredDesks.length > 0 && (
-        // <DesksTable desks={filteredDesks} onBook={onBook} />
         <DeskSearchResults results={filteredDesks} onBook={onBook} />
       )}
     </div>

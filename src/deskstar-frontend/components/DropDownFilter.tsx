@@ -11,15 +11,22 @@ export default function DropDownFilter<A>({
   options,
   getItemName,
   setSelectedOptions: parentSetSelectedOptions,
+  preselectedOptions = [],
 }: {
   title: string;
   getItemName: (item: A) => string;
   options: A[];
   setSelectedOptions: (newSelectedOptions: A[]) => void;
+  preselectedOptions?: A[];
 }) {
   options = getUniqueArray(options, getItemName);
-  const [allChecked, setAllChecked] = useState(false);
-  const [selectedOptions, _setSelectedOptions] = useState<A[]>([]);
+  preselectedOptions = getUniqueArray(preselectedOptions, getItemName);
+
+  const [allChecked, setAllChecked] = useState(
+    preselectedOptions.length >= options.length
+  );
+  const [selectedOptions, _setSelectedOptions] =
+    useState<A[]>(preselectedOptions);
 
   function setSelectedOptions(newSelectedOptions: A[]) {
     _setSelectedOptions(newSelectedOptions);

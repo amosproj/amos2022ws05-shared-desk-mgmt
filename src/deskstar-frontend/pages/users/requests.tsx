@@ -75,7 +75,6 @@ export default function UserRequests({
         <title>User Requests</title>
       </Head>
       <h1 className="text-3xl font-bold text-center my-10">User Requests</h1>
-
       {users.length === 0 && (
         <p className="text-center text-xl">No user requests</p>
       )}
