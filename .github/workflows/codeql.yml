@@ -23,7 +23,7 @@ on:
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
-      - '/Documentation'
+      - '/Documentation/**'
   schedule:
     - cron: '15 10 * * 5'
 
