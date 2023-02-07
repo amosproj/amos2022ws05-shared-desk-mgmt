@@ -1,7 +1,16 @@
 --
--- PostgreSQL database dump
+-- Clear Tables
 --
-
+DELETE FROM "public"."UserRole";
+DELETE FROM "public"."Role";
+DELETE FROM "public"."Booking";
+DELETE FROM "public"."User";
+DELETE FROM "public"."Desk";
+DELETE FROM "public"."DeskType";
+DELETE FROM "public"."Room";
+DELETE FROM "public"."Floor";
+DELETE FROM "public"."Building";
+DELETE FROM "public"."Company";
 
 --
 -- Data for Name: Company; Type: TABLE DATA; Schema: "public"; Owner: postgres
@@ -11,7 +20,7 @@ INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('874
 INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Sola Ltd.', NULL);
 INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('5e2761c1-86ae-4cbe-8b40-c1251ee38777', 'FAU (Friedrich-Alexander-Universität Erlangen-Nürnberg)', NULL);
 INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('eb6aa331-ad47-4f25-8a4a-1a9a40399da5', 'TU Berlin (Technische Universität Berlin)', NULL);
-INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('6fb5df25-64b1-4986-b072-04a5f1285b80', 'FU Berlin (Freie Universität Berlin)', NULL);
+-- INSERT INTO "public"."Company" ("CompanyID", "CompanyName", "Logo") VALUES ('6fb5df25-64b1-4986-b072-04a5f1285b80', 'FU Berlin (Freie Universität Berlin)', NULL);
 
 
 --
@@ -24,8 +33,8 @@ INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Loc
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('89d70192-e7be-45a7-a5d6-3fd894f2d0b9', 'Factory', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Moonlight Road 78, 99999 Sunset Valley', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('a4e44b37-c1a8-4d57-9969-abb53975f9a6', 'IT-Center', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', 'Sunshine Avenue 154, 99999 Sunset Valley', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('99b374ab-92c3-4e91-82b6-58c938c08327', 'Blue Skyscraper', '5e2761c1-86ae-4cbe-8b40-c1251ee38777', 'Martensstraße 3, 91058 Erlangen', false);
-INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'Main Building', '6fb5df25-64b1-4986-b072-04a5f1285b80', 'Kaiserswerther Str. 16-18, 14195 Berlin', false);
 INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('b3f2328b-8657-476e-9378-c3bbfb27c1c5', 'Main Building', 'eb6aa331-ad47-4f25-8a4a-1a9a40399da5', 'Straße des 17. Juni 135, 10623 Berlin', false);
+-- INSERT INTO "public"."Building" ("BuildingID", "BuildingName", "CompanyID", "Location", "IsMarkedForDeletion") VALUES ('9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'Main Building', '6fb5df25-64b1-4986-b072-04a5f1285b80', 'Kaiserswerther Str. 16-18, 14195 Berlin', false);
 
 
 --
@@ -41,7 +50,7 @@ INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsM
 INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsMarkedForDeletion") VALUES ('b0a60efc-48b0-4bbc-ba6e-c0c2572c1608', 'Telephone', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', false);
 INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsMarkedForDeletion") VALUES ('8ab4e9e6-e412-4dd5-b099-e5b6e5a9512a', 'Standard', '5e2761c1-86ae-4cbe-8b40-c1251ee38777', false);
 INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsMarkedForDeletion") VALUES ('a8ac0d24-ecdb-4a15-b867-5e26407c59f2', 'Standard', 'eb6aa331-ad47-4f25-8a4a-1a9a40399da5', false);
-INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsMarkedForDeletion") VALUES ('2a666a5f-a5f7-4d55-9cab-118c602eacbc', 'Standard', '6fb5df25-64b1-4986-b072-04a5f1285b80', false);
+--INSERT INTO "public"."DeskType" ("DeskTypeID", "DeskTypeName", "CompanyID", "IsMarkedForDeletion") VALUES ('2a666a5f-a5f7-4d55-9cab-118c602eacbc', 'Standard', '6fb5df25-64b1-4986-b072-04a5f1285b80', false);
 
 
 --
@@ -63,8 +72,8 @@ INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedFor
 INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('612b0887-0ebf-421c-81ac-499809fa2d1b', '99b374ab-92c3-4e91-82b6-58c938c08327', 'Second Floor', false);
 INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('c03c700a-a4c2-4104-9996-10df8d1d73c8', 'b3f2328b-8657-476e-9378-c3bbfb27c1c5', 'First Floor', false);
 INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('b0c8c4ca-3678-46f3-adfc-21fbf4594cd8', 'b3f2328b-8657-476e-9378-c3bbfb27c1c5', 'Second Floor', false);
-INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('0dcd237e-6e38-409c-910d-0262635cb4d2', '9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'First Floor', false);
-INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('64362148-6653-4ef7-b3b4-6a4c86047a7b', '9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'Second Floor', false);
+--INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('0dcd237e-6e38-409c-910d-0262635cb4d2', '9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'First Floor', false);
+--INSERT INTO "public"."Floor" ("FloorID", "BuildingID", "FloorName", "IsMarkedForDeletion") VALUES ('64362148-6653-4ef7-b3b4-6a4c86047a7b', '9cdbfdda-0d37-4780-a6df-2d05ad9d45bc', 'Second Floor', false);
 
 
 --
@@ -97,10 +106,10 @@ INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeleti
 INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('84b76c97-d7f9-4529-805b-494195e37448', 'c03c700a-a4c2-4104-9996-10df8d1d73c8', 'Office 2', false);
 INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('2d1e3874-f815-4b26-8ba1-ddf4e86abb48', 'b0c8c4ca-3678-46f3-adfc-21fbf4594cd8', 'Office 3', false);
 INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('54176838-810c-4332-8e04-4ed411ed5091', 'b0c8c4ca-3678-46f3-adfc-21fbf4594cd8', 'Office 4', false);
-INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('29918eb4-f4ae-44fb-b1a1-76050a04c403', '0dcd237e-6e38-409c-910d-0262635cb4d2', 'Office 1', false);
-INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('0129358e-515a-4d31-a531-59da6134ff66', '0dcd237e-6e38-409c-910d-0262635cb4d2', 'Office 2', false);
-INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('bbde0c96-5ca2-44bd-931e-6b6624187781', '64362148-6653-4ef7-b3b4-6a4c86047a7b', 'Office 3', false);
-INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('17194565-4192-4c6e-ae98-dc4bdb54ea05', '64362148-6653-4ef7-b3b4-6a4c86047a7b', 'Office 4', false);
+--INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('29918eb4-f4ae-44fb-b1a1-76050a04c403', '0dcd237e-6e38-409c-910d-0262635cb4d2', 'Office 1', false);
+--INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('0129358e-515a-4d31-a531-59da6134ff66', '0dcd237e-6e38-409c-910d-0262635cb4d2', 'Office 2', false);
+--INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('bbde0c96-5ca2-44bd-931e-6b6624187781', '64362148-6653-4ef7-b3b4-6a4c86047a7b', 'Office 3', false);
+--INSERT INTO "public"."Room" ("RoomID", "FloorID", "RoomName", "IsMarkedForDeletion") VALUES ('17194565-4192-4c6e-ae98-dc4bdb54ea05', '64362148-6653-4ef7-b3b4-6a4c86047a7b', 'Office 4', false);
 
 
 --
@@ -194,22 +203,22 @@ INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMa
 INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('fc33fa7c-35ac-4317-ae71-09c4867fdc69', 'Desk 2', '54176838-810c-4332-8e04-4ed411ed5091', 'a8ac0d24-ecdb-4a15-b867-5e26407c59f2', false);
 INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('2889bd84-d853-4774-ad42-d0d0e60b7910', 'Desk 3', '54176838-810c-4332-8e04-4ed411ed5091', 'a8ac0d24-ecdb-4a15-b867-5e26407c59f2', false);
 INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('e6f95dd0-32f0-4aba-a561-0cce830147b2', 'Desk 4', '54176838-810c-4332-8e04-4ed411ed5091', 'a8ac0d24-ecdb-4a15-b867-5e26407c59f2', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('11c2f999-9f83-4161-b9a2-1ada5a041413', 'Desk 1', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('27a4c1d5-2cef-473b-9be7-6a5a1c309e29', 'Desk 2', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('9b3f8913-3d9f-4e4c-aa4c-0ca1bb06c4ec', 'Desk 3', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('2db5ba7f-d972-42e7-8100-68749aad118c', 'Desk 4', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('1b2df830-12f7-4eba-a397-4d02b382d141', 'Desk 1', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('4476e111-2155-4965-a084-41647554043c', 'Desk 2', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('7aa5e7b1-1c9c-4e8b-885a-aceda7db8753', 'Desk 3', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('e0ccd6a6-5d1d-4182-92c0-53f4f8b1d5c3', 'Desk 4', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('20bdf574-9a3a-4acc-8450-4d04157df04c', 'Desk 1', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('3a65cee0-036d-4323-a40d-98e98f13b5b2', 'Desk 2', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('9f582b8f-3b93-4c0a-ad0b-f2bdf71eeed9', 'Desk 3', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('c2aa1cd1-296a-432f-97d5-f900f17a2ca1', 'Desk 4', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('31bbe5f6-025d-4a77-8f7c-c11f2f342f50', 'Desk 1', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('4765f53c-f63c-40e9-a51e-fa52ff2cbe2f', 'Desk 2', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('3624f463-ee8a-4d71-a747-20f667834b0a', 'Desk 3', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
-INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('b6b86a66-0718-4822-a334-ad7c23447f58', 'Desk 4', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('11c2f999-9f83-4161-b9a2-1ada5a041413', 'Desk 1', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('27a4c1d5-2cef-473b-9be7-6a5a1c309e29', 'Desk 2', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('9b3f8913-3d9f-4e4c-aa4c-0ca1bb06c4ec', 'Desk 3', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('2db5ba7f-d972-42e7-8100-68749aad118c', 'Desk 4', '29918eb4-f4ae-44fb-b1a1-76050a04c403', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('1b2df830-12f7-4eba-a397-4d02b382d141', 'Desk 1', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('4476e111-2155-4965-a084-41647554043c', 'Desk 2', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('7aa5e7b1-1c9c-4e8b-885a-aceda7db8753', 'Desk 3', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('e0ccd6a6-5d1d-4182-92c0-53f4f8b1d5c3', 'Desk 4', '0129358e-515a-4d31-a531-59da6134ff66', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('20bdf574-9a3a-4acc-8450-4d04157df04c', 'Desk 1', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('3a65cee0-036d-4323-a40d-98e98f13b5b2', 'Desk 2', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('9f582b8f-3b93-4c0a-ad0b-f2bdf71eeed9', 'Desk 3', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('c2aa1cd1-296a-432f-97d5-f900f17a2ca1', 'Desk 4', 'bbde0c96-5ca2-44bd-931e-6b6624187781', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('31bbe5f6-025d-4a77-8f7c-c11f2f342f50', 'Desk 1', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('4765f53c-f63c-40e9-a51e-fa52ff2cbe2f', 'Desk 2', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('3624f463-ee8a-4d71-a747-20f667834b0a', 'Desk 3', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
+--INSERT INTO "public"."Desk" ("DeskID", "DeskName", "RoomID", "DeskTypeID", "IsMarkedForDeletion") VALUES ('b6b86a66-0718-4822-a334-ad7c23447f58', 'Desk 4', '17194565-4192-4c6e-ae98-dc4bdb54ea05', '2a666a5f-a5f7-4d55-9cab-118c602eacbc', false);
 
 
 --
@@ -232,12 +241,11 @@ INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('5f96b64d-a4e9-4986-b6fd-b263f917cb8f', 'Jonathan', 'Martinson', 'jonathan.martinson@sola.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', true, false, false);
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('34a67080-e3ef-46fa-a97d-8f294983265c', 'FAU', 'Admin', 'fau.admin@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '5e2761c1-86ae-4cbe-8b40-c1251ee38777', true, true, false);
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('f94fbc1e-3fec-4939-bc50-2abfff0616cd', 'TU Berlin', 'Admin', 'tu.admin@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', 'eb6aa331-ad47-4f25-8a4a-1a9a40399da5', true, true, false);
-INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('c7e950bf-3f5f-4493-8b41-e5c650b3f285', 'FU Berlin', 'Admin', 'fu.admin@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '6fb5df25-64b1-4986-b072-04a5f1285b80', true, true, false);
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('97b670b9-788a-484c-b2a7-325f18ccb6b4', 'Alice', 'Liddell', 'alice.liddell@sola.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '02c03441-5caa-4a7e-a710-b64cf62cc7aa', true, false, false);
-INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('1ba26de3-b938-41de-8553-35bffe6730d6', 'Ernst', 'Reuter', 'ernst.reuter@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '6fb5df25-64b1-4986-b072-04a5f1285b80', true, false, false);
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('876d811e-9b1d-49da-a5ac-4102c6f81067', 'Friedrich', 'von Brandenburg-Bayreuth', 'friedrich@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '5e2761c1-86ae-4cbe-8b40-c1251ee38777', true, false, false);
 INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('258624a7-ddc7-494f-877a-22f0a7e068cb', 'Wilhelm II.', 'von Preußen', 'wilhelm@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', 'eb6aa331-ad47-4f25-8a4a-1a9a40399da5', true, false, false);
-
+--INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('c7e950bf-3f5f-4493-8b41-e5c650b3f285', 'FU Berlin', 'Admin', 'fu.admin@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '6fb5df25-64b1-4986-b072-04a5f1285b80', true, true, false);
+--INSERT INTO "public"."User" ("UserID", "FirstName", "LastName", "MailAddress", "Password", "CompanyID", "IsApproved", "IsCompanyAdmin", "IsMarkedForDeletion") VALUES ('1ba26de3-b938-41de-8553-35bffe6730d6', 'Ernst', 'Reuter', 'ernst.reuter@acme.com', 'AQAAAAEAACcQAAAAENqF209NJBIx/ViALpcydCj0TmQGXFeS9jMkfj7bLuAIO9vMydo/guHCXHa7zhDg4w==', '6fb5df25-64b1-4986-b072-04a5f1285b80', true, false, false);
 
 --
 -- Data for Name: Booking; Type: TABLE DATA; Schema: "public"; Owner: postgres
@@ -264,12 +272,12 @@ INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "S
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('8693d594-6f92-47a8-8994-08fabdf5b3ef', '258624a7-ddc7-494f-877a-22f0a7e068cb', 'b669f701-6feb-4319-848f-5fb1248cf0b1', '2023-02-05 14:30:40.206267', '2023-02-08 07:00:00', '2023-02-08 16:00:00');
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('195bbd64-4b3a-490a-9b8e-3fe3d62ebf19', '258624a7-ddc7-494f-877a-22f0a7e068cb', 'b669f701-6feb-4319-848f-5fb1248cf0b1', '2023-02-05 14:30:49.663474', '2023-02-09 07:00:00', '2023-02-09 16:00:00');
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('b7717f45-2a19-4a82-85ab-07785a5e79db', '258624a7-ddc7-494f-877a-22f0a7e068cb', 'b669f701-6feb-4319-848f-5fb1248cf0b1', '2023-02-05 14:30:59.099279', '2023-02-10 07:00:00', '2023-02-10 16:00:00');
-INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('951ef162-fda1-4136-9bcd-3150e43ce424', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:31:50.046957', '2023-02-08 07:00:00', '2023-02-08 16:00:00');
-INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('c9bb31e5-cf9b-4e5a-afd4-5948cded5a0d', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:32:01.424831', '2023-02-09 07:00:00', '2023-02-09 16:00:00');
-INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('8f41823e-856c-414b-bf18-5a5c3eea44fd', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:32:10.052421', '2023-02-10 07:00:00', '2023-02-10 16:00:00');
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('c1fbe634-ed00-4cb3-9642-d63c258c39bc', '04d11d03-9fb5-4de5-9734-952929c8787f', '1af9a523-e3e3-4837-a425-444a35322e25', '2023-02-05 14:36:19.167951', '2023-02-09 07:00:00', '2023-02-09 16:00:00');
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('f1e057df-8cea-46e8-a1d2-7c50075846c0', '04d11d03-9fb5-4de5-9734-952929c8787f', '1af9a523-e3e3-4837-a425-444a35322e25', '2023-02-05 14:36:25.564751', '2023-02-10 07:00:00', '2023-02-10 16:00:00');
 INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('f28b423d-ae39-4c06-9a06-8886c63102f9', '04d11d03-9fb5-4de5-9734-952929c8787f', '1af9a523-e3e3-4837-a425-444a35322e25', '2023-02-05 14:36:39.834733', '2023-02-08 07:00:00', '2023-02-08 16:00:00');
+--INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('951ef162-fda1-4136-9bcd-3150e43ce424', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:31:50.046957', '2023-02-08 07:00:00', '2023-02-08 16:00:00');
+--INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('c9bb31e5-cf9b-4e5a-afd4-5948cded5a0d', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:32:01.424831', '2023-02-09 07:00:00', '2023-02-09 16:00:00');
+--INSERT INTO "public"."Booking" ("BookingID", "UserID", "DeskID", "Timestamp", "StartTime", "EndTime") VALUES ('8f41823e-856c-414b-bf18-5a5c3eea44fd', '1ba26de3-b938-41de-8553-35bffe6730d6', '31bbe5f6-025d-4a77-8f7c-c11f2f342f50', '2023-02-05 14:32:10.052421', '2023-02-10 07:00:00', '2023-02-10 16:00:00');
 
 
 --
