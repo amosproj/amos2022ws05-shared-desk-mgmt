@@ -1,5 +1,5 @@
 import { IBooking } from "../types/booking";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaPencilAlt, FaPenSquare } from "react-icons/fa";
 import { UpdateBookingModal } from "./UpdateBookingModal";
 import dayjs, { Dayjs } from "dayjs";
 import { useEffect, useState } from "react";
@@ -20,16 +20,16 @@ const BookingsTable = ({
       <table className="table table-zebra w-full ">
         <thead className="dark:text-black">
           <tr>
-            <th className="bg-deskstar-green-light text-center">Desk</th>
-            <th className="bg-deskstar-green-light text-center">Room</th>
-            <th className="bg-deskstar-green-light text-center">Building</th>
-            <th className="bg-deskstar-green-light text-center">Start Date</th>
-            <th className="bg-deskstar-green-light text-center">Start Time</th>
-            <th className="bg-deskstar-green-light text-center">End Date</th>
-            <th className="bg-deskstar-green-light text-center">End Time</th>
-            {onEdit && <th className="bg-deskstar-green-light"></th>}
-            {onDelete && <th className="bg-deskstar-green-light"></th>}
-            {onCheckIn && <th className="bg-deskstar-green-light"></th>}
+            <th className="bg-secondary text-center">Desk</th>
+            <th className="bg-secondary text-center">Room</th>
+            <th className="bg-secondary text-center">Building</th>
+            <th className="bg-secondary text-center">Start Date</th>
+            <th className="bg-secondary text-center">Start Time</th>
+            <th className="bg-secondary text-center">End Date</th>
+            <th className="bg-secondary text-center">End Time</th>
+            {onEdit && <th className="bg-secondary"></th>}
+            {onDelete && <th className="bg-secondary"></th>}
+            {onCheckIn && <th className="bg-secondary"></th>}
           </tr>
         </thead>
         <tbody>
@@ -78,6 +78,11 @@ const BookingTableEntry = ({
     );
   }, [booking.startTime, booking.endTime]);
 
+  function isOld(end?: dayjs.Dayjs): boolean {
+    if (end == null) return false;
+    return end.isBefore(new Date());
+  }
+
   return (
     <tr className="hover">
       <td className="text-center">
@@ -106,12 +111,19 @@ const BookingTableEntry = ({
       <td className="text-center">{end?.format("HH:mm")}</td>
       {onEdit && (
         <td className="p-0">
-          <label
-            htmlFor={`my-update-booking-${booking.bookingId}-modal`}
-            className="btn btn-ghost"
-          >
-            <FaEdit />
-          </label>
+          {!isOld(end) && (
+            <label
+              htmlFor={`my-update-booking-${booking.bookingId}-modal`}
+              className="btn btn-ghost"
+            >
+              <FaPencilAlt />
+            </label>
+          )}
+          {isOld(end) && (
+            <button disabled className="btn btn-ghost">
+              <FaPenSquare />
+            </button>
+          )}
           <UpdateBookingModal
             id={`my-update-booking-${booking.bookingId}-modal`}
             booking={booking}
@@ -121,9 +133,16 @@ const BookingTableEntry = ({
       )}
       {onDelete && (
         <td className="p-0">
-          <button className="btn btn-ghost" onClick={() => onDelete(booking)}>
-            <FaTrashAlt color="red" />
-          </button>
+          {!isOld(end) && (
+            <button className="btn btn-ghost" onClick={() => onDelete(booking)}>
+              <FaTrashAlt color="red" />
+            </button>
+          )}
+          {isOld(end) && (
+            <button disabled className="btn btn-ghost">
+              <FaTrashAlt color="grey" />
+            </button>
+          )}
         </td>
       )}
       {onCheckIn && (

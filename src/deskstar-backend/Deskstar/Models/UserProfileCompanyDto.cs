@@ -1,23 +1,18 @@
 using AutoMapper;
+using Deskstar.Entities;
 
-namespace Deskstar.Models
+namespace Deskstar.Models;
+
+public class UserProfileCompanyDto
 {
-    public class UserProfileCompanyDto
-    {
-        public static readonly UserProfileCompanyDto Null = new UserProfileCompanyDto();
+  public static readonly UserProfileCompanyDto Null = new();
 
-        public static void createMappings(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<Entities.Company, UserProfileCompanyDto>();
-        }
+  public Guid CompanyId { get; set; }
+  public string CompanyName { get; set; } = null!;
+  public bool? Logo { get; set; }
 
-        public UserProfileCompanyDto()
-        {
-
-        }
-
-        public Guid CompanyId { get; set; }
-        public string CompanyName { get; set; } = null!;
-        public bool? Logo { get; set; }
-    }
+  public static void createMappings(IMapperConfigurationExpression cfg)
+  {
+    cfg.CreateMap<Company, UserProfileCompanyDto>();
+  }
 }

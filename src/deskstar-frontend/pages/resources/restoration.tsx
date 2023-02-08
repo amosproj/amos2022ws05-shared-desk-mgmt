@@ -72,7 +72,7 @@ export default function DeletedRessourceOverview({
     selectedBuilding.isMarkedForDeletion = false;
     const result = await restoreBuilding(session, selectedBuilding);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Building ${selectedBuilding.buildingName} restored.`);
       setBuildings(
         buildings.filter(
           (building) => building.buildingId != selectedBuilding.buildingId
@@ -94,7 +94,7 @@ export default function DeletedRessourceOverview({
     selectedFloor.isMarkedForDeletion = false;
     const result = await restoreFloor(session, selectedFloor);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Floor ${selectedFloor.floorName} restored.`);
       setFloors(
         floors.filter((floor) => floor.floorId != selectedFloor.floorId)
       );
@@ -112,7 +112,7 @@ export default function DeletedRessourceOverview({
     selectedRoom.isMarkedForDeletion = false;
     const result = await restoreRoom(session, selectedRoom);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Room ${selectedRoom.roomName} restored!`);
       setRooms(rooms.filter((room) => room.roomId != selectedRoom.roomId));
     } else {
       console.error(result.message);
@@ -128,7 +128,7 @@ export default function DeletedRessourceOverview({
     selectedDesk.isMarkedForDeletion = false;
     const result = await restoreDesk(session, selectedDesk);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Desk ${selectedDesk.deskName} restored.`);
       setDesks(desks.filter((desk) => desk.deskName != selectedDesk.deskName));
     } else {
       console.error(result.message);
@@ -146,7 +146,7 @@ export default function DeletedRessourceOverview({
     selectedDeskType.isMarkedForDeletion = false;
     const result = await restoreDeskType(session, selectedDeskType);
     if (result.response == ResourceResponse.Success) {
-      toast.success(result.message);
+      toast.success(`Desktype ${selectedDeskType.deskTypeName} restored.`);
       setDeskTypes(
         deskTypes.filter(
           (deskType) => deskType.deskTypeName != selectedDeskType.deskTypeName
@@ -210,11 +210,11 @@ export default function DeletedRessourceOverview({
   return (
     <>
       <Head>
-        <title>Archived Ressources</title>
+        <title>Archived Resources</title>
       </Head>
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-center my-10">
-          Archived Ressources
+          Archived Resources
         </h1>
 
         <div className="flex">
@@ -233,50 +233,74 @@ export default function DeletedRessourceOverview({
       </div>
       {selectedResourceOption === "Desk types" && (
         <>
-          <DeskTypeResourceTable
-            deskTypes={deskTypes}
-            onRestoreUpdate={onRestoreDeskTypesUpdate}
-          />
+          {deskTypes.length === 0 && (
+            <p className="text-center text-xl">No archived Desk Types</p>
+          )}
+          {deskTypes.length > 0 && (
+            <DeskTypeResourceTable
+              deskTypes={deskTypes}
+              onRestoreUpdate={onRestoreDeskTypesUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Desks" && (
         <>
-          <DeskResourceTable
-            desks={desks}
-            onRestoreUpdate={onRestoreDesksUpdate}
-          />
+          {desks.length === 0 && (
+            <p className="text-center text-xl">No archived Desks</p>
+          )}
+          {desks.length > 0 && (
+            <DeskResourceTable
+              desks={desks}
+              onRestoreUpdate={onRestoreDesksUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Rooms" && (
         <>
-          <RoomResourceTable
-            rooms={rooms}
-            onRestoreUpdate={onRestoreRoomsUpdate}
-          />
+          {rooms.length === 0 && (
+            <p className="text-center text-xl">No archived Rooms</p>
+          )}
+          {rooms.length > 0 && (
+            <RoomResourceTable
+              rooms={rooms}
+              onRestoreUpdate={onRestoreRoomsUpdate}
+            />
+          )}
         </>
       )}
       {selectedResourceOption === "Floors" && (
         <>
-          <FloorResourceTable
-            floors={floors}
-            onRestoreUpdate={onRestoreFloorsUpdate}
-          />
+          {floors.length === 0 && (
+            <p className="text-center text-xl">No archived Floors</p>
+          )}
+          {floors.length > 0 && (
+            <FloorResourceTable
+              floors={floors}
+              onRestoreUpdate={onRestoreFloorsUpdate}
+            />
+          )}
         </>
       )}
 
       {selectedResourceOption === "Buildings" && (
         <>
-          <BuildingResourceTable
-            buildings={buildings}
-            onRestoreUpdate={onRestoreBuildingsUpdate}
-          />
+          {buildings.length === 0 && (
+            <p className="text-center text-xl">No archived Buildings</p>
+          )}
+          {buildings.length > 0 && (
+            <BuildingResourceTable
+              buildings={buildings}
+              onRestoreUpdate={onRestoreBuildingsUpdate}
+            />
+          )}
         </>
       )}
     </>
   );
 }
 
-//TODO: delete this when using backend data instead of mockup
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await unstable_getServerSession(
     context.req,

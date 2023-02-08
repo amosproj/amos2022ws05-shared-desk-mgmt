@@ -7,10 +7,9 @@
  *
  * MIT License
  */
-using Deskstar.Core;
+
 using Deskstar.Models;
 using Deskstar.Usecases;
-using Deskstar.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,12 +20,13 @@ namespace Deskstar.Controllers;
 [Produces("application/json")]
 public class CompanyController : ControllerBase
 {
+  private readonly IAutoMapperConfiguration _autoMapperConfiguration;
   private readonly ICompanyUsecases _companyUsecases;
 
   private readonly ILogger<CompanyController> _logger;
-  private readonly IAutoMapperConfiguration _autoMapperConfiguration;
 
-  public CompanyController(ILogger<CompanyController> logger, ICompanyUsecases companyUsecases, IAutoMapperConfiguration autoMapperConfiguration)
+  public CompanyController(ILogger<CompanyController> logger, ICompanyUsecases companyUsecases,
+    IAutoMapperConfiguration autoMapperConfiguration)
   {
     _logger = logger;
     _companyUsecases = companyUsecases;
@@ -34,11 +34,11 @@ public class CompanyController : ControllerBase
   }
 
   /// <summary>
-  /// Get all companies
+  ///   Get all companies
   /// </summary>
   /// <returns> A list of companies</returns>
   /// <remarks>
-  /// Sample request: Get /companies
+  ///   Sample request: Get /companies
   /// </remarks>
   /// <response code="200">Returns a list of companies</response>
   /// <response code="500">Internal Server Error</response>

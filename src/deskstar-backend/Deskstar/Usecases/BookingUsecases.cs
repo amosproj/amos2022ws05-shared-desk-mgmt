@@ -31,7 +31,7 @@ public class BookingUsecases : IBookingUsecases
     var allBookingsFromUser = _context.Bookings.Where(booking => booking.UserId == userId);
     var filteredEnd = allBookingsFromUser.Where(b => b.StartTime < end);
     var filteredStart = filteredEnd.Where(b => b.StartTime >= start);
-    var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime);
+    var sortedBookings = direction.ToUpper() == "ASC" ? filteredStart.OrderBy(bookings => bookings.StartTime) : filteredStart.OrderByDescending(b => b.StartTime).ThenBy(b=>b.Desk.DeskName);
     var skipped = sortedBookings.Skip(skip);
     var takeN = skipped.Take(n);
     var withReferences = takeN.Include(b => b.Desk)
@@ -138,10 +138,13 @@ public class BookingUsecases : IBookingUsecases
     {
       throw new ArgumentException("Booking not found");
     }
-
     if (booking.UserId != userId)
     {
       throw new ArgumentException("You are not allowed to delete this booking");
+    }
+    if(booking.EndTime.Date.CompareTo(DateTime.Now.Date) < 0)
+    {
+      throw new ArgumentException("You are not allowed to delete a booking in the past");
     }
 
     _context.Bookings.Remove(booking);
@@ -174,6 +177,10 @@ public class BookingUsecases : IBookingUsecases
     }
 
     var bookings = _context.Bookings.Where(b => b.DeskId == booking.DeskId && b.BookingId != bookingId);
+    if(booking.EndTime.Date.CompareTo(DateTime.Now.Date) < 0)
+    {
+      throw new ArgumentException("You are not allowed to update a booking in the past.");
+    }
     var timeSlotAvailable = bookings.All(b => b.StartTime >= updateBookingRequest.EndTime || b.EndTime <= updateBookingRequest.StartTime);
     if (!timeSlotAvailable)
     {

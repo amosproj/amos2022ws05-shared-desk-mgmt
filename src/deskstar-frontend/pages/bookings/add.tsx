@@ -52,11 +52,12 @@ export default function AddBooking() {
 
   useMemo(async () => {
     if (session == null) return [];
-    const desks = await getAggregatedDesks(
+    let desks = await getAggregatedDesks(
       session,
       dayjs(startDateTime),
       dayjs(endDateTime)
     );
+    desks = desks.filter((d) => d.isMarkedForDeletion === false);
     setDesks(desks);
   }, [session, startDateTime, endDateTime]);
 
@@ -110,7 +111,8 @@ export default function AddBooking() {
       <Head>
         <title>Add New Booking</title>
       </Head>
-      <h1 className="text-4xl mb-5">Book a desk</h1>
+
+      <h1 className="text-3xl font-bold text-center my-10">Book a Desk</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <div className="form-control">

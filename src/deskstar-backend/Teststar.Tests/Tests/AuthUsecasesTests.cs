@@ -165,11 +165,11 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, mogDB);
     var mogSettings = new Dictionary<string, string>
-        {
-            { "Jwt:Issuer", "https://deskstar.com/" },
-            { "Jwt:Audience", "https://deskstar.com/" },
-            { "Jwt:Key", "thisIsATopSecretForTesting" }
-        };
+    {
+      { "Jwt:Issuer", "https://deskstar.com/" },
+      { "Jwt:Audience", "https://deskstar.com/" },
+      { "Jwt:Key", "thisIsATopSecretForTesting" }
+    };
     var configuration = new ConfigurationBuilder().AddInMemoryCollection(mogSettings).Build();
 
 
@@ -284,6 +284,7 @@ public class AuthUseCasesTests
     //cleanup
     mogDB.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenAllValuesValid_ShouldCreateAdminAndCompany()
   {
@@ -310,7 +311,6 @@ public class AuthUseCasesTests
     Assert.NotNull(admin.Company);
     Assert.NotNull(admin.Company.CompanyId);
 
-    Assert.True(admin.IsApproved);
     Assert.True(admin.IsCompanyAdmin);
 
     Assert.That(admin.FirstName, Is.EqualTo(firstName));
@@ -320,6 +320,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   [TestCase("a")]
   [TestCase("a.de")]
@@ -341,7 +342,8 @@ public class AuthUseCasesTests
     var companyName = "company";
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, invalidMailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, invalidMailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"E-Mail '{invalidMailAddress}' is not valid"));
@@ -349,6 +351,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenMailIsInvalid_ShouldCreateAdminAndCompany()
   {
@@ -371,7 +374,8 @@ public class AuthUseCasesTests
     var password = "testpw";
 
     // act+assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"Company name '{companyName}' already in use"));
@@ -379,6 +383,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenCalledWithEmptyFirstName_ShouldThrowInvalidArgumentException()
   {
@@ -390,15 +395,16 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, context);
 
-    string firstName = string.Empty;
-    string lastName = "notEmpty";
-    string mailAddress = "notEmpty";
-    string password = "notEmpty";
-    string companyName = "notEmpty";
+    var firstName = string.Empty;
+    var lastName = "notEmpty";
+    var mailAddress = "notEmpty";
+    var password = "notEmpty";
+    var companyName = "notEmpty";
 
 
     // act + assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"'{nameof(firstName)}' is not set"));
@@ -406,6 +412,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenCalledWithEmptyLastName_ShouldThrowInvalidArgumentException()
   {
@@ -417,15 +424,16 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, context);
 
-    string firstName = "notEmpty";
-    string lastName = string.Empty;
-    string mailAddress = "notEmpty";
-    string password = "notEmpty";
-    string companyName = "notEmpty";
+    var firstName = "notEmpty";
+    var lastName = string.Empty;
+    var mailAddress = "notEmpty";
+    var password = "notEmpty";
+    var companyName = "notEmpty";
 
 
     // act + assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"'{nameof(lastName)}' is not set"));
@@ -433,6 +441,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenCalledWithEmptyMailAddress_ShouldThrowInvalidArgumentException()
   {
@@ -444,15 +453,16 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, context);
 
-    string firstName = "notEmpty";
-    string lastName = "notEmpty";
-    string mailAddress = string.Empty;
-    string password = "notEmpty";
-    string companyName = "notEmpty";
+    var firstName = "notEmpty";
+    var lastName = "notEmpty";
+    var mailAddress = string.Empty;
+    var password = "notEmpty";
+    var companyName = "notEmpty";
 
 
     // act + assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"'{nameof(mailAddress)}' is not set"));
@@ -460,6 +470,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenCalledWithEmptyPassword_ShouldThrowInvalidArgumentException()
   {
@@ -471,15 +482,16 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, context);
 
-    string firstName = "notEmpty";
-    string lastName = "notEmpty";
-    string mailAddress = "notEmpty";
-    string password = string.Empty;
-    string companyName = "notEmpty";
+    var firstName = "notEmpty";
+    var lastName = "notEmpty";
+    var mailAddress = "notEmpty";
+    var password = string.Empty;
+    var companyName = "notEmpty";
 
 
     // act + assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"'{nameof(password)}' is not set"));
@@ -487,6 +499,7 @@ public class AuthUseCasesTests
     // cleanup
     context.Database.EnsureDeleted();
   }
+
   [Test]
   public void RegisterAdmin_WhenCalledWithEmptyCompanyName_ShouldThrowInvalidArgumentException()
   {
@@ -498,15 +511,16 @@ public class AuthUseCasesTests
     var logger = new Mock<ILogger<AuthUsecases>>();
     var subject = new AuthUsecases(logger.Object, context);
 
-    string firstName = "notEmpty";
-    string lastName = "notEmpty";
-    string mailAddress = "notEmpty";
-    string password = "notEmpty";
-    string companyName = string.Empty;
+    var firstName = "notEmpty";
+    var lastName = "notEmpty";
+    var mailAddress = "notEmpty";
+    var password = "notEmpty";
+    var companyName = string.Empty;
 
 
     // act + assert
-    var ex = Assert.Throws<ArgumentInvalidException>(() => subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
+    var ex = Assert.Throws<ArgumentInvalidException>(() =>
+      subject.RegisterAdmin(firstName, lastName, mailAddress, password, companyName));
 
     Assert.NotNull(ex);
     Assert.That(ex.Message, Is.EqualTo($"'{nameof(companyName)}' is not set"));

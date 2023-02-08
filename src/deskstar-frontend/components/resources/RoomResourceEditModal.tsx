@@ -162,7 +162,7 @@ const RoomResourceEditModal = ({
           )}
           <div className="flex justify-end">
             <button
-              className="btn bg-deskstar-green-dark text-black hover:bg-deskstar-green-light"
+              className="btn bg-primary text-black hover:bg-secondary"
               onClick={() => {
                 //check changes
                 if (roomName === "") {

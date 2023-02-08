@@ -1,5 +1,4 @@
 using Deskstar.Core.Exceptions;
-using Deskstar.Entities;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +11,9 @@ namespace Deskstar.Controllers;
 [Produces("text/plain")]
 public class AuthController : ControllerBase
 {
-  private readonly ILogger<AuthController> _logger;
   private readonly IAuthUsecases _authUsecases;
   private readonly IConfiguration _configuration;
+  private readonly ILogger<AuthController> _logger;
 
   public AuthController(ILogger<AuthController> logger, IAuthUsecases authUsecases, IConfiguration configuration)
   {
@@ -24,14 +23,13 @@ public class AuthController : ControllerBase
   }
 
   /// <summary>
-  /// Login functionality
+  ///   Login functionality
   /// </summary>
   /// <returns> JWT, if users is approved and psw is correct </returns>
   /// <remarks>
-  /// Sample request:
-  ///     Post /auth/createToken
+  ///   Sample request:
+  ///   Post /auth/createToken
   /// </remarks>
-  ///
   /// <response code="200">Login succesful </response>
   /// <response code="401">Credentials wrong or user not approved</response>
   [HttpPost("createToken")]
@@ -41,22 +39,18 @@ public class AuthController : ControllerBase
   public IActionResult CreateToken(CreateTokenUser user)
   {
     var returnValue = _authUsecases.CheckCredentials(user.MailAddress, user.Password);
-    if (returnValue.Message == LoginReturn.Ok)
-    {
-      return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
-    }
+    if (returnValue.Message == LoginReturn.Ok) return Ok(_authUsecases.CreateToken(_configuration, user.MailAddress));
 
     return Unauthorized(returnValue.Message.ToString());
   }
 
   /// <summary>
-  /// Register functionality
+  ///   Register functionality
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     Post /auth/register
+  ///   Sample request:
+  ///   Post /auth/register
   /// </remarks>
-  ///
   /// <response code="200">User added to db</response>
   /// <response code="400">Mail already in use</response>
   /// <response code="404">Company not found</response>
@@ -75,14 +69,14 @@ public class AuthController : ControllerBase
       _ => BadRequest(result.Message.ToString())
     };
   }
+
   /// <summary>
-  /// Register functionality
+  ///   Register functionality
   /// </summary>
   /// <remarks>
-  /// Sample request:
-  ///     Post /auth/registerAdmin
+  ///   Sample request:
+  ///   Post /auth/registerAdmin
   /// </remarks>
-  ///
   /// <response code="200">Admin added to db</response>
   /// <response code="400">Mail or Company name already in use</response>
   [HttpPost("registerAdmin")]
@@ -93,7 +87,10 @@ public class AuthController : ControllerBase
   {
     try
     {
-      var admin = _authUsecases.RegisterAdmin(registerAdmin.FirstName, registerAdmin.LastName, registerAdmin.MailAddress, registerAdmin.Password, registerAdmin.CompanyName);
+      var admin = _authUsecases.RegisterAdmin(registerAdmin.FirstName, registerAdmin.LastName,
+        registerAdmin.MailAddress, registerAdmin.Password, registerAdmin.CompanyName);
+      _authUsecases.SendInitialAdminEmail(_configuration["EMAIL:ADDRESS"], admin.Company.CompanyName,
+        admin.MailAddress);
       return Ok();
     }
     catch (ArgumentInvalidException e)
@@ -102,7 +99,7 @@ public class AuthController : ControllerBase
     }
     catch (Exception e)
     {
-      return Problem(statusCode: 500, detail:e.Message);
+      return Problem(statusCode: 500, detail: e.Message);
     }
   }
 }

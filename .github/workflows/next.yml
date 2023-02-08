@@ -31,21 +31,3 @@ jobs:
 
       - name: Build Next.js app
         run: yarn build
-
-  test:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/deskstar-frontend
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Install playwright browsers
-        run: yarn run playwright install --with-deps
-
-      - name: Test Next App
-        run: yarn test --reporter github

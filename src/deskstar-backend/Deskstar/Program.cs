@@ -7,17 +7,15 @@
  *
  * MIT License
  */
+
 using System.Text;
-using AutoMapper;
 using Deskstar;
 using Deskstar.Core;
-
 using Deskstar.DataAccess;
 using Deskstar.Helper;
 using Deskstar.Models;
 using Deskstar.Usecases;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -62,9 +60,10 @@ var dbPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_DB_PASS
 if (dbHost == null || dbDatabase == null || dbUsername == null || dbPassword == null)
 {
   Console.Error.WriteLine($"missing db configuration. database configuration has host({dbHost != null})," +
-  $"database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
+                          $"database name({dbDatabase != null}), username({dbUsername != null}), password({dbPassword != null})");
   return;
 }
+
 var emailPassword = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_PASSWORD) ?? null;
 var emailHost = builder.Configuration.GetValue<string>(Constants.CONFIG_EMAIL_HOST) ?? null;
 var emailPort = builder.Configuration.GetValue<int>(Constants.CONFIG_EMAIL_PORT);
@@ -76,7 +75,8 @@ if (emailPassword == null || emailHost == null || emailPort == 0 || emailUsernam
   return;
 }
 
-builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
+builder.Services.AddDbContext<DataContext>(options =>
+  options.UseNpgsql($"Host={dbHost};Database={dbDatabase};Username={dbUsername};Password={dbPassword}"));
 EmailHelper.SetMailPort(emailPort);
 EmailHelper.SetMailHost(emailHost);
 EmailHelper.SetMailUsername(emailUsername);
@@ -92,9 +92,9 @@ builder.Services.AddScoped<IResourceUsecases, ResourceUsecases>();
 var app = builder.Build();
 // global cors policy
 app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+  .AllowAnyOrigin()
+  .AllowAnyMethod()
+  .AllowAnyHeader());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
